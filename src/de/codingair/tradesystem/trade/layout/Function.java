@@ -1,0 +1,16 @@
+package de.codingair.tradesystem.trade.layout;
+
+public enum Function {
+    PLACEHOLDER,
+    PICK_MONEY,
+    SHOW_MONEY,
+    MONEY_REPLACEMENT,
+    PICK_STATUS_NONE,
+    PICK_STATUS_NOT_READY,
+    PICK_STATUS_READY,
+    SHOW_STATUS_NOT_READY,
+    SHOW_STATUS_READY,
+    CANCEL,
+    EMPTY_FIRST_TRADER,
+    EMPTY_SECOND_TRADER
+}
