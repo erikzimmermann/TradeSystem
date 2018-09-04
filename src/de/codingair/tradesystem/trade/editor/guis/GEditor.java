@@ -48,7 +48,7 @@ public class GEditor extends GUI {
                     switch(function) {
                         case EMPTY_FIRST_TRADER:
                         case EMPTY_SECOND_TRADER:
-                            if(e.getCurrentItem() == null || e.getCurrentItem().getType().equals(Material.AIR) || menu.getActionIcon(e.getSlot()).getFunction() == Function.EMPTY_FIRST_TRADER || menu.getActionIcon(e.getSlot()).getFunction() == Function.EMPTY_SECOND_TRADER) {
+                            if(e.getCurrentItem() == null || e.getCurrentItem().getType().equals(Material.AIR) || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_FIRST_TRADER || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_SECOND_TRADER) {
                                 e.setCancelled(false);
 
                                 switch(e.getAction()) {
@@ -61,14 +61,14 @@ public class GEditor extends GUI {
                                     case PLACE_ALL:
                                     case PLACE_ONE:
                                     case PLACE_SOME:
-                                        menu.getActionIcon(e.getSlot()).setFunction(function);
+                                        menu.getActionIcon(e.getSlot(), false).setFunction(function);
                                         break;
 
                                     case PICKUP_ALL:
                                     case PICKUP_HALF:
                                     case PICKUP_ONE:
                                     case PICKUP_SOME:
-                                        menu.getActionIcon(e.getSlot()).setFunction(null);
+                                        menu.getActionIcon(e.getSlot(), false).setFunction(null);
                                         break;
 
                                     default:
@@ -82,12 +82,15 @@ public class GEditor extends GUI {
                             break;
 
                         default:
-                            Item item = menu.getActionIcon(e.getSlot());
+                            Item item = menu.getActionIcon(e.getSlot(), false);
 
-                            if(item.getItem().getType().equals(Material.AIR)) {
+                            if(item.getItem().getType() == Material.AIR) {
                                 getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_No_Item"));
                                 return;
                             }
+
+                            Item old = menu.getItem(function);
+                            if(old != null) old.setFunction(null);
 
                             item.setFunction(function);
                             menu.reinitialize();
@@ -173,7 +176,7 @@ public class GEditor extends GUI {
                             e.setCancelled(false);
 
                             for(Integer i : e.getRawSlots()) {
-                                Item item = menu.getActionIcon(i);
+                                Item item = menu.getActionIcon(i, false);
                                 if(item == null) continue;
                                 item.setFunction(function);
                             }
@@ -203,13 +206,18 @@ public class GEditor extends GUI {
 
         for(Item item : menu.getItems()) {
             if(function == null) {
-                if(item.getFunction() == Function.EMPTY_FIRST_TRADER || item.getFunction() == Function.EMPTY_SECOND_TRADER) continue;
+                if(item.getFunction() != null && (item.getFunction() == Function.EMPTY_FIRST_TRADER || item.getFunction() == Function.EMPTY_SECOND_TRADER || item.getFunction().isAmbiguous()))
+                    continue;
                 setItem(item.getSlot(), item.getItem());
             } else {
                 if(item.getFunction() == null) {
                     setItem(item.getSlot(), item.getItem());
                 } else {
                     switch(item.getFunction()) {
+                        case DECORATION:
+                            setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).getItem());
+                            break;
+
                         case EMPTY_FIRST_TRADER:
                             setItem(item.getSlot(), new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setHideName(true).getItem());
                             break;

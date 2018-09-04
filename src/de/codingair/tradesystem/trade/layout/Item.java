@@ -45,8 +45,13 @@ public class Item {
         return function;
     }
 
-    public void setFunction(Function function) {
+    public Item setFunction(Function function) {
         this.function = function;
+        return this;
+    }
+
+    public Item clone() {
+        return new Item(slot, item, function);
     }
 
     public String toJSONString() {
