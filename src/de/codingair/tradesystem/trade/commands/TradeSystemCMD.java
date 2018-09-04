@@ -37,6 +37,20 @@ public class TradeSystemCMD extends CommandBuilder {
             }
         }, true);
 
+        getBaseComponent().addChild(new CommandComponent("reload") {
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String[] args) {
+                try {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Plugin_Reloading"));
+                    TradeSystem.getInstance().reload();
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Success_Plugin_Reloaded"));
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+                return false;
+            }
+        });
+
         getBaseComponent().addChild(new CommandComponent("layout") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
