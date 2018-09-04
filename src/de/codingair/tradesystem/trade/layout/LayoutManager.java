@@ -27,14 +27,18 @@ public class LayoutManager {
 
         List<String> dataList = config.getStringList("Layouts");
 
-        if(dataList == null) return;
+        int amount = this.layouts.size();
 
-        for(String data : dataList) {
-            AbstractPattern ap = AbstractPattern.getFromJSONString(data);
-            if(ap != null) this.layouts.add(ap);
+        if(dataList != null) {
+            for(String data : dataList) {
+                AbstractPattern ap = AbstractPattern.getFromJSONString(data);
+                if(ap != null) this.layouts.add(ap);
+            }
         }
 
-        TradeSystem.log("    ...got " + this.layouts.size() + " layout(s)");
+        setActive(getPattern(config.getString("Active", null)));
+
+        TradeSystem.log("    ...got " + (this.layouts.size() - amount) + " layout(s)");
     }
 
     public void save() {
@@ -50,12 +54,15 @@ public class LayoutManager {
         }
 
         config.set("Layouts", data);
+        config.set("Active", this.active.getName());
         file.saveConfig();
 
         TradeSystem.log("    ...saved " + data.size() + " layout(s)");
     }
 
     public AbstractPattern getPattern(String name) {
+        if(name == null) return null;
+
         for(AbstractPattern layout : this.layouts) {
             if(layout.getName().equals(name)) return layout;
         }
@@ -77,6 +84,7 @@ public class LayoutManager {
     }
 
     public void setActive(Pattern active) {
+        if(active == null) return;
         this.active = active;
     }
 
