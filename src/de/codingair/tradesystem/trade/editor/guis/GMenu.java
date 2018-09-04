@@ -36,18 +36,37 @@ public class GMenu extends GUI {
     private Menu menu;
     private boolean changed = false;
 
+    private AbstractPattern editing;
     private String name = null;
     private List<Item> items = new ArrayList<>();
 
     public GMenu(Player p) {
-        this(p, null);
+        this(p, null, null);
+    }
+
+    public GMenu(Player p, AbstractPattern pattern) {
+        this(p, pattern, null);
     }
 
     public GMenu(Player p, Menu page) {
+        this(p, null, page);
+    }
+
+    public GMenu(Player p, AbstractPattern pattern, Menu page) {
         super(p, Lang.get("Layout_Editor"), 27, TradeSystem.getInstance(), false);
 
         this.menu = page == null ? Menu.MAIN : page;
         setMoveOwnItems(true);
+
+        if(pattern != null) {
+            this.editing = pattern;
+            this.name = pattern.getName();
+            this.items = new ArrayList<>(pattern.getItems());
+        } else {
+            for(int i = 0; i < 54; i++) {
+                this.items.add(new Item(i, new ItemStack(Material.AIR), null));
+            }
+        }
 
         addListener(new GUIListener() {
             @Override
@@ -140,10 +159,17 @@ public class GMenu extends GUI {
                             if(item.getFunction() == null) item.setFunction(Function.DECORATION);
                         }
 
-                        AbstractPattern ap = new AbstractPattern(items, name);
-                        TradeSystem.getInstance().getLayoutManager().addPattern(ap);
-                        p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Finished"));
-                        TradeSystem.getInstance().getLayoutManager().setAvailable(name, true);
+                        if(editing == null) {
+                            AbstractPattern ap = new AbstractPattern(items, name);
+                            TradeSystem.getInstance().getLayoutManager().addPattern(ap);
+                            TradeSystem.getInstance().getLayoutManager().setAvailable(name, true);
+                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Finished"));
+                        } else {
+                            editing.setName(name);
+                            editing.getItems().clear();
+                            editing.getItems().addAll(items);
+                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Edited"));
+                        }
                     }
                 }.setOption(option).setCloseOnClick(true));
             } else {
@@ -213,10 +239,18 @@ public class GMenu extends GUI {
                             @Override
                             public void accept(List<Item> list) {
                                 if(list != null && !list.isEmpty()) {
-                                    GMenu.this.items.clear();
-                                    GMenu.this.items.addAll(list);
-                                    changed = true;
+                                    for(int i = 0; i < 54; i++) {
+                                        Item base = getItemOf(GMenu.this.items, i);
+                                        Item toCompare = GMenu.this.getItemOf(list, i);
+
+                                        if((base.getItem() == null && toCompare.getItem() != null) || !base.getItem().isSimilar(toCompare.getItem())) {
+                                            GMenu.this.items.remove(base);
+                                            GMenu.this.items.add(toCompare);
+                                            changed = true;
+                                        }
+                                    }
                                 }
+
                                 reinitialize();
                                 open();
                             }
@@ -360,11 +394,6 @@ public class GMenu extends GUI {
                     addButton(new ItemButton(1 + i, 2, builder.getItem()) {
                         @Override
                         public void onClick(InventoryClickEvent e) {
-                            if(value != Function.EMPTY_FIRST_TRADER && value != Function.EMPTY_SECOND_TRADER) {
-                                Item current = GMenu.this.getItem(value);
-                                if(current != null) current.setFunction(null);
-                            }
-
                             changeGUI(new GEditor(p, GMenu.this, value, new Callback<List<Item>>() {
                                 @Override
                                 public void accept(List<Item> list) {
@@ -385,8 +414,8 @@ public class GMenu extends GUI {
                 break;
 
             case AMBIGUOUS_FUNCTIONS:
-                ItemStack headR = new ItemStack(Head.GRAY_ARROW_RIGHT.getItem());
-                ItemStack headL = new ItemStack(Head.GRAY_ARROW_LEFT.getItem());
+                ItemStack headR = new ItemBuilder(new ItemStack(Head.GRAY_ARROW_RIGHT.getItem())).setHideName(true).getItem();
+                ItemStack headL = new ItemBuilder(new ItemStack(Head.GRAY_ARROW_LEFT.getItem())).setHideName(true).getItem();
 
                 setItem(2, 0, new ItemStack(Material.AIR));
                 setItem(6, 0, new ItemStack(Material.AIR));
@@ -402,6 +431,15 @@ public class GMenu extends GUI {
                 setItem(8, 2, new ItemBuilder(XMaterial.LIME_TERRACOTTA).setName("§8" + Lang.get("Other") + " ~ §7" + Lang.get("Status") + ": §a" + Lang.get("Ready")).getItem());
 
                 setEditableSlots(true, 11, 15, 20, 24);
+
+                Item item = getItem(Function.PICK_STATUS_NOT_READY);
+                if(item != null) setItem(11, item.getItem());
+                item = getItem(Function.PICK_STATUS_READY);
+                if(item != null) setItem(20, item.getItem());
+                item = getItem(Function.MONEY_REPLACEMENT);
+                if(item != null) setItem(15, item.getItem());
+                item = getItem(Function.SHOW_STATUS_READY);
+                if(item != null) setItem(24, item.getItem());
                 break;
 
             case CLOSE:
@@ -426,6 +464,15 @@ public class GMenu extends GUI {
         }
     }
 
+    private Item getItemOf(List<Item> list, int slot) {
+        for(Item item : list) {
+            if(item.getFunction() != null && item.getFunction().isAmbiguous()) continue;
+            if(item.getSlot() == slot) return item;
+        }
+
+        return null;
+    }
+
     public enum Menu {
         MAIN, FUNCTIONS, AMBIGUOUS_FUNCTIONS, CLOSE
     }
@@ -443,7 +490,9 @@ public class GMenu extends GUI {
     private boolean functionsReady() {
         for(Function f : Function.values()) {
             if(!f.isFunction() || f.isAmbiguous()) continue;
-            if(getItem(f) == null) return false;
+            if(getItem(f) == null) {
+                return false;
+            }
         }
 
         return getAmountOf(Function.EMPTY_FIRST_TRADER) == getAmountOf(Function.EMPTY_SECOND_TRADER);
@@ -491,9 +540,17 @@ public class GMenu extends GUI {
         return null;
     }
 
-    public Item getActionIcon(int slot) {
+    public Item getActionIcon(int slot, boolean ambiguous) {
         for(Item item : this.items) {
-            if(item.getSlot() == slot) return item;
+            if(ambiguous) {
+                if(item.getFunction() != null && item.getFunction().isAmbiguous()) {
+                    if(item.getSlot() == slot) return item;
+                }
+            } else {
+                if(item.getFunction() == null || !item.getFunction().isAmbiguous()) {
+                    if(item.getSlot() == slot) return item;
+                }
+            }
         }
 
         return null;

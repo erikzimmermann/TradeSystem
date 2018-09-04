@@ -59,10 +59,46 @@ public class TradeSystemCMD extends CommandBuilder {
             }
         });
 
-        getComponent("layout").addChild(new CommandComponent("editor") {
+        getComponent("layout").addChild(new CommandComponent("create") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 new GMenu((Player) sender).open();
+                return false;
+            }
+        });
+
+        getComponent("layout").addChild(new CommandComponent("edit") {
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String[] args) {
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Edit").replace("%LABEL%", label));
+                return false;
+            }
+        });
+
+        getComponent("layout", "edit").addChild(new MultiCommandComponent() {
+            @Override
+            public void addArguments(CommandSender sender, List<String> suggestions) {
+                for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
+                    if(layout.isStandard()) continue;
+                    suggestions.add(layout.getName());
+                }
+            }
+
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                AbstractPattern pattern = TradeSystem.getInstance().getLayoutManager().getPattern(argument);
+
+                if(pattern == null) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
+                    return false;
+                }
+
+                if(pattern.isStandard()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Edit_Standard"));
+                    return false;
+                }
+
+                new GMenu((Player) sender, pattern).open();
                 return false;
             }
         });
@@ -115,6 +151,7 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, List<String> suggestions) {
                 for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
+                    if(layout.isStandard()) continue;
                     suggestions.add(layout.getName());
                 }
             }
