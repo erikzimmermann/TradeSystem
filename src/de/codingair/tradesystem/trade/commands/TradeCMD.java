@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.trade;
+package de.codingair.tradesystem.trade.commands;
 
 import de.codingair.codingapi.server.commands.BaseComponent;
 import de.codingair.codingapi.server.commands.CommandBuilder;

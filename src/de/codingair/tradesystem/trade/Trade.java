@@ -5,7 +5,7 @@ import de.codingair.codingapi.server.Sound;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Function;
 import de.codingair.tradesystem.trade.layout.Item;
-import de.codingair.tradesystem.trade.layout.Pattern;
+import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import org.bukkit.Material;
@@ -32,41 +32,10 @@ public class Trade {
         Pattern layout = TradeSystem.getInstance().getLayoutManager().getActive();
 
         for(Item item : layout.getItems()) {
+            if(item == null || item.getFunction() == null) continue;
             if(item.getFunction().equals(Function.EMPTY_FIRST_TRADER)) slots.add(item.getSlot());
             else if(item.getFunction().equals(Function.EMPTY_SECOND_TRADER)) otherSlots.add(item.getSlot());
         }
-
-//        slots.add(9);
-//        slots.add(10);
-//        slots.add(18);
-//        slots.add(19);
-//        slots.add(27);
-//        slots.add(28);
-//        slots.add(29);
-//        slots.add(36);
-//        slots.add(37);
-//        slots.add(38);
-//        slots.add(39);
-//        slots.add(45);
-//        slots.add(46);
-//        slots.add(47);
-//        slots.add(48);
-//
-//        otherSlots.add(17);
-//        otherSlots.add(16);
-//        otherSlots.add(26);
-//        otherSlots.add(25);
-//        otherSlots.add(35);
-//        otherSlots.add(34);
-//        otherSlots.add(33);
-//        otherSlots.add(44);
-//        otherSlots.add(43);
-//        otherSlots.add(42);
-//        otherSlots.add(41);
-//        otherSlots.add(53);
-//        otherSlots.add(52);
-//        otherSlots.add(51);
-//        otherSlots.add(50);
     }
 
     boolean[] getReady() {

@@ -1,9 +1,11 @@
 package de.codingair.tradesystem.trade.layout.layouts;
 
-import de.codingair.codingapi.tools.ItemBuilder;
+import de.codingair.codingapi.tools.items.ItemBuilder;
+import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.trade.layout.Function;
 import de.codingair.tradesystem.trade.layout.Item;
-import de.codingair.tradesystem.trade.layout.Pattern;
+import de.codingair.tradesystem.trade.layout.utils.AbstractPattern;
+import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -11,7 +13,11 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Standard implements Pattern {
+public class Standard extends AbstractPattern implements Pattern{
+    public Standard() {
+        super(null, null);
+    }
+
     @Override
     public String getName() {
         return "Standard";
@@ -19,39 +25,38 @@ public class Standard implements Pattern {
 
     @Override
     public List<Item> getItems() {
-        ItemStack blackStained = new ItemBuilder(Material.STAINED_GLASS_PANE).setColor(DyeColor.BLACK).getItem();
-        ItemStack grayStained = new ItemBuilder(Material.STAINED_GLASS_PANE).setColor(DyeColor.GRAY).getItem();
-        ItemStack flower = new ItemBuilder(Material.YELLOW_FLOWER).getItem();
+        ItemStack blackStained = new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).getItem();
+        ItemStack grayStained = new ItemBuilder(XMaterial.GRAY_STAINED_GLASS_PANE).getItem();
+        ItemStack flower = new ItemBuilder(XMaterial.SUNFLOWER).getItem();
         ItemStack barrier = new ItemBuilder(Material.BARRIER).getItem();
 
-        ItemBuilder status = new ItemBuilder(Material.STAINED_CLAY);
-        ItemStack status_none = status.setColor(DyeColor.SILVER).getItem();
-        ItemStack status_ready = status.setColor(DyeColor.LIME).getItem();
-        ItemStack status_not_ready = status.setColor(DyeColor.RED).getItem();
+        ItemStack status_none = new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA).getItem();
+        ItemStack status_ready = new ItemBuilder(XMaterial.LIME_TERRACOTTA).getItem();
+        ItemStack status_not_ready = new ItemBuilder(XMaterial.RED_TERRACOTTA).getItem();
 
 
         List<Item> items = new ArrayList<>();
 
-        items.add(new Item(0, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(1, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(2, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(6, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(7, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(8, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(11, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(20, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(21, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(30, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(31, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(32, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(23, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(24, blackStained, Function.PLACEHOLDER));
-        items.add(new Item(15, blackStained, Function.PLACEHOLDER));
+        items.add(new Item(0, blackStained, Function.DECORATION));
+        items.add(new Item(1, blackStained, Function.DECORATION));
+        items.add(new Item(2, blackStained, Function.DECORATION));
+        items.add(new Item(6, blackStained, Function.DECORATION));
+        items.add(new Item(7, blackStained, Function.DECORATION));
+        items.add(new Item(8, blackStained, Function.DECORATION));
+        items.add(new Item(11, blackStained, Function.DECORATION));
+        items.add(new Item(20, blackStained, Function.DECORATION));
+        items.add(new Item(21, blackStained, Function.DECORATION));
+        items.add(new Item(30, blackStained, Function.DECORATION));
+        items.add(new Item(31, blackStained, Function.DECORATION));
+        items.add(new Item(32, blackStained, Function.DECORATION));
+        items.add(new Item(23, blackStained, Function.DECORATION));
+        items.add(new Item(24, blackStained, Function.DECORATION));
+        items.add(new Item(15, blackStained, Function.DECORATION));
         
-        items.add(new Item(4, grayStained, Function.PLACEHOLDER));
-        items.add(new Item(13, grayStained, Function.PLACEHOLDER));
-        items.add(new Item(40, grayStained, Function.PLACEHOLDER));
-        items.add(new Item(49, grayStained, Function.PLACEHOLDER));
+        items.add(new Item(4, grayStained, Function.DECORATION));
+        items.add(new Item(13, grayStained, Function.DECORATION));
+        items.add(new Item(40, grayStained, Function.DECORATION));
+        items.add(new Item(49, grayStained, Function.DECORATION));
         
         items.add(new Item(22, barrier, Function.CANCEL));
         items.add(new Item(3, flower, Function.PICK_MONEY));
@@ -99,5 +104,10 @@ public class Standard implements Pattern {
         items.add(new Item(50, null, Function.EMPTY_SECOND_TRADER));
 
         return items;
+    }
+
+    @Override
+    public boolean isStandard() {
+        return true;
     }
 }
