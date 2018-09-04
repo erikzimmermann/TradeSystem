@@ -18,6 +18,7 @@ public class LayoutManager {
     public void load() {
         this.layouts.clear();
 
+        TradeSystem.log("  > Loading layouts");
         this.layouts.add(new Standard());
         this.active = getPattern("Standard");
 
@@ -33,10 +34,11 @@ public class LayoutManager {
             if(ap != null) this.layouts.add(ap);
         }
 
-        System.out.println("Got " + this.layouts.size() + " layouts!");
+        TradeSystem.log("    ...got " + this.layouts.size() + " layout(s)");
     }
 
     public void save() {
+        TradeSystem.log("  > Saving layouts");
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
 
@@ -49,6 +51,8 @@ public class LayoutManager {
 
         config.set("Layouts", data);
         file.saveConfig();
+
+        TradeSystem.log("    ...saved " + data.size() + " layout(s)");
     }
 
     public AbstractPattern getPattern(String name) {
