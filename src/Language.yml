@@ -83,7 +83,7 @@ ENG:
   Sure_That_You_Want_To_Loose_Your_Data: "&7Are you sure that you &cdon't &7want to &csave &7your changes?"
   Close: "Close"
   Cannot_Delete_Standard: "&7You cannot &cdelete &7a &cstandard &7layout!"
-  Layout_Already_Activated: "&7This layout &cwas already acitvated&7!"
+  Layout_Already_Activated: "&7This layout &cwas already activated&7!"
   Layout_Set_Replacement_For_Money: "&7Icon, which &ereplaces the money icon&7, when &eno economy plugin &7is detected."
   Layout_Hint_Same_Slot_Amount: "&7Both traders &cmust have &7the &csame amount of slots&7!"
   Current_Amount: "Current amount"

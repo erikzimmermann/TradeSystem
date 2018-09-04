@@ -139,7 +139,7 @@ public class TradingGUI extends GUI {
 
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin").replace("%COINS%", "1") : Lang.get("Only_X_Coin").replace("%COINS%", "1")));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin").replace("%COIN%", max + "") : Lang.get("Only_X_Coins").replace("%COINS%", max + "")));
                                         return;
                                     }
 
@@ -188,7 +188,7 @@ public class TradingGUI extends GUI {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(!canFinish) {
                     ready.setText("§c" + Lang.get("Trade_Only_With_Objects"), TextAlignment.LEFT, 150);
-                    setItem(3, 1, ready.getItem());
+                    setItem(item.getSlot(), ready.getItem());
                 }
                 break;
             }
@@ -243,14 +243,14 @@ public class TradingGUI extends GUI {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(trade.getReady()[trade.getOtherId(id)]) return;
                 else ready.setName("§7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
-                setItem(5, 1, ready.getItem());
+                setItem(item.getSlot(), ready.getItem());
             }
 
             case SHOW_STATUS_READY: {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(trade.getReady()[trade.getOtherId(id)]) ready.setColor(DyeColor.LIME).setName("§7" + Lang.get("Status") + ": §a" + Lang.get("Ready"));
                 else return;
-                setItem(5, 1, ready.getItem());
+                setItem(item.getSlot(), ready.getItem());
             }
 
             case CANCEL: {
