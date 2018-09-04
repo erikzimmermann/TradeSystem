@@ -6,11 +6,11 @@ import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButtonOption;
 import de.codingair.codingapi.server.Sound;
-import de.codingair.codingapi.tools.ItemBuilder;
+import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.utils.TextAlignment;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Item;
-import de.codingair.tradesystem.trade.layout.Pattern;
+import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.money.AdapterType;
 import org.bukkit.Bukkit;
@@ -90,12 +90,14 @@ public class TradingGUI extends GUI {
     }
 
     private void handleItem(Item item) {
+        if(item == null || item.getFunction() == null) return;
+
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
         option.setClickSound(Sound.CLICK.bukkitSound());
 
         switch(item.getFunction()) {
-            case PLACEHOLDER: {
+            case DECORATION: {
                 setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).getItem());
                 break;
             }
