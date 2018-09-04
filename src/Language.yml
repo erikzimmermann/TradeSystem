@@ -87,6 +87,7 @@ ENG:
   Layout_Set_Replacement_For_Money: "&7Icon, which &ereplaces the money icon&7, when &eno economy plugin &7is detected."
   Layout_Hint_Same_Slot_Amount: "&7Both traders &cmust have &7the &csame amount of slots&7!"
   Current_Amount: "Current amount"
+  Trade_Spam: "&7This player has &calready received a trade request&7!"
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -174,3 +175,4 @@ GER:
   Layout_Set_Replacement_For_Money: "&7Symbol, welches das &eGeld-Symbol ersetzt&7, falls &ekein Economy Plugin &7erkannt wird."
   Layout_Hint_Same_Slot_Amount: "&7Beide Händler &cmüssen gleich viele Slots haben&7!"
   Current_Amount: "Aktuelle Anzahl"
+  Trade_Spam: "&7Dieser Spieler &chat bereits eine Handelsanfrage erhalten&7!"
