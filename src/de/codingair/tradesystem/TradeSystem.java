@@ -1,9 +1,13 @@
 package de.codingair.tradesystem;
 
+import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
-import de.codingair.tradesystem.trade.Trade;
-import de.codingair.tradesystem.trade.TradeCMD;
+import de.codingair.codingapi.server.Version;
+import de.codingair.codingapi.time.Timer;
 import de.codingair.tradesystem.trade.TradeManager;
+import de.codingair.tradesystem.trade.commands.TradeCMD;
+import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
+import de.codingair.tradesystem.trade.layout.LayoutManager;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
@@ -13,17 +17,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TradeSystem extends JavaPlugin {
-    public static final String PERMISSION_NOTIFY = "WarpSystem.Notify";
+    public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
+    public static final String PERMISSION_MODIFY = "TradeSystem.Modify";
 
     private static TradeSystem instance;
+    private LayoutManager layoutManager = new LayoutManager();
     private TradeManager tradeManager = new TradeManager();
     private FileManager fileManager = new FileManager(this);
+
     private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
+    private Timer timer = new Timer();
 
     @Override
     public void onEnable() {
+        API.getInstance().onEnable(this);
         instance = this;
+
+        timer.start();
 
         this.needsUpdate = updateChecker.needsUpdate();
 
@@ -37,20 +48,65 @@ public class TradeSystem extends JavaPlugin {
             log("Download it on\n\n" + updateChecker.getDownload() + "\n");
         }
         log(" ");
-        log("__________________________________________________________");
+        log("Status:");
+        log(" ");
+        log("MC-Version: " + Version.getVersion().getVersionName());
         log(" ");
 
+        if(this.fileManager.getFile("Language") == null) this.fileManager.loadFile("Language", "/");
+        if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
+        this.fileManager.loadAll();
+
+        this.layoutManager.load();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
-        this.fileManager.loadFile("Language", "/");
+
         new TradeCMD().register(this);
+        new TradeSystemCMD().register(this);
+
+        timer.stop();
+        log(" ");
+        log("Done (" + timer.getLastStoppedTime() + "s)");
+        log(" ");
+        log("__________________________________________________________");
+        log(" ");
 
         notifyPlayers(null);
     }
 
     @Override
     public void onDisable() {
+        timer.start();
+
+        log(" ");
+        log("__________________________________________________________");
+        log(" ");
+        log("                       TradeSystem [" + getDescription().getVersion() + "]");
+        if(needsUpdate) {
+            log(" ");
+            log("New update available [v" + updateChecker.getVersion() + " - " + TradeSystem.this.updateChecker.getUpdateInfo() + "]. Download it on \n\n" + updateChecker.getDownload() + "\n");
+        }
+        log(" ");
+        log("Status:");
+        log(" ");
+        log("MC-Version: " + Version.getVersion().name());
+        log(" ");
+        log("  > Cancelling all active trades");
         this.tradeManager.cancelAll();
+        this.layoutManager.save();
+        API.getInstance().onDisable(this);
+
+        timer.stop();
+        log(" ");
+        log("Done (" + timer.getLastStoppedTime() + "s)");
+        log(" ");
+        log("__________________________________________________________");
+        log(" ");
+    }
+
+    public void reload() {
+        Bukkit.getPluginManager().disablePlugin(this);
+        Bukkit.getPluginManager().enablePlugin(this);
     }
 
     public static void log(String message) {
@@ -83,6 +139,10 @@ public class TradeSystem extends JavaPlugin {
 
     public TradeManager getTradeManager() {
         return tradeManager;
+    }
+
+    public LayoutManager getLayoutManager() {
+        return layoutManager;
     }
 
     public FileManager getFileManager() {

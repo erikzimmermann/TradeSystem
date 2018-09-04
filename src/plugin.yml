@@ -1,11 +1,16 @@
 name: TradeSystem
 author: CodingAir
-version: 1.0.0
+version: 1.0.1
 description: TradeSystem by CodingAir
 main: de.codingair.tradesystem.TradeSystem
 softdepend: [Vault, Essentials]
+api-version: 1.13
 
 commands:
   trade:
     usuage: /trade <Player, Accept, Deny>
     description: Trade-System-CMD
+  tradesystem:
+    usuage: /tradesystem
+    description: Trade-System-CMD
+    aliases: [ts]

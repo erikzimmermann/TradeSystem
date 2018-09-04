@@ -12,6 +12,8 @@ public class Essentials implements Adapter {
     public double getMoney(Player player) {
         if(!Bukkit.getPluginManager().isPluginEnabled("Essentials")) return 0;
 
+        if(!Economy.playerExists(player.getName())) return 0;
+
         try {
             return Economy.getMoney(player.getName());
         } catch(UserDoesNotExistException e) {
@@ -24,8 +26,10 @@ public class Essentials implements Adapter {
     public void setMoney(Player player, double amount) {
         if(!Bukkit.getPluginManager().isPluginEnabled("Essentials")) return;
 
+        if(!Economy.playerExists(player.getName())) Economy.createNPC(player.getName());
+
         try {
-            Economy.setMoney(player.getDisplayName(), amount);
+            Economy.setMoney(player.getName(), amount);
         } catch(UserDoesNotExistException | NoLoanPermittedException e) {
             e.printStackTrace();
         }
