@@ -4,6 +4,7 @@ import de.codingair.codingapi.server.commands.BaseComponent;
 import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.server.commands.CommandComponent;
 import de.codingair.codingapi.server.commands.MultiCommandComponent;
+import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.Lang;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class TradeCMD extends CommandBuilder {
     private static String PERMISSION = "TradeSystem.Trade";
-    private TimeMap<String, List<String>> invites = new TimeMap<>();
+    private TimeMap<String, TimeList<String>> invites = new TimeMap<>();
 
     public TradeCMD() {
         super("Trade", new BaseComponent(PERMISSION) {
@@ -121,8 +122,8 @@ public class TradeCMD extends CommandBuilder {
 
                     l.remove(argument);
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied"));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
                 } else {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found"));
                 }
@@ -137,6 +138,9 @@ public class TradeCMD extends CommandBuilder {
             public void addArguments(CommandSender sender, List<String> suggestions) {
                 for(Player player : Bukkit.getOnlinePlayers()) {
                     if(player.getName().equals(sender.getName())) continue;
+
+                    TimeList<String> l = invites.get(player.getName());
+                    if(l != null && l.contains(sender.getName())) continue;
                     suggestions.add(player.getName());
                 }
             }
@@ -158,12 +162,15 @@ public class TradeCMD extends CommandBuilder {
                     return false;
                 }
 
-                List<String> l = invites.remove(argument);
-                if(l == null) l = new ArrayList<>();
+                TimeList<String> l = invites.get(argument);
+                if(l != null && l.contains(sender.getName())) {
+                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
+                    return false;
+                }
 
-                l.add(sender.getName());
+                if(l == null) l = new TimeList<>();
+                l.add(sender.getName(), 60);
                 invites.put(argument, l, 60);
-
 
                 List<TextComponent> parts = new ArrayList<>();
 
@@ -201,11 +208,8 @@ public class TradeCMD extends CommandBuilder {
                     basic.addExtra(part);
                 }
 
-                System.out.println(basic.toLegacyText());
-
                 Bukkit.getPlayer(argument).spigot().sendMessage(basic);
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", Bukkit.getPlayer(argument).getName()));
-
                 return false;
             }
         });
