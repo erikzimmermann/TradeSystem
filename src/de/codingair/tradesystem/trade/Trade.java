@@ -91,8 +91,8 @@ public class Trade {
         this.guis[0].open();
         this.guis[1].open();
 
-        this.players[0].playSound(this.players[0].getLocation(), Sound.ORB_PICKUP.bukkitSound(), 0.6F, 1);
-        this.players[1].playSound(this.players[1].getLocation(), Sound.ORB_PICKUP.bukkitSound(), 0.6F, 1);
+        Sound.LEVEL_UP.playSound(this.players[0], 0.6F, 1F);
+        Sound.LEVEL_UP.playSound(this.players[1], 0.6F, 1F);
     }
 
     void cancel() {

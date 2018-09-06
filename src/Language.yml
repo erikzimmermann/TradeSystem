@@ -93,6 +93,7 @@ ENG:
   Trade_Spam: "&7This player has &calready received a trade request&7!"
   Plugin_Reloading: "&cThe plugin will be reloaded now..."
   Success_Plugin_Reloaded: "&aThe plugin has been reloaded."
+  Player_is_not_in_range: "&7The player &c%PLAYER% &7is &cnot in range&7!"
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -186,3 +187,4 @@ GER:
   Trade_Spam: "&7Dieser Spieler &chat bereits eine Handelsanfrage erhalten&7!"
   Plugin_Reloading: "&cDas Plugin wird jetzt neu geladen..."
   Success_Plugin_Reloaded: "&aDas Plugin wurde neu geladen."
+  Player_is_not_in_range: "&7Der Spieler &c%PLAYER% &7ist &cnicht in Reichweite&7!"

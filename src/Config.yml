@@ -1,2 +1,5 @@
 TradeSystem:
   Request_Cooldown_In_Sek: 60
+  Trade_Distance:
+    enabled: true
+    distance_in_blocks: 50

@@ -163,6 +163,16 @@ public class TradeCMD extends CommandBuilder {
                     return false;
                 }
 
+                if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
+                    Player p = (Player) sender;
+                    Player other = Bukkit.getPlayer(argument);
+
+                    if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
+                        sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range").replace("%PLAYER%", other.getName()));
+                        return false;
+                    }
+                }
+
                 TimeList<String> l = invites.get(argument);
                 if(l != null && l.contains(sender.getName())) {
                     sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
@@ -214,5 +224,9 @@ public class TradeCMD extends CommandBuilder {
                 return false;
             }
         });
+    }
+
+    public TimeMap<String, TimeList<String>> getInvites() {
+        return invites;
     }
 }
