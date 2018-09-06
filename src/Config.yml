@@ -3,3 +3,6 @@ TradeSystem:
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50
+  Action_To_Request:
+    Rightclick: false
+    Shiftclick: true
