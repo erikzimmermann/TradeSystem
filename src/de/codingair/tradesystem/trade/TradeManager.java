@@ -14,6 +14,9 @@ public class TradeManager {
     private int cooldown = 60;
     private int distance = 50;
 
+    private boolean requestOnRightclick = false;
+    private boolean shiftclick = false;
+
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
@@ -32,6 +35,9 @@ public class TradeManager {
                 save = true;
             }
         } else this.distance = -1;
+
+        this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
+        this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
 
         if(save) file.saveConfig();
     }
@@ -64,5 +70,13 @@ public class TradeManager {
 
     public int getDistance() {
         return distance;
+    }
+
+    public boolean isRequestOnRightclick() {
+        return requestOnRightclick;
+    }
+
+    public boolean isShiftclick() {
+        return shiftclick;
     }
 }

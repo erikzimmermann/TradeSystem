@@ -8,12 +8,14 @@ import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.trade.layout.LayoutManager;
+import de.codingair.tradesystem.trade.listeners.TradeListener;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TradeSystem extends JavaPlugin {
@@ -63,6 +65,7 @@ public class TradeSystem extends JavaPlugin {
         this.layoutManager.load();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TradeListener(), this);
 
         tradeCMD = new TradeCMD();
         tradeCMD.register(this);
@@ -99,6 +102,7 @@ public class TradeSystem extends JavaPlugin {
         this.tradeManager.cancelAll();
         this.layoutManager.save();
         API.getInstance().onDisable(this);
+        HandlerList.unregisterAll(this);
 
         timer.stop();
         log(" ");
