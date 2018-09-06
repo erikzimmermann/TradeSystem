@@ -28,6 +28,7 @@ public class TradeSystem extends JavaPlugin {
     private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
     private Timer timer = new Timer();
+    private TradeCMD tradeCMD;
 
     @Override
     public void onEnable() {
@@ -63,7 +64,8 @@ public class TradeSystem extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
 
-        new TradeCMD().register(this);
+        tradeCMD = new TradeCMD();
+        tradeCMD.register(this);
         new TradeSystemCMD().register(this);
 
         timer.stop();
@@ -153,5 +155,9 @@ public class TradeSystem extends JavaPlugin {
 
     public boolean needsUpdate() {
         return needsUpdate;
+    }
+
+    public TradeCMD getTradeCMD() {
+        return tradeCMD;
     }
 }
