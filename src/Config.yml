@@ -6,3 +6,5 @@ TradeSystem:
   Action_To_Request:
     Rightclick: false
     Shiftclick: true
+  Allowed_GameModes:
+  - SURVIVAL

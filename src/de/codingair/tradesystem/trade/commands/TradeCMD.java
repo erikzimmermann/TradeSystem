@@ -148,21 +148,6 @@ public class TradeCMD extends CommandBuilder {
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                if(argument.equals(sender.getName())) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
-                    return false;
-                }
-
-                if(Bukkit.getPlayer(argument) == null) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
-                    return false;
-                }
-
-                if(!Bukkit.getPlayer(argument).hasPermission(PERMISSION)) {
-                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
-                    return false;
-                }
-
                 request((Player) sender, Bukkit.getPlayer(argument));
                 return false;
             }
@@ -170,6 +155,26 @@ public class TradeCMD extends CommandBuilder {
     }
     
     public static void request(Player p, Player other) {
+        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
+            return;
+        }
+
+        if(other == null) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
+            return;
+        }
+
+        if(other.getName().equals(p.getName())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
+            return;
+        }
+
+        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
+            return;
+        }
+
         if(!other.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
             return;

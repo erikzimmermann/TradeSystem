@@ -2,6 +2,7 @@ package de.codingair.tradesystem.trade;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -16,6 +17,7 @@ public class TradeManager {
 
     private boolean requestOnRightclick = false;
     private boolean shiftclick = false;
+    private List<String> allowedGameModes = new ArrayList<>();
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -38,6 +40,10 @@ public class TradeManager {
 
         this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
         this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
+
+        this.allowedGameModes.clear();
+        this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
+        if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
 
         if(save) file.saveConfig();
     }
@@ -78,5 +84,9 @@ public class TradeManager {
 
     public boolean isShiftclick() {
         return shiftclick;
+    }
+
+    public List<String> getAllowedGameModes() {
+        return allowedGameModes;
     }
 }
