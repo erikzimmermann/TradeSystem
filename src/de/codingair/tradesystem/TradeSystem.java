@@ -53,10 +53,12 @@ public class TradeSystem extends JavaPlugin {
         log("MC-Version: " + Version.getVersion().getVersionName());
         log(" ");
 
+        this.fileManager.loadAll();
+        if(this.fileManager.getFile("Config") == null) this.fileManager.loadFile("Config", "/");
         if(this.fileManager.getFile("Language") == null) this.fileManager.loadFile("Language", "/");
         if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
-        this.fileManager.loadAll();
 
+        this.tradeManager.load();
         this.layoutManager.load();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);

@@ -5,6 +5,7 @@ import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.server.commands.CommandComponent;
 import de.codingair.codingapi.server.commands.MultiCommandComponent;
 import de.codingair.codingapi.tools.time.TimeList;
+import de.codingair.codingapi.tools.time.TimeListener;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.Lang;
@@ -169,8 +170,8 @@ public class TradeCMD extends CommandBuilder {
                 }
 
                 if(l == null) l = new TimeList<>();
-                l.add(sender.getName(), 60);
-                invites.put(argument, l, 60);
+                l.add(sender.getName(), TradeSystem.getInstance().getTradeManager().getCooldown());
+                invites.put(argument, l, TradeSystem.getInstance().getTradeManager().getCooldown());
 
                 List<TextComponent> parts = new ArrayList<>();
 
