@@ -5,6 +5,7 @@ import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.server.commands.CommandComponent;
 import de.codingair.codingapi.server.commands.MultiCommandComponent;
 import de.codingair.codingapi.tools.time.TimeList;
+import de.codingair.codingapi.tools.time.TimeListener;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.Lang;
@@ -147,71 +148,108 @@ public class TradeCMD extends CommandBuilder {
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                if(argument.equals(sender.getName())) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
-                    return false;
-                }
-
-                if(Bukkit.getPlayer(argument) == null) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
-                    return false;
-                }
-
-                if(!Bukkit.getPlayer(argument).hasPermission(PERMISSION)) {
-                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
-                    return false;
-                }
-
-                TimeList<String> l = invites.get(argument);
-                if(l != null && l.contains(sender.getName())) {
-                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
-                    return false;
-                }
-
-                if(l == null) l = new TimeList<>();
-                l.add(sender.getName(), 60);
-                invites.put(argument, l, 60);
-
-                List<TextComponent> parts = new ArrayList<>();
-
-                TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept"));
-                accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade accept " + sender.getName()));
-                accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
-
-                TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny"));
-                deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + sender.getName()));
-                deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
-
-                String s = Lang.getPrefix() + Lang.get("Want_To_Trade").replace("%PLAYER%", sender.getName());
-
-                String[] a1 = s.split("%ACCEPT%");
-                if(a1[0].contains("%DENY%")) {
-                    String[] a2 = a1[0].split("%DENY%");
-                    parts.add(new TextComponent(a2[0]));
-                    parts.add(deny);
-                    parts.add(new TextComponent(a2[1]));
-                    parts.add(accept);
-                    parts.add(new TextComponent(a1[1]));
-                } else {
-                    parts.add(new TextComponent(a1[0]));
-                    parts.add(accept);
-
-                    String[] a2 = a1[1].split("%DENY%");
-                    parts.add(new TextComponent(a2[0]));
-                    parts.add(deny);
-                    parts.add(new TextComponent(a2[1]));
-                }
-
-                TextComponent basic = new TextComponent("");
-
-                for(TextComponent part : parts) {
-                    basic.addExtra(part);
-                }
-
-                Bukkit.getPlayer(argument).spigot().sendMessage(basic);
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", Bukkit.getPlayer(argument).getName()));
+                request((Player) sender, Bukkit.getPlayer(argument));
                 return false;
             }
         });
+    }
+    
+    public static void request(Player p, Player other) {
+        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
+            return;
+        }
+
+        if(other == null) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
+            return;
+        }
+
+        if(other.getName().equals(p.getName())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
+            return;
+        }
+
+        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
+            return;
+        }
+
+        if(!other.hasPermission(PERMISSION)) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
+            return;
+        }
+
+        if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
+            if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
+                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range").replace("%PLAYER%", other.getName()));
+                return;
+            }
+        }
+
+
+        TimeList<String> l = TradeSystem.getInstance().getTradeCMD().getInvites().get(p.getName());
+        if(l != null && l.contains(other.getName())) {
+            l.remove(other.getName());
+
+            p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", p.getName()));
+
+            TradeSystem.getInstance().getTradeManager().startTrade(p, other);
+            return;
+        }
+
+        l = TradeSystem.getInstance().getTradeCMD().getInvites().get(other.getName());
+        if(l != null && l.contains(p.getName())) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
+            return;
+        }
+
+        if(l == null) l = new TimeList<>();
+        l.add(p.getName(), TradeSystem.getInstance().getTradeManager().getCooldown());
+        TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown());
+
+        List<TextComponent> parts = new ArrayList<>();
+
+        TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept"));
+        accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade accept " + p.getName()));
+        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
+
+        TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny"));
+        deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + p.getName()));
+        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
+
+        String s = Lang.getPrefix() + Lang.get("Want_To_Trade").replace("%PLAYER%", p.getName());
+
+        String[] a1 = s.split("%ACCEPT%");
+        if(a1[0].contains("%DENY%")) {
+            String[] a2 = a1[0].split("%DENY%");
+            parts.add(new TextComponent(a2[0]));
+            parts.add(deny);
+            parts.add(new TextComponent(a2[1]));
+            parts.add(accept);
+            parts.add(new TextComponent(a1[1]));
+        } else {
+            parts.add(new TextComponent(a1[0]));
+            parts.add(accept);
+
+            String[] a2 = a1[1].split("%DENY%");
+            parts.add(new TextComponent(a2[0]));
+            parts.add(deny);
+            parts.add(new TextComponent(a2[1]));
+        }
+
+        TextComponent basic = new TextComponent("");
+
+        for(TextComponent part : parts) {
+            basic.addExtra(part);
+        }
+
+        other.spigot().sendMessage(basic);
+        p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", other.getName()));
+    }
+
+    public TimeMap<String, TimeList<String>> getInvites() {
+        return invites;
     }
 }

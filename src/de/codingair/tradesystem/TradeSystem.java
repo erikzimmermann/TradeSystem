@@ -8,12 +8,14 @@ import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.trade.layout.LayoutManager;
+import de.codingair.tradesystem.trade.listeners.TradeListener;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TradeSystem extends JavaPlugin {
@@ -28,6 +30,7 @@ public class TradeSystem extends JavaPlugin {
     private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
     private Timer timer = new Timer();
+    private TradeCMD tradeCMD;
 
     @Override
     public void onEnable() {
@@ -53,15 +56,19 @@ public class TradeSystem extends JavaPlugin {
         log("MC-Version: " + Version.getVersion().getVersionName());
         log(" ");
 
+        this.fileManager.loadAll();
+        if(this.fileManager.getFile("Config") == null) this.fileManager.loadFile("Config", "/");
         if(this.fileManager.getFile("Language") == null) this.fileManager.loadFile("Language", "/");
         if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
-        this.fileManager.loadAll();
 
+        this.tradeManager.load();
         this.layoutManager.load();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TradeListener(), this);
 
-        new TradeCMD().register(this);
+        tradeCMD = new TradeCMD();
+        tradeCMD.register(this);
         new TradeSystemCMD().register(this);
 
         timer.stop();
@@ -95,6 +102,7 @@ public class TradeSystem extends JavaPlugin {
         this.tradeManager.cancelAll();
         this.layoutManager.save();
         API.getInstance().onDisable(this);
+        HandlerList.unregisterAll(this);
 
         timer.stop();
         log(" ");
@@ -151,5 +159,9 @@ public class TradeSystem extends JavaPlugin {
 
     public boolean needsUpdate() {
         return needsUpdate;
+    }
+
+    public TradeCMD getTradeCMD() {
+        return tradeCMD;
     }
 }

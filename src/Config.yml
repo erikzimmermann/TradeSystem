@@ -1,0 +1,10 @@
+TradeSystem:
+  Request_Cooldown_In_Sek: 60
+  Trade_Distance:
+    enabled: true
+    distance_in_blocks: 50
+  Action_To_Request:
+    Rightclick: false
+    Shiftclick: true
+  Allowed_GameModes:
+  - SURVIVAL
