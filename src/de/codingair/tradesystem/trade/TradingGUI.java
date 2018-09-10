@@ -110,7 +110,6 @@ public class TradingGUI extends GUI {
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
                         @Override
                         public void onClick(InventoryClickEvent e) {
-
                             if(TradeSystem.getProfile(getPlayer()).getMoney() <= 0) {
                                 getPlayer().sendMessage(Lang.getPrefix() + Lang.get("No_Money"));
                                 return;
@@ -149,6 +148,8 @@ public class TradingGUI extends GUI {
                                 @Override
                                 public void onClose(AnvilCloseEvent e) {
                                     e.setPost(() -> {
+                                        if(trade.isFinished()) return;
+
                                         if(amount >= 0) {
                                             trade.getMoney()[id] = amount;
                                             trade.update();
@@ -158,7 +159,7 @@ public class TradingGUI extends GUI {
                                         open();
                                     });
                                 }
-                            }, new ItemBuilder(Material.PAPER).setName(Lang.get("Money_Amount") + "...").getItem());
+                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount") + "...") : trade.getMoney()[id] + "").getItem());
                         }
                     }.setOption(option));
                 }
@@ -244,6 +245,7 @@ public class TradingGUI extends GUI {
                 if(trade.getReady()[trade.getOtherId(id)]) return;
                 else ready.setName("§7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
                 setItem(item.getSlot(), ready.getItem());
+                break;
             }
 
             case SHOW_STATUS_READY: {
@@ -251,6 +253,7 @@ public class TradingGUI extends GUI {
                 if(trade.getReady()[trade.getOtherId(id)]) ready.setColor(DyeColor.LIME).setName("§7" + Lang.get("Status") + ": §a" + Lang.get("Ready"));
                 else return;
                 setItem(item.getSlot(), ready.getItem());
+                break;
             }
 
             case CANCEL: {
