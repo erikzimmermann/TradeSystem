@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.trade;
 
+import de.codingair.codingapi.API;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.server.Environment;
 import de.codingair.codingapi.server.Sound;
 import de.codingair.tradesystem.TradeSystem;
@@ -135,6 +137,15 @@ public class Trade {
 
     private void finish() {
         if(this.guis[0].pause && this.guis[1].pause) return;
+        TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
+
+        for(Player player : this.players) {
+            AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
+            if(gui != null) {
+                gui.clearInventory();
+                player.closeInventory();
+            }
+        }
 
         this.guis[0].pause = true;
         this.guis[1].pause = true;
@@ -154,22 +165,24 @@ public class Trade {
             }
         }
 
+        this.guis[0].close();
+        this.guis[1].close();
+
         Profile p0 = TradeSystem.getProfile(this.players[0]);
         Profile p1 = TradeSystem.getProfile(this.players[1]);
 
         p0.setMoney(p0.getMoney() - this.money[0] + this.money[1]);
         p1.setMoney(p1.getMoney() - this.money[1] + this.money[0]);
 
-        this.guis[0].close();
-        this.guis[1].close();
-
         this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
         this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
 
         this.players[0].playSound(this.players[0].getLocation(), Sound.LEVEL_UP.bukkitSound(), 0.6F, 1);
         this.players[1].playSound(this.players[1].getLocation(), Sound.LEVEL_UP.bukkitSound(), 0.6F, 1);
+    }
 
-        TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
+    public boolean isFinished() {
+        return !TradeSystem.getInstance().getTradeManager().getTradeList().contains(this);
     }
 
     Player getOther(Player p) {
