@@ -70,6 +70,19 @@ public class TradeManager {
         return tradeList;
     }
 
+    public Trade getTrade(Player player) {
+        for(Trade trade : this.tradeList) {
+            if(trade.isParticipant(player)) return trade;
+        }
+
+        return null;
+    }
+
+
+    public boolean isTrading(Player player) {
+        return getTrade(player) != null;
+    }
+
     public int getCooldown() {
         return cooldown;
     }

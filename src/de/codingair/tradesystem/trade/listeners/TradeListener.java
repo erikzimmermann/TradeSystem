@@ -2,10 +2,15 @@ package de.codingair.tradesystem.trade.listeners;
 
 import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.trade.Trade;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
+import de.codingair.tradesystem.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 
 public class TradeListener implements Listener {
@@ -22,6 +27,18 @@ public class TradeListener implements Listener {
             if(TradeSystem.getInstance().getTradeManager().isShiftclick() == p.isSneaking()) {
                 players.add(p, 1);
                 TradeCMD.request(p, other);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDeath(EntityDamageEvent e) {
+        if(e.getEntity() instanceof Player) {
+            Player player = (Player) e.getEntity();
+
+            if(player.getHealth() - e.getFinalDamage() <= 0) {
+                Trade trade = TradeSystem.getInstance().getTradeManager().getTrade(player);
+                if(trade != null) trade.cancel(Lang.getPrefix() + Lang.get("Trade_cancelled_by_attack"));
             }
         }
     }
