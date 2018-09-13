@@ -15,6 +15,7 @@ public class TradeManager {
     private int cooldown = 60;
     private int distance = 50;
 
+    private boolean cancelOnDamage = true;
     private boolean requestOnRightclick = false;
     private boolean shiftclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
@@ -38,6 +39,7 @@ public class TradeManager {
             }
         } else this.distance = -1;
 
+        this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
         this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
 
@@ -101,5 +103,9 @@ public class TradeManager {
 
     public List<String> getAllowedGameModes() {
         return allowedGameModes;
+    }
+
+    public boolean isCancelOnDamage() {
+        return cancelOnDamage;
     }
 }

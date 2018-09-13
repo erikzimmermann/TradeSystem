@@ -4,6 +4,8 @@ TradeSystem:
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50
+  Action_To_Cancel:
+    Player_get_damaged: true
   Action_To_Request:
     Rightclick: false
     Shiftclick: true
