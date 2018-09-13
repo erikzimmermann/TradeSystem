@@ -3,6 +3,7 @@ package de.codingair.tradesystem;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.server.Version;
+import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.time.Timer;
 import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
@@ -18,6 +19,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
     public static final String PERMISSION_MODIFY = "TradeSystem.Modify";
@@ -30,6 +34,8 @@ public class TradeSystem extends JavaPlugin {
     private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
     private Timer timer = new Timer();
+
+    private TradeSystemCMD tradeSystemCMD;
     private TradeCMD tradeCMD;
 
     @Override
@@ -69,7 +75,9 @@ public class TradeSystem extends JavaPlugin {
 
         tradeCMD = new TradeCMD();
         tradeCMD.register(this);
-        new TradeSystemCMD().register(this);
+
+        tradeSystemCMD = new TradeSystemCMD();
+        tradeSystemCMD.register(this);
 
         timer.stop();
         log(" ");
@@ -101,6 +109,10 @@ public class TradeSystem extends JavaPlugin {
         log("  > Cancelling all active trades");
         this.tradeManager.cancelAll();
         this.layoutManager.save();
+
+        this.tradeCMD.unregister(this);
+        this.tradeSystemCMD.unregister(this);
+
         API.getInstance().onDisable(this);
         HandlerList.unregisterAll(this);
 
