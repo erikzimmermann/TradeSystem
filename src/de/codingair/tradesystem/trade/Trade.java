@@ -76,7 +76,7 @@ public class Trade {
             if(money[0] != moneyBackup[0] || money[1] != moneyBackup[1]) {
                 moneyBackup[0] = money[0];
                 moneyBackup[1] = money[1];
-                
+
                 ready[1] = false;
                 ready[0] = false;
             }
@@ -97,19 +97,28 @@ public class Trade {
         Sound.LEVEL_UP.playSound(this.players[1], 0.6F, 1F);
     }
 
-    void cancel() {
+    public void cancel() {
+        cancel(null);
+    }
+
+    public void cancel(String message) {
         if(this.guis[0] == null || this.guis[1] == null) return;
 
         for(Integer slot : this.slots) {
             if(this.guis[0].getItem(slot) != null && !this.guis[0].getItem(slot).getType().equals(Material.AIR)) this.players[0].getInventory().addItem(this.guis[0].getItem(slot));
             if(this.guis[1].getItem(slot) != null && !this.guis[1].getItem(slot).getType().equals(Material.AIR)) this.players[1].getInventory().addItem(this.guis[1].getItem(slot));
         }
-        
+
         this.guis[0] = null;
         this.guis[1] = null;
 
-        this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
-        this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
+        if(message != null) {
+            this.players[0].sendMessage(message);
+            this.players[1].sendMessage(message);
+        } else {
+            this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
+            this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
+        }
 
         this.players[0].playSound(this.players[0].getLocation(), Sound.ITEM_BREAK.bukkitSound(), 0.6F, 1);
         this.players[1].playSound(this.players[1].getLocation(), Sound.ITEM_BREAK.bukkitSound(), 0.6F, 1);
@@ -203,5 +212,9 @@ public class Trade {
 
     List<Integer> getOtherSlots() {
         return otherSlots;
+    }
+
+    public boolean isParticipant(Player player) {
+        return this.players != null && (this.players[0] == player || this.players[1] == player);
     }
 }

@@ -96,6 +96,7 @@ ENG:
   Player_is_not_in_range: "&7The player &c%PLAYER% &7is &cnot in range&7!"
   Cannot_trade_in_that_GameMode: "&7You are &cnot able to trade &7in that gamemode!"
   Other_cannot_trade_in_that_GameMode: "&7This player &ccannot trade &7with his gamemode!"
+  Trade_cancelled_by_attack: "&cThe trade was canceled due to an attack."
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -192,3 +193,4 @@ GER:
   Player_is_not_in_range: "&7Der Spieler &c%PLAYER% &7ist &cnicht in Reichweite&7!"
   Cannot_trade_in_that_GameMode: "&7Du darfst in deinem GameMode &cnicht handeln&7!"
   Other_cannot_trade_in_that_GameMode: "&7Dieser Spieler darf in seinem GameMode &cnicht handeln&7!"
+  Trade_cancelled_by_attack: "&cDer Handel wurde aufgrund eines Angriffes abgebrochen."
