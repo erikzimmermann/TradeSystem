@@ -35,10 +35,12 @@ public class TradeListener implements Listener {
     public void onDeath(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
+            Trade trade = TradeSystem.getInstance().getTradeManager().getTrade(player);
 
-            if(player.getHealth() - e.getFinalDamage() <= 0) {
-                Trade trade = TradeSystem.getInstance().getTradeManager().getTrade(player);
-                if(trade != null) trade.cancel(Lang.getPrefix() + Lang.get("Trade_cancelled_by_attack"));
+            if(trade != null) {
+                double finalDamage = e.getFinalDamage();
+                if((TradeSystem.getInstance().getTradeManager().isCancelOnDamage() && finalDamage > 0) || (player.getHealth() - e.getFinalDamage() <= 0))
+                    trade.cancel(Lang.getPrefix() + Lang.get("Trade_cancelled_by_attack"));
             }
         }
     }
