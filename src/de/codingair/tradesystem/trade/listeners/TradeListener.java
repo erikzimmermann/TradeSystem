@@ -10,14 +10,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 public class TradeListener implements Listener {
     private TimeList<Player> players = new TimeList<>();
 
     @EventHandler
-    public void onInteract(PlayerInteractAtEntityEvent e) {
+    public void onInteract(PlayerInteractEntityEvent e) {
         if(!TradeSystem.getInstance().getTradeManager().isRequestOnRightclick() || players.contains(e.getPlayer())) return;
 
         if(e.getRightClicked() instanceof Player) {
