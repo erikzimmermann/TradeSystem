@@ -108,7 +108,7 @@ public class TradingGUI extends GUI {
 
             case PICK_MONEY: {
                 if(AdapterType.canEnable()) {
-                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[id] + " Coin" + (trade.getMoney()[id] == 1 ? "" : "s")).addLore("", "§7» " + Lang.get("Click_To_Change"));
+                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[id] + " " + (trade.getMoney()[id] == 1 ? Lang.get("Coin") : Lang.get("Coins"))).addLore("", "§7» " + Lang.get("Click_To_Change"));
                     if(trade.getMoney()[id] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
