@@ -136,12 +136,14 @@ public class TradingGUI extends GUI {
                                     }
 
                                     if(amount < 0) {
+                                        amount = -999;
                                         e.getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount"));
                                         return;
                                     }
 
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
+                                        amount = -999;
                                         e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin").replace("%COIN%", max + "") : Lang.get("Only_X_Coins").replace("%COINS%", max + "")));
                                         return;
                                     }
