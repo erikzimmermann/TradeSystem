@@ -217,4 +217,23 @@ public class Trade {
     public boolean isParticipant(Player player) {
         return this.players != null && (this.players[0] == player || this.players[1] == player);
     }
+
+    public boolean noItemsAdded() {
+        if(guis[0] != null && guis[1] != null) {
+            for(int i = 0; i < slots.size(); i++) {
+                if(guis[0].getItem(slots.get(i)) != null && guis[0].getItem(slots.get(i)).getType() != Material.AIR) return false;
+                if(guis[1].getItem(slots.get(i)) != null && guis[1].getItem(slots.get(i)).getType() != Material.AIR) return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean noMoneyAdded() {
+        return this.money[0] == 0 && this.money[1] == 0;
+    }
+
+    public boolean emptyTrades() {
+        return noMoneyAdded() && noItemsAdded();
+    }
 }
