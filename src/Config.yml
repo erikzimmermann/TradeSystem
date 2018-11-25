@@ -1,6 +1,10 @@
+~Config
 TradeSystem:
+  # After 60 seconds the request will be expired
   Request_Cooldown_In_Sek: 60
   Trade_with_money: true
+  # Both traders have to add an item/money to finish the trade
+  Trade_Both: true
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50
@@ -8,6 +12,7 @@ TradeSystem:
     Player_get_damaged: true
   Action_To_Request:
     Rightclick: false
+    # Shift-Rightclick
     Shiftclick: true
   Allowed_GameModes:
   - SURVIVAL

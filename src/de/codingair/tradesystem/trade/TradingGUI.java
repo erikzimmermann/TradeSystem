@@ -79,6 +79,8 @@ public class TradingGUI extends GUI {
 
     @Override
     public void initialize(Player p) {
+        setBuffering(true);
+
         for(int i = 0; i < 54; i++) {
             if(trade.getSlots().contains(i) || trade.getOtherSlots().contains(i)) continue;
             setItem(i, new ItemStack(Material.AIR));
@@ -87,6 +89,8 @@ public class TradingGUI extends GUI {
         for(Item item : this.layout.getItems()) {
             handleItem(item);
         }
+
+        release();
     }
 
     private void handleItem(Item item) {
@@ -175,11 +179,13 @@ public class TradingGUI extends GUI {
             }
 
             case MONEY_REPLACEMENT: {
-                if(!AdapterType.canEnable()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).getItem());
+                if(!AdapterType.canEnable()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
                 break;
             }
 
             case PICK_STATUS_NONE: {
+                if(!TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades()) break;
+
                 boolean canFinish = false;
                 for(Integer slot : trade.getSlots()) {
                     if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
@@ -195,11 +201,14 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_NOT_READY: {
-                boolean canFinish = false;
-                for(Integer slot : trade.getSlots()) {
-                    if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
+
+                if(!canFinish) {
+                    for(Integer slot : trade.getSlots()) {
+                        if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                    }
+                    if(trade.getMoney()[id] != 0) canFinish = true;
                 }
-                if(trade.getMoney()[id] != 0) canFinish = true;
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
@@ -218,11 +227,14 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_READY: {
-                boolean canFinish = false;
-                for(Integer slot : trade.getSlots()) {
-                    if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
+
+                if(!canFinish) {
+                    for(Integer slot : trade.getSlots()) {
+                        if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                    }
+                    if(trade.getMoney()[id] != 0) canFinish = true;
                 }
-                if(trade.getMoney()[id] != 0) canFinish = true;
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
