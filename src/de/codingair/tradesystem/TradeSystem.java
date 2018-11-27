@@ -63,8 +63,14 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
 
         this.fileManager.loadAll();
-        if(this.fileManager.getFile("Config") == null) this.fileManager.loadFile("Config", "/");
-        if(this.fileManager.getFile("Language") == null) this.fileManager.loadFile("Language", "/");
+        if(this.fileManager.getFile("Config") == null) {
+            this.fileManager.loadFile("Config", "/");
+            this.fileManager.getFile("Config").saveConfig();
+        }
+        if(this.fileManager.getFile("Language") == null) {
+            this.fileManager.loadFile("Language", "/");
+            this.fileManager.getFile("Language").saveConfig();
+        }
         if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
 
         this.tradeManager.load();

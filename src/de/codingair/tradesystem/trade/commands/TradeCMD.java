@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.trade.commands;
 
+import de.codingair.codingapi.player.chat.ChatButton;
+import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.codingapi.server.commands.BaseComponent;
 import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.server.commands.CommandComponent;
@@ -46,6 +48,19 @@ public class TradeCMD extends CommandBuilder {
                 return false;
             }
         }.setOnlyPlayers(true), true);
+
+        //TOGGLE
+        getBaseComponent().addChild(new CommandComponent("toggle") {
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String[] args) {
+                if(TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline"));
+                } else {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Online"));
+                }
+                return false;
+            }
+        });
 
         //ACCEPT
         getBaseComponent().addChild(new CommandComponent("accept") {
@@ -160,6 +175,28 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
+            String[] a = Lang.get("Trade_You_are_Offline").split("%COMMAND%", -1);
+
+            String s0 = a[0];
+            String s = a[1];
+            String s1 = a[2];
+
+            SimpleMessage message = new SimpleMessage(Lang.getPrefix() + s0, TradeSystem.getInstance());
+            message.add(new ChatButton(s, Lang.get("Want_To_Trade_Hover")) {
+                @Override
+                public void onClick(Player player) {
+                    System.out.println("BUTTON");
+                    p.performCommand("trade toggle");
+                    message.destroy();
+                }
+            });
+
+            message.add(new TextComponent(s1));
+            message.send(p);
+            return;
+        }
+
         if(other == null) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
             return;
@@ -177,6 +214,11 @@ public class TradeCMD extends CommandBuilder {
 
         if(!other.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
+            return;
+        }
+
+        if(TradeSystem.getInstance().getTradeManager().isOffline(other)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline"));
             return;
         }
 
