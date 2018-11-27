@@ -14,7 +14,7 @@ ENG:
   Want_To_Trade: "&7The player &c%PLAYER% &7want to trade with you. &8[%ACCEPT% &8| %DENY%&8]"
   Want_To_Trade_Accept: "&aAccept"
   Want_To_Trade_Deny: "&cDeny"
-  Want_To_Trade_Hover: "&8> Click <"
+  Want_To_Trade_Hover: "&8» Click «"
   Player_Is_Invited: "&7The player &c%PLAYER% &7was invited."
   Command_How_To: "&7Use: /trade <Player, Accept, Deny>"
   Command_How_To_Accept: "&7Use: /trade accept <Player>"
@@ -98,6 +98,10 @@ ENG:
   Other_cannot_trade_in_that_GameMode: "&7This player &ccannot trade &7with his gamemode!"
   Trade_cancelled_by_attack: "&cThe trade was canceled due to an attack."
   Trade_Partner_No_Space: "&7Your trade partner have &cno space &7in his inventory!"
+  Trade_Offline: "&7You are &cno longer available &7for trade requests!"
+  Trade_Online: "&7You are now &aavailable &7for trade requests!"
+  Trade_Partner_is_Offline: "&7This player is &cnot available &7for trade requests!"
+  Trade_You_are_Offline: '&7Use "%COMMAND%&e/trade toggle%COMMAND%&7" to trade again.'
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -112,7 +116,7 @@ GER:
   Want_To_Trade: "&7Der Spieler &c%PLAYER% &7möchte mit dir handeln. &8[%ACCEPT% &8| %DENY%&8]"
   Want_To_Trade_Accept: "&aAkzeptieren"
   Want_To_Trade_Deny: "&cAblehnen"
-  Want_To_Trade_Hover: "&8> Klick <"
+  Want_To_Trade_Hover: "&8» Klick «"
   Player_Is_Invited: "&7Der Spieler &c%PLAYER% &7wurde eingeladen."
   Command_How_To: "&7Benutze: /trade <Spieler, Accept, Deny>"
   Command_How_To_Accept: "&7Benutze: /trade accept <Spieler>"
@@ -196,3 +200,7 @@ GER:
   Other_cannot_trade_in_that_GameMode: "&7Dieser Spieler darf in seinem GameMode &cnicht handeln&7!"
   Trade_cancelled_by_attack: "&cDer Handel wurde aufgrund eines Angriffes abgebrochen."
   Trade_Partner_No_Space: "&7Dein Handelspartner hat &ckein Platz &7im Inventar!"
+  Trade_Offline: "&7Du bist für Handelsanfragen nun &cnicht mehr &7erreichbar!"
+  Trade_Online: "&7Du bist für Handelsanfragen nun &awieder &7erreichbar!"
+  Trade_Partner_is_Offline: "&7Dieser Spieler ist &cnicht &7für Handelsanfragen &cerreichbar&7!"
+  Trade_You_are_Offline: '&7Benutze "%COMMAND%&e/trade toggle%COMMAND%&7", um handeln zu können.'

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradeManager {
+    private List<Player> offline = new ArrayList<>();
     private List<Trade> tradeList = new ArrayList<>();
     private int cooldown = 60;
     private int distance = 50;
@@ -123,5 +124,19 @@ public class TradeManager {
 
     public void setDropItems(boolean dropItems) {
         this.dropItems = dropItems;
+    }
+
+    public boolean isOffline(Player player) {
+        return this.offline.contains(player);
+    }
+
+    public boolean toggle(Player player) {
+        if(isOffline(player)) {
+            this.offline.remove(player);
+            return false;
+        } else {
+            this.offline.add(player);
+            return true;
+        }
     }
 }
