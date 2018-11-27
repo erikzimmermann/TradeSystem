@@ -1,6 +1,6 @@
 name: TradeSystem
 author: CodingAir
-version: 1.0.4
+version: 1.0.5
 description: TradeSystem by CodingAir
 main: de.codingair.tradesystem.TradeSystem
 softdepend: [Vault, Essentials]
