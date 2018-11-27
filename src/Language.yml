@@ -102,6 +102,7 @@ ENG:
   Trade_Online: "&7You are now &aavailable &7for trade requests!"
   Trade_Partner_is_Offline: "&7This player is &cnot available &7for trade requests!"
   Trade_You_are_Offline: '&7Use "%COMMAND%&e/trade toggle%COMMAND%&7" to trade again.'
+  Trade_Placed_Blocked_Item: "&7This item &ccannot &7be traded!"
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -204,3 +205,4 @@ GER:
   Trade_Online: "&7Du bist für Handelsanfragen nun &awieder &7erreichbar!"
   Trade_Partner_is_Offline: "&7Dieser Spieler ist &cnicht &7für Handelsanfragen &cerreichbar&7!"
   Trade_You_are_Offline: '&7Benutze "%COMMAND%&e/trade toggle%COMMAND%&7", um handeln zu können.'
+  Trade_Placed_Blocked_Item: "&7Dieses Item kann &cnicht &7gehandelt werden!"

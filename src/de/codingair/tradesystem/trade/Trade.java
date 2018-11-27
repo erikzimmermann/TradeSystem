@@ -302,6 +302,32 @@ public class Trade {
         return noMoneyAdded() && noItemsAdded();
     }
 
+    public boolean cancelBlockedItems(Player player) {
+        List<Integer> blocked = new ArrayList<>();
+
+        for(Integer slot : this.slots) {
+            ItemStack item = this.guis[getId(player)].getItem(slot);
+
+            if(item != null && item.getType() != Material.AIR) {
+                if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) blocked.add(slot);
+            }
+        }
+
+        for(Integer slot : blocked) {
+            ItemStack transport = this.guis[getId(player)].getItem(slot).clone();
+            this.guis[getId(player)].setItem(slot, new ItemStack(Material.AIR));
+
+            player.getInventory().addItem(transport);
+        }
+
+        player.updateInventory();
+
+        boolean found = !blocked.isEmpty();
+        blocked.clear();
+
+        return found;
+    }
+
     public void cancelOverflow(Player player) {
         HashMap<Integer, ItemStack> items = new HashMap<>();
         for(Integer slot : this.slots) {
