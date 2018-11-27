@@ -2,10 +2,13 @@ package de.codingair.tradesystem.trade;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.List;
 public class TradeManager {
     private List<Player> offline = new ArrayList<>();
     private List<Trade> tradeList = new ArrayList<>();
+    private List<BlockedItem> blacklist = new ArrayList<>();
     private int cooldown = 60;
     private int distance = 50;
 
@@ -52,7 +56,37 @@ public class TradeManager {
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
         if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
 
+        TradeSystem.log("  > Loading blacklist");
+        List<String> l = config.getStringList("TradeSystem.Blacklist");
+        if(l != null && !l.isEmpty()) {
+            for(String s : l) {
+                this.blacklist.add(BlockedItem.fromString(s));
+            }
+        }
+
+        if(this.blacklist.isEmpty()) {
+            this.blacklist.add(new BlockedItem(Material.PORTAL, (byte) 0));
+            this.blacklist.add(new BlockedItem(Material.PORTAL, (byte) 0, "&cExample"));
+            this.blacklist.add(new BlockedItem("&cExample, which blocks all items with this strange name!"));
+            saveBlackList();
+        }
+
+        TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
+
         if(save) file.saveConfig();
+    }
+
+    public void saveBlackList() {
+        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+        FileConfiguration config = file.getConfig();
+        List<String> l = new ArrayList<>();
+
+        for(BlockedItem block : this.blacklist) {
+            l.add(block.toString());
+        }
+
+        config.set("TradeSystem.Blacklist", l);
+        file.saveConfig();
     }
 
     public void startTrade(Player player, Player other) {
@@ -138,5 +172,17 @@ public class TradeManager {
             this.offline.add(player);
             return true;
         }
+    }
+
+    public List<BlockedItem> getBlacklist() {
+        return blacklist;
+    }
+
+    public boolean isBlocked(ItemStack item) {
+        for(BlockedItem blocked : this.blacklist) {
+            if(blocked.matches(item)) return true;
+        }
+
+        return false;
     }
 }

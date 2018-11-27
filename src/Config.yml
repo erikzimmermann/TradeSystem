@@ -19,3 +19,4 @@ TradeSystem:
     Shiftclick: true
   Allowed_GameModes:
   - SURVIVAL
+  Blacklist: []

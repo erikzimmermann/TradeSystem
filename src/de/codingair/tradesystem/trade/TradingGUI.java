@@ -77,6 +77,36 @@ public class TradingGUI extends GUI {
             public void onInvClickEvent(InventoryClickEvent e) {
                 boolean fits = true;
 
+                //check if it's blocked
+                ItemStack blockedItem = null;
+                switch(e.getAction().name()) {
+                    case "SWAP_WITH_CURSOR":
+                    case "PLACE_ALL":
+                    case "PLACE_ONE": {
+                        //check cursor
+                        blockedItem = e.getCursor();
+                        break;
+                    }
+
+                    case "MOVE_TO_OTHER_INVENTORY": {
+                        //check current
+                        blockedItem = e.getCurrentItem();
+                        break;
+                    }
+
+                    case "HOTBAR_SWAP":
+                    case "HOTBAR_MOVE_AND_READD": {
+                        //check hotbar
+                        blockedItem = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                        break;
+                    }
+                }
+
+                if(blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
+                    e.setCancelled(true);
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                }
+
                 if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
                     //check for cursor
                     trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
@@ -85,81 +115,83 @@ public class TradingGUI extends GUI {
                         trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
                     }, 1);
 
-                    //check if fits
-                    switch(e.getAction().name()) {
-                        case "PLACE_ONE": {
-                            ItemStack item = e.getCurrentItem();
-                            List<Integer> remove = new ArrayList<>();
+                    if(!e.isCancelled()) {
+                        //check if fits
+                        switch(e.getAction().name()) {
+                            case "PLACE_ONE": {
+                                ItemStack item = e.getCurrentItem();
+                                List<Integer> remove = new ArrayList<>();
 
-                            if(item != null && item.getType() != Material.AIR) {
-                                item = item.clone();
-                                item.setAmount(item.getAmount() + 1);
+                                if(item != null && item.getType() != Material.AIR) {
+                                    item = item.clone();
+                                    item.setAmount(item.getAmount() + 1);
+                                    remove.add(e.getSlot());
+                                } else {
+                                    item = e.getCursor().clone();
+                                    item.setAmount(1);
+                                }
+
+                                if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                                break;
+                            }
+
+                            case "PLACE_SOME": {
+                                ItemStack item = e.getCurrentItem().clone();
+                                item.setAmount(item.getMaxStackSize());
+
+                                List<Integer> remove = new ArrayList<>();
                                 remove.add(e.getSlot());
-                            } else {
-                                item = e.getCursor().clone();
-                                item.setAmount(1);
+
+                                if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                                break;
                             }
 
-                            if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
-                            break;
-                        }
+                            case "PLACE_ALL":
+                                if(!trade.fitsTrade(getPlayer(), e.getCursor().clone())) fits = false;
+                                break;
 
-                        case "PLACE_SOME": {
-                            ItemStack item = e.getCurrentItem().clone();
-                            item.setAmount(item.getMaxStackSize());
-
-                            List<Integer> remove = new ArrayList<>();
-                            remove.add(e.getSlot());
-
-                            if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
-                            break;
-                        }
-
-                        case "PLACE_ALL":
-                            if(!trade.fitsTrade(getPlayer(), e.getCursor().clone())) fits = false;
-                            break;
-
-                        case "HOTBAR_SWAP": {
-                            ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
-                            if(item != null && !trade.fitsTrade(getPlayer(), item.clone())) fits = false;
-                            break;
-                        }
-
-                        case "HOTBAR_MOVE_AND_READD": {
-                            ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
-                            List<Integer> remove = new ArrayList<>();
-                            remove.add(e.getSlot());
-
-                            if(item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
-                            else {
-                                e.setCancelled(true);
-                                ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
-                                ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
-
-                                e.getView().getTopInventory().setItem(e.getSlot(), bottom);
-                                e.getView().getBottomInventory().setItem(e.getHotbarButton(), top);
+                            case "HOTBAR_SWAP": {
+                                ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                                if(item != null && !trade.fitsTrade(getPlayer(), item.clone())) fits = false;
+                                break;
                             }
-                            break;
+
+                            case "HOTBAR_MOVE_AND_READD": {
+                                ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                                List<Integer> remove = new ArrayList<>();
+                                remove.add(e.getSlot());
+
+                                if(item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
+                                else {
+                                    e.setCancelled(true);
+                                    ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
+                                    ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
+
+                                    e.getView().getTopInventory().setItem(e.getSlot(), bottom);
+                                    e.getView().getBottomInventory().setItem(e.getHotbarButton(), top);
+                                }
+                                break;
+                            }
+
+                            case "SWAP_WITH_CURSOR": {
+                                List<Integer> remove = new ArrayList<>();
+                                remove.add(e.getSlot());
+
+                                if(!trade.fitsTrade(getPlayer(), remove, e.getCursor().clone())) fits = false;
+                                break;
+                            }
+
+                            case "DROP_ALL_CURSOR":
+                            case "DROP_ALL_SLOT":
+                            case "DROP_ONE_CURSOR":
+                            case "DROP_ONE_SLOT":
+                                if(!trade.fitsTrade(getPlayer(), e.getCurrentItem().clone())) fits = false;
+                                break;
+
+                            default:
+                                fits = true;
+                                break;
                         }
-
-                        case "SWAP_WITH_CURSOR": {
-                            List<Integer> remove = new ArrayList<>();
-                            remove.add(e.getSlot());
-
-                            if(!trade.fitsTrade(getPlayer(), remove, e.getCursor().clone())) fits = false;
-                            break;
-                        }
-
-                        case "DROP_ALL_CURSOR":
-                        case "DROP_ALL_SLOT":
-                        case "DROP_ONE_CURSOR":
-                        case "DROP_ONE_SLOT":
-                            if(!trade.fitsTrade(getPlayer(), e.getCurrentItem().clone())) fits = false;
-                            break;
-
-                        default:
-                            fits = true;
-                            break;
                     }
                 }
 
@@ -181,7 +213,15 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvDragEvent(InventoryDragEvent e) {
-                if(!trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
+                if(e.getNewItems().isEmpty()) return;
+
+                //check if it's blocked
+                if(TradeSystem.getInstance().getTradeManager().isBlocked(e.getNewItems().values().iterator().next())) {
+                    e.setCancelled(true);
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                }
+
+                if(!e.isCancelled() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
                     Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
                     e.setCancelled(true);
@@ -195,12 +235,21 @@ public class TradingGUI extends GUI {
 
             @Override
             public boolean onMoveToTopInventory(int oldRawSlot, List<Integer> newRawSlots, ItemStack item) {
-                if(!trade.fitsTrade(getPlayer(), item)) {
+                //check if it's blocked
+                boolean cancel = false;
+
+                if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
+                    cancel = true;
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                }
+
+                if(!cancel && !trade.fitsTrade(getPlayer(), item)) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
                     Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
                     return true;
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
-                return false;
+
+                return cancel;
             }
 
             @Override
