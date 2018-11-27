@@ -20,6 +20,7 @@ public class TradeManager {
     private boolean shiftclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
     private boolean tradeBoth = true;
+    private boolean dropItems = true;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -44,6 +45,7 @@ public class TradeManager {
         this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
         this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
+        this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
 
         this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
@@ -113,5 +115,13 @@ public class TradeManager {
 
     public boolean isTradeBoth() {
         return tradeBoth;
+    }
+
+    public boolean isDropItems() {
+        return dropItems;
+    }
+
+    public void setDropItems(boolean dropItems) {
+        this.dropItems = dropItems;
     }
 }

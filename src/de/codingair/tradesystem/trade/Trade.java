@@ -2,19 +2,29 @@ package de.codingair.tradesystem.trade;
 
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
+import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.server.Environment;
 import de.codingair.codingapi.server.Sound;
+import de.codingair.codingapi.tools.items.ItemBuilder;
+import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Function;
 import de.codingair.tradesystem.trade.layout.Item;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Trade {
@@ -23,9 +33,13 @@ public class Trade {
     private int[] moneyBackup = new int[] {0, 0};
     private int[] money = new int[] {0, 0};
     private boolean[] ready = new boolean[] {false, false};
+    private boolean[] cursor = new boolean[] {false, false};
+    private boolean[] waitForPickup = new boolean[] {false, false};
 
     private List<Integer> slots = new ArrayList<>();
     private List<Integer> otherSlots = new ArrayList<>();
+
+    private Listener listener;
 
     Trade(Player p0, Player p1) {
         this.players[0] = p0;
@@ -87,6 +101,7 @@ public class Trade {
     }
 
     void start() {
+        startListeners();
         this.guis[0] = new TradingGUI(this.players[0], 0, this);
         this.guis[1] = new TradingGUI(this.players[1], 1, this);
 
@@ -102,6 +117,7 @@ public class Trade {
     }
 
     public void cancel(String message) {
+        stopListeners();
         if(this.guis[0] == null || this.guis[1] == null) return;
 
         for(Integer slot : this.slots) {
@@ -126,7 +142,50 @@ public class Trade {
         this.players[0].closeInventory();
         this.players[1].closeInventory();
 
+        this.players[0].updateInventory();
+        this.players[1].updateInventory();
+
         TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
+    }
+
+    private void startListeners() {
+        Bukkit.getPluginManager().registerEvents(this.listener = new Listener() {
+            @EventHandler
+            public void onPickup(PlayerPickupItemEvent e) {
+                if(e.getPlayer() == players[0]) {
+                    if(!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[0]) e.setCancelled(true);
+                    else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> cancelOverflow(players[1]), 1);
+                } else if(e.getPlayer() == players[1]) {
+                    if(!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[1]) e.setCancelled(true);
+                    else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> cancelOverflow(players[0]), 1);
+                }
+
+
+            }
+        }, TradeSystem.getInstance());
+    }
+
+    private boolean canPickup(Player player, ItemStack item) {
+        PlayerInventory inv = new PlayerInventory(player);
+
+        for(Integer slot : this.slots) {
+            ItemStack back = guis[getId(player)].getItem(slot);
+            if(back != null && back.getType() != Material.AIR) {
+                inv.addItem(back);
+            }
+        }
+
+        //placeholder
+        if(this.cursor[getId(player)]) {
+            ItemStack cursor = new ItemBuilder(XMaterial.BEDROCK).setName("PLACEHOLDER_CURSOR").getItem();
+            if(!inv.addItem(cursor, false)) return false;
+        }
+
+        return inv.addItem(item);
+    }
+
+    private void stopListeners() {
+        if(this.listener != null) HandlerList.unregisterAll(this.listener);
     }
 
     private boolean fit(Player player, ItemStack item) {
@@ -206,6 +265,12 @@ public class Trade {
         else return 1;
     }
 
+    int getId(Player player) {
+        if(this.players[0].equals(player)) return 0;
+        else if(this.players[1].equals(player)) return 1;
+        else return -999;
+    }
+
     List<Integer> getSlots() {
         return slots;
     }
@@ -218,7 +283,7 @@ public class Trade {
         return this.players != null && (this.players[0] == player || this.players[1] == player);
     }
 
-    public boolean noItemsAdded() {
+    boolean noItemsAdded() {
         if(guis[0] != null && guis[1] != null) {
             for(int i = 0; i < slots.size(); i++) {
                 if(guis[0].getItem(slots.get(i)) != null && guis[0].getItem(slots.get(i)).getType() != Material.AIR) return false;
@@ -229,11 +294,108 @@ public class Trade {
         return true;
     }
 
-    public boolean noMoneyAdded() {
+    boolean noMoneyAdded() {
         return this.money[0] == 0 && this.money[1] == 0;
     }
 
-    public boolean emptyTrades() {
+    boolean emptyTrades() {
         return noMoneyAdded() && noItemsAdded();
+    }
+
+    public void cancelOverflow(Player player) {
+        HashMap<Integer, ItemStack> items = new HashMap<>();
+        for(Integer slot : this.slots) {
+            ItemStack item = this.guis[getId(player)].getItem(slot);
+
+            if(item != null && item.getType() != Material.AIR) {
+                items.put(slot, item);
+            }
+        }
+
+        if(items.isEmpty()) return;
+
+        HashMap<Integer, ItemStack> sorted = new HashMap<>();
+        int size = items.size();
+        for(int i = 0; i < size; i++) {
+            int slot = 0;
+            ItemStack item = null;
+
+            for(int nextSlot : items.keySet()) {
+                ItemStack next = items.get(nextSlot);
+
+                if(item == null || item.getAmount() > next.getAmount()) {
+                    item = next;
+                    slot = nextSlot;
+                }
+            }
+
+            if(item != null) {
+                sorted.put(slot, item);
+                items.remove(slot);
+            }
+        }
+
+        items.clear();
+        items.putAll(sorted);
+        sorted.clear();
+
+        PlayerInventory inv = new PlayerInventory(getOther(player));
+        HashMap<Integer, Integer> toRemove = new HashMap<>();
+
+        items.forEach((slot, item) -> {
+            int amount = inv.addUntilPossible(item, true);
+            if(amount > 0) toRemove.put(slot, amount);
+        });
+
+        items.clear();
+
+        TradingGUI gui = guis[getId(player)];
+        for(Integer slot : toRemove.keySet()) {
+            ItemStack item = gui.getItem(slot).clone();
+            item.setAmount(item.getAmount() - toRemove.get(slot));
+
+            ItemStack transport = gui.getItem(slot).clone();
+            transport.setAmount(toRemove.get(slot));
+
+            player.getInventory().addItem(transport);
+            gui.setItem(slot, item.getAmount() <= 0 ? new ItemStack(Material.AIR) : item);
+        }
+
+        update();
+    }
+
+    public boolean fitsTrade(Player from, ItemStack... add) {
+        return fitsTrade(from, new ArrayList<>(), add);
+    }
+
+    public boolean fitsTrade(Player from, List<Integer> remove, ItemStack... add) {
+        List<ItemStack> items = new ArrayList<>(Arrays.asList(add));
+        for(Integer slot : this.slots) {
+            if(remove.contains(slot)) continue;
+
+            ItemStack item = this.guis[getId(from)].getItem(slot);
+            if(item != null && item.getType() != Material.AIR) items.add(item);
+        }
+
+        PlayerInventory inv = new PlayerInventory(getOther(from));
+        boolean fits = true;
+
+        for(ItemStack item : items) {
+            if(!inv.addItem(item)) {
+                fits = false;
+                break;
+            }
+        }
+
+        items.clear();
+        return fits;
+    }
+
+    public boolean[] getCursor() {
+        return cursor;
+    }
+
+    public boolean[] getWaitForPickup() {
+        return waitForPickup;
     }
 }
