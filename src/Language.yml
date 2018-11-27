@@ -97,6 +97,7 @@ ENG:
   Cannot_trade_in_that_GameMode: "&7You are &cnot able to trade &7in that gamemode!"
   Other_cannot_trade_in_that_GameMode: "&7This player &ccannot trade &7with his gamemode!"
   Trade_cancelled_by_attack: "&cThe trade was canceled due to an attack."
+  Trade_Partner_No_Space: "&7Your trade partner have &cno space &7in his inventory!"
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -194,3 +195,4 @@ GER:
   Cannot_trade_in_that_GameMode: "&7Du darfst in deinem GameMode &cnicht handeln&7!"
   Other_cannot_trade_in_that_GameMode: "&7Dieser Spieler darf in seinem GameMode &cnicht handeln&7!"
   Trade_cancelled_by_attack: "&cDer Handel wurde aufgrund eines Angriffes abgebrochen."
+  Trade_Partner_No_Space: "&7Dein Handelspartner hat &ckein Platz &7im Inventar!"

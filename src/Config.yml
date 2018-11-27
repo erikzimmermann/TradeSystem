@@ -5,6 +5,9 @@ TradeSystem:
   Trade_with_money: true
   # Both traders have to add an item/money to finish the trade
   Trade_Both: true
+  # true: After finishing a trade all items will be dropped, if the inventory is full
+  # false: Prevent the tradepartner to put to much items into the gui
+  Trade_Drop_Items: true
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50

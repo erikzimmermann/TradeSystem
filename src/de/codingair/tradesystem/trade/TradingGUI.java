@@ -24,6 +24,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TradingGUI extends GUI {
@@ -47,8 +48,126 @@ public class TradingGUI extends GUI {
 
         addListener(new GUIListener() {
             @Override
+            public void onDropItem(InventoryClickEvent e) {
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+                }
+            }
+
+            @Override
+            public void onClickBottomInventory(InventoryClickEvent e) {
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> trade.cancelOverflow(trade.getOther(getPlayer())), 1);
+                }
+            }
+
+            @Override
             public void onInvClickEvent(InventoryClickEvent e) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+                boolean fits = true;
+
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+
+                    //check if fits
+                    switch(e.getAction().name()) {
+                        case "PLACE_ONE": {
+                            ItemStack item = e.getCurrentItem();
+                            List<Integer> remove = new ArrayList<>();
+
+                            if(item != null && item.getType() != Material.AIR) {
+                                item = item.clone();
+                                item.setAmount(item.getAmount() + 1);
+                                remove.add(e.getSlot());
+                            } else {
+                                item = e.getCursor().clone();
+                                item.setAmount(1);
+                            }
+
+                            if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                            break;
+                        }
+
+                        case "PLACE_SOME": {
+                            ItemStack item = e.getCurrentItem().clone();
+                            item.setAmount(item.getMaxStackSize());
+
+                            List<Integer> remove = new ArrayList<>();
+                            remove.add(e.getSlot());
+
+                            if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                            break;
+                        }
+
+                        case "PLACE_ALL":
+                            if(!trade.fitsTrade(getPlayer(), e.getCursor().clone())) fits = false;
+                            break;
+
+                        case "HOTBAR_SWAP": {
+                            ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                            if(item != null && !trade.fitsTrade(getPlayer(), item.clone())) fits = false;
+                            break;
+                        }
+
+                        case "HOTBAR_MOVE_AND_READD": {
+                            ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                            List<Integer> remove = new ArrayList<>();
+                            remove.add(e.getSlot());
+
+                            if(item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
+                            else {
+                                e.setCancelled(true);
+                                ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
+                                ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
+
+                                e.getView().getTopInventory().setItem(e.getSlot(), bottom);
+                                e.getView().getBottomInventory().setItem(e.getHotbarButton(), top);
+                            }
+                            break;
+                        }
+
+                        case "SWAP_WITH_CURSOR": {
+                            List<Integer> remove = new ArrayList<>();
+                            remove.add(e.getSlot());
+
+                            if(!trade.fitsTrade(getPlayer(), remove, e.getCursor().clone())) fits = false;
+                            break;
+                        }
+
+                        case "DROP_ALL_CURSOR":
+                        case "DROP_ALL_SLOT":
+                        case "DROP_ONE_CURSOR":
+                        case "DROP_ONE_SLOT":
+                            if(!trade.fitsTrade(getPlayer(), e.getCurrentItem().clone())) fits = false;
+                            break;
+
+                        default:
+                            fits = true;
+                            break;
+                    }
+                }
+
+                if(!fits) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    e.setCancelled(true);
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
 
             @Override
@@ -62,12 +181,26 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvDragEvent(InventoryDragEvent e) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+                if(!trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    e.setCancelled(true);
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
 
             @Override
             public void onMoveToTopInventory(ItemStack item, int oldRawSlot, List<Integer> newRawSlots) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+
+            }
+
+            @Override
+            public boolean onMoveToTopInventory(int oldRawSlot, List<Integer> newRawSlots, ItemStack item) {
+                if(!trade.fitsTrade(getPlayer(), item)) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    return true;
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+                return false;
             }
 
             @Override
