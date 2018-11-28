@@ -3,9 +3,7 @@ package de.codingair.tradesystem.trade;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -60,13 +58,17 @@ public class TradeManager {
         List<String> l = config.getStringList("TradeSystem.Blacklist");
         if(l != null && !l.isEmpty()) {
             for(String s : l) {
-                this.blacklist.add(BlockedItem.fromString(s));
+                BlockedItem item = BlockedItem.fromString(s);
+                if(item != null) this.blacklist.add(item);
+                else {
+                    TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + s + "\"). Skipping...");
+                }
             }
         }
 
         if(this.blacklist.isEmpty()) {
-            this.blacklist.add(new BlockedItem(Material.PORTAL, (byte) 0));
-            this.blacklist.add(new BlockedItem(Material.PORTAL, (byte) 0, "&cExample"));
+            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0));
+            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0, "&cExample"));
             this.blacklist.add(new BlockedItem("&cExample, which blocks all items with this strange name!"));
             saveBlackList();
         }

@@ -77,6 +77,8 @@ public class BlockedItem {
             String name = json.get("Displayname") == null ? null : (String) json.get("Displayname");
 
             return new BlockedItem(material, data, name);
+        } catch(NoSuchFieldError | IllegalArgumentException ex) {
+            return null;
         } catch(ParseException e) {
             e.printStackTrace();
             return null;
