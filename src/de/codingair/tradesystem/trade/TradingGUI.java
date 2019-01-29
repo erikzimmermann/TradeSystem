@@ -75,8 +75,6 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvClickEvent(InventoryClickEvent e) {
-                boolean fits = true;
-
                 //check if it's blocked
                 ItemStack blockedItem = null;
                 switch(e.getAction().name()) {
@@ -105,8 +103,11 @@ public class TradingGUI extends GUI {
                 if(blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
                     e.setCancelled(true);
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    return;
                 }
 
+                boolean fits = true;
                 if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
                     //check for cursor
                     trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
@@ -236,20 +237,19 @@ public class TradingGUI extends GUI {
             @Override
             public boolean onMoveToTopInventory(int oldRawSlot, List<Integer> newRawSlots, ItemStack item) {
                 //check if it's blocked
-                boolean cancel = false;
-
                 if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
-                    cancel = true;
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    return true;
                 }
 
-                if(!cancel && !trade.fitsTrade(getPlayer(), item)) {
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), item)) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
                     Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
                     return true;
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
 
-                return cancel;
+                return false;
             }
 
             @Override

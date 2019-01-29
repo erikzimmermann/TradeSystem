@@ -77,7 +77,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
         getComponent("layout", "edit").addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
                     if(layout.isStandard()) continue;
                     suggestions.add(layout.getName());
@@ -113,7 +113,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
         getComponent("layout", "activate").addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
                     suggestions.add(layout.getName());
                 }
@@ -149,7 +149,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
         getComponent("layout", "delete").addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
                     if(layout.isStandard()) continue;
                     suggestions.add(layout.getName());
