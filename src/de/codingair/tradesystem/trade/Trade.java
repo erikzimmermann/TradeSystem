@@ -191,7 +191,9 @@ public class Trade {
     private boolean fit(Player player, ItemStack item) {
         int amount = item.getAmount();
 
-        for(ItemStack itemStack : player.getInventory().getContents()) {
+        for(int i = 0; i < 36; i++) {
+            ItemStack itemStack = player.getInventory().getContents()[i];
+
             if(itemStack == null || itemStack.getType().equals(Material.AIR)) return true;
             if(itemStack.isSimilar(item) && itemStack.getAmount() < itemStack.getMaxStackSize()) {
                 amount -= itemStack.getMaxStackSize() - itemStack.getAmount();
@@ -223,13 +225,25 @@ public class Trade {
             ItemStack i1 = this.guis[1].getItem(slot);
 
             if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                if(fit(this.players[0], i0)) this.players[0].getInventory().addItem(i0);
-                else Environment.dropItem(i0, this.players[0]);
+                if(fit(this.players[0], i0)) {
+                    this.players[0].getInventory().addItem(i0);
+                    System.out.println("0-Fits");
+                }
+                else {
+                    Environment.dropItem(i0, this.players[0]);
+                    System.out.println("0-Drop");
+                }
             }
 
             if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                if(fit(this.players[1], i1)) this.players[1].getInventory().addItem(i1);
-                else Environment.dropItem(i1, this.players[1]);
+                if(fit(this.players[1], i1)) {
+                    this.players[1].getInventory().addItem(i1);
+                    System.out.println("1-Fits");
+                }
+                else {
+                    Environment.dropItem(i1, this.players[1]);
+                    System.out.println("1-Drop");
+                }
             }
         }
 

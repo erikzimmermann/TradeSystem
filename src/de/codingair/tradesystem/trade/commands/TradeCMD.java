@@ -73,7 +73,7 @@ public class TradeCMD extends CommandBuilder {
 
         getComponent("accept").addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 List<String> l = invites.get(sender.getName());
                 if(l == null) return;
                 suggestions.addAll(l);
@@ -117,7 +117,7 @@ public class TradeCMD extends CommandBuilder {
 
         getComponent("deny").addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 List<String> l = invites.get(sender.getName());
                 if(l == null) return;
                 suggestions.addAll(l);
@@ -151,7 +151,7 @@ public class TradeCMD extends CommandBuilder {
         //INVITE
         getBaseComponent().addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(Player player : Bukkit.getOnlinePlayers()) {
                     if(player.getName().equals(sender.getName())) continue;
 
