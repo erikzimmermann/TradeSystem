@@ -84,10 +84,7 @@ public class TradeCMD extends CommandBuilder {
                     other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", sender.getName()));
 
                     TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
-                } else {
-                    sender.sendMessage("List: " + l.size());
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To_Accept"));
-                }
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
                 return false;
             }
         });
@@ -145,7 +142,7 @@ public class TradeCMD extends CommandBuilder {
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
                     other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
-                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To_Deny"));
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
                 return false;
             }
         });
