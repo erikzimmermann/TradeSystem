@@ -68,6 +68,11 @@ public class TradeCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("accept") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
+                if(((Player) sender).isSleeping()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    return false;
+                }
+
                 List<Invite> l = invites.get(sender.getName());
 
                 if(l == null || l.isEmpty()) {
@@ -101,6 +106,11 @@ public class TradeCMD extends CommandBuilder {
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                if(((Player) sender).isSleeping()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    return false;
+                }
+
                 List<Invite> l = invites.get(sender.getName());
 
                 if(l != null && l.contains(new Invite(argument))) {
@@ -238,6 +248,12 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(p.isSleeping()) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+            return;
+        }
+
+
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
             return;
@@ -260,10 +276,9 @@ public class TradeCMD extends CommandBuilder {
             }
         }
 
-
         TimeList<Invite> l = TradeSystem.getInstance().getTradeCMD().getInvites().get(p.getName());
         if(l != null && l.contains(new Invite(other.getName()))) {
-            l.remove(other.getName());
+            l.remove(new Invite(other.getName()));
 
             p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", p.getName()));
@@ -324,5 +339,9 @@ public class TradeCMD extends CommandBuilder {
 
     public TimeMap<String, TimeList<Invite>> getInvites() {
         return invites;
+    }
+
+    public void removesAllInvitesFrom(Player player) {
+        getInvites().forEach((other, invites) -> invites.remove(new Invite(player.getName())));
     }
 }

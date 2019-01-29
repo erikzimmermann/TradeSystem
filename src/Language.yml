@@ -105,6 +105,7 @@ ENG:
   Trade_Partner_is_Offline: "&7This player is &cnot available &7for trade requests!"
   Trade_You_are_Offline: '&7Use "%COMMAND%&e/trade toggle%COMMAND%&7" to trade again.'
   Trade_Placed_Blocked_Item: "&7This item &ccannot &7be traded!"
+  Cannot_trade_in_bed: "&cYou cannot trade&7, while you're lying in bed."
 
 GER:
   No_Permissions: "Du hast keine Berechtigungen für diese Aktion!"
@@ -210,3 +211,4 @@ GER:
   Trade_Partner_is_Offline: "&7Dieser Spieler ist &cnicht &7für Handelsanfragen &cerreichbar&7!"
   Trade_You_are_Offline: '&7Benutze "%COMMAND%&e/trade toggle%COMMAND%&7", um handeln zu können.'
   Trade_Placed_Blocked_Item: "&7Dieses Item kann &cnicht &7gehandelt werden!"
+  Cannot_trade_in_bed: "&cDu kannst nicht handeln&7, während du im Bett liegst."
