@@ -6,6 +6,7 @@ import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButtonOption;
 import de.codingair.codingapi.server.Sound;
+import de.codingair.codingapi.server.SoundData;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.utils.TextAlignment;
 import de.codingair.tradesystem.TradeSystem;
@@ -280,7 +281,7 @@ public class TradingGUI extends GUI {
 
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
-        option.setClickSound(Sound.CLICK.bukkitSound());
+        option.setClickSound2(new SoundData(Sound.CLICK, 0.6F, 1F));
 
         switch(item.getFunction()) {
             case DECORATION: {

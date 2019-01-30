@@ -30,6 +30,7 @@ public class TradeManager {
     private SoundData soundFinish = null;
     private SoundData soundCancel = null;
     private SoundData soundBlocked = null;
+    private SoundData soundRequest = null;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -56,36 +57,50 @@ public class TradeManager {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
 
+        TradeSystem.log("  > Loading sounds");
         try {
-            this.soundStarted = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Started.Name", "LEVEL_UP")),
+            this.soundStarted = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0));
         } catch(Exception ex) {
-            this.soundStarted = new SoundData(Sound.LEVEL_UP, 0.6F, 1F);
+            this.soundStarted = null;
+            TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
         }
 
         try {
-            this.soundFinish = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Finished.Name", "LEVEL_UP")),
+            this.soundFinish = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0));
-        } catch(Exception ex) {
-            this.soundFinish = new SoundData(Sound.LEVEL_UP, 0.6F, 1F);
+        } catch(Exception ignored) {
+            this.soundFinish = null;
+            TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
         }
 
         try {
-            this.soundBlocked = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", "NOTE_BASS")),
+            this.soundBlocked = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.8),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 0.6));
-        } catch(Exception ex) {
-            this.soundBlocked = new SoundData(Sound.NOTE_BASS, 0.8F, 0.6F);
+        } catch(Exception ignored) {
+            this.soundBlocked = null;
+            TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
         }
 
         try {
-            this.soundCancel = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", "ITEM_BREAK")),
+            this.soundCancel = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6),
                     (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0));
-        } catch(Exception ex) {
-            this.soundCancel = new SoundData(Sound.ITEM_BREAK, 0.6F, 1F);
+        } catch(Exception ignored) {
+            this.soundCancel = null;
+            TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
+        }
+
+        try {
+            this.soundRequest = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0));
+        } catch(Exception ignored) {
+            this.soundRequest = null;
+            TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
         }
 
         this.allowedGameModes.clear();
@@ -114,6 +129,10 @@ public class TradeManager {
         TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
 
         if(save) file.saveConfig();
+    }
+
+    public void playRequestSound(Player player) {
+        this.soundRequest.play(player);
     }
 
     public void playStartSound(Player player) {
