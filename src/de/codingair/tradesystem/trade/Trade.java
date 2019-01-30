@@ -108,8 +108,8 @@ public class Trade {
         this.guis[0].open();
         this.guis[1].open();
 
-        Sound.LEVEL_UP.playSound(this.players[0], 0.6F, 1F);
-        Sound.LEVEL_UP.playSound(this.players[1], 0.6F, 1F);
+        TradeSystem.getInstance().getTradeManager().playStartSound(this.players[0]);
+        TradeSystem.getInstance().getTradeManager().playStartSound(this.players[1]);
     }
 
     public void cancel() {
@@ -136,8 +136,8 @@ public class Trade {
             this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
         }
 
-        this.players[0].playSound(this.players[0].getLocation(), Sound.ITEM_BREAK.bukkitSound(), 0.6F, 1);
-        this.players[1].playSound(this.players[1].getLocation(), Sound.ITEM_BREAK.bukkitSound(), 0.6F, 1);
+        TradeSystem.getInstance().getTradeManager().playCancelSound(this.players[0]);
+        TradeSystem.getInstance().getTradeManager().playCancelSound(this.players[1]);
 
         this.players[0].closeInventory();
         this.players[1].closeInventory();
@@ -259,8 +259,8 @@ public class Trade {
         this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
         this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
 
-        this.players[0].playSound(this.players[0].getLocation(), Sound.LEVEL_UP.bukkitSound(), 0.6F, 1);
-        this.players[1].playSound(this.players[1].getLocation(), Sound.LEVEL_UP.bukkitSound(), 0.6F, 1);
+        TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[0]);
+        TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[1]);
     }
 
     public boolean isFinished() {

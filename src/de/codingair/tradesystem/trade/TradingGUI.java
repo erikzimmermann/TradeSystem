@@ -103,7 +103,7 @@ public class TradingGUI extends GUI {
                 if(blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
                     e.setCancelled(true);
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
-                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return;
                 }
 
@@ -198,7 +198,7 @@ public class TradingGUI extends GUI {
 
                 if(!fits) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
-                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
@@ -224,7 +224,7 @@ public class TradingGUI extends GUI {
 
                 if(!e.isCancelled() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
-                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
@@ -239,13 +239,13 @@ public class TradingGUI extends GUI {
                 //check if it's blocked
                 if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
-                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return true;
                 }
 
                 if(!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), item)) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
-                    Sound.NOTE_BASS.playSound(getPlayer(), 0.8F, 0.6F);
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return true;
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
 
