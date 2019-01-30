@@ -17,6 +17,26 @@ TradeSystem:
     Rightclick: false
     # Shift-Rightclick
     Shiftclick: true
+  # Sound names can be found here: https://github.com/CodingAir/CodingAPI/blob/CodingAir/src/de/codingair/codingapi/server/Sound.java
+  # The name is here the first name in front of the '('. Example: AMBIENCE_CAVE in line 12: "(»)AMBIENCE_CAVE(«)("AMBIENCE_CAVE", "AMBIENT_CAVE"),"
+  # Make sure that the names have the correct cases!
+  Sounds:
+    Trade_Started:
+      Name: LEVEL_UP
+      Volume: 0.6
+      Pitch: 1.0
+    Trade_Finished:
+      Name: LEVEL_UP
+      Volume: 0.6
+      Pitch: 1.0
+    Trade_Blocked:
+      Name: NOTE_BASS
+      Volume: 0.8
+      Pitch: 0.6
+    Trade_Cancelled:
+      Name: ITEM_BREAK
+      Volume: 0.6
+      Pitch: 1.0
   Allowed_GameModes:
   - SURVIVAL
   Blacklist: []

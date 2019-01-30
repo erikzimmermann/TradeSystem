@@ -3,7 +3,6 @@ package de.codingair.tradesystem;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.server.Version;
-import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.time.Timer;
 import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
@@ -14,16 +13,16 @@ import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
+import de.codingair.warpsystem.spigot.base.WarpSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
@@ -134,8 +133,11 @@ public class TradeSystem extends JavaPlugin {
     }
 
     public void reload() {
-        Bukkit.getPluginManager().disablePlugin(this);
-        Bukkit.getPluginManager().enablePlugin(this);
+        try {
+            API.getInstance().reload(this);
+        } catch(InvalidDescriptionException | InvalidPluginException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void log(String message) {
