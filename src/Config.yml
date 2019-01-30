@@ -37,6 +37,10 @@ TradeSystem:
       Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0
+    Trade_Request:
+      Name: ORB_PICKUP
+      Volume: 0.6
+      Pitch: 1.0
   Allowed_GameModes:
   - SURVIVAL
   Blacklist: []

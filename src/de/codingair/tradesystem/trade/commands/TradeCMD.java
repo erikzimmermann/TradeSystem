@@ -335,6 +335,8 @@ public class TradeCMD extends CommandBuilder {
 
         other.spigot().sendMessage(basic);
         p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", other.getName()));
+
+        TradeSystem.getInstance().getTradeManager().playRequestSound(other);
     }
 
     public TimeMap<String, TimeList<Invite>> getInvites() {
