@@ -225,25 +225,13 @@ public class Trade {
             ItemStack i1 = this.guis[1].getItem(slot);
 
             if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                if(fit(this.players[0], i0)) {
-                    this.players[0].getInventory().addItem(i0);
-                    System.out.println("0-Fits");
-                }
-                else {
-                    Environment.dropItem(i0, this.players[0]);
-                    System.out.println("0-Drop");
-                }
+                if(fit(this.players[0], i0)) this.players[0].getInventory().addItem(i0);
+                else Environment.dropItem(i0, this.players[0]);
             }
 
             if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                if(fit(this.players[1], i1)) {
-                    this.players[1].getInventory().addItem(i1);
-                    System.out.println("1-Fits");
-                }
-                else {
-                    Environment.dropItem(i1, this.players[1]);
-                    System.out.println("1-Drop");
-                }
+                if(fit(this.players[1], i1)) this.players[1].getInventory().addItem(i1);
+                else Environment.dropItem(i1, this.players[1]);
             }
         }
 
