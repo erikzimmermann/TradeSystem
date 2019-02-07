@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.trade.commands;
 
+import de.codingair.codingapi.player.chat.ChatButton;
+import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.codingapi.server.commands.BaseComponent;
 import de.codingair.codingapi.server.commands.CommandBuilder;
 import de.codingair.codingapi.server.commands.CommandComponent;
@@ -8,6 +10,7 @@ import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.codingapi.tools.time.TimeListener;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.utils.Invite;
 import de.codingair.tradesystem.utils.Lang;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -21,7 +24,7 @@ import java.util.List;
 
 public class TradeCMD extends CommandBuilder {
     private static String PERMISSION = "TradeSystem.Trade";
-    private TimeMap<String, TimeList<String>> invites = new TimeMap<>();
+    private TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
 
     public TradeCMD() {
         super("Trade", new BaseComponent(PERMISSION) {
@@ -47,37 +50,77 @@ public class TradeCMD extends CommandBuilder {
             }
         }.setOnlyPlayers(true), true);
 
-        //ACCEPT
-        getBaseComponent().addChild(new CommandComponent("accept") {
+        //TOGGLE
+        getBaseComponent().addChild(new CommandComponent("toggle") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To_Accept"));
+                if(TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline"));
+                    invites.remove(sender.getName());
+                } else {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Online"));
+                }
                 return false;
             }
         });
 
-        getComponent("accept").addChild(new MultiCommandComponent() {
+        //ACCEPT
+        getBaseComponent().addChild(new CommandComponent("accept") {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
-                List<String> l = invites.get(sender.getName());
-                if(l == null) return;
-                suggestions.addAll(l);
-            }
+            public boolean runCommand(CommandSender sender, String label, String[] args) {
+                if(((Player) sender).isSleeping()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    return false;
+                }
 
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                List<String> l = invites.get(sender.getName());
-                if(l == null) return false;
+                List<Invite> l = invites.get(sender.getName());
 
-                if(l.contains(argument)) {
-                    Player other = Bukkit.getPlayer(argument);
+                if(l == null || l.isEmpty()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found"));
+                } else if(l.size() == 1) {
+                    Player other = Bukkit.getPlayer(l.remove(0).getName());
 
                     if(other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
                         return false;
                     }
 
-                    l.remove(argument);
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", sender.getName()));
+
+                    TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
+                return false;
+            }
+        });
+
+        getComponent("accept").addChild(new MultiCommandComponent() {
+            @Override
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
+                List<Invite> l = invites.get(sender.getName());
+                if(l == null) return;
+                for(Invite invite : l) {
+                    suggestions.add(invite.getName());
+                }
+            }
+
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                if(((Player) sender).isSleeping()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    return false;
+                }
+
+                List<Invite> l = invites.get(sender.getName());
+
+                if(l != null && l.contains(new Invite(argument))) {
+                    Player other = Bukkit.getPlayer(argument);
+                    l.remove(new Invite(argument));
+
+                    if(other == null) {
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        return false;
+                    }
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
                     other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", sender.getName()));
@@ -95,33 +138,47 @@ public class TradeCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("deny") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To_Deny"));
-                return false;
-            }
-        });
+                List<Invite> l = invites.get(sender.getName());
 
-        getComponent("deny").addChild(new MultiCommandComponent() {
-            @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
-                List<String> l = invites.get(sender.getName());
-                if(l == null) return;
-                suggestions.addAll(l);
-            }
-
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                List<String> l = invites.get(sender.getName());
-                if(l == null) return false;
-
-                if(l.contains(argument)) {
-                    Player other = Bukkit.getPlayer(argument);
+                if(l == null || l.isEmpty()) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found"));
+                } else if(l.size() == 1) {
+                    Player other = Bukkit.getPlayer(l.remove(0).getName());
 
                     if(other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
                         return false;
                     }
 
-                    l.remove(argument);
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
+                return false;
+            }
+        });
+
+        getComponent("deny").addChild(new MultiCommandComponent() {
+            @Override
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
+                List<Invite> l = invites.get(sender.getName());
+                if(l == null) return;
+                for(Invite invite : l) {
+                    suggestions.add(invite.getName());
+                }
+            }
+
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                List<Invite> l = invites.get(sender.getName());
+
+                if(l != null && l.contains(new Invite(argument))) {
+                    Player other = Bukkit.getPlayer(argument);
+                    l.remove(new Invite(argument));
+
+                    if(other == null) {
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        return false;
+                    }
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
                     other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
@@ -136,12 +193,12 @@ public class TradeCMD extends CommandBuilder {
         //INVITE
         getBaseComponent().addChild(new MultiCommandComponent() {
             @Override
-            public void addArguments(CommandSender sender, List<String> suggestions) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(Player player : Bukkit.getOnlinePlayers()) {
                     if(player.getName().equals(sender.getName())) continue;
 
-                    TimeList<String> l = invites.get(player.getName());
-                    if(l != null && l.contains(sender.getName())) continue;
+                    TimeList<Invite> l = invites.get(player.getName());
+                    if(l != null && l.contains(new Invite(sender.getName()))) continue;
                     suggestions.add(player.getName());
                 }
             }
@@ -160,6 +217,27 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
+            String[] a = Lang.get("Trade_You_are_Offline").split("%COMMAND%", -1);
+
+            String s0 = a[0];
+            String s = a[1];
+            String s1 = a[2];
+
+            SimpleMessage message = new SimpleMessage(Lang.getPrefix() + s0, TradeSystem.getInstance());
+            message.add(new ChatButton(s, Lang.get("Want_To_Trade_Hover")) {
+                @Override
+                public void onClick(Player player) {
+                    p.performCommand("trade toggle");
+                    message.destroy();
+                }
+            });
+
+            message.add(new TextComponent(s1));
+            message.send(p);
+            return;
+        }
+
         if(other == null) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
             return;
@@ -169,6 +247,12 @@ public class TradeCMD extends CommandBuilder {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
             return;
         }
+
+        if(p.isSleeping()) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+            return;
+        }
+
 
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
@@ -180,6 +264,11 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isOffline(other)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline"));
+            return;
+        }
+
         if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
             if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
                 p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range").replace("%PLAYER%", other.getName()));
@@ -187,10 +276,9 @@ public class TradeCMD extends CommandBuilder {
             }
         }
 
-
-        TimeList<String> l = TradeSystem.getInstance().getTradeCMD().getInvites().get(p.getName());
-        if(l != null && l.contains(other.getName())) {
-            l.remove(other.getName());
+        TimeList<Invite> l = TradeSystem.getInstance().getTradeCMD().getInvites().get(p.getName());
+        if(l != null && l.contains(new Invite(other.getName()))) {
+            l.remove(new Invite(other.getName()));
 
             p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", p.getName()));
@@ -200,13 +288,13 @@ public class TradeCMD extends CommandBuilder {
         }
 
         l = TradeSystem.getInstance().getTradeCMD().getInvites().get(other.getName());
-        if(l != null && l.contains(p.getName())) {
+        if(l != null && l.contains(new Invite(p.getName()))) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
             return;
         }
 
         if(l == null) l = new TimeList<>();
-        l.add(p.getName(), TradeSystem.getInstance().getTradeManager().getCooldown());
+        l.add(new Invite(p.getName()), TradeSystem.getInstance().getTradeManager().getCooldown());
         TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown());
 
         List<TextComponent> parts = new ArrayList<>();
@@ -247,9 +335,15 @@ public class TradeCMD extends CommandBuilder {
 
         other.spigot().sendMessage(basic);
         p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", other.getName()));
+
+        TradeSystem.getInstance().getTradeManager().playRequestSound(other);
     }
 
-    public TimeMap<String, TimeList<String>> getInvites() {
+    public TimeMap<String, TimeList<Invite>> getInvites() {
         return invites;
+    }
+
+    public void removesAllInvitesFrom(Player player) {
+        getInvites().forEach((other, invites) -> invites.remove(new Invite(player.getName())));
     }
 }

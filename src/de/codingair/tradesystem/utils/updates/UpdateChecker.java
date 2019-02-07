@@ -126,4 +126,8 @@ public class UpdateChecker {
     public String getUpdateInfo() {
         return updateInfo;
     }
+
+    public String getLink() {
+        return link;
+    }
 }

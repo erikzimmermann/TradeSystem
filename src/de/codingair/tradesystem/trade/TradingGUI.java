@@ -6,6 +6,7 @@ import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButtonOption;
 import de.codingair.codingapi.server.Sound;
+import de.codingair.codingapi.server.SoundData;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.utils.TextAlignment;
 import de.codingair.tradesystem.TradeSystem;
@@ -24,6 +25,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TradingGUI extends GUI {
@@ -47,8 +49,159 @@ public class TradingGUI extends GUI {
 
         addListener(new GUIListener() {
             @Override
+            public void onDropItem(InventoryClickEvent e) {
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+                }
+            }
+
+            @Override
+            public void onClickBottomInventory(InventoryClickEvent e) {
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> trade.cancelOverflow(trade.getOther(getPlayer())), 1);
+                }
+            }
+
+            @Override
             public void onInvClickEvent(InventoryClickEvent e) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+                //check if it's blocked
+                ItemStack blockedItem = null;
+                switch(e.getAction().name()) {
+                    case "SWAP_WITH_CURSOR":
+                    case "PLACE_ALL":
+                    case "PLACE_ONE": {
+                        //check cursor
+                        blockedItem = e.getCursor();
+                        break;
+                    }
+
+                    case "MOVE_TO_OTHER_INVENTORY": {
+                        //check current
+                        blockedItem = e.getCurrentItem();
+                        break;
+                    }
+
+                    case "HOTBAR_SWAP":
+                    case "HOTBAR_MOVE_AND_READD": {
+                        //check hotbar
+                        blockedItem = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                        break;
+                    }
+                }
+
+                if(blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
+                    e.setCancelled(true);
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
+                    return;
+                }
+
+                boolean fits = true;
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems()) {
+                    //check for cursor
+                    trade.getWaitForPickup()[trade.getId(getPlayer())] = true;
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                        trade.getCursor()[trade.getId(getPlayer())] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                        trade.getWaitForPickup()[trade.getId(getPlayer())] = false;
+                    }, 1);
+
+                    if(!e.isCancelled()) {
+                        //check if fits
+                        switch(e.getAction().name()) {
+                            case "PLACE_ONE": {
+                                ItemStack item = e.getCurrentItem();
+                                List<Integer> remove = new ArrayList<>();
+
+                                if(item != null && item.getType() != Material.AIR) {
+                                    item = item.clone();
+                                    item.setAmount(item.getAmount() + 1);
+                                    remove.add(e.getSlot());
+                                } else {
+                                    item = e.getCursor().clone();
+                                    item.setAmount(1);
+                                }
+
+                                if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                                break;
+                            }
+
+                            case "PLACE_SOME": {
+                                ItemStack item = e.getCurrentItem().clone();
+                                item.setAmount(item.getMaxStackSize());
+
+                                List<Integer> remove = new ArrayList<>();
+                                remove.add(e.getSlot());
+
+                                if(!trade.fitsTrade(getPlayer(), remove, item)) fits = false;
+                                break;
+                            }
+
+                            case "PLACE_ALL":
+                                if(!trade.fitsTrade(getPlayer(), e.getCursor().clone())) fits = false;
+                                break;
+
+                            case "HOTBAR_SWAP": {
+                                ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                                if(item != null && !trade.fitsTrade(getPlayer(), item.clone())) fits = false;
+                                break;
+                            }
+
+                            case "HOTBAR_MOVE_AND_READD": {
+                                ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                                List<Integer> remove = new ArrayList<>();
+                                remove.add(e.getSlot());
+
+                                if(item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
+                                else {
+                                    e.setCancelled(true);
+                                    ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
+                                    ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
+
+                                    e.getView().getTopInventory().setItem(e.getSlot(), bottom);
+                                    e.getView().getBottomInventory().setItem(e.getHotbarButton(), top);
+                                }
+                                break;
+                            }
+
+                            case "SWAP_WITH_CURSOR": {
+                                List<Integer> remove = new ArrayList<>();
+                                remove.add(e.getSlot());
+
+                                if(!trade.fitsTrade(getPlayer(), remove, e.getCursor().clone())) fits = false;
+                                break;
+                            }
+
+                            case "DROP_ALL_CURSOR":
+                            case "DROP_ALL_SLOT":
+                            case "DROP_ONE_CURSOR":
+                            case "DROP_ONE_SLOT":
+                                if(!trade.fitsTrade(getPlayer(), e.getCurrentItem().clone())) fits = false;
+                                break;
+
+                            default:
+                                fits = true;
+                                break;
+                        }
+                    }
+                }
+
+                if(!fits) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
+                    e.setCancelled(true);
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
 
             @Override
@@ -62,12 +215,42 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvDragEvent(InventoryDragEvent e) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+                if(e.getNewItems().isEmpty()) return;
+
+                //check if it's blocked
+                if(TradeSystem.getInstance().getTradeManager().isBlocked(e.getNewItems().values().iterator().next())) {
+                    e.setCancelled(true);
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                }
+
+                if(!e.isCancelled() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
+                    e.setCancelled(true);
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
             }
 
             @Override
             public void onMoveToTopInventory(ItemStack item, int oldRawSlot, List<Integer> newRawSlots) {
-                Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+
+            }
+
+            @Override
+            public boolean onMoveToTopInventory(int oldRawSlot, List<Integer> newRawSlots, ItemStack item) {
+                //check if it's blocked
+                if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
+                    return true;
+                }
+
+                if(!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), item)) {
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
+                    return true;
+                } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
+
+                return false;
             }
 
             @Override
@@ -79,6 +262,8 @@ public class TradingGUI extends GUI {
 
     @Override
     public void initialize(Player p) {
+        setBuffering(true);
+
         for(int i = 0; i < 54; i++) {
             if(trade.getSlots().contains(i) || trade.getOtherSlots().contains(i)) continue;
             setItem(i, new ItemStack(Material.AIR));
@@ -87,6 +272,8 @@ public class TradingGUI extends GUI {
         for(Item item : this.layout.getItems()) {
             handleItem(item);
         }
+
+        release();
     }
 
     private void handleItem(Item item) {
@@ -94,7 +281,7 @@ public class TradingGUI extends GUI {
 
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
-        option.setClickSound(Sound.CLICK.bukkitSound());
+        option.setClickSound2(new SoundData(Sound.CLICK, 0.6F, 1F));
 
         switch(item.getFunction()) {
             case DECORATION: {
@@ -104,7 +291,7 @@ public class TradingGUI extends GUI {
 
             case PICK_MONEY: {
                 if(AdapterType.canEnable()) {
-                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[id] + " Coin" + (trade.getMoney()[id] == 1 ? "" : "s")).addLore("", "§7» " + Lang.get("Click_To_Change"));
+                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[id] + " " + (trade.getMoney()[id] == 1 ? Lang.get("Coin") : Lang.get("Coins"))).addLore("", "§7» " + Lang.get("Click_To_Change"));
                     if(trade.getMoney()[id] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
@@ -132,12 +319,14 @@ public class TradingGUI extends GUI {
                                     }
 
                                     if(amount < 0) {
+                                        amount = -999;
                                         e.getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount"));
                                         return;
                                     }
 
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
+                                        amount = -999;
                                         e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin").replace("%COIN%", max + "") : Lang.get("Only_X_Coins").replace("%COINS%", max + "")));
                                         return;
                                     }
@@ -175,11 +364,13 @@ public class TradingGUI extends GUI {
             }
 
             case MONEY_REPLACEMENT: {
-                if(!AdapterType.canEnable()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).getItem());
+                if(!AdapterType.canEnable()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
                 break;
             }
 
             case PICK_STATUS_NONE: {
+                if(!TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades()) break;
+
                 boolean canFinish = false;
                 for(Integer slot : trade.getSlots()) {
                     if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
@@ -195,11 +386,14 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_NOT_READY: {
-                boolean canFinish = false;
-                for(Integer slot : trade.getSlots()) {
-                    if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
+
+                if(!canFinish) {
+                    for(Integer slot : trade.getSlots()) {
+                        if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                    }
+                    if(trade.getMoney()[id] != 0) canFinish = true;
                 }
-                if(trade.getMoney()[id] != 0) canFinish = true;
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
@@ -218,11 +412,14 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_READY: {
-                boolean canFinish = false;
-                for(Integer slot : trade.getSlots()) {
-                    if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
+
+                if(!canFinish) {
+                    for(Integer slot : trade.getSlots()) {
+                        if(getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+                    }
+                    if(trade.getMoney()[id] != 0) canFinish = true;
                 }
-                if(trade.getMoney()[id] != 0) canFinish = true;
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {

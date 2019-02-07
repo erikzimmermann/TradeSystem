@@ -1,23 +1,36 @@
 package de.codingair.tradesystem.trade;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.server.Sound;
+import de.codingair.codingapi.server.SoundData;
 import de.codingair.tradesystem.TradeSystem;
-import org.bukkit.GameMode;
-import org.bukkit.Sound;
+import de.codingair.tradesystem.utils.blacklist.BlockedItem;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TradeManager {
+    private List<Player> offline = new ArrayList<>();
     private List<Trade> tradeList = new ArrayList<>();
+    private List<BlockedItem> blacklist = new ArrayList<>();
     private int cooldown = 60;
     private int distance = 50;
 
+    private boolean cancelOnDamage = true;
     private boolean requestOnRightclick = false;
     private boolean shiftclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
+    private boolean tradeBoth = true;
+    private boolean dropItems = true;
+    private SoundData soundStarted = null;
+    private SoundData soundFinish = null;
+    private SoundData soundCancel = null;
+    private SoundData soundBlocked = null;
+    private SoundData soundRequest = null;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -38,14 +51,117 @@ public class TradeManager {
             }
         } else this.distance = -1;
 
+        this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
         this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
+        this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
+        this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
+
+        TradeSystem.log("  > Loading sounds");
+        try {
+            this.soundStarted = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0));
+        } catch(Exception ex) {
+            this.soundStarted = null;
+            TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
+        }
+
+        try {
+            this.soundFinish = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0));
+        } catch(Exception ignored) {
+            this.soundFinish = null;
+            TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
+        }
+
+        try {
+            this.soundBlocked = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.8),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 0.6));
+        } catch(Exception ignored) {
+            this.soundBlocked = null;
+            TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
+        }
+
+        try {
+            this.soundCancel = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0));
+        } catch(Exception ignored) {
+            this.soundCancel = null;
+            TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
+        }
+
+        try {
+            this.soundRequest = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0));
+        } catch(Exception ignored) {
+            this.soundRequest = null;
+            TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
+        }
 
         this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
         if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
 
+        TradeSystem.log("  > Loading blacklist");
+        List<String> l = config.getStringList("TradeSystem.Blacklist");
+        if(l != null && !l.isEmpty()) {
+            for(String s : l) {
+                BlockedItem item = BlockedItem.fromString(s);
+                if(item != null) this.blacklist.add(item);
+                else {
+                    TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + s + "\"). Skipping...");
+                }
+            }
+        }
+
+        if(this.blacklist.isEmpty()) {
+            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0));
+            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0, "&cExample"));
+            this.blacklist.add(new BlockedItem("&cExample, which blocks all items with this strange name!"));
+            saveBlackList();
+        }
+
+        TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
+
         if(save) file.saveConfig();
+    }
+
+    public void playRequestSound(Player player) {
+        this.soundRequest.play(player);
+    }
+
+    public void playStartSound(Player player) {
+        this.soundStarted.play(player);
+    }
+
+    public void playFinishSound(Player player) {
+        this.soundFinish.play(player);
+    }
+
+    public void playBlockSound(Player player) {
+        this.soundBlocked.play(player);
+    }
+
+    public void playCancelSound(Player player) {
+        this.soundCancel.play(player);
+    }
+
+    public void saveBlackList() {
+        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+        FileConfiguration config = file.getConfig();
+        List<String> l = new ArrayList<>();
+
+        for(BlockedItem block : this.blacklist) {
+            l.add(block.toString());
+        }
+
+        config.set("TradeSystem.Blacklist", l);
+        file.saveConfig();
     }
 
     public void startTrade(Player player, Player other) {
@@ -70,6 +186,19 @@ public class TradeManager {
         return tradeList;
     }
 
+    public Trade getTrade(Player player) {
+        for(Trade trade : this.tradeList) {
+            if(trade.isParticipant(player)) return trade;
+        }
+
+        return null;
+    }
+
+
+    public boolean isTrading(Player player) {
+        return getTrade(player) != null;
+    }
+
     public int getCooldown() {
         return cooldown;
     }
@@ -88,5 +217,47 @@ public class TradeManager {
 
     public List<String> getAllowedGameModes() {
         return allowedGameModes;
+    }
+
+    public boolean isCancelOnDamage() {
+        return cancelOnDamage;
+    }
+
+    public boolean isTradeBoth() {
+        return tradeBoth;
+    }
+
+    public boolean isDropItems() {
+        return dropItems;
+    }
+
+    public void setDropItems(boolean dropItems) {
+        this.dropItems = dropItems;
+    }
+
+    public boolean isOffline(Player player) {
+        return this.offline.contains(player);
+    }
+
+    public boolean toggle(Player player) {
+        if(isOffline(player)) {
+            this.offline.remove(player);
+            return false;
+        } else {
+            this.offline.add(player);
+            return true;
+        }
+    }
+
+    public List<BlockedItem> getBlacklist() {
+        return blacklist;
+    }
+
+    public boolean isBlocked(ItemStack item) {
+        for(BlockedItem blocked : this.blacklist) {
+            if(blocked.matches(item)) return true;
+        }
+
+        return false;
     }
 }

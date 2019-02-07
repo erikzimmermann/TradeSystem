@@ -13,10 +13,16 @@ import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
+import de.codingair.warpsystem.spigot.base.WarpSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
@@ -30,6 +36,8 @@ public class TradeSystem extends JavaPlugin {
     private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
     private Timer timer = new Timer();
+
+    private TradeSystemCMD tradeSystemCMD;
     private TradeCMD tradeCMD;
 
     @Override
@@ -57,8 +65,14 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
 
         this.fileManager.loadAll();
-        if(this.fileManager.getFile("Config") == null) this.fileManager.loadFile("Config", "/");
-        if(this.fileManager.getFile("Language") == null) this.fileManager.loadFile("Language", "/");
+        if(this.fileManager.getFile("Config") == null) {
+            this.fileManager.loadFile("Config", "/");
+            this.fileManager.getFile("Config").reloadConfig();
+        }
+        if(this.fileManager.getFile("Language") == null) {
+            this.fileManager.loadFile("Language", "/");
+            this.fileManager.getFile("Language").reloadConfig();
+        }
         if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
 
         this.tradeManager.load();
@@ -69,7 +83,9 @@ public class TradeSystem extends JavaPlugin {
 
         tradeCMD = new TradeCMD();
         tradeCMD.register(this);
-        new TradeSystemCMD().register(this);
+
+        tradeSystemCMD = new TradeSystemCMD();
+        tradeSystemCMD.register(this);
 
         timer.stop();
         log(" ");
@@ -101,6 +117,10 @@ public class TradeSystem extends JavaPlugin {
         log("  > Cancelling all active trades");
         this.tradeManager.cancelAll();
         this.layoutManager.save();
+
+        this.tradeCMD.unregister(this);
+        this.tradeSystemCMD.unregister(this);
+
         API.getInstance().onDisable(this);
         HandlerList.unregisterAll(this);
 
@@ -113,8 +133,11 @@ public class TradeSystem extends JavaPlugin {
     }
 
     public void reload() {
-        Bukkit.getPluginManager().disablePlugin(this);
-        Bukkit.getPluginManager().enablePlugin(this);
+        try {
+            API.getInstance().reload(this);
+        } catch(InvalidDescriptionException | InvalidPluginException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void log(String message) {
@@ -130,7 +153,7 @@ public class TradeSystem extends JavaPlugin {
             if(player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
                 player.sendMessage("");
                 player.sendMessage("");
-                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§bv" + TradeSystem.getInstance().updateChecker.getVersion() + "§8 - §b" + TradeSystem.getInstance().updateChecker.getUpdateInfo() + "§8]§a. Download it on §b§nhttps://www.spigotmc.org/resources/warpsystem-gui.29595/history");
+                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§bv" + TradeSystem.getInstance().updateChecker.getVersion() + "§8 - §b" + TradeSystem.getInstance().updateChecker.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateChecker.getLink());
                 player.sendMessage("");
                 player.sendMessage("");
             }
