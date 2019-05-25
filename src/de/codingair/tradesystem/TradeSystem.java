@@ -23,6 +23,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
@@ -135,7 +136,7 @@ public class TradeSystem extends JavaPlugin {
     public void reload() {
         try {
             API.getInstance().reload(this);
-        } catch(InvalidDescriptionException | InvalidPluginException e) {
+        } catch(InvalidDescriptionException | InvalidPluginException | FileNotFoundException e) {
             e.printStackTrace();
         }
     }

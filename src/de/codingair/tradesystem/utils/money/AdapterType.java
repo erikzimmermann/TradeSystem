@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.utils.money;
 
-import de.codingair.tradesystem.TradeSystem;
-import de.codingair.tradesystem.utils.money.adapters.Essentials;
-import de.codingair.tradesystem.utils.money.adapters.Vault;
+import de.codingair.warpsystem.spigot.base.utils.money.Adapter;
+import de.codingair.warpsystem.spigot.base.utils.money.adapters.Essentials;
+import de.codingair.warpsystem.spigot.base.utils.money.adapters.Vault;
 import org.bukkit.Bukkit;
 
 public enum AdapterType {
@@ -28,6 +28,6 @@ public enum AdapterType {
     }
 
     public static boolean canEnable() {
-        return TradeSystem.getInstance().getFileManager().getFile("Config").getConfig().getBoolean("TradeSystem.Trade_with_money", true) && getActive() != null;
+        return getActive() != null;
     }
 }

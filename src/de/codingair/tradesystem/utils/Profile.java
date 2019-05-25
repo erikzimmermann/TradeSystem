@@ -18,11 +18,19 @@ public class Profile {
         return (int) AdapterType.getActive().getMoney(this.player);
     }
 
-    public void setMoney(double money) {
+    public void withdraw(double money) {
         if(!AdapterType.canEnable()) {
             return;
         }
 
-        AdapterType.getActive().setMoney(this.player, money);
+        AdapterType.getActive().withdraw(this.player, money);
+    }
+
+    public void deposit(double money) {
+        if(!AdapterType.canEnable()) {
+            return;
+        }
+
+        AdapterType.getActive().deposit(this.player, money);
     }
 }

@@ -188,21 +188,24 @@ public class Trade {
         if(this.listener != null) HandlerList.unregisterAll(this.listener);
     }
 
-    private boolean fit(Player player, ItemStack item) {
+    /**
+     * Returns the amount, which doesn't fit
+     */
+    private int fit(Player player, ItemStack item) {
         int amount = item.getAmount();
 
         for(int i = 0; i < 36; i++) {
             ItemStack itemStack = player.getInventory().getContents()[i];
 
-            if(itemStack == null || itemStack.getType().equals(Material.AIR)) return true;
+            if(itemStack == null || itemStack.getType().equals(Material.AIR)) return 0;
             if(itemStack.isSimilar(item) && itemStack.getAmount() < itemStack.getMaxStackSize()) {
                 amount -= itemStack.getMaxStackSize() - itemStack.getAmount();
             }
 
-            if(amount <= 0) return true;
+            if(amount <= 0) return 0;
         }
 
-        return amount <= 0;
+        return amount;
     }
 
     private void finish() {
@@ -225,30 +228,62 @@ public class Trade {
             ItemStack i1 = this.guis[1].getItem(slot);
 
             if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                if(fit(this.players[0], i0)) this.players[0].getInventory().addItem(i0);
-                else Environment.dropItem(i0, this.players[0]);
+                i0 = i0.clone();
+                int rest = fit(this.players[0], i0);
+
+                if(rest <= 0) {
+                    this.players[0].getInventory().addItem(i0);
+                } else {
+                    ItemStack toDrop = i0.clone();
+                    i0.setAmount(i0.getAmount() - rest);
+                    toDrop.setAmount(rest);
+
+                    if(i0.getAmount() > 0) this.players[0].getInventory().addItem(i0);
+                    Environment.dropItem(toDrop, this.players[0]);
+                }
             }
 
             if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                if(fit(this.players[1], i1)) this.players[1].getInventory().addItem(i1);
-                else Environment.dropItem(i1, this.players[1]);
+                i1 = i1.clone();
+                int rest = fit(this.players[1], i1);
+
+                if(rest <= 0) {
+                    this.players[1].getInventory().addItem(i1);
+                } else {
+                    ItemStack toDrop = i1.clone();
+                    i1.setAmount(i1.getAmount() - rest);
+                    toDrop.setAmount(rest);
+
+                    if(i1.getAmount() > 0) this.players[1].getInventory().addItem(i1);
+                    Environment.dropItem(toDrop, this.players[1]);
+                }
             }
         }
 
+        this.guis[0].clear();
+        this.guis[1].clear();
         this.guis[0].close();
         this.guis[1].close();
 
         Profile p0 = TradeSystem.getProfile(this.players[0]);
         Profile p1 = TradeSystem.getProfile(this.players[1]);
 
-        p0.setMoney(p0.getMoney() - this.money[0] + this.money[1]);
-        p1.setMoney(p1.getMoney() - this.money[1] + this.money[0]);
+        double diff = -this.money[0] + this.money[1];
+        if(diff < 0) p0.withdraw(-diff);
+        else if(diff > 0) p0.deposit(diff);
+
+        diff = -this.money[1] + this.money[0];
+        if(diff < 0) p1.withdraw(-diff);
+        else if(diff > 0) p1.deposit(diff);
 
         this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
         this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
 
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[0]);
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[1]);
+
+        this.players[0].updateInventory();
+        this.players[1].updateInventory();
     }
 
     public boolean isFinished() {
