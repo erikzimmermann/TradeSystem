@@ -281,7 +281,7 @@ public class TradingGUI extends GUI {
 
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
-        option.setClickSound2(new SoundData(Sound.CLICK, 0.6F, 1F));
+        option.setClickSound(new SoundData(Sound.CLICK, 0.6F, 1F));
 
         switch(item.getFunction()) {
             case DECORATION: {

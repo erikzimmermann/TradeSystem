@@ -4,5 +4,7 @@ import org.bukkit.entity.Player;
 
 public interface Adapter {
     double getMoney(Player player);
-    void setMoney(Player player, double amount);
+    void withdraw(Player player, double amount);
+    void deposit(Player player, double amount);
+    boolean isReady();
 }
