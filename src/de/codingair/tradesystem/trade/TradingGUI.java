@@ -223,7 +223,7 @@ public class TradingGUI extends GUI {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
                 }
 
-                if(!e.isCancelled() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
+                if(!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
