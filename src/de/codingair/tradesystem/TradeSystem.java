@@ -13,16 +13,13 @@ import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
-import de.codingair.warpsystem.spigot.base.WarpSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 public class TradeSystem extends JavaPlugin {
