@@ -223,7 +223,7 @@ public class TradingGUI extends GUI {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
                 }
 
-                if(!e.isCancelled() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
+                if(!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
                     getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
@@ -281,7 +281,7 @@ public class TradingGUI extends GUI {
 
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
-        option.setClickSound2(new SoundData(Sound.CLICK, 0.6F, 1F));
+        option.setClickSound(new SoundData(Sound.CLICK, 0.6F, 1F));
 
         switch(item.getFunction()) {
             case DECORATION: {
