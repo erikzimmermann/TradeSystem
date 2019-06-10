@@ -4,7 +4,6 @@ import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.server.Environment;
-import de.codingair.codingapi.server.Sound;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.TradeSystem;

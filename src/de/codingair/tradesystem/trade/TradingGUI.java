@@ -261,6 +261,15 @@ public class TradingGUI extends GUI {
     }
 
     @Override
+    public void clear() {
+        super.getButtons().clear();
+        for(int i = 0; i < getSize(); i++) {
+            if(trade.getSlots().contains(i) || trade.getOtherSlots().contains(i)) continue;
+            setItem(i, new ItemStack(Material.AIR));
+        }
+   }
+
+    @Override
     public void initialize(Player p) {
         setBuffering(true);
 
