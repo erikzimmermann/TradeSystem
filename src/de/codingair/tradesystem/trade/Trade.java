@@ -208,6 +208,7 @@ public class Trade {
     }
 
     private void finish() {
+        if(this.guis[0] == null || this.guis[1] == null) return;
         if(this.guis[0].pause && this.guis[1].pause) return;
         TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
 
