@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.utils.blacklist;
 
+import de.codingair.codingapi.server.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -30,7 +31,11 @@ public class BlockedItem {
         boolean matches = false;
 
         if(material != null) {
-            if(item.getType() == this.material && data == item.getData().getData()) matches = true;
+            if(Version.getVersion().isBiggerThan(Version.v1_12)) {
+                if(item.getType() == this.material) matches = true;
+            } else {
+                if(item.getType() == this.material && data == item.getData().getData()) matches = true;
+            }
         }
 
         if(name != null && item.hasItemMeta() && item.getItemMeta().getDisplayName() != null) {
