@@ -200,7 +200,7 @@ public class GEditor extends GUI {
 
     @Override
     public void initialize(Player p) {
-        setEditableItems(function == null);
+        setEditableItems(function == null || function == Function.EMPTY_FIRST_TRADER || function == Function.EMPTY_SECOND_TRADER);
         setMoveOwnItems(function == null);
         setCanDropItems(false);
 
