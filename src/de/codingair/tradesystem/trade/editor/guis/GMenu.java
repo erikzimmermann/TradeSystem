@@ -365,7 +365,7 @@ public class GMenu extends GUI {
                             boolean sameAmount = getAmountOf(Function.EMPTY_FIRST_TRADER) == getAmountOf(Function.EMPTY_SECOND_TRADER);
                             builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Own_Slots"));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount ? "§a" : "§c") + getAmountOf(Function.EMPTY_FIRST_TRADER));
+                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount && getAmountOf(Function.EMPTY_FIRST_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_FIRST_TRADER));
                             builder.addText("");
                             builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount"), 150);
                             break;
@@ -374,7 +374,7 @@ public class GMenu extends GUI {
                             sameAmount = getAmountOf(Function.EMPTY_FIRST_TRADER) == getAmountOf(Function.EMPTY_SECOND_TRADER);
                             builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Other_Slots"));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount ? "§a" : "§c") + getAmountOf(Function.EMPTY_SECOND_TRADER));
+                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount && getAmountOf(Function.EMPTY_SECOND_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_SECOND_TRADER));
                             builder.addText("");
                             builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount"), 150);
                             break;
