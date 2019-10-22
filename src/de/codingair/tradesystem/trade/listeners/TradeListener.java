@@ -4,7 +4,6 @@ import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.Trade;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
-import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

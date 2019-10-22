@@ -69,7 +69,6 @@ public class TradeSystem extends JavaPlugin {
         }
         if(this.fileManager.getFile("Language") == null) {
             this.fileManager.loadFile("Language", "/");
-            this.fileManager.getFile("Language").reloadConfig();
         }
         if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
 
@@ -130,10 +129,10 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
     }
 
-    public void reload() {
+    public void reload() throws FileNotFoundException {
         try {
             API.getInstance().reload(this);
-        } catch(InvalidDescriptionException | InvalidPluginException | FileNotFoundException e) {
+        } catch(InvalidDescriptionException | InvalidPluginException e) {
             e.printStackTrace();
         }
     }

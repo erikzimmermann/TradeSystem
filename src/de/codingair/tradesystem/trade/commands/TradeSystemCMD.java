@@ -1,9 +1,9 @@
 package de.codingair.tradesystem.trade.commands;
 
-import de.codingair.codingapi.server.commands.BaseComponent;
-import de.codingair.codingapi.server.commands.CommandBuilder;
-import de.codingair.codingapi.server.commands.CommandComponent;
-import de.codingair.codingapi.server.commands.MultiCommandComponent;
+import de.codingair.codingapi.server.commands.builder.BaseComponent;
+import de.codingair.codingapi.server.commands.builder.CommandBuilder;
+import de.codingair.codingapi.server.commands.builder.CommandComponent;
+import de.codingair.codingapi.server.commands.builder.MultiCommandComponent;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.editor.guis.GMenu;
 import de.codingair.tradesystem.trade.layout.utils.AbstractPattern;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TradeSystemCMD extends CommandBuilder {
     public TradeSystemCMD() {
-        super("TradeSystem", new BaseComponent(TradeSystem.PERMISSION_MODIFY) {
+        super("tradesystem", "Trade-System-CMD", new BaseComponent(TradeSystem.PERMISSION_MODIFY) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("No_Permissions"));
@@ -35,7 +35,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem").replace("%LABEL%", label));
                 return false;
             }
-        }, true);
+        }, true, "ts");
 
         getBaseComponent().addChild(new CommandComponent("reload") {
             @Override

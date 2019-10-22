@@ -2,12 +2,11 @@ package de.codingair.tradesystem.trade.commands;
 
 import de.codingair.codingapi.player.chat.ChatButton;
 import de.codingair.codingapi.player.chat.SimpleMessage;
-import de.codingair.codingapi.server.commands.BaseComponent;
-import de.codingair.codingapi.server.commands.CommandBuilder;
-import de.codingair.codingapi.server.commands.CommandComponent;
-import de.codingair.codingapi.server.commands.MultiCommandComponent;
+import de.codingair.codingapi.server.commands.builder.BaseComponent;
+import de.codingair.codingapi.server.commands.builder.CommandBuilder;
+import de.codingair.codingapi.server.commands.builder.CommandComponent;
+import de.codingair.codingapi.server.commands.builder.MultiCommandComponent;
 import de.codingair.codingapi.tools.time.TimeList;
-import de.codingair.codingapi.tools.time.TimeListener;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.Invite;
@@ -27,7 +26,7 @@ public class TradeCMD extends CommandBuilder {
     private TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
 
     public TradeCMD() {
-        super("Trade", new BaseComponent(PERMISSION) {
+        super("trade", "Trade-System-CMD", new BaseComponent(PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
