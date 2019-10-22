@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -223,20 +224,22 @@ public class Trade {
         this.guis[0].pause = true;
         this.guis[1].pause = true;
 
-        for(Integer slot : this.otherSlots) {
-            ItemStack i0 = this.guis[0].getItem(slot);
-            ItemStack i1 = this.guis[1].getItem(slot);
+        for(Integer slot : this.slots) {
+            //using original one to prevent dupe glitches!!!
+            ItemStack i0 = this.guis[1].getItem(slot);
+            ItemStack i1 = this.guis[0].getItem(slot);
+
+            this.guis[1].setItem(slot, null);
+            this.guis[0].setItem(slot, null);
 
             if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                i0 = i0.clone();
                 int rest = fit(this.players[0], i0);
 
                 if(rest <= 0) {
                     this.players[0].getInventory().addItem(i0);
                 } else {
-                    ItemStack toDrop = i0.clone();
+                    ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
                     i0.setAmount(i0.getAmount() - rest);
-                    toDrop.setAmount(rest);
 
                     if(i0.getAmount() > 0) this.players[0].getInventory().addItem(i0);
                     Environment.dropItem(toDrop, this.players[0]);
@@ -244,15 +247,13 @@ public class Trade {
             }
 
             if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                i1 = i1.clone();
                 int rest = fit(this.players[1], i1);
 
                 if(rest <= 0) {
                     this.players[1].getInventory().addItem(i1);
                 } else {
-                    ItemStack toDrop = i1.clone();
+                    ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
                     i1.setAmount(i1.getAmount() - rest);
-                    toDrop.setAmount(rest);
 
                     if(i1.getAmount() > 0) this.players[1].getInventory().addItem(i1);
                     Environment.dropItem(toDrop, this.players[1]);
@@ -282,8 +283,8 @@ public class Trade {
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[0]);
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[1]);
 
-        this.players[0].updateInventory();
-        this.players[1].updateInventory();
+//        this.players[0].updateInventory();
+//        this.players[1].updateInventory();
     }
 
     public boolean isFinished() {
