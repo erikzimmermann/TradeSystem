@@ -211,6 +211,11 @@ public class TradeCMD extends CommandBuilder {
     }
     
     public static void request(Player p, Player other) {
+        if(!p.hasPermission(PERMISSION)) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
+            return;
+        }
+
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
             return;

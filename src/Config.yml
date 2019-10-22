@@ -1,5 +1,7 @@
 ~Config
 TradeSystem:
+  Prefix: "&8[&cTrade&8] &r"
+  Language: ENG
   # After 60 seconds the request will be expired
   Request_Cooldown_In_Sek: 60
   Trade_with_money: true
