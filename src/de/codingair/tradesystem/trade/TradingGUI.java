@@ -164,7 +164,7 @@ public class TradingGUI extends GUI {
                                 remove.add(e.getSlot());
 
                                 if(item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
-                                else {
+                                else if(isMovable(e.getSlot())) { //only own items
                                     e.setCancelled(true);
                                     ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
                                     ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
@@ -267,7 +267,7 @@ public class TradingGUI extends GUI {
             if(trade.getSlots().contains(i) || trade.getOtherSlots().contains(i)) continue;
             setItem(i, new ItemStack(Material.AIR));
         }
-   }
+    }
 
     @Override
     public void initialize(Player p) {

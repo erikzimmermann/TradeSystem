@@ -452,6 +452,7 @@ public class Trade {
         }
 
         items.clear();
+        remove.clear();
         return fits;
     }
 
