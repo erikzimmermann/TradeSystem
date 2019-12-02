@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class TradingGUI extends GUI {
     private Trade trade;
@@ -323,8 +324,14 @@ public class TradingGUI extends GUI {
                                     if(!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                                     try {
-                                        amount = Integer.parseInt(e.getInput());
-                                    } catch(Exception ignored) {
+                                        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\d+");
+                                        Matcher matcher = pattern.matcher(e.getInput());
+
+                                        if(matcher.find()) {
+                                            amount = Integer.parseInt(matcher.group(0));
+                                        }
+                                    } catch(Exception ex) {
+                                        ex.printStackTrace();
                                     }
 
                                     if(amount < 0) {
