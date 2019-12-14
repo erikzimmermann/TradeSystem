@@ -125,6 +125,14 @@ public class Trade {
             if(this.guis[1].getItem(slot) != null && !this.guis[1].getItem(slot).getType().equals(Material.AIR)) this.players[1].getInventory().addItem(this.guis[1].getItem(slot));
         }
 
+        for(int i = 0; i < 2; i++) {
+            ItemStack item = this.players[i].getOpenInventory().getCursor();
+            if(item != null) {
+                this.players[i].getInventory().addItem(item);
+                this.players[i].getOpenInventory().setCursor(null);
+            }
+        }
+
         this.guis[0] = null;
         this.guis[1] = null;
 
