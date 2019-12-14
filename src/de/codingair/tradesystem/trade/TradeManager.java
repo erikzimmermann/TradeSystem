@@ -26,6 +26,7 @@ public class TradeManager {
     private List<String> allowedGameModes = new ArrayList<>();
     private boolean tradeBoth = true;
     private boolean dropItems = true;
+    private boolean tradeMoney = true;
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
     private SoundData soundCancel = null;
@@ -56,6 +57,7 @@ public class TradeManager {
         this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
+        this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
         TradeSystem.log("  > Loading sounds");
         try {
@@ -259,5 +261,9 @@ public class TradeManager {
         }
 
         return false;
+    }
+
+    public boolean isTradeMoney() {
+        return tradeMoney;
     }
 }
