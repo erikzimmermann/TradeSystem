@@ -27,7 +27,7 @@ public class Standard extends AbstractPattern implements Pattern{
     public List<Item> getItems() {
         ItemStack blackStained = new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).getItem();
         ItemStack grayStained = new ItemBuilder(XMaterial.GRAY_STAINED_GLASS_PANE).getItem();
-        ItemStack flower = new ItemBuilder(XMaterial.SUNFLOWER).getItem();
+        ItemStack nugget = new ItemBuilder(XMaterial.GOLD_NUGGET).getItem();
         ItemStack barrier = new ItemBuilder(Material.BARRIER).getItem();
 
         ItemStack status_none = new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA).getItem();
@@ -59,9 +59,9 @@ public class Standard extends AbstractPattern implements Pattern{
         items.add(new Item(49, grayStained, Function.DECORATION));
         
         items.add(new Item(22, barrier, Function.CANCEL));
-        items.add(new Item(3, flower, Function.PICK_MONEY));
+        items.add(new Item(3, nugget, Function.PICK_MONEY));
         items.add(new Item(3, grayStained, Function.MONEY_REPLACEMENT));
-        items.add(new Item(5, flower, Function.SHOW_MONEY));
+        items.add(new Item(5, nugget, Function.SHOW_MONEY));
         items.add(new Item(5, grayStained, Function.MONEY_REPLACEMENT));
         
         items.add(new Item(12, status_none, Function.PICK_STATUS_NONE));

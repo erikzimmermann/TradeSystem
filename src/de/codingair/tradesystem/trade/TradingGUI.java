@@ -375,12 +375,12 @@ public class TradingGUI extends GUI {
                 ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[trade.getOtherId(id)] + " " + (trade.getMoney()[trade.getOtherId(id)] == 1 ? Lang.get("Coin") : Lang.get("Coins")));
                 if(trade.getMoney()[trade.getOtherId(id)] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
-                if(AdapterType.canEnable()) setItem(item.getSlot(), moneyBuilder.getItem());
+                if(AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), moneyBuilder.getItem());
                 break;
             }
 
             case MONEY_REPLACEMENT: {
-                if(!AdapterType.canEnable()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
+                if(!AdapterType.canEnable() || !TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
                 break;
             }
 
