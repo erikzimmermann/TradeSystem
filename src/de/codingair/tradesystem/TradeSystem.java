@@ -84,6 +84,8 @@ public class TradeSystem extends JavaPlugin {
         tradeSystemCMD = new TradeSystemCMD();
         tradeSystemCMD.register(this);
 
+        afterOnEnable();
+
         timer.stop();
         log(" ");
         log("Done (" + timer.getLastStoppedTime() + "s)");
@@ -127,6 +129,19 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
         log("__________________________________________________________");
         log(" ");
+    }
+
+    private void afterOnEnable() {
+        //update command dispatcher for players to synchronize CommandList
+        Bukkit.getScheduler().runTask(this, this::updateCommandList);
+    }
+
+    private void updateCommandList() {
+        if(Version.getVersion().isBiggerThan(Version.v1_12)) {
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                player.updateCommands();
+            }
+        }
     }
 
     public void reload() throws FileNotFoundException {

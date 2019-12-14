@@ -216,6 +216,16 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+            return;
+        }
+        
+        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world"));
+            return;
+        }
+
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
             return;

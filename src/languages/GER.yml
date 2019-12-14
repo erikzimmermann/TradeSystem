@@ -102,3 +102,5 @@ Trade_Partner_is_Offline: "&7Dieser Spieler ist &cnicht &7für Handelsanfragen &
 Trade_You_are_Offline: '&7Benutze "%COMMAND%&e/trade toggle%COMMAND%&7", um handeln zu können.'
 Trade_Placed_Blocked_Item: "&7Dieses Item kann &cnicht &7gehandelt werden!"
 Cannot_trade_in_bed: "&cDu kannst nicht handeln&7, während du im Bett liegst."
+Cannot_trade_in_world: "&7Du kannst in dieser Welt &cnicht handeln&7!"
+Other_cannot_trade_in_world: "&6Dieser Spieler kann in seiner Welt &cnicht handeln&7!"

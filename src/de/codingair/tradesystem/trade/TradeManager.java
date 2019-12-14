@@ -6,6 +6,7 @@ import de.codingair.codingapi.server.SoundData;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -24,6 +25,7 @@ public class TradeManager {
     private boolean requestOnRightclick = false;
     private boolean shiftclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
+    private List<String> blockedWorlds;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean tradeMoney = true;
@@ -105,9 +107,13 @@ public class TradeManager {
             TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
         }
 
-        this.allowedGameModes.clear();
+        if(this.allowedGameModes != null) this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
         if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
+
+        if(this.blockedWorlds != null) this.blockedWorlds.clear();
+        this.blockedWorlds = config.getStringList("TradeSystem.Blocked_Worlds");
+        if(this.blockedWorlds == null) this.blockedWorlds = new ArrayList<>();
 
         TradeSystem.log("  > Loading blacklist");
         List<String> l = config.getStringList("TradeSystem.Blacklist");
@@ -265,5 +271,19 @@ public class TradeManager {
 
     public boolean isTradeMoney() {
         return tradeMoney;
+    }
+
+    public List<String> getBlockedWorlds() {
+        return blockedWorlds;
+    }
+
+    public boolean isBlockedWorld(World w) {
+        if(w == null) return true;
+
+        for(String world : this.blockedWorlds) {
+            if(w.getName().equalsIgnoreCase(world)) return true;
+        }
+
+        return false;
     }
 }
