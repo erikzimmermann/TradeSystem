@@ -4,6 +4,7 @@ import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.server.Version;
 import de.codingair.codingapi.time.Timer;
+import de.codingair.tradesystem.bstats.MetricsManager;
 import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
@@ -88,6 +89,9 @@ public class TradeSystem extends JavaPlugin {
 
         tradeSystemCMD = new TradeSystemCMD();
         tradeSystemCMD.register(this);
+
+        //initiates metrics
+        new MetricsManager();
 
         afterOnEnable();
 
