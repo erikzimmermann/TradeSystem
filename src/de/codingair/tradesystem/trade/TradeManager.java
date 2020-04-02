@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.trade;
 
 import de.codingair.codingapi.files.ConfigFile;
-import de.codingair.codingapi.server.Sound;
-import de.codingair.codingapi.server.SoundData;
+import de.codingair.codingapi.server.sounds.Sound;
+import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.Material;

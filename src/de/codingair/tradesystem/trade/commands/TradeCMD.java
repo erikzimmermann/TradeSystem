@@ -216,21 +216,6 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
-            return;
-        }
-        
-        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world"));
-            return;
-        }
-
-        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
-            return;
-        }
-
         if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
             String[] a = Lang.get("Trade_You_are_Offline").split("%COMMAND%", -1);
 
@@ -252,6 +237,21 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+            return;
+        }
+
+        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
+            return;
+        }
+
+        if(p.isSleeping()) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+            return;
+        }
+
         if(other == null) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
             return;
@@ -262,19 +262,28 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(p.isSleeping()) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+        if(!other.hasPermission(PERMISSION)) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
             return;
         }
 
+        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world"));
+            return;
+        }
 
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
             return;
         }
 
-        if(!other.hasPermission(PERMISSION)) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
+        if(!other.canSee(p)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible"));
+            return;
+        }
+
+        if(!p.canSee(other)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_while_invisible"));
             return;
         }
 
