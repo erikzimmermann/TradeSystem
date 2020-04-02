@@ -29,6 +29,8 @@ public class TradeListener implements Listener {
             Player p = e.getPlayer();
             Player other = (Player) e.getRightClicked();
 
+            if(!p.canSee(other)) return;
+
             if(TradeSystem.getInstance().getTradeManager().isShiftclick() == p.isSneaking()) {
                 players.add(p, 1);
                 TradeCMD.request(p, other);
