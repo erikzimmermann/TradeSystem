@@ -4,6 +4,7 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.bstats.MetricsManager;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -173,6 +174,7 @@ public class TradeManager {
     }
 
     public void startTrade(Player player, Player other) {
+        MetricsManager.TRADES++;
         Trade trade = new Trade(other, player);
         this.tradeList.add(trade);
         trade.start();

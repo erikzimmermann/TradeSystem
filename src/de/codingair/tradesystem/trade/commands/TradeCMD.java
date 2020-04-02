@@ -212,7 +212,7 @@ public class TradeCMD extends CommandBuilder {
     }
     
     public static void request(Player p, Player other) {
-        if(!p.hasPermission(PERMISSION)) {
+        if(PERMISSION != null && !p.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
             return;
         }
@@ -263,7 +263,7 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(!other.hasPermission(PERMISSION)) {
+        if(PERMISSION != null && !other.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
             return;
         }

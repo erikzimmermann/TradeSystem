@@ -8,6 +8,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.util.Objects;
+
 public class BlockedItem {
     private Material material;
     private byte data;
@@ -88,5 +90,20 @@ public class BlockedItem {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        BlockedItem that = (BlockedItem) o;
+        return data == that.data &&
+                material == that.material &&
+                Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(material, data, name);
     }
 }
