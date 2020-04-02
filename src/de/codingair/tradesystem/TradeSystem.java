@@ -78,6 +78,11 @@ public class TradeSystem extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
         Bukkit.getPluginManager().registerEvents(new TradeListener(), this);
 
+        if(!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
+            TradeCMD.PERMISSION = null;
+            TradeCMD.PERMISSION_INITIATE = null;
+        }
+
         tradeCMD = new TradeCMD();
         tradeCMD.register(this);
 
