@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradeCMD extends CommandBuilder {
-    private static String PERMISSION = "TradeSystem.Trade";
-    private static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
+    public static String PERMISSION = "TradeSystem.Trade";
+    public static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
     private TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
 
     public TradeCMD() {

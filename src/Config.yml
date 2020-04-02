@@ -2,6 +2,11 @@
 TradeSystem:
   Prefix: "&8[&cTrade&8] &r"
   Language: ENG
+  #Permissions:
+  #   "tradesystem.trade": Can accept/deny/toggle trade requests
+  #   "tradesystem.trade.initiate": Can invite players for trades
+  #If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
+  Permissions: true
 
   # Both traders have to add an item/money to finish the trade
   Trade_Both: true
