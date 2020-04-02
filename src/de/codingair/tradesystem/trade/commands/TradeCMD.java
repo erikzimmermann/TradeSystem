@@ -23,6 +23,7 @@ import java.util.List;
 
 public class TradeCMD extends CommandBuilder {
     private static String PERMISSION = "TradeSystem.Trade";
+    private static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
     private TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
 
     public TradeCMD() {
@@ -190,7 +191,7 @@ public class TradeCMD extends CommandBuilder {
         });
 
         //INVITE
-        getBaseComponent().addChild(new MultiCommandComponent() {
+        getBaseComponent().addChild(new MultiCommandComponent(PERMISSION_INITIATE) {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(Player player : Bukkit.getOnlinePlayers()) {
