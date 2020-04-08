@@ -8,6 +8,7 @@ import de.codingair.codingapi.player.gui.inventory.gui.GUI;
 import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButtonOption;
+import de.codingair.codingapi.player.gui.inventory.gui.simple.SyncAnvilGUIButton;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.tools.Callback;
 import de.codingair.codingapi.tools.items.ItemBuilder;
@@ -23,10 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -261,40 +259,40 @@ public class GMenu extends GUI {
                 builder = new ItemBuilder(XMaterial.NAME_TAG).setText("§8» §b" + Lang.get("Layout_Set_Name"));
                 if(!nameReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
-                addButton(new ItemButton(3, 2, builder.getItem()) {
+                ItemBuilder finalBuilder = builder;
+                addButton(new SyncAnvilGUIButton(3,2) {
                     @Override
-                    public void onClick(InventoryClickEvent e) {
-                        AnvilGUI.openAnvil(TradeSystem.getInstance(), p, new AnvilListener() {
-                            @Override
-                            public void onClick(AnvilClickEvent e) {
-                                e.setCancelled(true);
-                                e.setClose(false);
+                    public void onClick(AnvilClickEvent e) {
+                        if(TradeSystem.getInstance().getLayoutManager().getPattern(e.getInput()) != null) {
+                            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Layout_Name_Already_Exists"));
+                            return;
+                        }
 
-                                if(TradeSystem.getInstance().getLayoutManager().getPattern(e.getInput()) != null) {
-                                    p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Layout_Name_Already_Exists"));
-                                    return;
-                                }
+                        if(e.getInput().contains(" ")) {
+                            p.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Name_Space"));
+                            return;
+                        }
 
-                                if(e.getInput().contains(" ")) {
-                                    p.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Name_Space"));
-                                    return;
-                                }
-
-                                TradeSystem.getInstance().getLayoutManager().setAvailable(e.getInput(), false);
-                                name = e.getInput();
-                                changed = true;
-                                e.setClose(true);
-                            }
-
-                            @Override
-                            public void onClose(AnvilCloseEvent e) {
-                                if(e.getSubmittedText() != null) name = e.getSubmittedText();
-                                reinitialize();
-                                e.setPost(GMenu.this::open);
-                            }
-                        }, new ItemBuilder(XMaterial.PAPER).setName(name == null ? Lang.get("Name") + "..." : name).getItem());
+                        TradeSystem.getInstance().getLayoutManager().setAvailable(e.getInput(), false);
+                        name = e.getInput();
+                        changed = true;
+                        e.setClose(true);
                     }
-                }.setOption(option).setCloseOnClick(true));
+
+                    @Override
+                    public void onClose(AnvilCloseEvent e) {
+                    }
+
+                    @Override
+                    public ItemStack craftItem() {
+                        return finalBuilder.getItem();
+                    }
+
+                    @Override
+                    public ItemStack craftAnvilItem(ClickType trigger) {
+                        return new ItemBuilder(XMaterial.PAPER).setName(name == null ? Lang.get("Name") + "..." : name).getItem();
+                    }
+                });
 
                 builder = new ItemBuilder(XMaterial.REDSTONE).setText("§8» §b" + Lang.get("Layout_Set_Functions"));
                 if(itemsReady() && !functionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
