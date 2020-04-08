@@ -14,7 +14,11 @@ public class Lang {
     public static void initPreDefinedLanguages(JavaPlugin plugin) {
         List<String> languages = new ArrayList<>();
         languages.add("ENG.yml");
+        languages.add("ES.yml");
+        languages.add("FR.yml");
         languages.add("GER.yml");
+        languages.add("POL.yml");
+        languages.add("RUS.yml");
 
         File folder = new File(plugin.getDataFolder(), "/Languages/");
         if(!folder.exists()) mkDir(folder);
