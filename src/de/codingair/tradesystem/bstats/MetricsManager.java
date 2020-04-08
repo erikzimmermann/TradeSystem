@@ -37,6 +37,8 @@ public class MetricsManager {
             TRADES = 0;
             return trades;
         }));
+
+        metrics.addCustomChart(new Metrics.SingleLineChart("layouts", () -> TradeSystem.getInstance().getLayoutManager().getLayouts().size() - 1));
     }
 
     private static boolean isStandardWorldList(List<String> l) {
