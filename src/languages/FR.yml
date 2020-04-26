@@ -86,9 +86,9 @@ Cannot_Delete_Standard: "&7Vous ne pouvez pas &csupprimer &7un modèle &cstandar
 Cannot_Edit_Standard: "&7Vous ne pouvez pas &cediter &7un modèle &cstandard &7!"
 Layout_Already_Activated: "&7Ce modèle est &cdéjà activé&7!"
 Layout_Set_Replacement_For_Money: "&7Icône, qui &aremplace l'icône argent&7, lorsqu'aucun plugin économique n'est détecté."
-Layout_Hint_Same_Slot_Amount: "&7Les deux marchands doivent avoir &cle même nombre &7de slots d'échanges!"
+Layout_Hint_Same_Slot_Amount: "&7Les deux marchands doivent avoir &cle même nombre &7de slots d'échanges !"
 Current_Amount: "Montant actuel"
-Trade_Spam: "&7Ce joueur a &cdéjà reçu une demande d'échange&7!"
+Trade_Spam: "&7Ce joueur a &cdéjà reçu une demande d'échange&7 !"
 Plugin_Reloading: "&cLe plugin va être rechargé...."
 Success_Plugin_Reloaded: "&aLe plugin a été rechargé."
 Player_is_not_in_range: "&7Le joueur &c%PLAYER% &7n'est &cpas à portée&7!"
@@ -102,7 +102,8 @@ Trade_Partner_is_Offline: "&7Ce joueur &cn'est pas disponible &7pour les demande
 Trade_You_are_Offline: '&7Utilisez "%COMMAND%&e/trade toggle%COMMAND%&7" pour recommencer les échanges.'
 Trade_Placed_Blocked_Item: "&7Cet article &cne peut pas &7être échangé !"
 Cannot_trade_in_bed: "&cVous ne pouvez pas échanger&7, tant que vous êtes dans un lit.."
-Cannot_trade_in_world: "&7You &ccannot trade &7in this world!"
-Other_cannot_trade_in_world: "&7This player §ccannot trade &7in his world!"
-Cannot_trade_while_invisible: '&7You &ccannot trade &7while you''re &cinvisible&7!'
-Other_cannot_trade_while_invisible: '&7This player &ccannot trade &7at the moment!'
+Cannot_trade_in_world: "&7You &ccannot trade &7in this world !"
+Other_cannot_trade_in_world: "&7This player §ccannot trade &7in his world !"
+Cannot_trade_while_invisible: '&7You &ccannot trade &7while you''re &cinvisible&7 !'
+Other_cannot_trade_while_invisible: '&7This player &ccannot trade &7at the moment !'
+Other_is_already_trading: '&cCe joueur fait déjà du commerce en ce moment !'

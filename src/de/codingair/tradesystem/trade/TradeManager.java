@@ -1,10 +1,13 @@
 package de.codingair.tradesystem.trade;
 
+import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.bstats.MetricsManager;
+import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -174,6 +177,11 @@ public class TradeManager {
     }
 
     public void startTrade(Player player, Player other) {
+        if(API.getRemovable(player, TradingGUI.class) != null || API.getRemovable(player, AnvilGUI.class) != null || API.getRemovable(other, TradingGUI.class) != null || API.getRemovable(other, AnvilGUI.class) != null) {
+            player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading"));
+            return;
+        }
+
         MetricsManager.TRADES++;
         Trade trade = new Trade(other, player);
         this.tradeList.add(trade);

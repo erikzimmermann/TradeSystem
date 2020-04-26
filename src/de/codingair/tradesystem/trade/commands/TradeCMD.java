@@ -231,8 +231,9 @@ public class TradeCMD extends CommandBuilder {
                     p.performCommand("trade toggle");
                     message.destroy();
                 }
-            });
+            }.setType("TRADE_TOGGLE"));
 
+            message.setTimeOut(10);
             message.add(new TextComponent(s1));
             message.send(p);
             return;
