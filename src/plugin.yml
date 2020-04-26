@@ -1,6 +1,6 @@
 name: TradeSystem
 author: CodingAir
-version: "1.1.7"
+version: "1.1.8"
 description: A beautiful way to trade with other players.
 main: de.codingair.tradesystem.TradeSystem
 softdepend: [Vault, Essentials]
