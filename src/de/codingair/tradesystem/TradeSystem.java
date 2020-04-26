@@ -2,6 +2,7 @@ package de.codingair.tradesystem;
 
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
+import de.codingair.codingapi.player.chat.ChatButtonManager;
 import de.codingair.codingapi.server.Version;
 import de.codingair.codingapi.time.Timer;
 import de.codingair.tradesystem.bstats.MetricsManager;
@@ -77,7 +78,9 @@ public class TradeSystem extends JavaPlugin {
         this.layoutManager.load();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
-        Bukkit.getPluginManager().registerEvents(new TradeListener(), this);
+        TradeListener listener;
+        Bukkit.getPluginManager().registerEvents(listener = new TradeListener(), this);
+        ChatButtonManager.getInstance().addListener(listener);
 
         if(!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
             TradeCMD.PERMISSION = null;

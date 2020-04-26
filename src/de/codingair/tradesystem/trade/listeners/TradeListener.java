@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.trade.listeners;
 
+import de.codingair.codingapi.player.chat.ChatButtonListener;
 import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.Trade;
@@ -13,8 +14,17 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
-public class TradeListener implements Listener {
+import java.util.UUID;
+
+public class TradeListener implements Listener, ChatButtonListener {
     private TimeList<Player> players = new TimeList<>();
+
+    @Override
+    public void onForeignClick(Player player, UUID id, String type) {
+        if(type != null && type.equals("TRADE_TOGGLE")) {
+            player.performCommand("trade toggle");
+        }
+    }
 
     @EventHandler
     public void onLie(PlayerBedEnterEvent e) {
