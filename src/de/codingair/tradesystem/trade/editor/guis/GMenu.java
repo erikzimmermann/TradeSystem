@@ -2,8 +2,6 @@ package de.codingair.tradesystem.trade.editor.guis;
 
 import de.codingair.codingapi.player.gui.anvil.AnvilClickEvent;
 import de.codingair.codingapi.player.gui.anvil.AnvilCloseEvent;
-import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
-import de.codingair.codingapi.player.gui.anvil.AnvilListener;
 import de.codingair.codingapi.player.gui.inventory.gui.GUI;
 import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
@@ -81,7 +79,7 @@ public class GMenu extends GUI {
             public void onInvCloseEvent(InventoryCloseEvent e) {
                 if(isClosingByButton() || isClosingByOperation() || !changed) return;
 
-                Sound.CLICK.playSound(getPlayer());
+                Sound.UI_BUTTON_CLICK.playSound(getPlayer());
                 if(menu != Menu.CLOSE) menu = menu == Menu.MAIN ? Menu.CLOSE : Menu.MAIN;
 
                 reinitialize(menu == Menu.CLOSE ? Lang.get("Layout_Confirm_Close") : getTitle());
@@ -111,7 +109,7 @@ public class GMenu extends GUI {
     public void initialize(Player p) {
         ItemButtonOption option = new ItemButtonOption();
         option.setOnlyLeftClick(true);
-        option.setClickSound(Sound.CLICK.bukkitSound());
+        option.setClickSound(Sound.UI_BUTTON_CLICK.parseSound());
 
         ItemStack black = new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).setHideName(true).getItem();
         ItemStack gray = new ItemBuilder(XMaterial.GRAY_STAINED_GLASS_PANE).setHideName(true).getItem();

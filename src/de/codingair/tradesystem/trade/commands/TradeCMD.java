@@ -5,7 +5,7 @@ import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.codingapi.server.commands.builder.BaseComponent;
 import de.codingair.codingapi.server.commands.builder.CommandBuilder;
 import de.codingair.codingapi.server.commands.builder.CommandComponent;
-import de.codingair.codingapi.server.commands.builder.MultiCommandComponent;
+import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;

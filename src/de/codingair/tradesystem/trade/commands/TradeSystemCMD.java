@@ -3,7 +3,7 @@ package de.codingair.tradesystem.trade.commands;
 import de.codingair.codingapi.server.commands.builder.BaseComponent;
 import de.codingair.codingapi.server.commands.builder.CommandBuilder;
 import de.codingair.codingapi.server.commands.builder.CommandComponent;
-import de.codingair.codingapi.server.commands.builder.MultiCommandComponent;
+import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.editor.guis.GMenu;
 import de.codingair.tradesystem.trade.layout.utils.AbstractPattern;
