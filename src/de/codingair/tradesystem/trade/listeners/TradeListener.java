@@ -26,7 +26,7 @@ public class TradeListener implements Listener, ChatButtonListener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onLie(PlayerBedEnterEvent e) {
         TradeSystem.getInstance().getTradeCMD().removesAllInvitesFrom(e.getPlayer());
     }
@@ -48,7 +48,7 @@ public class TradeListener implements Listener, ChatButtonListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDeath(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
