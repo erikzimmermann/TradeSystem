@@ -11,6 +11,7 @@ import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.Invite;
 import de.codingair.tradesystem.utils.Lang;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -353,6 +354,7 @@ public class TradeCMD extends CommandBuilder {
         }
 
         TextComponent basic = new TextComponent("");
+        basic.setColor(ChatColor.GRAY);
 
         for(TextComponent part : parts) {
             basic.addExtra(part);
