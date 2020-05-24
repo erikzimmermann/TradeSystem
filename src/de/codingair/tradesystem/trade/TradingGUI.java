@@ -27,7 +27,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 public class TradingGUI extends GUI {
     private Trade trade;
@@ -327,7 +326,12 @@ public class TradingGUI extends GUI {
                                     if(!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                                     try {
-                                        amount = Integer.parseInt(e.getInput(false));
+                                        String in = e.getInput(false);
+                                        int dot = in.indexOf('.');
+                                        int comma = in.indexOf(',');
+                                        if(dot >= 0) amount = Integer.parseInt(in.substring(0, dot));
+                                        else if(comma >= 0) amount = Integer.parseInt(in.substring(0, comma));
+                                        else amount = Integer.parseInt(e.getInput(false));
                                     } catch(NumberFormatException ignored) {
                                     }
 
@@ -377,7 +381,8 @@ public class TradingGUI extends GUI {
             }
 
             case MONEY_REPLACEMENT: {
-                if(!AdapterType.canEnable() || !TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
+                if(!AdapterType.canEnable() || !TradeSystem.getInstance().getTradeManager().isTradeMoney())
+                    setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
                 break;
             }
 
