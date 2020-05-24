@@ -111,6 +111,7 @@ public class TradeSystem extends JavaPlugin {
     @Override
     public void onDisable() {
         timer.start();
+        API.getInstance().onDisable(this);
 
         log(" ");
         log("__________________________________________________________");
@@ -132,7 +133,6 @@ public class TradeSystem extends JavaPlugin {
         this.tradeCMD.unregister(this);
         this.tradeSystemCMD.unregister(this);
 
-        API.getInstance().onDisable(this);
         HandlerList.unregisterAll(this);
 
         timer.stop();

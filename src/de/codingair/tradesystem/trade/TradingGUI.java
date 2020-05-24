@@ -27,7 +27,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 public class TradingGUI extends GUI {
     private Trade trade;
@@ -324,20 +323,16 @@ public class TradingGUI extends GUI {
 
                                 @Override
                                 public void onClick(AnvilClickEvent e) {
-                                    e.setCancelled(true);
-                                    e.setClose(false);
-
                                     if(!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                                     try {
-                                        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\d+");
-                                        Matcher matcher = pattern.matcher(e.getInput());
-
-                                        if(matcher.find()) {
-                                            amount = Integer.parseInt(matcher.group(0));
-                                        }
-                                    } catch(Exception ex) {
-                                        ex.printStackTrace();
+                                        String in = e.getInput(false);
+                                        int dot = in.indexOf('.');
+                                        int comma = in.indexOf(',');
+                                        if(dot >= 0) amount = Integer.parseInt(in.substring(0, dot));
+                                        else if(comma >= 0) amount = Integer.parseInt(in.substring(0, comma));
+                                        else amount = Integer.parseInt(e.getInput(false));
+                                    } catch(NumberFormatException ignored) {
                                     }
 
                                     if(amount < 0) {
@@ -386,7 +381,8 @@ public class TradingGUI extends GUI {
             }
 
             case MONEY_REPLACEMENT: {
-                if(!AdapterType.canEnable() || !TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
+                if(!AdapterType.canEnable() || !TradeSystem.getInstance().getTradeManager().isTradeMoney())
+                    setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).setHideEnchantments(true).setHideStandardLore(true).getItem());
                 break;
             }
 

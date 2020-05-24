@@ -66,50 +66,41 @@ public class TradeManager {
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
         TradeSystem.log("  > Loading sounds");
+
+        this.soundStarted = null;
         try {
-            this.soundStarted = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0));
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)).ifPresent(s -> this.soundStarted = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0)));
         } catch(Exception ex) {
-            this.soundStarted = null;
-            TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
         }
+        if(this.soundStarted == null) TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
 
+        this.soundFinish = null;
         try {
-            this.soundFinish = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0));
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)).ifPresent(s -> this.soundFinish = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0)));
         } catch(Exception ignored) {
-            this.soundFinish = null;
-            TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
         }
+        if(this.soundFinish == null) TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
 
+        this.soundBlocked = null;
         try {
-            this.soundBlocked = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.8),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 0.6));
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)).ifPresent(s -> this.soundBlocked = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 1.0)));
         } catch(Exception ignored) {
-            this.soundBlocked = null;
-            TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
         }
+        if(this.soundBlocked == null) TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
 
+        this.soundCancel = null;
         try {
-            this.soundCancel = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0));
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)).ifPresent(s -> this.soundCancel = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0)));
         } catch(Exception ignored) {
-            this.soundCancel = null;
-            TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
         }
+        if(this.soundCancel == null) TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
 
+        this.soundRequest = null;
         try {
-            this.soundRequest = new SoundData(Sound.valueOf(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6),
-                    (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0));
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)).ifPresent(s -> this.soundRequest = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0)));
         } catch(Exception ignored) {
-            this.soundRequest = null;
-            TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
         }
+        if(this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
         if(this.allowedGameModes != null) this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
@@ -144,23 +135,23 @@ public class TradeManager {
     }
 
     public void playRequestSound(Player player) {
-        this.soundRequest.play(player);
+        if(this.soundRequest != null) this.soundRequest.play(player);
     }
 
     public void playStartSound(Player player) {
-        this.soundStarted.play(player);
+        if(this.soundStarted != null) this.soundStarted.play(player);
     }
 
     public void playFinishSound(Player player) {
-        this.soundFinish.play(player);
+        if(this.soundFinish != null) this.soundFinish.play(player);
     }
 
     public void playBlockSound(Player player) {
-        this.soundBlocked.play(player);
+        if(this.soundBlocked != null) this.soundBlocked.play(player);
     }
 
     public void playCancelSound(Player player) {
-        this.soundCancel.play(player);
+        if(this.soundCancel != null) this.soundCancel.play(player);
     }
 
     public void saveBlackList() {
