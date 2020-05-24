@@ -74,6 +74,11 @@ public class TradeCMD extends CommandBuilder {
                     return false;
                 }
 
+                if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
+                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+                    return false;
+                }
+
                 List<Invite> l = invites.get(sender.getName());
 
                 if(l == null || l.isEmpty()) {
@@ -109,6 +114,11 @@ public class TradeCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 if(((Player) sender).isSleeping()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    return false;
+                }
+
+                if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
+                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
                     return false;
                 }
 
