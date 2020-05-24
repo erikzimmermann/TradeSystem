@@ -324,20 +324,11 @@ public class TradingGUI extends GUI {
 
                                 @Override
                                 public void onClick(AnvilClickEvent e) {
-                                    e.setCancelled(true);
-                                    e.setClose(false);
-
                                     if(!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                                     try {
-                                        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\d+");
-                                        Matcher matcher = pattern.matcher(e.getInput());
-
-                                        if(matcher.find()) {
-                                            amount = Integer.parseInt(matcher.group(0));
-                                        }
-                                    } catch(Exception ex) {
-                                        ex.printStackTrace();
+                                        amount = Integer.parseInt(e.getInput(false));
+                                    } catch(NumberFormatException ignored) {
                                     }
 
                                     if(amount < 0) {
