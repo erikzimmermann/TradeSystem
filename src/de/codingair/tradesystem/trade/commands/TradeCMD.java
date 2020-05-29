@@ -206,7 +206,7 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for(Player player : Bukkit.getOnlinePlayers()) {
-                    if(player.getName().equals(sender.getName())) continue;
+                    if(player.getName().equals(sender.getName()) || !((Player) sender).canSee(player)) continue;
 
                     TimeList<Invite> l = invites.get(player.getName());
                     if(l != null && l.contains(new Invite(sender.getName()))) continue;
@@ -296,7 +296,7 @@ public class TradeCMD extends CommandBuilder {
         }
 
         if(!p.canSee(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_while_invisible"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
             return;
         }
 
