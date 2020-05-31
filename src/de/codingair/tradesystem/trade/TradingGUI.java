@@ -34,12 +34,6 @@ public class TradingGUI extends GUI {
     public boolean pause = false;
     private Pattern layout;
 
-    @Override
-    public void destroy() {
-        trade.cancel();
-        super.destroy();
-    }
-
     public TradingGUI(Player p, int id, Trade trade) {
         super(p, Lang.get("GUI_Title").replace("%PLAYER%", trade.getOther(p).getName()), 54, TradeSystem.getInstance(), false);
 
