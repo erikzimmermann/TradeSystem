@@ -29,13 +29,13 @@ public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_MODIFY = "TradeSystem.Modify";
 
     private static TradeSystem instance;
-    private LayoutManager layoutManager = new LayoutManager();
-    private TradeManager tradeManager = new TradeManager();
-    private FileManager fileManager = new FileManager(this);
+    private final LayoutManager layoutManager = new LayoutManager();
+    private final TradeManager tradeManager = new TradeManager();
+    private final FileManager fileManager = new FileManager(this);
 
-    private UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
+    private final UpdateChecker updateChecker = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
     private boolean needsUpdate = false;
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
 
     private TradeSystemCMD tradeSystemCMD;
     private TradeCMD tradeCMD;
@@ -64,13 +64,8 @@ public class TradeSystem extends JavaPlugin {
         log("MC-Version: " + Version.getVersion().getVersionName());
         log(" ");
 
-        this.fileManager.loadAll();
-        if(this.fileManager.getFile("Config") == null) {
-            this.fileManager.loadFile("Config", "/");
-            this.fileManager.getFile("Config").reloadConfig();
-        }
-
-        if(this.fileManager.getFile("Layouts") == null) this.fileManager.loadFile("Layouts", "/");
+        this.fileManager.loadFile("Config", "/");
+        this.fileManager.loadFile("Layouts", "/");
 
         Lang.initPreDefinedLanguages(this);
 
@@ -88,10 +83,10 @@ public class TradeSystem extends JavaPlugin {
         }
 
         tradeCMD = new TradeCMD();
-        tradeCMD.register(this);
+        tradeCMD.register();
 
         tradeSystemCMD = new TradeSystemCMD();
-        tradeSystemCMD.register(this);
+        tradeSystemCMD.register();
 
         //initiates metrics
         new MetricsManager();
@@ -130,8 +125,8 @@ public class TradeSystem extends JavaPlugin {
         this.tradeManager.cancelAll();
         this.layoutManager.save();
 
-        this.tradeCMD.unregister(this);
-        this.tradeSystemCMD.unregister(this);
+        this.tradeCMD.unregister();
+        this.tradeSystemCMD.unregister();
 
         HandlerList.unregisterAll(this);
 
@@ -141,6 +136,8 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
         log("__________________________________________________________");
         log(" ");
+
+        this.fileManager.destroy();
     }
 
     private void afterOnEnable() {

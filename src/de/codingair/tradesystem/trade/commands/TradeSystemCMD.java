@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TradeSystemCMD extends CommandBuilder {
     public TradeSystemCMD() {
-        super("tradesystem", "Trade-System-CMD", new BaseComponent(TradeSystem.PERMISSION_MODIFY) {
+        super(TradeSystem.getInstance(), "tradesystem", "Trade-System-CMD", new BaseComponent(TradeSystem.PERMISSION_MODIFY) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("No_Permissions"));

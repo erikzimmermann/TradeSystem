@@ -25,10 +25,10 @@ import java.util.List;
 public class TradeCMD extends CommandBuilder {
     public static String PERMISSION = "TradeSystem.Trade";
     public static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
-    private TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
+    private final TimeMap<String, TimeList<Invite>> invites = new TimeMap<>();
 
     public TradeCMD() {
-        super("trade", "Trade-System-CMD", new BaseComponent(PERMISSION) {
+        super(TradeSystem.getInstance(), "trade", "Trade-System-CMD", new BaseComponent(PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
@@ -275,6 +275,16 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
+        if(!other.canSee(p)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible"));
+            return;
+        }
+
+        if(!p.canSee(other)) {
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
+            return;
+        }
+
         if(PERMISSION != null && !other.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
             return;
@@ -287,16 +297,6 @@ public class TradeCMD extends CommandBuilder {
 
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
-            return;
-        }
-
-        if(!other.canSee(p)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible"));
-            return;
-        }
-
-        if(!p.canSee(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
             return;
         }
 
