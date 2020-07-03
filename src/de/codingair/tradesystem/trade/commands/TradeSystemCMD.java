@@ -23,7 +23,8 @@ public class TradeSystemCMD extends CommandBuilder {
             }
 
             @Override
-            public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) { }
+            public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
+            }
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
@@ -42,8 +43,9 @@ public class TradeSystemCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 try {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Plugin_Reloading"));
+                    String s = Lang.getPrefix() + Lang.get("Success_Plugin_Reloaded");
                     TradeSystem.getInstance().reload();
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Success_Plugin_Reloaded"));
+                    sender.sendMessage(s);
                 } catch(Exception ex) {
                     ex.printStackTrace();
                 }
@@ -164,7 +166,7 @@ public class TradeSystemCMD extends CommandBuilder {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
                     return false;
                 }
-                
+
                 if(pattern.isStandard()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Delete_Standard"));
                     return false;
