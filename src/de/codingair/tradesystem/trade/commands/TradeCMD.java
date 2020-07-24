@@ -270,7 +270,7 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(other.getName().equals(p.getName())) {
+        if(other.equals(p)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
             return;
         }
