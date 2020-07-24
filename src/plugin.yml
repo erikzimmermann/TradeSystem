@@ -3,5 +3,5 @@ author: CodingAir
 version: "1.1.12"
 description: A beautiful way to trade with other players.
 main: de.codingair.tradesystem.TradeSystem
-softdepend: [Vault, Essentials]
+softdepend: [Vault, Essentials, PlaceholderAPI]
 api-version: "1.13"

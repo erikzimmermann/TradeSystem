@@ -28,16 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Trade {
-    private Player[] players = new Player[2];
-    private TradingGUI[] guis = new TradingGUI[2];
-    private int[] moneyBackup = new int[] {0, 0};
-    private int[] money = new int[] {0, 0};
-    private boolean[] ready = new boolean[] {false, false};
-    private boolean[] cursor = new boolean[] {false, false};
-    private boolean[] waitForPickup = new boolean[] {false, false};
+    private final Player[] players = new Player[2];
+    private final TradingGUI[] guis = new TradingGUI[2];
+    private final int[] moneyBackup = new int[] {0, 0};
+    private final int[] money = new int[] {0, 0};
+    private final boolean[] ready = new boolean[] {false, false};
+    private final boolean[] cursor = new boolean[] {false, false};
+    private final boolean[] waitForPickup = new boolean[] {false, false};
 
-    private List<Integer> slots = new ArrayList<>();
-    private List<Integer> otherSlots = new ArrayList<>();
+    private final List<Integer> slots = new ArrayList<>();
+    private final List<Integer> otherSlots = new ArrayList<>();
 
     private Listener listener;
 

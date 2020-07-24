@@ -9,7 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class UpdateChecker {
-    private String link;
+    private final String link;
     private URL url;
     private String version = null;
     private String download = null;

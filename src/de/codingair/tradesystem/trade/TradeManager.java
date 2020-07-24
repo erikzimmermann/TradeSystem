@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradeManager {
-    private List<Player> offline = new ArrayList<>();
-    private List<Trade> tradeList = new ArrayList<>();
-    private List<BlockedItem> blacklist = new ArrayList<>();
+    private final List<Player> offline = new ArrayList<>();
+    private final List<Trade> tradeList = new ArrayList<>();
+    private final List<BlockedItem> blacklist = new ArrayList<>();
     private int cooldown = 60;
     private int distance = 50;
 

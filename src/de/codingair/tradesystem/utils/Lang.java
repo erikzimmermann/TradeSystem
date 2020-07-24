@@ -97,7 +97,7 @@ public class Lang {
             }
 
             to.write(buf, 0, r);
-            total += (long) r;
+            total += r;
         }
     }
 }

@@ -13,6 +13,7 @@ import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Item;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
+import de.codingair.tradesystem.utils.PAPI;
 import de.codingair.tradesystem.utils.money.AdapterType;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -29,13 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradingGUI extends GUI {
-    private Trade trade;
-    private int id;
+    private final Trade trade;
+    private final int id;
     public boolean pause = false;
-    private Pattern layout;
+    private final Pattern layout;
 
     public TradingGUI(Player p, int id, Trade trade) {
-        super(p, Lang.get("GUI_Title").replace("%PLAYER%", trade.getOther(p).getName()), 54, TradeSystem.getInstance(), false);
+        super(p, PAPI.convert(Lang.get("GUI_Title").replace("%PLAYER%", trade.getOther(p).getName()), p), 54, TradeSystem.getInstance(), false);
 
         this.layout = TradeSystem.getInstance().getLayoutManager().getActive();
         this.trade = trade;

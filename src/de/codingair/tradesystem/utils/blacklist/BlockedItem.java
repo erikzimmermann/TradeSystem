@@ -1,6 +1,6 @@
 package de.codingair.tradesystem.utils.blacklist;
 
-import de.codingair.codingapi.server.Version;
+import de.codingair.codingapi.server.specification.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -11,9 +11,9 @@ import org.json.simple.parser.ParseException;
 import java.util.Objects;
 
 public class BlockedItem {
-    private Material material;
-    private byte data;
-    private String name;
+    private final Material material;
+    private final byte data;
+    private final String name;
 
     public BlockedItem(Material material, byte data, String name) {
         this.material = material;
@@ -33,7 +33,7 @@ public class BlockedItem {
         boolean matches = false;
 
         if(material != null) {
-            if(Version.getVersion().isBiggerThan(Version.v1_12)) {
+            if(Version.get().isBiggerThan(Version.v1_12)) {
                 if(item.getType() == this.material) matches = true;
             } else {
                 if(item.getType() == this.material && data == item.getData().getData()) matches = true;

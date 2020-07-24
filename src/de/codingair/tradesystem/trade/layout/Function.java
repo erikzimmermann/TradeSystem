@@ -14,8 +14,8 @@ public enum Function {
     EMPTY_FIRST_TRADER(true, false),
     EMPTY_SECOND_TRADER(true, false);
 
-    private boolean function;
-    private boolean ambiguous;
+    private final boolean function;
+    private final boolean ambiguous;
 
     Function(boolean function, boolean ambiguous) {
         this.function = function;

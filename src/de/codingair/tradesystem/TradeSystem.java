@@ -3,7 +3,7 @@ package de.codingair.tradesystem;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
-import de.codingair.codingapi.server.Version;
+import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.time.Timer;
 import de.codingair.tradesystem.bstats.MetricsManager;
 import de.codingair.tradesystem.trade.TradeManager;
@@ -42,6 +42,7 @@ public class TradeSystem extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Version.load();
         API.getInstance().onEnable(this);
         instance = this;
 
@@ -61,7 +62,7 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
         log("Status:");
         log(" ");
-        log("MC-Version: " + Version.getVersion().getVersionName());
+        log("MC-Version: " + Version.get().fullVersion());
         log(" ");
 
         this.fileManager.loadFile("Config", "/");
@@ -119,7 +120,7 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
         log("Status:");
         log(" ");
-        log("MC-Version: " + Version.getVersion().name());
+        log("MC-Version: " + Version.get().name());
         log(" ");
         log("  > Cancelling all active trades");
         this.tradeManager.cancelAll();
@@ -146,7 +147,7 @@ public class TradeSystem extends JavaPlugin {
     }
 
     private void updateCommandList() {
-        if(Version.getVersion().isBiggerThan(Version.v1_12)) {
+        if(Version.get().isBiggerThan(Version.v1_12)) {
             for(Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
             }
