@@ -8,7 +8,7 @@ public enum AdapterType {
     ESSENTIALS(Bukkit.getPluginManager().isPluginEnabled("Essentials") ? new Essentials() : null),
     VAULT(Bukkit.getPluginManager().isPluginEnabled("Vault") ? new Vault() : null);
 
-    private Adapter adapter;
+    private final Adapter adapter;
 
     AdapterType(Adapter adapter) {
         this.adapter = adapter;

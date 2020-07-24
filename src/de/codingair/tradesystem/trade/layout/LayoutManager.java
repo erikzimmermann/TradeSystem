@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LayoutManager {
-    private List<String> reservedNames = new ArrayList<>();
-    private List<AbstractPattern> layouts = new ArrayList<>();
+    private final List<String> reservedNames = new ArrayList<>();
+    private final List<AbstractPattern> layouts = new ArrayList<>();
     private Pattern active;
 
     public void load() {

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractPattern implements Pattern {
-    private List<Item> items;
+    private final List<Item> items;
     private String name;
 
     public AbstractPattern(List<Item> items, String name) {

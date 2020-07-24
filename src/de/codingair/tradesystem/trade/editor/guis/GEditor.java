@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GEditor extends GUI {
-    private GMenu menu;
-    private Function function;
+    private final GMenu menu;
+    private final Function function;
     private boolean changed = false;
 
-    private Callback<List<Item>> callback;
+    private final Callback<List<Item>> callback;
 
     public GEditor(Player p, GMenu menu, Callback<List<Item>> callback) {
         this(p, menu, null, callback);

@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import java.util.UUID;
 
 public class TradeListener implements Listener, ChatButtonListener {
-    private TimeList<Player> players = new TimeList<>();
+    private final TimeList<Player> players = new TimeList<>();
 
     @Override
     public void onForeignClick(Player player, UUID id, String type) {

@@ -331,7 +331,7 @@ public class TradeCMD extends CommandBuilder {
 
         if(l == null) l = new TimeList<>();
         l.add(new Invite(p.getName()), TradeSystem.getInstance().getTradeManager().getCooldown());
-        TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown());
+        TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown() * 1000);
 
         List<TextComponent> parts = new ArrayList<>();
 

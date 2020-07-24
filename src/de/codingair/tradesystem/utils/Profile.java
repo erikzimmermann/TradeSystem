@@ -4,7 +4,7 @@ import de.codingair.tradesystem.utils.money.AdapterType;
 import org.bukkit.entity.Player;
 
 public class Profile {
-    private Player player;
+    private final Player player;
 
     public Profile(Player player) {
         this.player = player;
