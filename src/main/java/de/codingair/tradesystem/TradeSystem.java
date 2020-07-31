@@ -4,7 +4,7 @@ import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
 import de.codingair.codingapi.server.specification.Version;
-import de.codingair.codingapi.time.Timer;
+import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.tradesystem.bstats.MetricsManager;
 import de.codingair.tradesystem.trade.TradeManager;
 import de.codingair.tradesystem.trade.commands.TradeCMD;
