@@ -67,7 +67,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 new GMenu((Player) sender).open();
                 return false;
             }
-        });
+        }.setOnlyPlayers(true));
 
         getComponent("layout").addChild(new CommandComponent("edit") {
             @Override
@@ -75,7 +75,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Edit").replace("%LABEL%", label));
                 return false;
             }
-        });
+        }.setOnlyPlayers(true));
 
         getComponent("layout", "edit").addChild(new MultiCommandComponent() {
             @Override
@@ -103,7 +103,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 new GMenu((Player) sender, pattern).open();
                 return false;
             }
-        });
+        }.setOnlyPlayers(true));
 
         getComponent("layout").addChild(new CommandComponent("activate") {
             @Override

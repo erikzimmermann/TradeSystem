@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -140,8 +139,8 @@ public class Trade {
             this.players[0].sendMessage(message);
             this.players[1].sendMessage(message);
         } else {
-            this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
-            this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled"));
+            this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[0]));
+            this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[1]));
         }
 
         TradeSystem.getInstance().getTradeManager().playCancelSound(this.players[0]);
@@ -285,8 +284,8 @@ public class Trade {
         if(diff < 0) p1.withdraw(-diff);
         else if(diff > 0) p1.deposit(diff);
 
-        this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
-        this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished"));
+        this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.players[0]));
+        this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.players[1]));
 
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[0]);
         TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[1]);
@@ -299,10 +298,10 @@ public class Trade {
         return !TradeSystem.getInstance().getTradeManager().getTradeList().contains(this);
     }
 
-    Player getOther(Player p) {
+    public Player getOther(Player p) {
         if(this.players[0] == null || this.players[1] == null) return null;
 
-        if(this.players[0].getName().equals(p.getName())) return this.players[1];
+        if(this.players[0].equals(p)) return this.players[1];
         else return this.players[0];
     }
 

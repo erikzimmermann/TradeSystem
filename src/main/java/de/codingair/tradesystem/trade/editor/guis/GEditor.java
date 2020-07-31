@@ -34,7 +34,7 @@ public class GEditor extends GUI {
     }
 
     public GEditor(Player p, GMenu menu, Function function, Callback<List<Item>> callback) {
-        super(p, "§c" + Lang.get("Layout_Editor_Set_Items"), 54, TradeSystem.getInstance(), false);
+        super(p, "§c" + Lang.get("Layout_Editor_Set_Items", p), 54, TradeSystem.getInstance(), false);
         this.menu = menu;
         this.callback = callback;
         this.function = function;
@@ -76,7 +76,7 @@ public class GEditor extends GUI {
                                         break;
                                 }
                             } else {
-                                getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_Not_Empty"));
+                                getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_Not_Empty", p));
                                 e.setCancelled(true);
                             }
                             break;
@@ -85,7 +85,7 @@ public class GEditor extends GUI {
                             Item item = menu.getActionIcon(e.getSlot(), false);
 
                             if(item.getItem().getType() == Material.AIR) {
-                                getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_No_Item"));
+                                getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_No_Item", p));
                                 return;
                             }
 
@@ -227,29 +227,29 @@ public class GEditor extends GUI {
                             break;
 
                         case PICK_MONEY:
-                            ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§8" + Lang.get("Trader") + " ~ §e" + Lang.get("Money_Amount") + ": §70 " + Lang.get("Coins"));
+                            ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§8" + Lang.get("Trader", p) + " ~ §e" + Lang.get("Money_Amount", p) + ": §70 " + Lang.get("Coins", p));
                             setItem(item.getSlot(), moneyBuilder.getItem());
                             break;
 
                         case SHOW_MONEY:
-                            moneyBuilder = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§8" + Lang.get("Other") + " ~ §e" + Lang.get("Money_Amount") + ": §70 " + Lang.get("Coins"));
+                            moneyBuilder = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§8" + Lang.get("Other", p) + " ~ §e" + Lang.get("Money_Amount", p) + ": §70 " + Lang.get("Coins", p));
                             setItem(item.getSlot(), moneyBuilder.getItem());
                             break;
 
                         case PICK_STATUS_NONE:
                             ItemBuilder ready = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
-                            ready.setName("§8" + Lang.get("Trader") + " ~ §7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
+                            ready.setName("§8" + Lang.get("Trader", p) + " ~ §7" + Lang.get("Status", p) + ": §c" + Lang.get("Not_Ready", p));
                             setItem(item.getSlot(), ready.getItem());
                             break;
 
                         case SHOW_STATUS_NOT_READY:
                             ready = new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
-                            ready.setName("§8" + Lang.get("Other") + " ~ §7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
+                            ready.setName("§8" + Lang.get("Other", p) + " ~ §7" + Lang.get("Status", p) + ": §c" + Lang.get("Not_Ready", p));
                             setItem(item.getSlot(), ready.getItem());
                             break;
 
                         case CANCEL:
-                            setItem(item.getSlot(), new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§c" + Lang.get("Cancel_Trade")).getItem());
+                            setItem(item.getSlot(), new ItemBuilder(item.getItem()).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true).setName("§c" + Lang.get("Cancel_Trade", p)).getItem());
                             break;
                     }
                 }

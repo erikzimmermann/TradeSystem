@@ -2,8 +2,10 @@ package de.codingair.tradesystem.utils;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.extras.placeholderapi.PAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -65,7 +67,19 @@ public class Lang {
 
     public static String get(String key) {
         String s = getLanguageFile(getLanguageKey()).getString(key, null);
-        return s == null ? null : ChatColor.translateAlternateColorCodes('&', s);
+        return s == null ? null : prepare(null, s);
+    }
+
+    public static String get(String key, Player p) {
+        String s = getLanguageFile(getLanguageKey()).getString(key, null);
+        return s == null ? null : prepare(p, s);
+    }
+
+    private static String prepare(Player player, String s) {
+        s = s.replace("\\n", "\n");
+        s = ChatColor.translateAlternateColorCodes('&', s);
+        if(player != null) s = PAPI.convert(s, player);
+        return s;
     }
 
     private static FileConfiguration getConfig() {
@@ -73,10 +87,9 @@ public class Lang {
     }
 
     private static void mkDir(File file) {
-        if(!file.getParentFile().exists()) mkDir(file.getParentFile());
         if(!file.exists()) {
             try {
-                file.mkdir();
+                file.mkdirs();
             } catch(SecurityException ex) {
                 throw new IllegalArgumentException("Plugin is not permitted to create a folder!");
             }

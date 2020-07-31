@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.bstats;
+package de.codingair.tradesystem.extras.bstats;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
