@@ -1,7 +1,7 @@
 package de.codingair.tradesystem.utils;
 
 import com.mojang.authlib.GameProfile;
-import de.codingair.codingapi.player.data.gameprofile.GameProfileUtils;
+import de.codingair.codingapi.player.data.GameProfileUtils;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
