@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.bstats;
+package de.codingair.tradesystem.extras.bstats;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.loader.UTFConfig;

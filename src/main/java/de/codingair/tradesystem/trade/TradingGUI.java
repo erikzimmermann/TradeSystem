@@ -13,7 +13,7 @@ import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Item;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
-import de.codingair.tradesystem.utils.PAPI;
+import de.codingair.tradesystem.extras.placeholderapi.PAPI;
 import de.codingair.tradesystem.utils.money.AdapterType;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -36,7 +36,7 @@ public class TradingGUI extends GUI {
     private final Pattern layout;
 
     public TradingGUI(Player p, int id, Trade trade) {
-        super(p, PAPI.convert(Lang.get("GUI_Title").replace("%PLAYER%", trade.getOther(p).getName()), p), 54, TradeSystem.getInstance(), false);
+        super(p, Lang.get("GUI_Title", p).replace("%PLAYER%", trade.getOther(p).getName()), 54, TradeSystem.getInstance(), false);
 
         this.layout = TradeSystem.getInstance().getLayoutManager().getActive();
         this.trade = trade;
@@ -104,7 +104,7 @@ public class TradingGUI extends GUI {
 
                 if(blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
                     e.setCancelled(true);
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", p));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return;
                 }
@@ -199,7 +199,7 @@ public class TradingGUI extends GUI {
                 }
 
                 if(!fits) {
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", p));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
@@ -221,11 +221,11 @@ public class TradingGUI extends GUI {
                 //check if it's blocked
                 if(TradeSystem.getInstance().getTradeManager().isBlocked(e.getNewItems().values().iterator().next())) {
                     e.setCancelled(true);
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", p));
                 }
 
                 if(!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), e.getNewItems().values().toArray(new ItemStack[0]))) {
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", p));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     e.setCancelled(true);
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
@@ -240,13 +240,13 @@ public class TradingGUI extends GUI {
             public boolean onMoveToTopInventory(int oldRawSlot, List<Integer> newRawSlots, ItemStack item) {
                 //check if it's blocked
                 if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", p));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return true;
                 }
 
                 if(!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(getPlayer(), item)) {
-                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space"));
+                    getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", p));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(getPlayer());
                     return true;
                 } else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), trade::update, 1);
@@ -301,14 +301,14 @@ public class TradingGUI extends GUI {
 
             case PICK_MONEY: {
                 if(AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) {
-                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[id] + " " + (trade.getMoney()[id] == 1 ? Lang.get("Coin") : Lang.get("Coins"))).addLore("", "§7» " + Lang.get("Click_To_Change"));
+                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + trade.getMoney()[id] + " " + (trade.getMoney()[id] == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer()))).addLore("", "§7» " + Lang.get("Click_To_Change", getPlayer()));
                     if(trade.getMoney()[id] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
                         @Override
                         public void onClick(InventoryClickEvent e) {
                             if(TradeSystem.getProfile(getPlayer()).getMoney() <= 0) {
-                                getPlayer().sendMessage(Lang.getPrefix() + Lang.get("No_Money"));
+                                getPlayer().sendMessage(Lang.getPrefix() + Lang.get("No_Money", getPlayer()));
                                 return;
                             }
 
@@ -332,14 +332,14 @@ public class TradingGUI extends GUI {
 
                                     if(amount < 0) {
                                         amount = -999;
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount"));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", getPlayer()));
                                         return;
                                     }
 
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
                                         amount = -999;
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin").replace("%COIN%", max + "") : Lang.get("Only_X_Coins").replace("%COINS%", max + "")));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%COIN%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%COINS%", max + "")));
                                         return;
                                     }
 
@@ -360,7 +360,7 @@ public class TradingGUI extends GUI {
                                         open();
                                     });
                                 }
-                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount") + "...") : trade.getMoney()[id] + "").getItem());
+                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : trade.getMoney()[id] + "").getItem());
                         }
                     }.setOption(option));
                 }
@@ -368,7 +368,7 @@ public class TradingGUI extends GUI {
             }
 
             case SHOW_MONEY: {
-                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount") + ": §7" + trade.getMoney()[trade.getOtherId(id)] + " " + (trade.getMoney()[trade.getOtherId(id)] == 1 ? Lang.get("Coin") : Lang.get("Coins")));
+                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + trade.getMoney()[trade.getOtherId(id)] + " " + (trade.getMoney()[trade.getOtherId(id)] == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer())));
                 if(trade.getMoney()[trade.getOtherId(id)] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 if(AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), moneyBuilder.getItem());
@@ -392,7 +392,7 @@ public class TradingGUI extends GUI {
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(!canFinish) {
-                    ready.setText("§c" + Lang.get("Trade_Only_With_Objects"), TextAlignment.LEFT, 150);
+                    ready.setText("§c" + Lang.get("Trade_Only_With_Objects", getPlayer()), TextAlignment.LEFT, 150);
                     setItem(item.getSlot(), ready.getItem());
                 }
                 break;
@@ -411,7 +411,7 @@ public class TradingGUI extends GUI {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
                     if(trade.getReady()[id]) return;
-                    else ready.setName("§7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
+                    else ready.setName("§7" + Lang.get("Status", getPlayer()) + ": §c" + Lang.get("Not_Ready", getPlayer()));
 
                     addButton(new ItemButton(item.getSlot(), ready.getItem()) {
                         @Override
@@ -436,7 +436,7 @@ public class TradingGUI extends GUI {
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
-                    if(trade.getReady()[id]) ready.setName("§7" + Lang.get("Status") + ": §a" + Lang.get("Ready")).addLore("", "§7" + Lang.get("Wait_For_Other_Player"));
+                    if(trade.getReady()[id]) ready.setName("§7" + Lang.get("Status", getPlayer()) + ": §a" + Lang.get("Ready", getPlayer())).addLore("", "§7" + Lang.get("Wait_For_Other_Player", getPlayer()));
                     else return;
 
                     addButton(new ItemButton(item.getSlot(), ready.getItem()) {
@@ -453,21 +453,21 @@ public class TradingGUI extends GUI {
             case SHOW_STATUS_NOT_READY: {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(trade.getReady()[trade.getOtherId(id)]) return;
-                else ready.setName("§7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready"));
+                else ready.setName("§7" + Lang.get("Status", getPlayer()) + ": §c" + Lang.get("Not_Ready", getPlayer()));
                 setItem(item.getSlot(), ready.getItem());
                 break;
             }
 
             case SHOW_STATUS_READY: {
                 ItemBuilder ready = new ItemBuilder(item.getItem());
-                if(trade.getReady()[trade.getOtherId(id)]) ready.setColor(DyeColor.LIME).setName("§7" + Lang.get("Status") + ": §a" + Lang.get("Ready"));
+                if(trade.getReady()[trade.getOtherId(id)]) ready.setColor(DyeColor.LIME).setName("§7" + Lang.get("Status", getPlayer()) + ": §a" + Lang.get("Ready", getPlayer()));
                 else return;
                 setItem(item.getSlot(), ready.getItem());
                 break;
             }
 
             case CANCEL: {
-                addButton(new ItemButton(item.getSlot(), new ItemBuilder(item.getItem()).setName("§c" + Lang.get("Cancel_Trade")).getItem()) {
+                addButton(new ItemButton(item.getSlot(), new ItemBuilder(item.getItem()).setName("§c" + Lang.get("Cancel_Trade", getPlayer())).getItem()) {
                     @Override
                     public void onClick(InventoryClickEvent e) {
                         trade.cancel();

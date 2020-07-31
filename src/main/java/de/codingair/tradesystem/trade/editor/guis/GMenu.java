@@ -49,7 +49,7 @@ public class GMenu extends GUI {
     }
 
     public GMenu(Player p, AbstractPattern pattern, Menu page) {
-        super(p, Lang.get("Layout_Editor"), 27, TradeSystem.getInstance(), false);
+        super(p, Lang.get("Layout_Editor", p), 27, TradeSystem.getInstance(), false);
 
         this.menu = page == null ? Menu.MAIN : page;
         setMoveOwnItems(true);
@@ -82,7 +82,7 @@ public class GMenu extends GUI {
                 Sound.UI_BUTTON_CLICK.playSound(getPlayer());
                 if(menu != Menu.CLOSE) menu = menu == Menu.MAIN ? Menu.CLOSE : Menu.MAIN;
 
-                reinitialize(menu == Menu.CLOSE ? Lang.get("Layout_Confirm_Close") : getTitle());
+                reinitialize(menu == Menu.CLOSE ? Lang.get("Layout_Confirm_Close", p) : getTitle());
                 Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> open(), 1);
             }
 
@@ -136,17 +136,17 @@ public class GMenu extends GUI {
             boolean ready = ready();
 
             ItemBuilder builder = new ItemBuilder(ready ? XMaterial.LIME_TERRACOTTA : XMaterial.RED_TERRACOTTA)
-                    .setText((ready ? "§a" : "§c") + "§n" + Lang.get("Status"));
+                    .setText((ready ? "§a" : "§c") + "§n" + Lang.get("Status", p));
 
-            builder.addText("§7" + Lang.get("Items") + ": " + (itemsReady() ? "§a" + Lang.get("Set") : "§c" + Lang.get("Not_Set")));
-            builder.addText("§7" + Lang.get("Name") + ": " + (nameReady() ? "§a" + name : "§c" + Lang.get("Not_Set")));
-            builder.addText("§7" + Lang.get("Functions") + ": " + (functionsReady() ? "§a" + Lang.get("Set") : "§c" + Lang.get("Not_Set")));
-            builder.addText("§7" + Lang.get("Ambiguous_Functions") + ": " + (ambiguousFunctionsReady() ? "§a" + Lang.get("Set") : "§c" + Lang.get("Not_Set")));
+            builder.addText("§7" + Lang.get("Items", p) + ": " + (itemsReady() ? "§a" + Lang.get("Set", p) : "§c" + Lang.get("Not_Set", p)));
+            builder.addText("§7" + Lang.get("Name", p) + ": " + (nameReady() ? "§a" + name : "§c" + Lang.get("Not_Set", p)));
+            builder.addText("§7" + Lang.get("Functions", p) + ": " + (functionsReady() ? "§a" + Lang.get("Set", p) : "§c" + Lang.get("Not_Set", p)));
+            builder.addText("§7" + Lang.get("Ambiguous_Functions", p) + ": " + (ambiguousFunctionsReady() ? "§a" + Lang.get("Set", p) : "§c" + Lang.get("Not_Set", p)));
 
             builder.addText("");
 
             if(ready) {
-                builder.addText("§8» §a" + Lang.get("Save"));
+                builder.addText("§8» §a" + Lang.get("Save", p));
 
                 addButton(new ItemButton(4, builder.getItem()) {
                     @Override
@@ -159,21 +159,21 @@ public class GMenu extends GUI {
                             AbstractPattern ap = new AbstractPattern(items, name);
                             TradeSystem.getInstance().getLayoutManager().addPattern(ap);
                             TradeSystem.getInstance().getLayoutManager().setAvailable(name, true);
-                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Finished"));
+                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Finished", p));
                         } else {
                             editing.setName(name);
                             editing.getItems().clear();
                             editing.getItems().addAll(items);
-                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Edited"));
+                            p.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Edited", p));
                         }
                     }
                 }.setOption(option).setCloseOnClick(true));
             } else {
-                builder.addText("§8» " + Lang.get("Not_Ready_For_Saving"));
+                builder.addText("§8» " + Lang.get("Not_Ready_For_Saving", p));
                 setItem(4, builder.getItem());
             }
         } else if(menu != Menu.CLOSE) {
-            addButton(new ItemButton(4, new ItemBuilder(Head.CYAN_ARROW_LEFT.getItem()).setName("§7» §b" + Lang.get("Back")).setHideName(false).getItem()) {
+            addButton(new ItemButton(4, new ItemBuilder(Head.CYAN_ARROW_LEFT.getItem()).setName("§7» §b" + Lang.get("Back", p)).setHideName(false).getItem()) {
                 @Override
                 public void onClick(InventoryClickEvent e) {
                     if(menu == Menu.AMBIGUOUS_FUNCTIONS) {
@@ -225,7 +225,7 @@ public class GMenu extends GUI {
 
         switch(menu) {
             case MAIN:
-                ItemBuilder builder = new ItemBuilder(XMaterial.BEACON).setText("§8» §b" + Lang.get("Layout_Set_Items"));
+                ItemBuilder builder = new ItemBuilder(XMaterial.BEACON).setText("§8» §b" + Lang.get("Layout_Set_Items", p));
                 if(!itemsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 addButton(new ItemButton(2, 2, builder.getItem()) {
@@ -254,7 +254,7 @@ public class GMenu extends GUI {
                     }
                 }.setOption(option));
 
-                builder = new ItemBuilder(XMaterial.NAME_TAG).setText("§8» §b" + Lang.get("Layout_Set_Name"));
+                builder = new ItemBuilder(XMaterial.NAME_TAG).setText("§8» §b" + Lang.get("Layout_Set_Name", p));
                 if(!nameReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 ItemBuilder finalBuilder = builder;
@@ -262,12 +262,12 @@ public class GMenu extends GUI {
                     @Override
                     public void onClick(AnvilClickEvent e) {
                         if(TradeSystem.getInstance().getLayoutManager().getPattern(e.getInput()) != null) {
-                            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Layout_Name_Already_Exists"));
+                            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Layout_Name_Already_Exists", p));
                             return;
                         }
 
                         if(e.getInput().contains(" ")) {
-                            p.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Name_Space"));
+                            p.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Name_Space", p));
                             return;
                         }
 
@@ -288,11 +288,11 @@ public class GMenu extends GUI {
 
                     @Override
                     public ItemStack craftAnvilItem(ClickType trigger) {
-                        return new ItemBuilder(XMaterial.PAPER).setName(name == null ? Lang.get("Name") + "..." : name).getItem();
+                        return new ItemBuilder(XMaterial.PAPER).setName(name == null ? Lang.get("Name", p) + "..." : name).getItem();
                     }
                 });
 
-                builder = new ItemBuilder(XMaterial.REDSTONE).setText("§8» §b" + Lang.get("Layout_Set_Functions"));
+                builder = new ItemBuilder(XMaterial.REDSTONE).setText("§8» §b" + Lang.get("Layout_Set_Functions", p));
                 if(itemsReady() && !functionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 if(itemsReady()) {
@@ -308,7 +308,7 @@ public class GMenu extends GUI {
                     setItem(5, 2, builder.getItem());
                 }
 
-                builder = new ItemBuilder(XMaterial.COMPARATOR).setText("§8» §b" + Lang.get("Layout_Set_Ambiguous_Functions"));
+                builder = new ItemBuilder(XMaterial.COMPARATOR).setText("§8» §b" + Lang.get("Layout_Set_Ambiguous_Functions", p));
                 if(functionsReady() && !ambiguousFunctionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 if(functionsReady()) {
@@ -338,41 +338,41 @@ public class GMenu extends GUI {
 
                     switch(value) {
                         case PICK_MONEY:
-                            builder = new ItemBuilder(XMaterial.SUNFLOWER).setName("§8» §b" + Lang.get("Layout_Set_Money"));
+                            builder = new ItemBuilder(XMaterial.SUNFLOWER).setName("§8» §b" + Lang.get("Layout_Set_Money", p));
                             break;
 
                         case SHOW_MONEY:
-                            builder = new ItemBuilder(XMaterial.SUNFLOWER).setName("§8» §b" + Lang.get("Layout_Set_Other_Money"));
+                            builder = new ItemBuilder(XMaterial.SUNFLOWER).setName("§8» §b" + Lang.get("Layout_Set_Other_Money", p));
                             break;
 
                         case PICK_STATUS_NONE:
-                            builder = new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA).setName("§8» §b" + Lang.get("Layout_Set_Status"));
+                            builder = new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA).setName("§8» §b" + Lang.get("Layout_Set_Status", p));
                             break;
 
                         case SHOW_STATUS_NOT_READY:
-                            builder = new ItemBuilder(XMaterial.RED_TERRACOTTA).setName("§8» §b" + Lang.get("Layout_Set_Other_Not_Ready"));
+                            builder = new ItemBuilder(XMaterial.RED_TERRACOTTA).setName("§8» §b" + Lang.get("Layout_Set_Other_Not_Ready", p));
                             break;
 
                         case CANCEL:
-                            builder = new ItemBuilder(XMaterial.BARRIER).setName("§8» §b" + Lang.get("Layout_Set_Cancel"));
+                            builder = new ItemBuilder(XMaterial.BARRIER).setName("§8» §b" + Lang.get("Layout_Set_Cancel", p));
                             break;
 
                         case EMPTY_FIRST_TRADER:
                             boolean sameAmount = getAmountOf(Function.EMPTY_FIRST_TRADER) == getAmountOf(Function.EMPTY_SECOND_TRADER);
-                            builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Own_Slots"));
+                            builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Own_Slots", p));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount && getAmountOf(Function.EMPTY_FIRST_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_FIRST_TRADER));
+                            builder.addText("§7" + Lang.get("Current_Amount", p) + ": " + (sameAmount && getAmountOf(Function.EMPTY_FIRST_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_FIRST_TRADER));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount"), 150);
+                            builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount", p), 150);
                             break;
 
                         case EMPTY_SECOND_TRADER:
                             sameAmount = getAmountOf(Function.EMPTY_FIRST_TRADER) == getAmountOf(Function.EMPTY_SECOND_TRADER);
-                            builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Other_Slots"));
+                            builder = new ItemBuilder(XMaterial.DROPPER).setName("§8» §b" + Lang.get("Layout_Set_Other_Slots", p));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Current_Amount") + ": " + (sameAmount && getAmountOf(Function.EMPTY_SECOND_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_SECOND_TRADER));
+                            builder.addText("§7" + Lang.get("Current_Amount", p) + ": " + (sameAmount && getAmountOf(Function.EMPTY_SECOND_TRADER) > 0 ? "§a" : "§c") + getAmountOf(Function.EMPTY_SECOND_TRADER));
                             builder.addText("");
-                            builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount"), 150);
+                            builder.addText("§7" + Lang.get("Layout_Hint_Same_Slot_Amount", p), 150);
                             break;
 
                         default:
@@ -420,11 +420,11 @@ public class GMenu extends GUI {
                 addLine(1, 1, 1, 2, headR, true);
                 addLine(7, 1, 7, 2, headL, true);
 
-                setItem(0, 1, new ItemBuilder(XMaterial.RED_TERRACOTTA).setName("§8" + Lang.get("Trader") + " ~ §7" + Lang.get("Status") + ": §c" + Lang.get("Not_Ready")).getItem());
-                setItem(0, 2, new ItemBuilder(XMaterial.LIME_TERRACOTTA).setName("§8" + Lang.get("Trader") + " ~ §7" + Lang.get("Status") + ": §a" + Lang.get("Ready")).addLore("", "§7" + Lang.get("Wait_For_Other_Player")).getItem());
+                setItem(0, 1, new ItemBuilder(XMaterial.RED_TERRACOTTA).setName("§8" + Lang.get("Trader", p) + " ~ §7" + Lang.get("Status", p) + ": §c" + Lang.get("Not_Ready", p)).getItem());
+                setItem(0, 2, new ItemBuilder(XMaterial.LIME_TERRACOTTA).setName("§8" + Lang.get("Trader", p) + " ~ §7" + Lang.get("Status", p) + ": §a" + Lang.get("Ready", p)).addLore("", "§7" + Lang.get("Wait_For_Other_Player", p)).getItem());
 
-                setItem(8, 1, new ItemBuilder(XMaterial.SUNFLOWER).setText(TextAlignment.lineBreak(Lang.get("Layout_Set_Replacement_For_Money"), 100)).getItem());
-                setItem(8, 2, new ItemBuilder(XMaterial.LIME_TERRACOTTA).setName("§8" + Lang.get("Other") + " ~ §7" + Lang.get("Status") + ": §a" + Lang.get("Ready")).getItem());
+                setItem(8, 1, new ItemBuilder(XMaterial.SUNFLOWER).setText(TextAlignment.lineBreak(Lang.get("Layout_Set_Replacement_For_Money", p), 100)).getItem());
+                setItem(8, 2, new ItemBuilder(XMaterial.LIME_TERRACOTTA).setName("§8" + Lang.get("Other", p) + " ~ §7" + Lang.get("Status", p) + ": §a" + Lang.get("Ready", p)).getItem());
 
                 setEditableSlots(true, 11, 15, 20, 24);
 
@@ -439,18 +439,18 @@ public class GMenu extends GUI {
                 break;
 
             case CLOSE:
-                setItem(4, 0, new ItemBuilder(XMaterial.NETHER_STAR.parseMaterial()).setText(TextAlignment.lineBreak(Lang.get("Sure_That_You_Want_To_Loose_Your_Data"), 100)).getItem());
+                setItem(4, 0, new ItemBuilder(XMaterial.NETHER_STAR.parseMaterial()).setText(TextAlignment.lineBreak(Lang.get("Sure_That_You_Want_To_Loose_Your_Data", p), 100)).getItem());
 
-                addButton(new ItemButton(2, 2, new ItemBuilder(Head.CYAN_ARROW_LEFT.getItem()).setHideName(false).setName("§8» §b" + Lang.get("Back")).getItem()) {
+                addButton(new ItemButton(2, 2, new ItemBuilder(Head.CYAN_ARROW_LEFT.getItem()).setHideName(false).setName("§8» §b" + Lang.get("Back", p)).getItem()) {
                     @Override
                     public void onClick(InventoryClickEvent e) {
                         menu = Menu.MAIN;
-                        reinitialize(Lang.get("Layout_Editor"));
+                        reinitialize(Lang.get("Layout_Editor", p));
                         p.updateInventory();
                     }
                 }.setOption(option));
 
-                addButton(new ItemButton(6, 2, new ItemBuilder(XMaterial.BARRIER).setName("§8» §c" + Lang.get("Close")).getItem()) {
+                addButton(new ItemButton(6, 2, new ItemBuilder(XMaterial.BARRIER).setName("§8» §c" + Lang.get("Close", p)).getItem()) {
                     @Override
                     public void onClick(InventoryClickEvent e) {
 

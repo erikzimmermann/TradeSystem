@@ -31,7 +31,7 @@ public class TradeCMD extends CommandBuilder {
         super(TradeSystem.getInstance(), "trade", "Trade-System-CMD", new BaseComponent(PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
+                sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", (Player) sender));
             }
 
             @Override
@@ -41,12 +41,12 @@ public class TradeCMD extends CommandBuilder {
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To"));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To"));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
                 return false;
             }
         }.setOnlyPlayers(true), true);
@@ -56,10 +56,10 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 if(TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline", (Player) sender));
                     invites.remove(sender.getName());
                 } else {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Online"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Online", (Player) sender));
                 }
                 return false;
             }
@@ -70,32 +70,32 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 if(((Player) sender).isSleeping()) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", (Player) sender));
                     return false;
                 }
 
                 if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
-                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", (Player) sender));
                     return false;
                 }
 
                 List<Invite> l = invites.get(sender.getName());
 
                 if(l == null || l.isEmpty()) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", (Player) sender));
                 } else if(l.size() == 1) {
                     Player other = Bukkit.getPlayer(l.remove(0).getName());
 
                     if(other == null) {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", sender.getName()));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", (Player) sender));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%PLAYER%", sender.getName()));
 
                     TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
-                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", (Player) sender));
                 return false;
             }
         });
@@ -113,12 +113,12 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 if(((Player) sender).isSleeping()) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", (Player) sender));
                     return false;
                 }
 
                 if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
-                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+                    sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", (Player) sender));
                     return false;
                 }
 
@@ -129,16 +129,16 @@ public class TradeCMD extends CommandBuilder {
                     l.remove(new Invite(argument));
 
                     if(other == null) {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", sender.getName()));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", (Player) sender));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%PLAYER%", sender.getName()));
 
                     TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
                 } else {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", (Player) sender));
                 }
 
                 return false;
@@ -152,18 +152,18 @@ public class TradeCMD extends CommandBuilder {
                 List<Invite> l = invites.get(sender.getName());
 
                 if(l == null || l.isEmpty()) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", (Player) sender));
                 } else if(l.size() == 1) {
                     Player other = Bukkit.getPlayer(l.remove(0).getName());
 
                     if(other == null) {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
-                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%PLAYER%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%PLAYER%", sender.getName()));
+                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", (Player) sender));
                 return false;
             }
         });
@@ -187,14 +187,14 @@ public class TradeCMD extends CommandBuilder {
                     l.remove(new Invite(argument));
 
                     if(other == null) {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online"));
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied").replace("%PLAYER%", other.getName()));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied").replace("%PLAYER%", sender.getName()));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%PLAYER%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%PLAYER%", sender.getName()));
                 } else {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found"));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", (Player) sender));
                 }
 
                 return false;
@@ -224,19 +224,19 @@ public class TradeCMD extends CommandBuilder {
     
     public static void request(Player p, Player other) {
         if(PERMISSION != null && !p.hasPermission(PERMISSION)) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade"));
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", p));
             return;
         }
 
         if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
-            String[] a = Lang.get("Trade_You_are_Offline").split("%COMMAND%", -1);
+            String[] a = Lang.get("Trade_You_are_Offline", p).split("%COMMAND%", -1);
 
             String s0 = a[0];
             String s = a[1];
             String s1 = a[2];
 
             SimpleMessage message = new SimpleMessage(Lang.getPrefix() + s0, TradeSystem.getInstance());
-            message.add(new ChatButton(s, Lang.get("Want_To_Trade_Hover")) {
+            message.add(new ChatButton(s, Lang.get("Want_To_Trade_Hover", p)) {
                 @Override
                 public void onClick(Player player) {
                     p.performCommand("trade toggle");
@@ -251,63 +251,63 @@ public class TradeCMD extends CommandBuilder {
         }
 
         if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world"));
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", p));
             return;
         }
 
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode", p));
             return;
         }
 
         if(p.isSleeping()) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", p));
             return;
         }
 
         if(other == null) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return;
         }
 
         if(other.equals(p)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself", p));
             return;
         }
 
         if(!other.canSee(p)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible", p));
             return;
         }
 
         if(!p.canSee(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return;
         }
 
         if(PERMISSION != null && !other.hasPermission(PERMISSION)) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade"));
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade", p));
             return;
         }
 
         if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world"));
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world", p));
             return;
         }
 
         if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode", p));
             return;
         }
 
         if(TradeSystem.getInstance().getTradeManager().isOffline(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline"));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", p));
             return;
         }
 
         if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
             if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
-                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range").replace("%PLAYER%", other.getName()));
+                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p).replace("%PLAYER%", other.getName()));
                 return;
             }
         }
@@ -316,8 +316,8 @@ public class TradeCMD extends CommandBuilder {
         if(l != null && l.contains(new Invite(other.getName()))) {
             l.remove(new Invite(other.getName()));
 
-            p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted"));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted").replace("%PLAYER%", p.getName()));
+            p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", p));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", p).replace("%PLAYER%", p.getName()));
 
             TradeSystem.getInstance().getTradeManager().startTrade(p, other);
             return;
@@ -325,7 +325,7 @@ public class TradeCMD extends CommandBuilder {
 
         l = TradeSystem.getInstance().getTradeCMD().getInvites().get(other.getName());
         if(l != null && l.contains(new Invite(p.getName()))) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam"));
+            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam", p));
             return;
         }
 
@@ -335,15 +335,15 @@ public class TradeCMD extends CommandBuilder {
 
         List<TextComponent> parts = new ArrayList<>();
 
-        TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept"));
+        TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept", p));
         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade accept " + p.getName()));
-        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
+        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", p))}));
 
-        TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny"));
+        TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny", p));
         deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + p.getName()));
-        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover"))}));
+        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", p))}));
 
-        String s = Lang.getPrefix() + Lang.get("Want_To_Trade").replace("%PLAYER%", p.getName());
+        String s = Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%PLAYER%", p.getName());
 
         String[] a1 = s.split("%ACCEPT%");
         if(a1[0].contains("%DENY%")) {
@@ -371,7 +371,7 @@ public class TradeCMD extends CommandBuilder {
         }
 
         other.spigot().sendMessage(basic);
-        p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited").replace("%PLAYER%", other.getName()));
+        p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", p).replace("%PLAYER%", other.getName()));
 
         TradeSystem.getInstance().getTradeManager().playRequestSound(other);
     }
