@@ -9,6 +9,7 @@ import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -173,10 +174,16 @@ public class TradeManager {
             return;
         }
 
+        player.closeInventory();
+        other.closeInventory();
+
         MetricsManager.TRADES++;
-        Trade trade = new Trade(other, player);
-        this.tradeList.add(trade);
-        trade.start();
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+            Trade trade = new Trade(other, player);
+            this.tradeList.add(trade);
+            trade.start();
+        }, 5L);
     }
 
     public void cancelAll() {
