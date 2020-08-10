@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import java.util.UUID;
@@ -28,6 +29,11 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onLie(PlayerBedEnterEvent e) {
+        TradeSystem.getInstance().getTradeCMD().removesAllInvitesFrom(e.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onLie(PlayerChangedWorldEvent e) {
         TradeSystem.getInstance().getTradeCMD().removesAllInvitesFrom(e.getPlayer());
     }
 
