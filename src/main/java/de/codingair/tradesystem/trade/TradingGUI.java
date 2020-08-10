@@ -20,10 +20,9 @@ import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -77,6 +76,13 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvClickEvent(InventoryClickEvent e) {
+                if(e.getClick().name().equals("SWAP_OFFHAND")) {
+                    if(e.getView().getTopInventory().equals(e.getClickedInventory())) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                }
+
                 //check if it's blocked
                 ItemStack blockedItem = null;
                 switch(e.getAction().name()) {
