@@ -166,8 +166,6 @@ public class Trade {
                     if(!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[1]) e.setCancelled(true);
                     else Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> cancelOverflow(players[0]), 1);
                 }
-
-
             }
         }, TradeSystem.getInstance());
     }
