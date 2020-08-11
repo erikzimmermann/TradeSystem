@@ -27,14 +27,14 @@ public class TradeListener implements Listener, ChatButtonListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler
     public void onLie(PlayerBedEnterEvent e) {
-        TradeSystem.getInstance().getTradeCMD().removesAllInvitesFrom(e.getPlayer());
+        TradeSystem.getInstance().getTradeCMD().removesInvitesWith(e.getPlayer());
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler
     public void onLie(PlayerChangedWorldEvent e) {
-        TradeSystem.getInstance().getTradeCMD().removesAllInvitesFrom(e.getPlayer());
+        TradeSystem.getInstance().getTradeCMD().removesInvitesWith(e.getPlayer());
     }
 
     @EventHandler
