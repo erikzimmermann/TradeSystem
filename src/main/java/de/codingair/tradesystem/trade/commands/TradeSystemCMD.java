@@ -28,12 +28,12 @@ public class TradeSystemCMD extends CommandBuilder {
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem").replace("%label%", label));
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem").replace("%label%", label));
                 return false;
             }
         }, true, "ts");
@@ -56,7 +56,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("layout") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout").replace("%label%", label));
                 return false;
             }
         });
@@ -72,7 +72,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("edit") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Edit").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Edit").replace("%label%", label));
                 return false;
             }
         }.setOnlyPlayers(true));
@@ -108,7 +108,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("activate") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Activate").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Activate").replace("%label%", label));
                 return false;
             }
         });
@@ -136,7 +136,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 }
 
                 TradeSystem.getInstance().getLayoutManager().setActive(pattern);
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Activated").replace("%NAME%", pattern.getName()));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Activated").replace("%name%", pattern.getName()));
                 return false;
             }
         });
@@ -144,7 +144,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("delete") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Delete").replace("%LABEL%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Delete").replace("%label%", label));
                 return false;
             }
         });
@@ -174,7 +174,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
                 TradeSystem.getInstance().getLayoutManager().remove(pattern.getName());
                 TradeSystem.getInstance().getLayoutManager().setActive(TradeSystem.getInstance().getLayoutManager().getPattern("Standard"));
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted").replace("%NAME%", pattern.getName()));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted").replace("%name%", pattern.getName()));
                 return false;
             }
         });

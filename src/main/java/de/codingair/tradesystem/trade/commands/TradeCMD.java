@@ -93,7 +93,7 @@ public class TradeCMD extends CommandBuilder {
                     }
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", (Player) sender));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%PLAYER%", sender.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%player%", sender.getName()));
 
                     TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
                 } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", (Player) sender));
@@ -135,7 +135,7 @@ public class TradeCMD extends CommandBuilder {
                     }
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", (Player) sender));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%PLAYER%", sender.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", (Player) sender).replace("%player%", sender.getName()));
 
                     TradeSystem.getInstance().getTradeManager().startTrade((Player) sender, other);
                 } else {
@@ -162,8 +162,8 @@ public class TradeCMD extends CommandBuilder {
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%PLAYER%", other.getName()));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%PLAYER%", sender.getName()));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%player%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%player%", sender.getName()));
                 } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", (Player) sender));
                 return false;
             }
@@ -192,8 +192,8 @@ public class TradeCMD extends CommandBuilder {
                         return false;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%PLAYER%", other.getName()));
-                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%PLAYER%", sender.getName()));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%player%", other.getName()));
+                    other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%player%", sender.getName()));
                 } else {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", (Player) sender));
                 }
@@ -230,7 +230,7 @@ public class TradeCMD extends CommandBuilder {
         }
 
         if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
-            String[] a = Lang.get("Trade_You_are_Offline", p).split("%COMMAND%", -1);
+            String[] a = Lang.get("Trade_You_are_Offline", p).split("%command%", -1);
 
             String s0 = a[0];
             String s = a[1];
@@ -308,7 +308,7 @@ public class TradeCMD extends CommandBuilder {
 
         if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
             if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
-                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p).replace("%PLAYER%", other.getName()));
+                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p).replace("%player%", other.getName()));
                 return;
             }
         }
@@ -318,7 +318,7 @@ public class TradeCMD extends CommandBuilder {
             if(l.isEmpty()) TradeSystem.getInstance().getTradeCMD().getInvites().remove(p.getName());
 
             p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", p));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", p).replace("%PLAYER%", p.getName()));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", p).replace("%player%", p.getName()));
 
             TradeSystem.getInstance().getTradeManager().startTrade(p, other);
             return;
@@ -344,11 +344,11 @@ public class TradeCMD extends CommandBuilder {
         deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + p.getName()));
         deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", p))}));
 
-        String s = Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%PLAYER%", p.getName());
+        String s = Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%player%", p.getName());
 
-        String[] a1 = s.split("%ACCEPT%");
-        if(a1[0].contains("%DENY%")) {
-            String[] a2 = a1[0].split("%DENY%");
+        String[] a1 = s.split("%accept%");
+        if(a1[0].contains("%deny%")) {
+            String[] a2 = a1[0].split("%deny%");
             parts.add(new TextComponent(a2[0]));
             parts.add(deny);
             parts.add(new TextComponent(a2[1]));
@@ -358,7 +358,7 @@ public class TradeCMD extends CommandBuilder {
             parts.add(new TextComponent(a1[0]));
             parts.add(accept);
 
-            String[] a2 = a1[1].split("%DENY%");
+            String[] a2 = a1[1].split("%deny%");
             parts.add(new TextComponent(a2[0]));
             parts.add(deny);
             parts.add(new TextComponent(a2[1]));
@@ -372,7 +372,7 @@ public class TradeCMD extends CommandBuilder {
         }
 
         other.spigot().sendMessage(basic);
-        p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", p).replace("%PLAYER%", other.getName()));
+        p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", p).replace("%player%", other.getName()));
 
         TradeSystem.getInstance().getTradeManager().playRequestSound(other);
     }

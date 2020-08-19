@@ -35,7 +35,7 @@ public class TradingGUI extends GUI {
     private final Pattern layout;
 
     public TradingGUI(Player p, int id, Trade trade) {
-        super(p, Lang.get("GUI_Title", p).replace("%PLAYER%", trade.getOther(p).getName()), 54, TradeSystem.getInstance(), false);
+        super(p, Lang.get("GUI_Title", p).replace("%player%", trade.getOther(p).getName()), 54, TradeSystem.getInstance(), false);
 
         this.layout = TradeSystem.getInstance().getLayoutManager().getActive();
         this.trade = trade;
@@ -345,7 +345,7 @@ public class TradingGUI extends GUI {
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
                                         amount = -999;
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%COIN%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%COINS%", max + "")));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", max + "")));
                                         return;
                                     }
 
