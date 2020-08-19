@@ -59,13 +59,13 @@ public class UpdateChecker {
         }
 
         needsUpdate = false;
-        double currentVersion = Double.parseDouble(TradeSystem.getInstance().getDescription().getVersion().replace(".", "").replace("|", "."));
-        double remoteVersion = Double.parseDouble(this.version.replace(".", "").replace("|", "."));
 
-        if(remoteVersion > currentVersion) {
-            needsUpdate = true;
-            checkUpdateInfo();
-        }
+        String current = TradeSystem.getInstance().getDescription().getVersion();
+        if(current.startsWith("v")) current = current.substring(1);
+        String newV = version.startsWith("v") ? version.substring(1) : version;
+
+        needsUpdate = !current.equals(newV);
+        if(needsUpdate) checkUpdateInfo();
 
         return needsUpdate;
     }
