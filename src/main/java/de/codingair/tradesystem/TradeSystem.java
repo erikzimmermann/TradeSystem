@@ -143,11 +143,8 @@ public class TradeSystem extends JavaPlugin {
             needsUpdate = updateNotifier.needsUpdate();
 
             if(needsUpdate) {
-                String v = updateNotifier.getVersion();
-                if(!v.startsWith("v")) v = "v" + v;
-
                 log("-----< TradeSystem >-----");
-                log("New update available [" + v + " - " + updateNotifier.getUpdateInfo() + "].");
+                log("New update available [" + updateNotifier.getUpdateInfo() + "].");
                 log("Download it on\n\n" + updateNotifier.getDownload() + "\n");
                 log("------------------------");
 
@@ -192,7 +189,7 @@ public class TradeSystem extends JavaPlugin {
             if(player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
                 player.sendMessage("");
                 player.sendMessage("");
-                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§bv" + TradeSystem.getInstance().updateNotifier.getVersion() + "§8 - §b" + TradeSystem.getInstance().updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getLink());
+                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + TradeSystem.getInstance().updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getLink());
                 player.sendMessage("");
                 player.sendMessage("");
             }
