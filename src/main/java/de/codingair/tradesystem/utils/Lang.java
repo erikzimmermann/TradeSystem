@@ -13,7 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lang {
+    private static void deleteEmptyFiles(JavaPlugin plugin) {
+        File folder = new File(plugin.getDataFolder(), "/Languages/");
+
+        if(folder.exists()) {
+            for(File file : folder.listFiles()) {
+                if(file.length() == 0) file.delete();
+            }
+        }
+    }
+
     public static void initPreDefinedLanguages(JavaPlugin plugin) {
+        deleteEmptyFiles(plugin);
+
         List<String> languages = new ArrayList<>();
         languages.add("ENG.yml");
         languages.add("ES.yml");
