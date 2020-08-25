@@ -329,15 +329,22 @@ public class TradingGUI extends GUI {
 
                                     try {
                                         String in = e.getInput(false).trim().toLowerCase();
-                                        int dot = Math.max(in.indexOf('.'), in.indexOf(','));
-                                        if(dot == -1) dot = in.length();
-
-                                        String money = in.substring(0, dot).replaceAll("\\D", "");
-
-                                        amount = Integer.parseInt(money);
-
                                         Integer factor = TradeSystem.getInstance().getTradeManager().getMoneyShortcutFactor(in);
-                                        if(factor != null) amount *= factor;
+
+                                        //example: "1,000,000.5" -> "1.5 mio"
+                                        if(factor != null) {
+                                            //allow comma
+                                            in = in.replaceAll(",", ".");
+                                            String moneyIn = in.replaceAll("[a-z]", "").trim();
+                                            amount = (int) (Double.parseDouble(moneyIn) * factor);
+                                        } else {
+                                            in = in.replaceAll(",", "");
+                                            int sep = in.indexOf(".");
+                                            if(sep == -1) sep = in.length();
+
+                                            String moneyIn = in.substring(0, sep).replaceAll("\\D", "");
+                                            amount = Integer.parseInt(moneyIn);
+                                        }
                                     } catch(NumberFormatException ignored) {
                                     }
 
@@ -350,7 +357,7 @@ public class TradingGUI extends GUI {
                                     int max;
                                     if(amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
                                         amount = -999;
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", max + "")));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
                                         return;
                                     }
 
@@ -371,7 +378,7 @@ public class TradingGUI extends GUI {
                                         open();
                                     });
                                 }
-                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : trade.getMoney()[id] + "").getItem());
+                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : TradeSystem.getInstance().getTradeManager().makeMoneyFancy(trade.getMoney()[id]) + "").getItem());
                         }
                     }.setOption(option));
                 }

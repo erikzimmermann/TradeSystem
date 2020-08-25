@@ -84,7 +84,6 @@ public class TradeManager {
                             if(a == null) continue;
                             for(Object o : a) {
                                 String key = ((String) o).trim().toLowerCase();
-                                System.out.println("Put '" + key + "': " + value);
                                 moneyShortcuts.put(key, value);
                             }
                         } catch(Exception e) {
@@ -324,11 +323,11 @@ public class TradeManager {
     public String makeMoneyFancy(int money) {
         StringBuilder s = new StringBuilder();
 
+        //1,000,000
         char[] c = (money + "").toCharArray();
         for(int i = c.length - 1; i >= 0; i--) {
+            if((s.length() + 1) % 4 == 0) s.insert(0, ",");
             s.insert(0, c[i]);
-            int amount = c.length - i;
-            if(amount % 3 == 0) s.insert(0, ",");
         }
 
         return s.toString();
