@@ -17,11 +17,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TradeManager {
-    private final List<Player> offline = new ArrayList<>();
-    private final List<Trade> tradeList = new ArrayList<>();
+    private final Set<Player> offline = new HashSet<>();
+    private final Set<Trade> tradeList = new HashSet<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private int cooldown = 60;
     private int distance = 50;
@@ -198,7 +200,7 @@ public class TradeManager {
         TradeSystem.getInstance().getTradeCMD().getInvites().clear();
     }
 
-    public List<Trade> getTradeList() {
+    public Set<Trade> getTradeList() {
         return tradeList;
     }
 
@@ -256,13 +258,9 @@ public class TradeManager {
     }
 
     public boolean toggle(Player player) {
-        if(isOffline(player)) {
-            this.offline.remove(player);
-            return false;
-        } else {
-            this.offline.add(player);
-            return true;
-        }
+        if(offline.remove(player)) return false;
+        this.offline.add(player);
+        return true;
     }
 
     public List<BlockedItem> getBlacklist() {

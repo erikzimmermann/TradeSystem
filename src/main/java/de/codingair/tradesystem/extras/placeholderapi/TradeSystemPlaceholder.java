@@ -2,10 +2,11 @@ package de.codingair.tradesystem.extras.placeholderapi;
 
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.Trade;
+import de.codingair.tradesystem.utils.Lang;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
-public class TradePartnerPlaceholder extends PlaceholderExpansion {
+public class TradeSystemPlaceholder extends PlaceholderExpansion {
     @Override
     public String getIdentifier() {
         return "tradesystem";
@@ -18,7 +19,7 @@ public class TradePartnerPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return "1.1";
     }
 
     @Override
@@ -26,6 +27,9 @@ public class TradePartnerPlaceholder extends PlaceholderExpansion {
         if(id.equals("trade_partner")) {
             Trade t = TradeSystem.getInstance().getTradeManager().getTrade(p);
             if(t != null) return t.getOther(p).getDisplayName();
+        } else if(id.equals("status")) {
+            if(TradeSystem.getInstance().getTradeManager().isOffline(p)) return Lang.get("Offline");
+            else return Lang.get("Online");
         }
 
         return null;

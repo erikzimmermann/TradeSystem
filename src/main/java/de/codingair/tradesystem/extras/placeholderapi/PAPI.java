@@ -18,6 +18,6 @@ public class PAPI {
     }
 
     public static void register() {
-        if(isEnabled()) new TradePartnerPlaceholder().register();
+        if(isEnabled()) new TradeSystemPlaceholder().register();
     }
 }
