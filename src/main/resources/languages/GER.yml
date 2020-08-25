@@ -108,3 +108,5 @@ Cannot_trade_while_invisible: '&7Du kannst &cnicht handeln &7solange du &cunsich
 Other_is_already_trading: '&7Dieser Spieler &chandelt &7im Moment &cbereits&7!'
 Online: Online
 Offline: Offline
+Your_request_epired: '&7Deine Handelsanfrage an &e%player% &7ist &cabgelaufen&7.'
+Request_expired: '&7Die Handelsanfrage von &e%player% &7ist &cabgelaufen&7.'

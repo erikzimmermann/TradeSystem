@@ -330,7 +330,14 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(l == null) l = new TimeSet<>();
+        if(l == null) l = new TimeSet<Invite>() {
+            @Override
+            public void timeout(Invite i) {
+                p.sendMessage(Lang.getPrefix() + Lang.get("Your_request_epired", p).replace("%player%", other.getName()));
+                other.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", other).replace("%player%", p.getName()));
+            }
+        };
+
         l.add(new Invite(p.getName()), TradeSystem.getInstance().getTradeManager().getCooldown());
         TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown() * 1000);
 

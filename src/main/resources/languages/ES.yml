@@ -108,3 +108,5 @@ Cannot_trade_while_invisible: '&c¡No puedes intercambiar &7mientras eres &cinvi
 Other_is_already_trading: '&c¡Este jugador ya está comerciando en este momento!'
 Online: Online
 Offline: Offline
+Your_request_epired: '&7Your trade request to &e%player% &7has &cexpired&7.'
+Request_expired: '&7The trade request from &e%player% &7has &cexpired&7.'
