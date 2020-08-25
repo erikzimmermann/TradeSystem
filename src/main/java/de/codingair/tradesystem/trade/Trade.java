@@ -20,6 +20,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +35,9 @@ public class Trade {
     private final boolean[] ready = new boolean[] {false, false};
     private final boolean[] cursor = new boolean[] {false, false};
     private final boolean[] waitForPickup = new boolean[] {false, false};
+
+    private BukkitRunnable countdown = null;
+    private int countdownTicks = 0;
 
     private final List<Integer> slots = new ArrayList<>();
     private final List<Integer> otherSlots = new ArrayList<>();
@@ -62,11 +66,6 @@ public class Trade {
     }
 
     void update() {
-        if(this.ready[0] && this.ready[1]) {
-            finish();
-            return;
-        }
-
         if(guis[0] != null && guis[1] != null) {
             for(int i = 0; i < slots.size(); i++) {
                 if((guis[0].getItem(slots.get(i)) == null && guis[1].getItem(otherSlots.get(i)) != null) || (guis[0].getItem(slots.get(i)) != null && guis[1].getItem(otherSlots.get(i)) == null) ||
@@ -97,6 +96,17 @@ public class Trade {
             guis[0].initialize(this.players[0]);
             guis[1].initialize(this.players[1]);
         }
+
+        if(this.ready[0] && this.ready[1]) finish();
+        else if(countdown != null) {
+            TradeSystem.man().playCountdownStopSound(players[0]);
+            TradeSystem.man().playCountdownStopSound(players[1]);
+            countdown.cancel();
+            countdownTicks = 0;
+            countdown = null;
+            guis[0].synchronizeTitle();
+            guis[1].synchronizeTitle();
+        }
     }
 
     void start() {
@@ -107,8 +117,8 @@ public class Trade {
         this.guis[0].open();
         this.guis[1].open();
 
-        TradeSystem.getInstance().getTradeManager().playStartSound(this.players[0]);
-        TradeSystem.getInstance().getTradeManager().playStartSound(this.players[1]);
+        TradeSystem.man().playStartSound(this.players[0]);
+        TradeSystem.man().playStartSound(this.players[1]);
     }
 
     public void cancel() {
@@ -143,8 +153,8 @@ public class Trade {
             this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[1]));
         }
 
-        TradeSystem.getInstance().getTradeManager().playCancelSound(this.players[0]);
-        TradeSystem.getInstance().getTradeManager().playCancelSound(this.players[1]);
+        TradeSystem.man().playCancelSound(this.players[0]);
+        TradeSystem.man().playCancelSound(this.players[1]);
 
         this.players[0].closeInventory();
         this.players[1].closeInventory();
@@ -152,7 +162,7 @@ public class Trade {
         this.players[0].updateInventory();
         this.players[1].updateInventory();
 
-        TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
+        TradeSystem.man().getTradeList().remove(this);
     }
 
     private void startListeners() {
@@ -214,86 +224,130 @@ public class Trade {
     }
 
     private void finish() {
+        if(this.countdown != null) return;
+
         if(this.guis[0] == null || this.guis[1] == null) return;
         if(this.guis[0].pause && this.guis[1].pause) return;
-        TradeSystem.getInstance().getTradeManager().getTradeList().remove(this);
 
-        for(Player player : this.players) {
-            AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
-            if(gui != null) {
-                gui.clearInventory();
-                player.closeInventory();
-            }
-        }
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                TradeSystem.man().getTradeList().remove(Trade.this);
 
-        this.guis[0].pause = true;
-        this.guis[1].pause = true;
-
-        for(Integer slot : this.slots) {
-            //using original one to prevent dupe glitches!!!
-            ItemStack i0 = this.guis[1].getItem(slot);
-            ItemStack i1 = this.guis[0].getItem(slot);
-
-            this.guis[1].setItem(slot, null);
-            this.guis[0].setItem(slot, null);
-
-            if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                int rest = fit(this.players[0], i0);
-
-                if(rest <= 0) {
-                    this.players[0].getInventory().addItem(i0);
-                } else {
-                    ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
-                    i0.setAmount(i0.getAmount() - rest);
-
-                    if(i0.getAmount() > 0) this.players[0].getInventory().addItem(i0);
-                    Environment.dropItem(toDrop, this.players[0]);
+                for(Player player : players) {
+                    AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
+                    if(gui != null) {
+                        gui.clearInventory();
+                        player.closeInventory();
+                    }
                 }
-            }
 
-            if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                int rest = fit(this.players[1], i1);
+                guis[0].pause = true;
+                guis[1].pause = true;
 
-                if(rest <= 0) {
-                    this.players[1].getInventory().addItem(i1);
-                } else {
-                    ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
-                    i1.setAmount(i1.getAmount() - rest);
+                for(Integer slot : slots) {
+                    //using original one to prevent dupe glitches!!!
+                    ItemStack i0 = guis[1].getItem(slot);
+                    ItemStack i1 = guis[0].getItem(slot);
 
-                    if(i1.getAmount() > 0) this.players[1].getInventory().addItem(i1);
-                    Environment.dropItem(toDrop, this.players[1]);
+                    guis[1].setItem(slot, null);
+                    guis[0].setItem(slot, null);
+
+                    if(i0 != null && !i0.getType().equals(Material.AIR)) {
+                        int rest = fit(players[0], i0);
+
+                        if(rest <= 0) {
+                            players[0].getInventory().addItem(i0);
+                        } else {
+                            ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
+                            i0.setAmount(i0.getAmount() - rest);
+
+                            if(i0.getAmount() > 0) players[0].getInventory().addItem(i0);
+                            Environment.dropItem(toDrop, players[0]);
+                        }
+                    }
+
+                    if(i1 != null && !i1.getType().equals(Material.AIR)) {
+                        int rest = fit(players[1], i1);
+
+                        if(rest <= 0) {
+                            players[1].getInventory().addItem(i1);
+                        } else {
+                            ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
+                            i1.setAmount(i1.getAmount() - rest);
+
+                            if(i1.getAmount() > 0) players[1].getInventory().addItem(i1);
+                            Environment.dropItem(toDrop, players[1]);
+                        }
+                    }
                 }
+
+                guis[0].clear();
+                guis[1].clear();
+                guis[0].close();
+                guis[1].close();
+
+                Profile p0 = TradeSystem.getProfile(players[0]);
+                Profile p1 = TradeSystem.getProfile(players[1]);
+
+                double diff = -money[0] + money[1];
+                if(diff < 0) p0.withdraw(-diff);
+                else if(diff > 0) p0.deposit(diff);
+
+                diff = -money[1] + money[0];
+                if(diff < 0) p1.withdraw(-diff);
+                else if(diff > 0) p1.deposit(diff);
+
+                players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[0]));
+                players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[1]));
+
+                TradeSystem.man().playFinishSound(players[0]);
+                TradeSystem.man().playFinishSound(players[1]);
             }
+        };
+
+        int interval = TradeSystem.man().getCountdownInterval();
+        int repetitions = TradeSystem.man().getCountdownRepetitions();
+
+        if(interval == 0 && repetitions == 0) runnable.run();
+        else {
+            this.countdown = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if(!ready[0] || !ready[1]) {
+                        TradeSystem.man().playCountdownStopSound(players[0]);
+                        TradeSystem.man().playCountdownStopSound(players[1]);
+                        cancel();
+                        countdownTicks = 0;
+                        countdown = null;
+                        guis[0].synchronizeTitle();
+                        guis[1].synchronizeTitle();
+                        return;
+                    }
+
+                    if(countdownTicks == repetitions) {
+                        runnable.run();
+                        cancel();
+                        countdownTicks = 0;
+                        countdown = null;
+                        return;
+                    } else {
+                        guis[0].synchronizeTitle();
+                        guis[1].synchronizeTitle();
+                        TradeSystem.man().playCountdownTickSound(players[0]);
+                        TradeSystem.man().playCountdownTickSound(players[1]);
+                    }
+
+                    countdownTicks++;
+                }
+            };
+
+            this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
         }
-
-        this.guis[0].clear();
-        this.guis[1].clear();
-        this.guis[0].close();
-        this.guis[1].close();
-
-        Profile p0 = TradeSystem.getProfile(this.players[0]);
-        Profile p1 = TradeSystem.getProfile(this.players[1]);
-
-        double diff = -this.money[0] + this.money[1];
-        if(diff < 0) p0.withdraw(-diff);
-        else if(diff > 0) p0.deposit(diff);
-
-        diff = -this.money[1] + this.money[0];
-        if(diff < 0) p1.withdraw(-diff);
-        else if(diff > 0) p1.deposit(diff);
-
-        this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.players[0]));
-        this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.players[1]));
-
-        TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[0]);
-        TradeSystem.getInstance().getTradeManager().playFinishSound(this.players[1]);
-
-//        this.players[0].updateInventory();
-//        this.players[1].updateInventory();
     }
 
     public boolean isFinished() {
-        return !TradeSystem.getInstance().getTradeManager().getTradeList().contains(this);
+        return !TradeSystem.man().getTradeList().contains(this);
     }
 
     public Player getOther(Player p) {
@@ -352,7 +406,7 @@ public class Trade {
             ItemStack item = this.guis[getId(player)].getItem(slot);
 
             if(item != null && item.getType() != Material.AIR) {
-                if(TradeSystem.getInstance().getTradeManager().isBlocked(item)) blocked.add(slot);
+                if(TradeSystem.man().isBlocked(item)) blocked.add(slot);
             }
         }
 
@@ -467,5 +521,13 @@ public class Trade {
 
     public boolean[] getWaitForPickup() {
         return waitForPickup;
+    }
+
+    public BukkitRunnable getCountdown() {
+        return countdown;
+    }
+
+    public int getCountdownTicks() {
+        return countdownTicks;
     }
 }

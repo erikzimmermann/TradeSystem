@@ -23,7 +23,7 @@ Request_Was_Denied: '&7Your trade request to &c%player% &7was &cdenied&7.'
 No_Request_Found: '&cYou have not received any trade requests from this player!'
 No_Requests_Found: '&cYou have not received any trade requests!'
 Too_many_requests: '&cYou have several request&7, please specify the player name.'
-GUI_Title: '&cTrade with %player%'
+GUI_Title: '&cTrade with %player%%TRADESYSTEM_COUNTDOWN_FANCY%'
 Money_Amount: 'Amount of money'
 Coin: 'Coin'
 Coins: 'Coins'
@@ -110,3 +110,4 @@ Online: Online
 Offline: Offline
 Your_request_epired: '&7Your trade request to &e%player% &7has &cexpired&7.'
 Request_expired: '&7The trade request from &e%player% &7has &cexpired&7.'
+Fancy_Countdown: ' &7- &e%seconds%s'

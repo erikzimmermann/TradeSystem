@@ -43,6 +43,10 @@ public class TradeSystem extends JavaPlugin {
     private TradeSystemCMD tradeSystemCMD;
     private TradeCMD tradeCMD;
 
+    public static TradeManager man() {
+        return instance.tradeManager;
+    }
+
     @Override
     public void onEnable() {
         Version.load();

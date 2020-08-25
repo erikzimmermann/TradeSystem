@@ -10,6 +10,7 @@ TradeSystem:
   # Both traders have to add an item/money to finish the trade
   Trade_Both: true
   Trade_with_money: true
+  #Values: Vault, Essentials, Exp
   Economy_priority:
     - Vault
     - Essentials
@@ -23,6 +24,12 @@ TradeSystem:
   - "ExampleWorld-1"
   - "ExampleWorld-2"
   Blacklist: []
+
+  Trade_Countdown:
+    Enabled: true
+    #in ticks (20 ticks = 1 second)
+    Interval: 20
+    Repetitions: 3
 
   # true: After finishing a trade all items will be dropped, if the inventory is full
   # false: Prevent the tradepartner to put to much items into the gui
@@ -70,5 +77,13 @@ TradeSystem:
       Pitch: 1.0
     Trade_Request:
       Name: ORB_PICKUP
+      Volume: 0.6
+      Pitch: 1.0
+    Countdown_Tick:
+      Name: ORB_PICKUP
+      Volume: 0.6
+      Pitch: 1.0
+    Countdown_Stop:
+      Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0

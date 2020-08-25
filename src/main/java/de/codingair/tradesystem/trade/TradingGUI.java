@@ -267,6 +267,10 @@ public class TradingGUI extends GUI {
         });
     }
 
+    public void synchronizeTitle() {
+        setTitle(Lang.get("GUI_Title", getPlayer()).replace("%player%", trade.getOther(getPlayer()).getName()), true);
+    }
+
     @Override
     public void clear() {
         super.getButtons().clear();

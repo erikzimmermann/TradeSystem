@@ -29,18 +29,25 @@ public class TradeManager {
     private int cooldown = 60;
     private int distance = 50;
 
+    private int countdownRepetitions = 0;
+    private int countdownInterval = 0;
+
     private boolean cancelOnDamage = true;
     private boolean requestOnShiftRightclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
+
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean tradeMoney = true;
+
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
     private SoundData soundCancel = null;
     private SoundData soundBlocked = null;
     private SoundData soundRequest = null;
+    private SoundData countdownTick = null;
+    private SoundData countdownStop = null;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -66,6 +73,13 @@ public class TradeManager {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
+
+        if(config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
+            countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
+            countdownInterval = config.getInt("TradeSystem.Trade_Countdown.Interval");
+        } else {
+            countdownRepetitions = countdownInterval = 0;
+        }
 
         moneyShortcuts.clear();
         if(config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
@@ -131,6 +145,20 @@ public class TradeManager {
         }
         if(this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
+        this.countdownTick = null;
+        try {
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Tick.Name", null)).ifPresent(s -> this.countdownTick = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Pitch", 1.0)));
+        } catch(Exception ignored) {
+        }
+        if(this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
+
+        this.countdownStop = null;
+        try {
+            Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Stop.Name", null)).ifPresent(s -> this.countdownStop = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Pitch", 1.0)));
+        } catch(Exception ignored) {
+        }
+        if(this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+
         if(this.allowedGameModes != null) this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
         if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
@@ -181,6 +209,14 @@ public class TradeManager {
 
     public void playCancelSound(Player player) {
         if(this.soundCancel != null) this.soundCancel.play(player);
+    }
+
+    public void playCountdownTickSound(Player player) {
+        if(this.countdownTick != null) this.countdownTick.play(player);
+    }
+
+    public void playCountdownStopSound(Player player) {
+        if(this.countdownStop != null) this.countdownStop.play(player);
     }
 
     public void saveBlackList() {
@@ -331,5 +367,13 @@ public class TradeManager {
         }
 
         return s.toString();
+    }
+
+    public int getCountdownRepetitions() {
+        return countdownRepetitions;
+    }
+
+    public int getCountdownInterval() {
+        return countdownInterval;
     }
 }
