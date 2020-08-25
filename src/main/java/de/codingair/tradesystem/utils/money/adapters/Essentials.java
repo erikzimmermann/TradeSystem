@@ -50,9 +50,4 @@ public class Essentials implements Adapter {
         if(!Economy.playerExists(player.getName())) Economy.createNPC(player.getName());
         return false;
     }
-
-    @Override
-    public boolean isReady() {
-        return Bukkit.getPluginManager().isPluginEnabled("Essentials");
-    }
 }

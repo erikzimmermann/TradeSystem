@@ -10,6 +10,10 @@ TradeSystem:
   # Both traders have to add an item/money to finish the trade
   Trade_Both: true
   Trade_with_money: true
+  Economy_priority:
+    - Vault
+    - Essentials
+    - Exp
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50

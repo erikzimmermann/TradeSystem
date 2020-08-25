@@ -64,7 +64,6 @@ public class TradeSystem extends JavaPlugin {
         this.fileManager.loadFile("Config", "/");
         this.fileManager.loadFile("Layouts", "/");
 
-        PAPI.register();
         Lang.initPreDefinedLanguages(this);
 
         this.tradeManager.load();
@@ -93,10 +92,12 @@ public class TradeSystem extends JavaPlugin {
         startUpdateNotifier();
 
         log(" ");
-        log("Done (" + timer.result() + ")");
+        log("Finished (" + timer.result() + ")");
         log(" ");
         log("__________________________________________________________");
         log(" ");
+
+        PAPI.register();
 
         notifyPlayers(null);
     }

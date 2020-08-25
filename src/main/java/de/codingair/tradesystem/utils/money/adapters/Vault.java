@@ -10,24 +10,21 @@ public class Vault implements Adapter {
     private Economy economy = null;
 
     public Vault() {
-        if(Bukkit.getPluginManager().isPluginEnabled("Vault")) this.setupEconomy();
+        this.setupEconomy();
     }
 
     @Override
     public double getMoney(Player player) {
-        if(!isReady()) return 0;
         return this.economy.getBalance(player);
     }
 
     @Override
     public void withdraw(Player player, double amount) {
-        if(!isReady()) return;
         this.economy.withdrawPlayer(player, amount);
     }
 
     @Override
     public void deposit(Player player, double amount) {
-        if(!isReady()) return;
         this.economy.depositPlayer(player, amount);
     }
 
@@ -38,10 +35,5 @@ public class Vault implements Adapter {
         }
 
         return (economy != null);
-    }
-
-    @Override
-    public boolean isReady() {
-        return Bukkit.getPluginManager().isPluginEnabled("Vault") && (economy != null || setupEconomy());
     }
 }
