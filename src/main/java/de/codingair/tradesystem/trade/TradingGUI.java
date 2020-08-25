@@ -13,16 +13,16 @@ import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.trade.layout.Item;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
-import de.codingair.tradesystem.extras.placeholderapi.PAPI;
 import de.codingair.tradesystem.utils.money.AdapterType;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -307,7 +307,8 @@ public class TradingGUI extends GUI {
 
             case PICK_MONEY: {
                 if(AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) {
-                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + trade.getMoney()[id] + " " + (trade.getMoney()[id] == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer()))).addLore("", "§7» " + Lang.get("Click_To_Change", getPlayer()));
+                    int money = trade.getMoney()[id];
+                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeMoneyFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer()))).addLore("", "§7» " + Lang.get("Click_To_Change", getPlayer()));
                     if(trade.getMoney()[id] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
@@ -327,12 +328,16 @@ public class TradingGUI extends GUI {
                                     if(!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                                     try {
-                                        String in = e.getInput(false);
-                                        int dot = in.indexOf('.');
-                                        int comma = in.indexOf(',');
-                                        if(dot >= 0) amount = Integer.parseInt(in.substring(0, dot));
-                                        else if(comma >= 0) amount = Integer.parseInt(in.substring(0, comma));
-                                        else amount = Integer.parseInt(e.getInput(false));
+                                        String in = e.getInput(false).trim().toLowerCase();
+                                        int dot = Math.max(in.indexOf('.'), in.indexOf(','));
+                                        if(dot == -1) dot = in.length();
+
+                                        String money = in.substring(0, dot).replaceAll("\\D", "");
+
+                                        amount = Integer.parseInt(money);
+
+                                        Integer factor = TradeSystem.getInstance().getTradeManager().getMoneyShortcutFactor(in);
+                                        if(factor != null) amount *= factor;
                                     } catch(NumberFormatException ignored) {
                                     }
 
@@ -374,7 +379,9 @@ public class TradingGUI extends GUI {
             }
 
             case SHOW_MONEY: {
-                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + trade.getMoney()[trade.getOtherId(id)] + " " + (trade.getMoney()[trade.getOtherId(id)] == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer())));
+                int money = trade.getMoney()[trade.getOtherId(id)];
+
+                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeMoneyFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer())));
                 if(trade.getMoney()[trade.getOtherId(id)] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 if(AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), moneyBuilder.getItem());
@@ -442,7 +449,8 @@ public class TradingGUI extends GUI {
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if(canFinish) {
-                    if(trade.getReady()[id]) ready.setName("§7" + Lang.get("Status", getPlayer()) + ": §a" + Lang.get("Ready", getPlayer())).addLore("", "§7" + Lang.get("Wait_For_Other_Player", getPlayer()));
+                    if(trade.getReady()[id])
+                        ready.setName("§7" + Lang.get("Status", getPlayer()) + ": §a" + Lang.get("Ready", getPlayer())).addLore("", "§7" + Lang.get("Wait_For_Other_Player", getPlayer()));
                     else return;
 
                     addButton(new ItemButton(item.getSlot(), ready.getItem()) {

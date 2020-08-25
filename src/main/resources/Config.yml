@@ -31,9 +31,20 @@ TradeSystem:
     Player_get_damaged: true
 
   Action_To_Request:
-    Rightclick: false
-    # Shift-Rightclick
-    Shiftclick: true
+    Shift_Rightclick: false
+
+  Easy_Money_Selection:
+    Enabled: true
+    #Do NOT use special symbols (e.g. '$') here.
+    #Use characters only!
+    Shortcuts:
+    - Keys:
+        - "k"
+      Value: 1000
+    - Keys:
+        - "m"
+        - "mio"
+      Value: 1000000
 
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:

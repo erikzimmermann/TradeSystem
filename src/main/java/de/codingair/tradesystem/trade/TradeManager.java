@@ -5,6 +5,8 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
+import de.codingair.codingapi.tools.io.JSON.JSON;
+import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.utils.Lang;
@@ -16,21 +18,19 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.MalformedParametersException;
+import java.util.*;
 
 public class TradeManager {
     private final Set<Player> offline = new HashSet<>();
     private final Set<Trade> tradeList = new HashSet<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
+    private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
     private int cooldown = 60;
     private int distance = 50;
 
     private boolean cancelOnDamage = true;
-    private boolean requestOnRightclick = false;
-    private boolean shiftclick = false;
+    private boolean requestOnShiftRightclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
     private boolean tradeBoth = true;
@@ -62,11 +62,38 @@ public class TradeManager {
         } else this.distance = -1;
 
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
-        this.requestOnRightclick = config.getBoolean("TradeSystem.Action_To_Request.Rightclick", false);
-        this.shiftclick = config.getBoolean("TradeSystem.Action_To_Request.Shiftclick", true);
+        this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
+
+        moneyShortcuts.clear();
+        if(config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
+            List<?> data = config.getList("TradeSystem.Easy_Money_Selection.Shortcuts");
+            if(data != null) {
+                for(Object s : data) {
+                    if(s instanceof Map) {
+                        try {
+                            JSON json = new JSON((Map<?, ?>) s);
+
+                            int value = json.getInteger("Value", -1);
+                            if(value < 0) continue;
+
+                            JSONArray a = json.getList("Keys");
+
+                            if(a == null) continue;
+                            for(Object o : a) {
+                                String key = ((String) o).trim().toLowerCase();
+                                System.out.println("Put '" + key + "': " + value);
+                                moneyShortcuts.put(key, value);
+                            }
+                        } catch(Exception e) {
+                            throw new MalformedParametersException("Malformed money selection for input: '" + s + "'");
+                        }
+                    }
+                }
+            }
+        }
 
         TradeSystem.log("  > Loading sounds");
 
@@ -225,12 +252,8 @@ public class TradeManager {
         return distance;
     }
 
-    public boolean isRequestOnRightclick() {
-        return requestOnRightclick;
-    }
-
-    public boolean isShiftclick() {
-        return shiftclick;
+    public boolean isRequestOnShiftRightclick() {
+        return requestOnShiftRightclick;
     }
 
     public List<String> getAllowedGameModes() {
@@ -291,5 +314,23 @@ public class TradeManager {
         }
 
         return false;
+    }
+
+    public Integer getMoneyShortcutFactor(String s) {
+        String key = s.replaceAll("[^a-z]", "");
+        return moneyShortcuts.get(key);
+    }
+
+    public String makeMoneyFancy(int money) {
+        StringBuilder s = new StringBuilder();
+
+        char[] c = (money + "").toCharArray();
+        for(int i = c.length - 1; i >= 0; i--) {
+            s.insert(0, c[i]);
+            int amount = c.length - i;
+            if(amount % 3 == 0) s.insert(0, ",");
+        }
+
+        return s.toString();
     }
 }
