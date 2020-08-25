@@ -1,8 +1,11 @@
 package de.codingair.tradesystem;
 
 import de.codingair.codingapi.API;
+import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
+import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
+import de.codingair.codingapi.server.reflections.IReflection;
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.codingapi.utils.Value;
@@ -13,11 +16,13 @@ import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.trade.layout.LayoutManager;
 import de.codingair.tradesystem.trade.listeners.TradeListener;
+import de.codingair.tradesystem.utils.BackwardSupport;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -26,6 +31,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
@@ -42,18 +49,16 @@ public class TradeSystem extends JavaPlugin {
 
     private TradeSystemCMD tradeSystemCMD;
     private TradeCMD tradeCMD;
-
-    public static TradeManager man() {
-        return instance.tradeManager;
-    }
+    private UTFConfig oldConfig;
 
     @Override
     public void onEnable() {
+        timer.start();
         Version.load();
         API.getInstance().onEnable(this);
         instance = this;
 
-        timer.start();
+        copyConfig();
 
         log(" ");
         log("__________________________________________________________");
@@ -94,6 +99,8 @@ public class TradeSystem extends JavaPlugin {
 
         afterOnEnable();
         startUpdateNotifier();
+
+        new BackwardSupport();
 
         log(" ");
         log("Finished (" + timer.result() + ")");
@@ -201,6 +208,18 @@ public class TradeSystem extends JavaPlugin {
         }
     }
 
+    private void copyConfig() {
+        ConfigFile file = this.fileManager.loadFile("Config", "/", false);
+
+        IReflection.FieldAccessor<Map<String, Object>> map = IReflection.getField(MemorySection.class, "map");
+        Map<String, Object> copy = new HashMap<>(map.get(file.getConfig()));
+
+        this.oldConfig = (UTFConfig) IReflection.getConstructor(UTFConfig.class).newInstance();
+        map.set(oldConfig, copy);
+
+        this.fileManager.unloadFile(file);
+    }
+
     public static TradeSystem getInstance() {
         return instance;
     }
@@ -227,5 +246,13 @@ public class TradeSystem extends JavaPlugin {
 
     public TradeCMD getTradeCMD() {
         return tradeCMD;
+    }
+
+    public static TradeManager man() {
+        return instance.tradeManager;
+    }
+
+    public UTFConfig getOldConfig() {
+        return oldConfig;
     }
 }
