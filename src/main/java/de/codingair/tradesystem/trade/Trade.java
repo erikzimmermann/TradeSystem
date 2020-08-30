@@ -232,6 +232,14 @@ public class Trade {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
+                // code to avoid some weird money dupe
+                Profile p0 = TradeSystem.getProfile(players[0]);
+                Profile p1 = TradeSystem.getProfile(players[1]);
+                if (p0.getMoney() > money[0] || p1.getMoney() > money[1]) {
+                    cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
+                    return;
+                }
+                
                 TradeSystem.man().getTradeList().remove(Trade.this);
 
                 for(Player player : players) {
@@ -286,9 +294,6 @@ public class Trade {
                 guis[1].clear();
                 guis[0].close();
                 guis[1].close();
-
-                Profile p0 = TradeSystem.getProfile(players[0]);
-                Profile p1 = TradeSystem.getProfile(players[1]);
 
                 double diff = -money[0] + money[1];
                 if(diff < 0) p0.withdraw(-diff);
