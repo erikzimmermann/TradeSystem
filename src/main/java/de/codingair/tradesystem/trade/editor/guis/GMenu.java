@@ -189,11 +189,12 @@ public class GMenu extends GUI {
                         if(GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
                             Item item = GMenu.this.getItem(Function.MONEY_REPLACEMENT);
                             if(item != null) items.remove(item);
-                            items.add(new Item(GMenu.this.getItem(Function.PICK_MONEY).getSlot(), GMenu.this.getItem(slot), Function.MONEY_REPLACEMENT));
 
                             item = GMenu.this.getItem(Function.MONEY_REPLACEMENT);
                             if(item != null) items.remove(item);
+
                             items.add(new Item(GMenu.this.getItem(Function.PICK_MONEY).getSlot(), GMenu.this.getItem(slot), Function.MONEY_REPLACEMENT));
+                            items.add(new Item(GMenu.this.getItem(Function.SHOW_MONEY).getSlot(), GMenu.this.getItem(slot), Function.MONEY_REPLACEMENT));
                             changed = true;
                         }
 
