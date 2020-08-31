@@ -130,14 +130,48 @@ public class Trade {
         if(this.guis[0] == null || this.guis[1] == null) return;
 
         for(Integer slot : this.slots) {
-            if(this.guis[0].getItem(slot) != null && !this.guis[0].getItem(slot).getType().equals(Material.AIR)) this.players[0].getInventory().addItem(this.guis[0].getItem(slot));
-            if(this.guis[1].getItem(slot) != null && !this.guis[1].getItem(slot).getType().equals(Material.AIR)) this.players[1].getInventory().addItem(this.guis[1].getItem(slot));
+            if(this.guis[0].getItem(slot) != null && !this.guis[0].getItem(slot).getType().equals(Material.AIR)) {
+                ItemStack item = this.guis[0].getItem(slot);
+                int i = fit(this.players[0], item);
+
+                if(item.getAmount() > i) {
+                    item.setAmount(item.getAmount() - i);
+                    this.players[0].getInventory().addItem(item);
+                }
+                if(i > 0) {
+                    item.setAmount(i);
+                    Environment.dropItem(item, players[0]);
+                }
+            }
+            if(this.guis[1].getItem(slot) != null && !this.guis[1].getItem(slot).getType().equals(Material.AIR)) {
+                ItemStack item = this.guis[1].getItem(slot);
+                int i = fit(this.players[1], item);
+
+                if(item.getAmount() > i) {
+                    item.setAmount(item.getAmount() - i);
+                    this.players[1].getInventory().addItem(item);
+                }
+                if(i > 0) {
+                    item.setAmount(i);
+                    Environment.dropItem(item, players[1]);
+                }
+            }
         }
 
         for(int i = 0; i < 2; i++) {
             ItemStack item = this.players[i].getOpenInventory().getCursor();
             if(item != null) {
-                this.players[i].getInventory().addItem(item);
+                int fit = fit(this.players[i], item.clone());
+
+                if(item.getAmount() > fit) {
+                    item.setAmount(item.getAmount() - fit);
+                    this.players[i].getInventory().addItem(item);
+                }
+                if(fit > 0) {
+                    item.setAmount(fit);
+                    Environment.dropItem(item, players[i]);
+                }
+
                 this.players[i].getOpenInventory().setCursor(null);
             }
         }

@@ -31,8 +31,8 @@ TradeSystem:
     Interval: 20
     Repetitions: 3
 
-  # true: After finishing a trade all items will be dropped, if the inventory is full
-  # false: Prevent the tradepartner to put to much items into the gui
+  # true: After finishing a trade all overflowing items will be dropped, if the inventory is full
+  # false: Prevent the trade partner to put too much items into the gui
   Trade_Drop_Items: true
 
   # After 60 seconds the request will be expired

@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -33,7 +34,7 @@ public class TradeListener implements Listener, ChatButtonListener {
     }
 
     @EventHandler
-    public void onLie(PlayerChangedWorldEvent e) {
+    public void onChangeWorld(PlayerChangedWorldEvent e) {
         TradeSystem.getInstance().getTradeCMD().removesInvitesWith(e.getPlayer());
     }
 
@@ -62,6 +63,21 @@ public class TradeListener implements Listener, ChatButtonListener {
                 double finalDamage = e.getFinalDamage();
                 if((TradeSystem.getInstance().getTradeManager().isCancelOnDamage() && finalDamage > 0) || (player.getHealth() - e.getFinalDamage() <= 0))
                     trade.cancel(Lang.getPrefix() + Lang.get("Trade_cancelled_by_attack", player));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent e) {
+        if(e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            Trade t = TradeSystem.man().getTrade(p);
+
+            if(t != null) {
+                if(!TradeSystem.man().isDropItems()) {
+                    //does it fit?
+                    if(!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
+                }
             }
         }
     }
