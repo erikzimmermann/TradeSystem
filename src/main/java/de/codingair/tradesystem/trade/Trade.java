@@ -314,6 +314,13 @@ public class Trade {
             this.countdown = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    if(guis[0] == null || guis[1] == null) {
+                        cancel();
+                        countdownTicks = 0;
+                        countdown = null;
+                        return;
+                    }
+
                     if(!ready[0] || !ready[1]) {
                         TradeSystem.man().playCountdownStopSound(players[0]);
                         TradeSystem.man().playCountdownStopSound(players[1]);
