@@ -235,7 +235,7 @@ public class Trade {
                 // code to avoid some weird money dupe
                 Profile p0 = TradeSystem.getProfile(players[0]);
                 Profile p1 = TradeSystem.getProfile(players[1]);
-                if (p0.getMoney() > money[0] || p1.getMoney() > money[1]) {
+                if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
                     cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
                     return;
                 }
