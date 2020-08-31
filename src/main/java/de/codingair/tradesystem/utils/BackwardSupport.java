@@ -19,7 +19,7 @@ public class BackwardSupport {
     }
 
     private void moveShiftRightclick() {
-        if(old.contains("TradeSystem.Action_To_Request.Rightclick", true)) {
+        if(old.get("TradeSystem.Action_To_Request.Rightclick", null) != null) {
             //old
             current.getConfig().set("TradeSystem.Action_To_Request.Shift_Rightclick",
                     old.getBoolean("TradeSystem.Action_To_Request.Rightclick")
