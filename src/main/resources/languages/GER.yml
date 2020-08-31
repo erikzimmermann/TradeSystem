@@ -111,3 +111,4 @@ Offline: Offline
 Your_request_epired: '&7Deine Handelsanfrage an &e%player% &7ist &cabgelaufen&7.'
 Request_expired: '&7Die Handelsanfrage von &e%player% &7ist &cabgelaufen&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
+Economy_Error: '&7Der Handel wurde aufgrund eines &cEconomy Fehlers abgebrochen&7.'

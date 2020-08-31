@@ -263,86 +263,83 @@ public class Trade {
         if(this.guis[0] == null || this.guis[1] == null) return;
         if(this.guis[0].pause && this.guis[1].pause) return;
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                // code to avoid some weird money dupe
-                Profile p0 = TradeSystem.getProfile(players[0]);
-                Profile p1 = TradeSystem.getProfile(players[1]);
-                if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
-                    cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
-                    return;
+        // code to avoid some weird money dupe
+        Profile p0 = TradeSystem.getProfile(players[0]);
+        Profile p1 = TradeSystem.getProfile(players[1]);
+        if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
+            cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
+            return;
+        }
+
+        Runnable runnable = () -> {
+            TradeSystem.man().getTradeList().remove(Trade.this);
+
+            for(Player player : players) {
+                AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
+                if(gui != null) {
+                    gui.clearInventory();
+                    player.closeInventory();
                 }
-                
-                TradeSystem.man().getTradeList().remove(Trade.this);
-
-                for(Player player : players) {
-                    AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
-                    if(gui != null) {
-                        gui.clearInventory();
-                        player.closeInventory();
-                    }
-                }
-
-                guis[0].pause = true;
-                guis[1].pause = true;
-
-                for(Integer slot : slots) {
-                    //using original one to prevent dupe glitches!!!
-                    ItemStack i0 = guis[1].getItem(slot);
-                    ItemStack i1 = guis[0].getItem(slot);
-
-                    guis[1].setItem(slot, null);
-                    guis[0].setItem(slot, null);
-
-                    if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                        int rest = fit(players[0], i0);
-
-                        if(rest <= 0) {
-                            players[0].getInventory().addItem(i0);
-                        } else {
-                            ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
-                            i0.setAmount(i0.getAmount() - rest);
-
-                            if(i0.getAmount() > 0) players[0].getInventory().addItem(i0);
-                            Environment.dropItem(toDrop, players[0]);
-                        }
-                    }
-
-                    if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                        int rest = fit(players[1], i1);
-
-                        if(rest <= 0) {
-                            players[1].getInventory().addItem(i1);
-                        } else {
-                            ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
-                            i1.setAmount(i1.getAmount() - rest);
-
-                            if(i1.getAmount() > 0) players[1].getInventory().addItem(i1);
-                            Environment.dropItem(toDrop, players[1]);
-                        }
-                    }
-                }
-
-                guis[0].clear();
-                guis[1].clear();
-                guis[0].close();
-                guis[1].close();
-
-                double diff = -money[0] + money[1];
-                if(diff < 0) p0.withdraw(-diff);
-                else if(diff > 0) p0.deposit(diff);
-
-                diff = -money[1] + money[0];
-                if(diff < 0) p1.withdraw(-diff);
-                else if(diff > 0) p1.deposit(diff);
-
-                players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[0]));
-                players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[1]));
-
-                TradeSystem.man().playFinishSound(players[0]);
-                TradeSystem.man().playFinishSound(players[1]);
             }
+
+            guis[0].pause = true;
+            guis[1].pause = true;
+
+            for(Integer slot : slots) {
+                //using original one to prevent dupe glitches!!!
+                ItemStack i0 = guis[1].getItem(slot);
+                ItemStack i1 = guis[0].getItem(slot);
+
+                guis[1].setItem(slot, null);
+                guis[0].setItem(slot, null);
+
+                if(i0 != null && !i0.getType().equals(Material.AIR)) {
+                    int rest = fit(players[0], i0);
+
+                    if(rest <= 0) {
+                        players[0].getInventory().addItem(i0);
+                    } else {
+                        ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
+                        i0.setAmount(i0.getAmount() - rest);
+
+                        if(i0.getAmount() > 0) players[0].getInventory().addItem(i0);
+                        Environment.dropItem(toDrop, players[0]);
+                    }
+                }
+
+                if(i1 != null && !i1.getType().equals(Material.AIR)) {
+                    int rest = fit(players[1], i1);
+
+                    if(rest <= 0) {
+                        players[1].getInventory().addItem(i1);
+                    } else {
+                        ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
+                        i1.setAmount(i1.getAmount() - rest);
+
+                        if(i1.getAmount() > 0) players[1].getInventory().addItem(i1);
+                        Environment.dropItem(toDrop, players[1]);
+                    }
+                }
+            }
+
+            guis[0].clear();
+            guis[1].clear();
+            guis[0].close();
+            guis[1].close();
+
+            double diff = -money[0] + money[1];
+            if(diff < 0) p0.withdraw(-diff);
+            else if(diff > 0) p0.deposit(diff);
+
+            diff = -money[1] + money[0];
+            if(diff < 0) p1.withdraw(-diff);
+            else if(diff > 0) p1.deposit(diff);
+
+            players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[0]));
+            players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[1]));
+
+            TradeSystem.man().playFinishSound(players[0]);
+            TradeSystem.man().playFinishSound(players[1]);
         };
 
         int interval = TradeSystem.man().getCountdownInterval();
