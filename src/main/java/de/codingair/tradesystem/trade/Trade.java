@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static de.codingair.tradesystem.tradelog.TradeLogService.getTradeLog;
+
 public class Trade {
     private final Player[] players = new Player[2];
     private final TradingGUI[] guis = new TradingGUI[2];
@@ -180,9 +182,11 @@ public class Trade {
         this.guis[1] = null;
 
         if(message != null) {
+            getTradeLog().log(players[0], players[1], "Trade Cancelled: " + message);
             this.players[0].sendMessage(message);
             this.players[1].sendMessage(message);
         } else {
+            getTradeLog().log(players[0], players[1], "Trade Cancelled");
             this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[0]));
             this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[1]));
         }
@@ -264,8 +268,12 @@ public class Trade {
         if(this.guis[0].pause && this.guis[1].pause) return;
 
         // code to avoid some weird money dupe
-        Profile p0 = TradeSystem.getProfile(players[0]);
-        Profile p1 = TradeSystem.getProfile(players[1]);
+        final Player player1 = players[0];
+        final Player player2 = players[1];
+
+        Profile p0 = TradeSystem.getProfile(player1);
+        Profile p1 = TradeSystem.getProfile(player2);
+
         if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
             cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
             return;
@@ -294,31 +302,33 @@ public class Trade {
                 guis[0].setItem(slot, null);
 
                 if(i0 != null && !i0.getType().equals(Material.AIR)) {
-                    int rest = fit(players[0], i0);
+                    int rest = fit(player1, i0);
 
                     if(rest <= 0) {
-                        players[0].getInventory().addItem(i0);
+                        player1.getInventory().addItem(i0);
                     } else {
                         ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
                         i0.setAmount(i0.getAmount() - rest);
 
-                        if(i0.getAmount() > 0) players[0].getInventory().addItem(i0);
-                        Environment.dropItem(toDrop, players[0]);
+                        if(i0.getAmount() > 0) player1.getInventory().addItem(i0);
+                        Environment.dropItem(toDrop, player1);
                     }
+                    getTradeLog().log(player1, player2, player1.getName() + " received item " + i0.getAmount() + " "+ i0.getType());
                 }
 
                 if(i1 != null && !i1.getType().equals(Material.AIR)) {
-                    int rest = fit(players[1], i1);
+                    int rest = fit(player2, i1);
 
                     if(rest <= 0) {
-                        players[1].getInventory().addItem(i1);
+                        player2.getInventory().addItem(i1);
                     } else {
                         ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
                         i1.setAmount(i1.getAmount() - rest);
 
-                        if(i1.getAmount() > 0) players[1].getInventory().addItem(i1);
-                        Environment.dropItem(toDrop, players[1]);
+                        if(i1.getAmount() > 0) player2.getInventory().addItem(i1);
+                        Environment.dropItem(toDrop, player2);
                     }
+                    getTradeLog().log(player1, player2, player2.getName() + " received item " + i1.getAmount() + " "+ i1.getType());
                 }
             }
 
@@ -328,18 +338,31 @@ public class Trade {
             guis[1].close();
 
             double diff = -money[0] + money[1];
-            if(diff < 0) p0.withdraw(-diff);
-            else if(diff > 0) p0.deposit(diff);
+            if(diff < 0){
+                p0.withdraw(-diff);
+                getTradeLog().log(player1, player2, player1 + " payed " + diff);
+            }
+            else if(diff > 0){
+                p0.deposit(diff);
+                getTradeLog().log(player1, player2, player1 + " received " + diff);
+            }
 
             diff = -money[1] + money[0];
-            if(diff < 0) p1.withdraw(-diff);
-            else if(diff > 0) p1.deposit(diff);
+            if(diff < 0){
+                p1.withdraw(-diff);
+                getTradeLog().log(player1, player2, player2 + " payed " + diff);
+            }
+            else if(diff > 0){
+                p1.deposit(diff);
+                getTradeLog().log(player1, player2, player2 + " received " + diff);
+            }
 
-            players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[0]));
-            players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", players[1]));
+            player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
+            player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));
+            getTradeLog().log(player1, player2, "Trade Finished");
 
-            TradeSystem.man().playFinishSound(players[0]);
-            TradeSystem.man().playFinishSound(players[1]);
+            TradeSystem.man().playFinishSound(player1);
+            TradeSystem.man().playFinishSound(player2);
         };
 
         int interval = TradeSystem.man().getCountdownInterval();
@@ -358,8 +381,8 @@ public class Trade {
                     }
 
                     if(!ready[0] || !ready[1]) {
-                        TradeSystem.man().playCountdownStopSound(players[0]);
-                        TradeSystem.man().playCountdownStopSound(players[1]);
+                        TradeSystem.man().playCountdownStopSound(player1);
+                        TradeSystem.man().playCountdownStopSound(player2);
                         cancel();
                         countdownTicks = 0;
                         countdown = null;
@@ -377,8 +400,8 @@ public class Trade {
                     } else {
                         guis[0].synchronizeTitle();
                         guis[1].synchronizeTitle();
-                        TradeSystem.man().playCountdownTickSound(players[0]);
-                        TradeSystem.man().playCountdownTickSound(players[1]);
+                        TradeSystem.man().playCountdownTickSound(player1);
+                        TradeSystem.man().playCountdownTickSound(player2);
                     }
 
                     countdownTicks++;
