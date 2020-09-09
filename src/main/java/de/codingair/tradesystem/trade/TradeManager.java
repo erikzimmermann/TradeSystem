@@ -9,7 +9,6 @@ import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.extras.bstats.MetricsManager;
-import de.codingair.tradesystem.tradelog.TradeLogService;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.blacklist.BlockedItem;
 import org.bukkit.Bukkit;
@@ -241,7 +240,7 @@ public class TradeManager {
             return;
         }
 
-        getTradeLog().log(player, other, "Trade started");
+        getTradeLog().log(other, player, "Trade started");
         player.closeInventory();
         other.closeInventory();
 

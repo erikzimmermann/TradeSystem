@@ -17,7 +17,7 @@ import java.util.List;
 import static de.codingair.tradesystem.tradelog.TradeLogService.getTradeLog;
 
 public class TradeLogCMD extends CommandBuilder {
-    static DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/mm/YYYY - HH:mm:ss");
 
     public TradeLogCMD() {
         super(TradeSystem.getInstance(), "tradelog", "Trade-Log-CMD", new BaseComponent(TradeSystem.PERMISSION_LOG) {
@@ -57,11 +57,12 @@ public class TradeLogCMD extends CommandBuilder {
                 try {
                     if (getTradeLog().isEnabled()) {
                         List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
-                        sender.sendMessage("============= TRADE LOG ==============");
+                        sender.sendMessage("§c============= TRADE LOG ==============");
 
                         for (TradeLog logMessage : logMessages) {
-                            sender.sendMessage("[" + logMessage.getTimestamp().format(formatter) + "]: " +
-                                    "[" + logMessage.getPlayer1Name() + " - " + logMessage.getPlayer2Name() + "] : " + logMessage.getMessage());
+                            sender.sendMessage("§2[" + logMessage.getTimestamp().format(formatter) + "]: " +
+                                    "[" + logMessage.getPlayer1Name() + " - " + logMessage.getPlayer2Name() + "]");
+                            sender.sendMessage(logMessage.getMessage());
                         }
 
                     } else {
