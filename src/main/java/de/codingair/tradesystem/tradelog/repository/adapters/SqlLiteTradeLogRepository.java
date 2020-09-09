@@ -36,7 +36,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
     @Override
     public List<TradeLog> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
-                "WHERE player1=? OR player2=? ORDER BY timestamp ASC LIMIT 20;";
+                "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 20;";
 
         try (Connection conn = SqlLiteConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
