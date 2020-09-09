@@ -166,6 +166,7 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
 
         this.fileManager.destroy();
+        this.databaseInitializer.close();
     }
 
     private void startUpdateNotifier() {
