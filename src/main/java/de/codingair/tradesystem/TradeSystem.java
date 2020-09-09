@@ -16,6 +16,8 @@ import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.trade.layout.LayoutManager;
 import de.codingair.tradesystem.trade.listeners.TradeListener;
+import de.codingair.tradesystem.tradelog.TradelogInitializer;
+import de.codingair.tradesystem.tradelog.commands.TradeLogCMD;
 import de.codingair.tradesystem.utils.BackwardSupport;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
@@ -37,10 +39,12 @@ import java.util.Map;
 public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
     public static final String PERMISSION_MODIFY = "TradeSystem.Modify";
+    public static final String PERMISSION_LOG = "TradeSystem.Log";
 
     private static TradeSystem instance;
     private final LayoutManager layoutManager = new LayoutManager();
     private final TradeManager tradeManager = new TradeManager();
+    private final TradelogInitializer tradelogInitializer = new TradelogInitializer();
     private final FileManager fileManager = new FileManager(this);
 
     private final UpdateChecker updateNotifier = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
@@ -48,6 +52,7 @@ public class TradeSystem extends JavaPlugin {
     private final Timer timer = new Timer();
 
     private TradeSystemCMD tradeSystemCMD;
+    private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
     private UTFConfig oldConfig;
 
@@ -77,6 +82,7 @@ public class TradeSystem extends JavaPlugin {
 
         this.tradeManager.load();
         this.layoutManager.load();
+        this.tradelogInitializer.initialize();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
         TradeListener listener;
@@ -93,6 +99,9 @@ public class TradeSystem extends JavaPlugin {
 
         tradeSystemCMD = new TradeSystemCMD();
         tradeSystemCMD.register();
+
+        tradeLogCMD = new TradeLogCMD();
+        tradeLogCMD.register();
 
         //initiates metrics
         new MetricsManager();
@@ -137,6 +146,7 @@ public class TradeSystem extends JavaPlugin {
 
         this.tradeCMD.unregister();
         this.tradeSystemCMD.unregister();
+        this.tradeLogCMD.unregister();
 
         HandlerList.unregisterAll(this);
 

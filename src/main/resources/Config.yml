@@ -87,3 +87,7 @@ TradeSystem:
       Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0
+
+Tradelog:
+  enabled: false
+  database: SQLITE

@@ -76,6 +76,7 @@ Help_TradeSystem_Layout: "&7Utilisation &e/%label% layout <create, edit, delete,
 Help_TradeSystem_Layout_Activate: "&7Utilisation &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Utilisation &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Utilisation &e/%label% layout edit <name>"
+Help_TradeLog: '"&7Utilisation &e/%label% <playerName>'
 Layout_Does_Not_Exist: "&cCe modèle n'existe pas !"
 Layout_Activated: "&7Le modèle '&b%name%&7' a été &aactivé&7."
 Layout_Deleted: "&7Le modèle '&b%name%&7' a été &csupprimé&7."
