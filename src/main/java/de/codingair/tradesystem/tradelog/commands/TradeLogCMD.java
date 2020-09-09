@@ -6,6 +6,7 @@ import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.tradelog.TradeLog;
+import de.codingair.tradesystem.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -55,7 +56,7 @@ public class TradeLogCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 try {
-                    if (getTradeLog().isEnabled()) {
+                    if (TradeLogOptions.isEnabled()) {
                         List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
                         sender.sendMessage("§c============= TRADE LOG ==============");
 

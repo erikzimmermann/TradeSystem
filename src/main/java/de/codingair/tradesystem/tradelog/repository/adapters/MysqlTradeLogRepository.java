@@ -2,10 +2,10 @@ package de.codingair.tradesystem.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.tradelog.TradeLog;
 import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.utils.database.SqlLiteConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,13 +15,19 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlLiteTradeLogRepository implements TradeLogRepository {
+public class MysqlTradeLogRepository implements TradeLogRepository {
+
+    private DataSource dataSource;
+
+    public MysqlTradeLogRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public void log(Player player1, Player player2, String message) {
         String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?)";
 
-        try (Connection conn = SqlLiteConnection.connect();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, player1.getName());
             pstmt.setString(2, player2.getName());
@@ -38,7 +44,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 20;";
 
-        try (Connection conn = SqlLiteConnection.connect();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, playerName);
             pstmt.setString(2, playerName);

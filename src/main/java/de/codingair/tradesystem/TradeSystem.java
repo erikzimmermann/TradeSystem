@@ -16,11 +16,18 @@ import de.codingair.tradesystem.trade.commands.TradeCMD;
 import de.codingair.tradesystem.trade.commands.TradeSystemCMD;
 import de.codingair.tradesystem.trade.layout.LayoutManager;
 import de.codingair.tradesystem.trade.listeners.TradeListener;
-import de.codingair.tradesystem.tradelog.TradelogInitializer;
+import de.codingair.tradesystem.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.tradelog.commands.TradeLogCMD;
+import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
+import de.codingair.tradesystem.tradelog.repository.adapters.LoggingTradeLogRepository;
+import de.codingair.tradesystem.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.utils.BackwardSupport;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
+import de.codingair.tradesystem.utils.database.DatabaseInitializer;
+import de.codingair.tradesystem.utils.database.DatabaseType;
+import de.codingair.tradesystem.utils.database.DatabaseUtil;
+import de.codingair.tradesystem.utils.database.MySQLConnection;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
 import org.bukkit.Bukkit;
@@ -42,14 +49,16 @@ public class TradeSystem extends JavaPlugin {
     public static final String PERMISSION_LOG = "TradeSystem.Log";
 
     private static TradeSystem instance;
+    private TradeLogRepository tradeLogRepository;
+
     private final LayoutManager layoutManager = new LayoutManager();
     private final TradeManager tradeManager = new TradeManager();
-    private final TradelogInitializer tradelogInitializer = new TradelogInitializer();
+    private final DatabaseInitializer databaseInitializer = new DatabaseInitializer();
     private final FileManager fileManager = new FileManager(this);
 
     private final UpdateChecker updateNotifier = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
-    private boolean needsUpdate = false;
     private final Timer timer = new Timer();
+    private boolean needsUpdate = false;
 
     private TradeSystemCMD tradeSystemCMD;
     private TradeLogCMD tradeLogCMD;
@@ -82,7 +91,7 @@ public class TradeSystem extends JavaPlugin {
 
         this.tradeManager.load();
         this.layoutManager.load();
-        this.tradelogInitializer.initialize();
+        this.databaseInitializer.initialize();
 
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
         TradeListener listener;
@@ -264,5 +273,21 @@ public class TradeSystem extends JavaPlugin {
 
     public UTFConfig getOldConfig() {
         return oldConfig;
+    }
+
+    public TradeLogRepository getTradeLogRepository() {
+        if(tradeLogRepository != null) {
+            return tradeLogRepository;
+        }
+        if(!TradeLogOptions.isEnabled()) {
+            return new LoggingTradeLogRepository();
+        }
+
+        DatabaseType type = DatabaseUtil.database().getType();
+        if (type == DatabaseType.MYSQL) {
+            return new MysqlTradeLogRepository(MySQLConnection.getDatasource());
+        } else {
+            throw new RuntimeException("Invalid database type provided: " + type);
+        }
     }
 }

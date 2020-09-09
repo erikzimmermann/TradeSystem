@@ -2,15 +2,9 @@ package de.codingair.tradesystem.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.tradelog.TradeLog;
 import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.utils.database.SqlLiteConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

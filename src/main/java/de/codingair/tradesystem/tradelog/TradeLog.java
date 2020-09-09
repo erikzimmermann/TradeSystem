@@ -1,7 +1,5 @@
 package de.codingair.tradesystem.tradelog;
 
-import org.bukkit.entity.Player;
-
 import java.time.LocalDateTime;
 
 public class TradeLog {
