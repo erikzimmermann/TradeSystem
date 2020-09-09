@@ -3,10 +3,13 @@ package de.codingair.tradesystem.tradelog.commands;
 import de.codingair.codingapi.server.commands.builder.BaseComponent;
 import de.codingair.codingapi.server.commands.builder.CommandBuilder;
 import de.codingair.codingapi.server.commands.builder.CommandComponent;
+import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.tradelog.TradeLog;
 import de.codingair.tradesystem.utils.Lang;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -39,14 +42,22 @@ public class TradeLogCMD extends CommandBuilder {
             }
         }, true, "tl");
 
-        getBaseComponent().addChild(new CommandComponent("read") {
+
+        //LOG
+        getBaseComponent().addChild(new MultiCommandComponent(TradeSystem.PERMISSION_LOG) {
             @Override
-            public boolean runCommand(CommandSender sender, String label, String[] args) {
+            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
+                for(Player player : Bukkit.getOnlinePlayers()) {
+                    suggestions.add(player.getName());
+                }
+            }
+
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 try {
                     if (getTradeLog().isEnabled()) {
-                        List<TradeLog> logMessages = getTradeLog().getLogMessages(args[0]);
+                        List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
                         sender.sendMessage("============= TRADE LOG ==============");
-                        sender.sendMessage("======================================");
 
                         for (TradeLog logMessage : logMessages) {
                             sender.sendMessage("[" + logMessage.getTimestamp().format(formatter) + "]: " +

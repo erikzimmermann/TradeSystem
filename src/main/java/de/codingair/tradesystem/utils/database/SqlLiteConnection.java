@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class SqlLiteConnection {
 
     public static Connection connect() throws SQLException {
-        String url = "jdbc:sqlite:TradeSystem/tradelog.db";
+        String url = "jdbc:sqlite:Plugins/TradeSystem/tradelog.db";
         return DriverManager.getConnection(url);
     }
 }
