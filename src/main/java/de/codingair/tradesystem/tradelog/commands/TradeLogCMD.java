@@ -57,7 +57,7 @@ public class TradeLogCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 try {
                     if (TradeLogOptions.isEnabled()) {
-                        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+                        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
                             List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
                             sender.sendMessage("§c============= TRADE LOG ==============");
 

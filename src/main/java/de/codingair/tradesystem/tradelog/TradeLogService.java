@@ -24,7 +24,7 @@ public class TradeLogService {
     }
 
     public void log(Player player1, Player player2, String message) {
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
             tradeLogRepository.log(player1, player2, message);
         });
     }
