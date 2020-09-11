@@ -31,15 +31,14 @@ public class MysqlMigrations implements SqlMigrations {
 
     @Override
     public void createMigrationTable() {
-        try (Connection connect = datasource.getConnection()) {
+        try (Connection connect = datasource.getConnection();
+             Statement stmt = connect.createStatement()) {
             Bukkit.getLogger().info("Creating migration table");
 
-            // SQL statement for creating a new table
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
                     + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
                     + "	version integer NOT NULL\n"
                     + ");";
-            Statement stmt = connect.createStatement();
             stmt.execute(sql);
         } catch (SQLException e) {
             Bukkit.getLogger().severe("Failure creating migration table: " + e.getMessage());
@@ -59,31 +58,29 @@ public class MysqlMigrations implements SqlMigrations {
                     .collect(Collectors.toList());
 
             for (Migration migration : validMigrations) {
-                String sql = migration.getStatement();
-                Statement stmt = connect.createStatement();
-                stmt.execute(sql);
+                try (Statement stmt = connect.createStatement()) {
+                    String sql = migration.getStatement();
+                    stmt.execute(sql);
 
-                PreparedStatement migrationStatement = connect.prepareStatement("INSERT INTO migrations (version) VALUES (?);");
-                migrationStatement.setInt(1, migration.getVersion());
-                migrationStatement.execute();
+                    PreparedStatement migrationStatement = connect.prepareStatement("INSERT INTO migrations (version) VALUES (?);");
+                    migrationStatement.setInt(1, migration.getVersion());
+                    migrationStatement.execute();
 
-                connect.commit();
+                    connect.commit();
+                }
             }
-            // SQL statement for creating a new table
         } catch (SQLException e) {
             Bukkit.getLogger().severe("Failure executing migrations: " + e.getMessage());
         }
     }
 
     private int getMaxVersion() {
-        try (Connection connect = datasource.getConnection()) {
-            Statement stmt = connect.createStatement();
+        try (Connection connect = datasource.getConnection();
+             Statement stmt = connect.createStatement()) {
             ResultSet resultSet = stmt.executeQuery("SELECT max(version) as max from migrations");
             int max = resultSet.next() ? resultSet.getInt("max") : 0;
             Bukkit.getLogger().info("Latest migration version = " + max);
             return max;
-
-            // SQL statement for creating a new table
         } catch (SQLException e) {
             Bukkit.getLogger().severe("Failure retrieving max migration version: " + e.getMessage());
         }

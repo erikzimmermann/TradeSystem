@@ -5,11 +5,11 @@ import de.codingair.tradesystem.utils.database.migrations.Migration;
 public class CreateTradeLogTableMigration implements Migration {
     @Override
     public String getStatement() {
-        return "CREATE TABLE IF NOT EXISTS tradelog (\n"
-                + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
-                + "	player1 varchar(255) NOT NULL,\n"
-                + "	player2 varchar(255) NOT NULL,\n"
-                + "	message text NOT NULL,\n"
+        return "CREATE TABLE IF NOT EXISTS tradelog ("
+                + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,"
+                + "	player1 varchar(16) NOT NULL,"
+                + "	player2 varchar(16) NOT NULL,"
+                + "	message text NOT NULL,"
                 + "	timestamp BIGINT NOT NULL" + ");";
     }
 

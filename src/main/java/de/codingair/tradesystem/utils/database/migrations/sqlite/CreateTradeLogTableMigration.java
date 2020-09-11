@@ -5,15 +5,15 @@ import de.codingair.tradesystem.utils.database.migrations.Migration;
 public class CreateTradeLogTableMigration implements Migration {
     @Override
     public String getStatement() {
-        return "CREATE TABLE IF NOT EXISTS tradelog (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	player1 varchar NOT NULL,\n"
-                + "	player2 varchar NOT NULL,\n"
-                + "	message text NOT NULL,\n"
-                + "	timestamp INTEGER NOT NULL" + ");\n" +
-                " CREATE INDEX player1_tradelog \n" +
-                " ON tradelog(player1);\n" +
-                " CREATE INDEX player2_tradelog \n" +
+        return "CREATE TABLE IF NOT EXISTS tradelog ("
+                + "	id integer PRIMARY KEY,"
+                + "	player1 varchar(16) NOT NULL,"
+                + "	player2 varchar(16) NOT NULL,"
+                + "	message text NOT NULL,"
+                + "	timestamp INTEGER NOT NULL" + ");" +
+                " CREATE INDEX player1_tradelog" +
+                " ON tradelog(player1);" +
+                " CREATE INDEX player2_tradelog" +
                 " ON tradelog(player2);";
     }
 

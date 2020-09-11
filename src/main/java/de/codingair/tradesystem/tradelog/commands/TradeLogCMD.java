@@ -57,15 +57,16 @@ public class TradeLogCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 try {
                     if (TradeLogOptions.isEnabled()) {
-                        List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
-                        sender.sendMessage("§c============= TRADE LOG ==============");
+                        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+                            List<TradeLog> logMessages = getTradeLog().getLogMessages(argument);
+                            sender.sendMessage("§c============= TRADE LOG ==============");
 
-                        for (TradeLog logMessage : logMessages) {
-                            sender.sendMessage("§2[" + logMessage.getTimestamp().format(formatter) + "]: " +
-                                    "[" + logMessage.getPlayer1Name() + " - " + logMessage.getPlayer2Name() + "]");
-                            sender.sendMessage(logMessage.getMessage());
-                        }
-
+                            for (TradeLog logMessage : logMessages) {
+                                sender.sendMessage("§2[" + logMessage.getTimestamp().format(formatter) + "]: " +
+                                        "[" + logMessage.getPlayer1Name() + " - " + logMessage.getPlayer2Name() + "]");
+                                sender.sendMessage(logMessage.getMessage());
+                            }
+                        });
                     } else {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled").replace("%label%", label));
                     }
