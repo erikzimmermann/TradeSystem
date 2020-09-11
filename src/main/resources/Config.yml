@@ -89,6 +89,7 @@ TradeSystem:
       Pitch: 1.0
 
   Database:
+    #Values: SQLITE, MYSQL
     Type: MYSQL
     Db_host: localhost
     Db_port: 3306

@@ -3,6 +3,7 @@ package de.codingair.tradesystem.utils.database;
 import de.codingair.tradesystem.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.utils.database.migrations.SqlMigrations;
 import de.codingair.tradesystem.utils.database.migrations.mysql.MysqlMigrations;
+import de.codingair.tradesystem.utils.database.migrations.sqlite.SqLiteMigrations;
 
 public class DatabaseInitializer {
 
@@ -17,19 +18,14 @@ public class DatabaseInitializer {
         }
     }
 
-    public void close() {
-        if (TradeLogOptions.isEnabled()) {
-            DatabaseUtil.database().close();
-        }
-    }
-
     private SqlMigrations getMigrationHandler(DatabaseType type) {
-        SqlMigrations sqlMigrations;
-        if (type == DatabaseType.MYSQL) {
-            sqlMigrations = MysqlMigrations.getInstance();
-        } else {
-            throw new RuntimeException("Invalid database type provided: " + type);
+        switch (type) {
+            case MYSQL:
+                return MysqlMigrations.getInstance();
+            case SQLITE:
+                return SqLiteMigrations.getInstance();
+            default:
+                throw new RuntimeException("Invalid database type provided: " + type);
         }
-        return sqlMigrations;
     }
 }

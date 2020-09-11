@@ -21,13 +21,14 @@ import de.codingair.tradesystem.tradelog.commands.TradeLogCMD;
 import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.tradelog.repository.adapters.LoggingTradeLogRepository;
 import de.codingair.tradesystem.tradelog.repository.adapters.MysqlTradeLogRepository;
+import de.codingair.tradesystem.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.utils.BackwardSupport;
 import de.codingair.tradesystem.utils.Lang;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.database.DatabaseInitializer;
 import de.codingair.tradesystem.utils.database.DatabaseType;
 import de.codingair.tradesystem.utils.database.DatabaseUtil;
-import de.codingair.tradesystem.utils.database.MySQLConnection;
+import de.codingair.tradesystem.utils.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
 import de.codingair.tradesystem.utils.updates.UpdateChecker;
 import org.bukkit.Bukkit;
@@ -98,7 +99,7 @@ public class TradeSystem extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(listener = new TradeListener(), this);
         ChatButtonManager.getInstance().addListener(listener);
 
-        if(!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
+        if (!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
             TradeCMD.PERMISSION = null;
             TradeCMD.PERMISSION_INITIATE = null;
         }
@@ -140,7 +141,7 @@ public class TradeSystem extends JavaPlugin {
         log("__________________________________________________________");
         log(" ");
         log("                       TradeSystem [" + getDescription().getVersion() + "]");
-        if(needsUpdate) {
+        if (needsUpdate) {
             log(" ");
             log("New update available [v" + updateNotifier.getVersion() + " - " + TradeSystem.this.updateNotifier.getUpdateInfo() + "]. Download it on \n\n" + updateNotifier.getDownload() + "\n");
         }
@@ -166,7 +167,6 @@ public class TradeSystem extends JavaPlugin {
         log(" ");
 
         this.fileManager.destroy();
-        this.databaseInitializer.close();
     }
 
     private void startUpdateNotifier() {
@@ -174,7 +174,7 @@ public class TradeSystem extends JavaPlugin {
         Runnable runnable = () -> {
             needsUpdate = updateNotifier.needsUpdate();
 
-            if(needsUpdate) {
+            if (needsUpdate) {
                 log("-----< TradeSystem >-----");
                 log("New update available [" + updateNotifier.getUpdateInfo() + "].");
                 log("Download it on\n\n" + updateNotifier.getDownload() + "\n");
@@ -193,8 +193,8 @@ public class TradeSystem extends JavaPlugin {
     }
 
     private void updateCommandList() {
-        if(Version.get().isBiggerThan(Version.v1_12)) {
-            for(Player player : Bukkit.getOnlinePlayers()) {
+        if (Version.get().isBiggerThan(Version.v1_12)) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
             }
         }
@@ -203,7 +203,7 @@ public class TradeSystem extends JavaPlugin {
     public void reload() throws FileNotFoundException {
         try {
             API.getInstance().reload(this);
-        } catch(InvalidDescriptionException | InvalidPluginException e) {
+        } catch (InvalidDescriptionException | InvalidPluginException e) {
             e.printStackTrace();
         }
     }
@@ -213,12 +213,12 @@ public class TradeSystem extends JavaPlugin {
     }
 
     public void notifyPlayers(Player player) {
-        if(player == null) {
-            for(Player p : Bukkit.getOnlinePlayers()) {
+        if (player == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
                 notifyPlayers(p);
             }
         } else {
-            if(player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
+            if (player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
                 player.sendMessage("");
                 player.sendMessage("");
                 player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + TradeSystem.getInstance().updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getLink());
@@ -277,18 +277,21 @@ public class TradeSystem extends JavaPlugin {
     }
 
     public TradeLogRepository getTradeLogRepository() {
-        if(tradeLogRepository != null) {
+        if (tradeLogRepository != null) {
             return tradeLogRepository;
         }
-        if(!TradeLogOptions.isEnabled()) {
+        if (!TradeLogOptions.isEnabled()) {
             return new LoggingTradeLogRepository();
         }
 
         DatabaseType type = DatabaseUtil.database().getType();
-        if (type == DatabaseType.MYSQL) {
-            return new MysqlTradeLogRepository(MySQLConnection.getDatasource());
-        } else {
-            throw new RuntimeException("Invalid database type provided: " + type);
+        switch (type) {
+            case MYSQL:
+                return new MysqlTradeLogRepository(MySQLConnection.getDatasource());
+            case SQLITE:
+                return new SqlLiteTradeLogRepository();
+            default:
+                throw new RuntimeException("Invalid database type provided: " + type);
         }
     }
 }

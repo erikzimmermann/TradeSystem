@@ -61,8 +61,6 @@
                     <artifactSet>
                         <includes>
                             <include>com.github.CodingAir:CodingAPI</include>
-                            <include>com.zaxxer:HikariCP</include>
-                            <include>mysql:mysql-connector-java</include>
                         </includes>
                     </artifactSet>
                 </configuration>
@@ -107,14 +105,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>3.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.49</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.32.3</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

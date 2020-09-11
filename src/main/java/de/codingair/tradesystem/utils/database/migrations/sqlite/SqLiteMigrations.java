@@ -1,42 +1,39 @@
-package de.codingair.tradesystem.utils.database.migrations.mysql;
+package de.codingair.tradesystem.utils.database.migrations.sqlite;
 
 import de.codingair.tradesystem.utils.database.migrations.Migration;
 import de.codingair.tradesystem.utils.database.migrations.SqlMigrations;
 import org.bukkit.Bukkit;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MysqlMigrations implements SqlMigrations {
+public class SqLiteMigrations implements SqlMigrations {
 
-    private static MysqlMigrations instance;
+    private static SqLiteMigrations instance;
     // Define all migrations in this list.
     private static List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
-    private final DataSource datasource;
 
-    private MysqlMigrations() {
-        datasource = MySQLConnection.getDatasource();
+    private SqLiteMigrations() {
     }
 
-    public static MysqlMigrations getInstance() {
+    public static SqLiteMigrations getInstance() {
         if (instance == null) {
-            instance = new MysqlMigrations();
+            instance = new SqLiteMigrations();
         }
         return instance;
     }
 
     @Override
     public void createMigrationTable() {
-        try (Connection connect = datasource.getConnection()) {
+        try (Connection connect = SqlLiteConnection.connect()) {
             Bukkit.getLogger().info("Creating migration table");
 
             // SQL statement for creating a new table
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
-                    + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
+                    + "	id integer PRIMARY KEY,\n"
                     + "	version integer NOT NULL\n"
                     + ");";
             Statement stmt = connect.createStatement();
@@ -49,7 +46,7 @@ public class MysqlMigrations implements SqlMigrations {
 
     @Override
     public void runMigrations() {
-        try (Connection connect = datasource.getConnection()) {
+        try (Connection connect = SqlLiteConnection.connect()) {
             Bukkit.getLogger().info("Starting migrations");
             connect.setAutoCommit(false);
             int maxVersion = getMaxVersion();
@@ -76,7 +73,7 @@ public class MysqlMigrations implements SqlMigrations {
     }
 
     private int getMaxVersion() {
-        try (Connection connect = datasource.getConnection()) {
+        try (Connection connect = SqlLiteConnection.connect()) {
             Statement stmt = connect.createStatement();
             ResultSet resultSet = stmt.executeQuery("SELECT max(version) as max from migrations");
             int max = resultSet.next() ? resultSet.getInt("max") : 0;
