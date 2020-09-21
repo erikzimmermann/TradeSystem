@@ -1,6 +1,6 @@
 package de.codingair.tradesystem.utils.database.migrations.mysql;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
 import org.bukkit.configuration.file.FileConfiguration;
