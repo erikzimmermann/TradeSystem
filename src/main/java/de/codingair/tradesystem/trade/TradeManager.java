@@ -21,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
 
+import static de.codingair.tradesystem.tradelog.TradeLogService.getTradeLog;
+
 public class TradeManager {
     private final Set<Player> offline = new HashSet<>();
     private final Set<Trade> tradeList = new HashSet<>();
@@ -238,6 +240,7 @@ public class TradeManager {
             return;
         }
 
+        getTradeLog().log(other, player, "Trade started");
         player.closeInventory();
         other.closeInventory();
 

@@ -76,6 +76,7 @@ Help_TradeSystem_Layout: '&7Использование: &e/%label% layout <creat
 Help_TradeSystem_Layout_Activate: '&7Use &e/%label% layout activate <название>'
 Help_TradeSystem_Layout_Delete: '&7Use &e/%label% layout delete <название>'
 Help_TradeSystem_Layout_Edit: '&7Use &e/%label% layout edit <название>'
+Help_TradeLog: '&7Использование: &e/%label% <playerName>'
 Layout_Does_Not_Exist: '&cУказанный макет не найден.'
 Layout_Activated: '&7Макет ''&b%name%&7'' &aвключен&7.'
 Layout_Deleted: '&7Макет ''&b%name%&7'' &cудален&7.'

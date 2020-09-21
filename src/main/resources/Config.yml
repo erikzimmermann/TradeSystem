@@ -87,3 +87,15 @@ TradeSystem:
       Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0
+
+  Database:
+    #Values: SQLITE, MYSQL
+    Type: MYSQL
+    Db_host: localhost
+    Db_port: 3306
+    Db_name: tradelog
+    Db_user: root
+    Db_password: password
+
+  Tradelog:
+    Enabled: true

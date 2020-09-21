@@ -76,6 +76,7 @@ Help_TradeSystem_Layout: '&7Use &e/%label% layout <create, edit, delete, activat
 Help_TradeSystem_Layout_Activate: '&7Use &e/%label% layout activate <name>'
 Help_TradeSystem_Layout_Delete: '&7Use &e/%label% layout delete <name>'
 Help_TradeSystem_Layout_Edit: '&7Use &e/%label% layout edit <name>'
+Help_TradeLog: '&7Use &e/%label% <playerName>'
 Layout_Does_Not_Exist: '&cThis layout does not exist!'
 Layout_Activated: '&7The layout ''&b%name%&7'' was &aactivated&7.'
 Layout_Deleted: '&7The layout ''&b%name%&7'' was &cdeleted&7.'
