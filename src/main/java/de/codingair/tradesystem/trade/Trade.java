@@ -274,7 +274,7 @@ public class Trade {
         Profile p0 = TradeSystem.getProfile(player1);
         Profile p1 = TradeSystem.getProfile(player2);
 
-        if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
+        if(p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
             cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
             return;
         }
@@ -313,7 +313,7 @@ public class Trade {
                         if(i0.getAmount() > 0) player1.getInventory().addItem(i0);
                         Environment.dropItem(toDrop, player1);
                     }
-                    getTradeLog().log(player1, player2, player1.getName() + " received item " + i0.getAmount() + " "+ i0.getType());
+                    getTradeLog().log(player1, player2, player1.getName() + " received item " + i0.getAmount() + " " + i0.getType());
                 }
 
                 if(i1 != null && !i1.getType().equals(Material.AIR)) {
@@ -328,7 +328,7 @@ public class Trade {
                         if(i1.getAmount() > 0) player2.getInventory().addItem(i1);
                         Environment.dropItem(toDrop, player2);
                     }
-                    getTradeLog().log(player1, player2, player2.getName() + " received item " + i1.getAmount() + " "+ i1.getType());
+                    getTradeLog().log(player1, player2, player2.getName() + " received item " + i1.getAmount() + " " + i1.getType());
                 }
             }
 
@@ -338,21 +338,19 @@ public class Trade {
             guis[1].close();
 
             double diff = -money[0] + money[1];
-            if(diff < 0){
+            if(diff < 0) {
                 p0.withdraw(-diff);
                 getTradeLog().log(player1, player2, player1 + " payed " + diff);
-            }
-            else if(diff > 0){
+            } else if(diff > 0) {
                 p0.deposit(diff);
                 getTradeLog().log(player1, player2, player1 + " received " + diff);
             }
 
             diff = -money[1] + money[0];
-            if(diff < 0){
+            if(diff < 0) {
                 p1.withdraw(-diff);
                 getTradeLog().log(player1, player2, player2 + " payed " + diff);
-            }
-            else if(diff > 0){
+            } else if(diff > 0) {
                 p1.deposit(diff);
                 getTradeLog().log(player1, player2, player2 + " received " + diff);
             }

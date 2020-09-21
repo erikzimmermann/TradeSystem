@@ -210,7 +210,7 @@ public class TradeSystem extends JavaPlugin {
     }
 
     public static void log(String message) {
-        System.out.println(message);
+        Bukkit.getLogger().info(message);
     }
 
     public void notifyPlayers(Player player) {
@@ -288,7 +288,7 @@ public class TradeSystem extends JavaPlugin {
         DatabaseType type = DatabaseUtil.database().getType();
         switch (type) {
             case MYSQL:
-                return new MysqlTradeLogRepository(MySQLConnection.getDatasource());
+                return new MysqlTradeLogRepository(MySQLConnection.getConnection());
             case SQLITE:
                 return new SqlLiteTradeLogRepository();
             default:

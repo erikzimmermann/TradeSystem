@@ -1,9 +1,11 @@
 package de.codingair.tradesystem.utils.database;
 
+import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.utils.database.migrations.SqlMigrations;
 import de.codingair.tradesystem.utils.database.migrations.mysql.MysqlMigrations;
 import de.codingair.tradesystem.utils.database.migrations.sqlite.SqLiteMigrations;
+import org.bukkit.Bukkit;
 
 public class DatabaseInitializer {
 
@@ -11,6 +13,8 @@ public class DatabaseInitializer {
         if (TradeLogOptions.isEnabled()) {
             DatabaseType type = DatabaseUtil.database().getType();
             DatabaseUtil.database().init();
+
+            TradeSystem.log("  > Initializing database");
 
             SqlMigrations sqlMigrations = getMigrationHandler(type);
             sqlMigrations.createMigrationTable();

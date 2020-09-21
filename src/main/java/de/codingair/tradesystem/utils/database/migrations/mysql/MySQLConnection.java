@@ -1,16 +1,17 @@
 package de.codingair.tradesystem.utils.database.migrations.mysql;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.TradeSystem;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class MySQLConnection {
 
     private static MySQLConnection instance;
-    private static MysqlDataSource datasource;
+    private static Connection connection;
 
     private static final ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
     private static final FileConfiguration config = file.getConfig();
@@ -22,31 +23,38 @@ public class MySQLConnection {
         return instance;
     }
 
-    public DataSource initDataSource() {
-        getDataSource();
-        return datasource;
-    }
-
-    public static DataSource getDatasource() {
-        if(datasource == null){
+    public Connection initDataSource() {
+        try {
             getDataSource();
+        } catch(SQLException throwables) {
+            throwables.printStackTrace();
         }
-        return datasource;
+
+        return connection;
     }
 
-    private static void getDataSource() {
-        if (datasource == null) {
-            datasource = new MysqlDataSource();
-            String host =  config.getString("TradeSystem.Database.Db_host");
-            int port =  config.getInt("TradeSystem.Database.Db_port");
-            String db =  config.getString("TradeSystem.Database.Db_name");
-            String user =  config.getString("TradeSystem.Database.Db_user");
-            String password =  config.getString("TradeSystem.Database.Db_password");
+    public static Connection getConnection() {
+        if(connection == null) {
+            try {
+                getDataSource();
+            } catch(SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
 
-            datasource.setURL("jdbc:mysql://" + host + ":" + port + "/" + db + "?autoReconnect=true&useSSL=false");
-            datasource.setUser(user);
-            datasource.setPassword(password);
-            datasource.setDatabaseName(db);
+        return connection;
+    }
+
+    private static void getDataSource() throws SQLException {
+        if(connection == null) {
+            String host = config.getString("TradeSystem.Database.Db_host");
+            int port = config.getInt("TradeSystem.Database.Db_port");
+            String db = config.getString("TradeSystem.Database.Db_name");
+            String user = config.getString("TradeSystem.Database.Db_user");
+            String password = config.getString("TradeSystem.Database.Db_password");
+            if(password != null && password.equalsIgnoreCase("null")) password = null;
+
+            connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db + "?autoReconnect=true&useSSL=false", user, password);
         }
     }
 }
