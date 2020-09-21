@@ -341,44 +341,23 @@ public class TradeCMD extends CommandBuilder {
         l.add(new Invite(p.getName()), TradeSystem.getInstance().getTradeManager().getCooldown());
         TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown() * 1000);
 
-        List<TextComponent> parts = new ArrayList<>();
+        TextComponent base = new TextComponent(Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%player%", p.getName()));
+        base.setColor(ChatColor.GRAY);
 
-        TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept", p));
+        SimpleMessage message = new SimpleMessage(other, base, TradeSystem.getInstance());
+
+        TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept", other));
         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade accept " + p.getName()));
-        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", p))}));
+        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", other))}));
 
-        TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny", p));
+        TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny", other));
         deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + p.getName()));
-        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", p))}));
+        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", other))}));
 
-        String s = Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%player%", p.getName());
+        message.replace("%accept%", accept);
+        message.replace("%deny%", deny);
 
-        String[] a1 = s.split("%accept%");
-        if(a1[0].contains("%deny%")) {
-            String[] a2 = a1[0].split("%deny%");
-            parts.add(new TextComponent(a2[0]));
-            parts.add(deny);
-            parts.add(new TextComponent(a2[1]));
-            parts.add(accept);
-            parts.add(new TextComponent(a1[1]));
-        } else {
-            parts.add(new TextComponent(a1[0]));
-            parts.add(accept);
-
-            String[] a2 = a1[1].split("%deny%");
-            parts.add(new TextComponent(a2[0]));
-            parts.add(deny);
-            parts.add(new TextComponent(a2[1]));
-        }
-
-        TextComponent basic = new TextComponent("");
-        basic.setColor(ChatColor.GRAY);
-
-        for(TextComponent part : parts) {
-            basic.addExtra(part);
-        }
-
-        other.spigot().sendMessage(basic);
+        message.send();
         p.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", p).replace("%player%", other.getName()));
 
         TradeSystem.getInstance().getTradeManager().playRequestSound(other);

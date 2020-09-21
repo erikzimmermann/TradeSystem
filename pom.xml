@@ -78,7 +78,7 @@
         <dependency>
             <groupId>com.github.CodingAir</groupId>
             <artifactId>CodingAPI</artifactId>
-            <version>1.3</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>net.ess3</groupId>
