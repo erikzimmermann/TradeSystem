@@ -101,6 +101,7 @@ public class TradeSystem extends JavaPlugin {
         startUpdateNotifier();
 
         new BackwardSupport();
+        Lang.initializeFile();
 
         log(" ");
         log("Finished (" + timer.result() + ")");

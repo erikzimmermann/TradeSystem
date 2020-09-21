@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Lang {
@@ -63,10 +64,15 @@ public class Lang {
         return getConfig().getString("TradeSystem.Language", "ENG");
     }
 
+    public static void initializeFile() {
+        getLanguageFile(getLanguageKey());
+    }
+
     private static FileConfiguration getLanguageFile(String langTag) {
         try {
             ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
             if(file == null) {
+                prepareFile(new File(TradeSystem.getInstance().getDataFolder(), "/Languages/" + langTag + ".yml"));
                 TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
                 return getLanguageFile(langTag);
             }
@@ -74,6 +80,45 @@ public class Lang {
         } catch(Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private static void prepareFile(File file) {
+        try {
+            FileReader reader = new FileReader(file);
+            BufferedReader in = new BufferedReader(reader);
+
+            List<String> lines = new ArrayList<>();
+            List<String> origin = new ArrayList<>();
+
+            String s;
+            while((s = in.readLine()) != null) {
+                lines.add(s.replace("%ACCEPT%", "%accept%")
+                        .replace("%DENY%", "%deny%")
+                        .replace("%PLAYER%", "%player%")
+                        .replace("%NAME%", "%name%")
+                        .replace("%COMMAND%", "%command%")
+                        .replace("%LABEL%", "%label%"));
+                origin.add(s);
+            }
+
+            reader.close();
+            in.close();
+
+            if(!lines.equals(origin)) {
+                FileWriter writer = new FileWriter(file);
+                BufferedWriter out = new BufferedWriter(writer);
+
+                for(String line : lines) {
+                    out.write(line + "\n");
+                }
+
+                out.flush();
+                out.close();
+                writer.close();
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
         }
     }
 
