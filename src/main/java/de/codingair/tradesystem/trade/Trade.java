@@ -372,16 +372,16 @@ public class Trade {
                 @Override
                 public void run() {
                     if(guis[0] == null || guis[1] == null) {
-                        cancel();
+                        this.cancel();
                         countdownTicks = 0;
                         countdown = null;
                         return;
                     }
 
                     if(!ready[0] || !ready[1]) {
+                        this.cancel();
                         TradeSystem.man().playCountdownStopSound(player1);
                         TradeSystem.man().playCountdownStopSound(player2);
-                        cancel();
                         countdownTicks = 0;
                         countdown = null;
                         guis[0].synchronizeTitle();
@@ -390,8 +390,8 @@ public class Trade {
                     }
 
                     if(countdownTicks == repetitions) {
+                        this.cancel();
                         runnable.run();
-                        cancel();
                         countdownTicks = 0;
                         countdown = null;
                         return;

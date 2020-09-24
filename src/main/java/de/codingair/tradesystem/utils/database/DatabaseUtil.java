@@ -23,7 +23,7 @@ public class DatabaseUtil {
     }
 
     private DatabaseUtil() {
-        String databaseType = config.getString("TradeSystem.Database.Type", MYSQL_STRING);
+        String databaseType = config.getString("TradeSystem.TradeLog.Database.Type", MYSQL_STRING);
         if (MYSQL_STRING.equalsIgnoreCase(databaseType)) {
             this.databaseType = DatabaseType.MYSQL;
         } else if (SQLITE_STRING.equalsIgnoreCase(databaseType)) {
