@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>tradesystem</artifactId>
-    <version>1.1.13</version>
+    <version>1.1.13_Hotfix-1</version>
 
     <repositories>
         <repository>
@@ -33,6 +33,19 @@
 
     <build>
         <finalName>TradeSystem_v${project.version}</finalName>
+
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*</include>
+                    <include>*/**</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
