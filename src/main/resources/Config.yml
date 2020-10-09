@@ -35,8 +35,8 @@ TradeSystem:
   # false: Prevent the trade partner to put too much items into the gui
   Trade_Drop_Items: true
 
-  # After 60 seconds the request will be expired
-  Request_Cooldown_In_Sek: 60
+  # In seconds (e.g. after <60> seconds the request will be expired)
+  Trade_Request_Expiration_Time: 60
 
   Action_To_Cancel:
     Player_get_damaged: true

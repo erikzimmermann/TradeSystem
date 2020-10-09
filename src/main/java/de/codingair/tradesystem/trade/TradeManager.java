@@ -28,7 +28,7 @@ public class TradeManager {
     private final Set<Trade> tradeList = new HashSet<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
-    private int cooldown = 60;
+    private int requestExpirationTime = 60;
     private int distance = 50;
 
     private int countdownRepetitions = 0;
@@ -56,9 +56,9 @@ public class TradeManager {
         FileConfiguration config = file.getConfig();
 
         boolean save = false;
-        cooldown = config.getInt("TradeSystem.Request_Cooldown_In_Sek", 60);
-        if(cooldown <= 10) {
-            config.set("TradeSystem.Request_Cooldown_In_Sek", 10);
+        requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
+        if(requestExpirationTime <= 10) {
+            config.set("TradeSystem.Trade_Request_Expiration_Time", 10);
             save = true;
         }
 
@@ -282,8 +282,8 @@ public class TradeManager {
         return getTrade(player) != null;
     }
 
-    public int getCooldown() {
-        return cooldown;
+    public int getRequestExpirationTime() {
+        return requestExpirationTime;
     }
 
     public int getDistance() {
