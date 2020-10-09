@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UpdateChecker {
     private final String link;
@@ -43,6 +45,7 @@ public class UpdateChecker {
 
             String line;
             while((line = input.readLine()) != null) {
+                line = decodeNumericEntities(line);
 
                 if(this.version != null && this.download != null) break;
 
@@ -60,7 +63,7 @@ public class UpdateChecker {
 
         needsUpdate = false;
 
-        String current = TradeSystem.getInstance().getDescription().getVersion();
+        String current = TradeSystem.getInstance().getDescription().getVersion().replaceAll("_Hotfix.*", "");
         if(current.startsWith("v")) current = current.substring(1);
         String newV = version.startsWith("v") ? version.substring(1) : version;
 
@@ -90,6 +93,7 @@ public class UpdateChecker {
 
             String line;
             while((line = input.readLine()) != null) {
+                line = decodeNumericEntities(line);
 
                 if(atUpdates) {
                     if(atInfo) {
@@ -109,6 +113,20 @@ public class UpdateChecker {
         } catch(Exception ex) {
             return null;
         }
+    }
+
+    private String decodeNumericEntities(String s) {
+        StringBuffer sb = new StringBuffer();
+        Matcher m = Pattern.compile("\\&#(\\d+);").matcher(s);
+
+        while(m.find()) {
+            int uc = Integer.parseInt(m.group(1));
+            m.appendReplacement(sb, "");
+            sb.appendCodePoint(uc);
+        }
+
+        m.appendTail(sb);
+        return sb.toString().replace("&amp;", "&");
     }
 
     public String getDownload() {

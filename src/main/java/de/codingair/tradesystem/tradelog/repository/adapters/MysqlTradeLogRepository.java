@@ -23,10 +23,9 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
 
     @Override
     public void log(Player player1, Player player2, String message) {
-        String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?);";
 
-        try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
+        try(PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, player1.getName());
             pstmt.setString(2, player2.getName());
             pstmt.setString(3, message);
@@ -34,7 +33,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
 
             pstmt.executeUpdate();
         } catch(SQLException e) {
-            Bukkit.getLogger().severe(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -59,7 +58,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
             }
             return result;
         } catch(SQLException e) {
-            Bukkit.getLogger().severe(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

@@ -11,14 +11,14 @@ public class DatabaseInitializer {
 
     public void initialize() {
         if (TradeLogOptions.isEnabled()) {
-            DatabaseType type = DatabaseUtil.database().getType();
-            DatabaseUtil.database().init();
+            Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
+                DatabaseType type = DatabaseUtil.database().getType();
+                DatabaseUtil.database().init();
 
-            TradeSystem.log("  > Initializing database");
-
-            SqlMigrations sqlMigrations = getMigrationHandler(type);
-            sqlMigrations.createMigrationTable();
-            sqlMigrations.runMigrations();
+                SqlMigrations sqlMigrations = getMigrationHandler(type);
+                sqlMigrations.createMigrationTable();
+                sqlMigrations.runMigrations();
+            });
         }
     }
 

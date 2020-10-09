@@ -28,7 +28,7 @@ jobs:
           	info=${info[@]//-/ }
           	info="$info**__   -   __**"
           fi
-          NOW="$(LC_ALL=en_GB.utf8 date --universal) $(LC_ALL=en_GB.utf8 date --universal '+%p %Z')"
+          NOW="$(LC_ALL=en_GB.utf8 date --universal)"
           milestone=15
           hook=${{ secrets.DISCORD_WEBHOOK }}
           echo "Sending '$file' to 'DevBuilds' channel, this may take a while..."
