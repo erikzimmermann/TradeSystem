@@ -1,9 +1,7 @@
 package de.codingair.tradesystem.utils.database.migrations.sqlite;
 
-import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.utils.database.migrations.Migration;
 import de.codingair.tradesystem.utils.database.migrations.SqlMigrations;
-import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.util.Arrays;
@@ -31,15 +29,13 @@ public class SqLiteMigrations implements SqlMigrations {
     public void createMigrationTable() {
         try (Connection connect = SqlLiteConnection.connect();
              Statement stmt = connect.createStatement()) {
-            TradeSystem.log("    > Check table");
-
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
                     + "	id integer PRIMARY KEY,\n"
                     + "	version integer NOT NULL\n"
                     + ");";
             stmt.execute(sql);
         } catch (SQLException e) {
-            Bukkit.getLogger().severe("    > Failure creating migration table: " + e.getMessage());
+            e.printStackTrace();
         }
 
     }
@@ -47,7 +43,6 @@ public class SqLiteMigrations implements SqlMigrations {
     @Override
     public void runMigrations() {
         try (Connection connect = SqlLiteConnection.connect()) {
-            TradeSystem.log("    > Starting migrations");
             connect.setAutoCommit(false);
             int maxVersion = getMaxVersion();
 
@@ -67,7 +62,7 @@ public class SqLiteMigrations implements SqlMigrations {
                 }
             }
         } catch (SQLException e) {
-            Bukkit.getLogger().severe("    > Failure executing migrations: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -75,11 +70,9 @@ public class SqLiteMigrations implements SqlMigrations {
         try (Connection connect = SqlLiteConnection.connect();
              Statement stmt = connect.createStatement()) {
             ResultSet resultSet = stmt.executeQuery("SELECT max(version) as max from migrations");
-            int max = resultSet.next() ? resultSet.getInt("max") : 0;
-            TradeSystem.log("    > Latest migration version = " + max);
-            return max;
+            return resultSet.next() ? resultSet.getInt("max") : 0;
         } catch (SQLException e) {
-            Bukkit.getLogger().severe("    > Failure retrieving max migration version: " + e.getMessage());
+            e.printStackTrace();
         }
         return 0;
     }

@@ -3,11 +3,10 @@ package de.codingair.tradesystem.tradelog;
 import java.time.LocalDateTime;
 
 public class TradeLog {
-
-    private String player1Name;
-    private String player2Name;
-    private String message;
-    private LocalDateTime timestamp;
+    private final String player1Name;
+    private final String player2Name;
+    private final String message;
+    private final LocalDateTime timestamp;
 
     public TradeLog(String player1Name, String player2Name, String message, LocalDateTime timestamp) {
         this.player1Name = player1Name;

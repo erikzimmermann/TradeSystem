@@ -19,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -338,8 +337,8 @@ public class TradeCMD extends CommandBuilder {
             }
         };
 
-        l.add(new Invite(p.getName()), TradeSystem.getInstance().getTradeManager().getCooldown());
-        TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getCooldown() * 1000);
+        l.add(new Invite(p.getName()), (long) TradeSystem.getInstance().getTradeManager().getRequestExpirationTime() * 1000L);
+        TradeSystem.getInstance().getTradeCMD().getInvites().put(other.getName(), l, TradeSystem.getInstance().getTradeManager().getRequestExpirationTime() * 1000);
 
         TextComponent base = new TextComponent(Lang.getPrefix() + Lang.get("Want_To_Trade", p).replace("%player%", p.getName()));
         base.setColor(ChatColor.GRAY);

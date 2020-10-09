@@ -47,11 +47,11 @@ public class MySQLConnection {
 
     private static void getDataSource() throws SQLException {
         if(connection == null) {
-            String host = config.getString("TradeSystem.Database.Db_host");
-            int port = config.getInt("TradeSystem.Database.Db_port");
-            String db = config.getString("TradeSystem.Database.Db_name");
-            String user = config.getString("TradeSystem.Database.Db_user");
-            String password = config.getString("TradeSystem.Database.Db_password");
+            String host = config.getString("TradeSystem.Tradelog.Database.Db_host");
+            int port = config.getInt("TradeSystem.Tradelog.Database.Db_port");
+            String db = config.getString("TradeSystem.Tradelog.Database.Db_name");
+            String user = config.getString("TradeSystem.Tradelog.Database.Db_user");
+            String password = config.getString("TradeSystem.Tradelog.Database.Db_password");
             if(password != null && password.equalsIgnoreCase("null")) password = null;
 
             connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db + "?autoReconnect=true&useSSL=false", user, password);

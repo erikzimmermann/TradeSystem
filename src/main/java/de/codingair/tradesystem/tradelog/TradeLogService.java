@@ -5,18 +5,15 @@ import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TradeLogService {
-
     private static TradeLogService instance;
-
-    private TradeLogRepository tradeLogRepository = TradeSystem.getInstance().getTradeLogRepository();
+    private final TradeLogRepository tradeLogRepository = TradeSystem.getInstance().getTradeLogRepository();
 
     public static TradeLogService getTradeLog() {
-        if (instance == null) {
-            instance = new TradeLogService();
-        }
+        if(instance == null) instance = new TradeLogService();
         return instance;
     }
 
@@ -24,12 +21,15 @@ public class TradeLogService {
     }
 
     public void log(Player player1, Player player2, String message) {
+        if(tradeLogRepository == null) return;
+
         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
             tradeLogRepository.log(player1, player2, message);
         });
     }
 
     public List<TradeLog> getLogMessages(String playerName) {
+        if(tradeLogRepository == null) return new ArrayList<>();
         return tradeLogRepository.getLogMessages(playerName);
     }
 

@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>tradesystem</artifactId>
-    <version>1.1.11_Hotfix-1</version>
+    <version>1.2.1_Hotfix-1</version>
 
     <repositories>
         <repository>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>com.github.CodingAir</groupId>
             <artifactId>CodingAPI</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>net.ess3</groupId>
