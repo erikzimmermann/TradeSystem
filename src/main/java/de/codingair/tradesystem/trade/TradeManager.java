@@ -80,7 +80,7 @@ public class TradeManager {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
             countdownInterval = config.getInt("TradeSystem.Trade_Countdown.Interval");
         } else {
-            countdownRepetitions = countdownInterval = 0;
+            countdownRepetitions = (countdownInterval = 0);
         }
 
         moneyShortcuts.clear();
