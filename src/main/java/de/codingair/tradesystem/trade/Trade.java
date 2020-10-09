@@ -313,7 +313,7 @@ public class Trade {
                         if(i0.getAmount() > 0) player1.getInventory().addItem(i0);
                         Environment.dropItem(toDrop, player1);
                     }
-                    getTradeLog().log(player1, player2, player1.getName() + " received item " + i0.getAmount() + " " + i0.getType());
+                    getTradeLog().log(player1, player2, player1.getName() + " received " + i0.getAmount() + "x " + i0.getType());
                 }
 
                 if(i1 != null && !i1.getType().equals(Material.AIR)) {
@@ -328,7 +328,7 @@ public class Trade {
                         if(i1.getAmount() > 0) player2.getInventory().addItem(i1);
                         Environment.dropItem(toDrop, player2);
                     }
-                    getTradeLog().log(player1, player2, player2.getName() + " received item " + i1.getAmount() + " " + i1.getType());
+                    getTradeLog().log(player1, player2, player2.getName() + " received " + i1.getAmount() + "x " + i1.getType());
                 }
             }
 
@@ -340,19 +340,19 @@ public class Trade {
             double diff = -money[0] + money[1];
             if(diff < 0) {
                 p0.withdraw(-diff);
-                getTradeLog().log(player1, player2, player1 + " payed " + diff);
+                getTradeLog().log(player1, player2, player1 + " payed money: " + diff);
             } else if(diff > 0) {
                 p0.deposit(diff);
-                getTradeLog().log(player1, player2, player1 + " received " + diff);
+                getTradeLog().log(player1, player2, player1 + " received money: " + diff);
             }
 
             diff = -money[1] + money[0];
             if(diff < 0) {
                 p1.withdraw(-diff);
-                getTradeLog().log(player1, player2, player2 + " payed " + diff);
+                getTradeLog().log(player1, player2, player2 + " payed money: " + diff);
             } else if(diff > 0) {
                 p1.deposit(diff);
-                getTradeLog().log(player1, player2, player2 + " received " + diff);
+                getTradeLog().log(player1, player2, player2 + " received money: " + diff);
             }
 
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
