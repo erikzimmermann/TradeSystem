@@ -3,7 +3,6 @@ package de.codingair.tradesystem.trade;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.server.Environment;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.TradeSystem;
@@ -132,7 +131,7 @@ public class Trade {
         if(this.guis[0] == null || this.guis[1] == null) return;
 
         for(Integer slot : this.slots) {
-            if(this.guis[0].getItem(slot) != null && !this.guis[0].getItem(slot).getType().equals(Material.AIR)) {
+            if(this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
                 ItemStack item = this.guis[0].getItem(slot);
                 int i = fit(this.players[0], item);
 
@@ -142,10 +141,10 @@ public class Trade {
                 }
                 if(i > 0) {
                     item.setAmount(i);
-                    Environment.dropItem(item, players[0]);
+                    dropItem(players[0], item);
                 }
             }
-            if(this.guis[1].getItem(slot) != null && !this.guis[1].getItem(slot).getType().equals(Material.AIR)) {
+            if(this.guis[1].getItem(slot) != null && this.guis[1].getItem(slot).getType() != Material.AIR) {
                 ItemStack item = this.guis[1].getItem(slot);
                 int i = fit(this.players[1], item);
 
@@ -155,14 +154,14 @@ public class Trade {
                 }
                 if(i > 0) {
                     item.setAmount(i);
-                    Environment.dropItem(item, players[1]);
+                    dropItem(players[1], item);
                 }
             }
         }
 
         for(int i = 0; i < 2; i++) {
             ItemStack item = this.players[i].getOpenInventory().getCursor();
-            if(item != null) {
+            if(item != null && item.getType() != Material.AIR) {
                 int fit = fit(this.players[i], item.clone());
 
                 if(item.getAmount() > fit) {
@@ -171,7 +170,7 @@ public class Trade {
                 }
                 if(fit > 0) {
                     item.setAmount(fit);
-                    Environment.dropItem(item, players[i]);
+                    dropItem(players[i], item);
                 }
 
                 this.players[i].getOpenInventory().setCursor(null);
@@ -216,6 +215,16 @@ public class Trade {
                 }
             }
         }, TradeSystem.getInstance());
+    }
+
+    private void dropItem(Player player, ItemStack itemStack) {
+        if (player == null || itemStack == null || itemStack.getType() == Material.AIR) return;
+        player.getWorld().dropItem(player.getLocation(), itemStack);
+
+        String msg = Lang.get("Item_Dropped", player)
+                .replace("%amount%", String.valueOf(itemStack.getAmount()))
+                .replace("%item%", itemStack.getType().name());
+        player.sendMessage(msg);
     }
 
     private boolean canPickup(Player player, ItemStack item) {
@@ -301,32 +310,36 @@ public class Trade {
                 guis[1].setItem(slot, null);
                 guis[0].setItem(slot, null);
 
-                if(i0 != null && !i0.getType().equals(Material.AIR)) {
+                if(i0 != null && i0.getType() != Material.AIR) {
                     int rest = fit(player1, i0);
 
                     if(rest <= 0) {
                         player1.getInventory().addItem(i0);
                     } else {
-                        ItemStack toDrop = new ItemBuilder(i0).setAmount(rest).getItem();
-                        i0.setAmount(i0.getAmount() - rest);
+                        ItemStack toDrop = i0.clone();
+                        toDrop.setAmount(rest);
 
+                        i0.setAmount(i0.getAmount() - rest);
                         if(i0.getAmount() > 0) player1.getInventory().addItem(i0);
-                        Environment.dropItem(toDrop, player1);
+
+                        dropItem(player1, toDrop);
                     }
                     getTradeLog().log(player1, player2, player1.getName() + " received " + i0.getAmount() + "x " + i0.getType());
                 }
 
-                if(i1 != null && !i1.getType().equals(Material.AIR)) {
+                if(i1 != null && i1.getType() != Material.AIR) {
                     int rest = fit(player2, i1);
 
                     if(rest <= 0) {
                         player2.getInventory().addItem(i1);
                     } else {
-                        ItemStack toDrop = new ItemBuilder(i1).setAmount(rest).getItem();
-                        i1.setAmount(i1.getAmount() - rest);
+                        ItemStack toDrop = i1.clone();
+                        toDrop.setAmount(rest);
 
+                        i1.setAmount(i1.getAmount() - rest);
                         if(i1.getAmount() > 0) player2.getInventory().addItem(i1);
-                        Environment.dropItem(toDrop, player2);
+
+                        dropItem(player2, toDrop);
                     }
                     getTradeLog().log(player1, player2, player2.getName() + " received " + i1.getAmount() + "x " + i1.getType());
                 }
