@@ -130,6 +130,7 @@ public class Trade {
         stopListeners();
         if(this.guis[0] == null || this.guis[1] == null) return;
 
+        boolean[] droppedItems = new boolean[]{ false, false };
         for(Integer slot : this.slots) {
             if(this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
                 ItemStack item = this.guis[0].getItem(slot);
@@ -141,7 +142,7 @@ public class Trade {
                 }
                 if(i > 0) {
                     item.setAmount(i);
-                    dropItem(players[0], item);
+                    droppedItems[0] |= dropItem(players[0], item);
                 }
             }
             if(this.guis[1].getItem(slot) != null && this.guis[1].getItem(slot).getType() != Material.AIR) {
@@ -154,7 +155,7 @@ public class Trade {
                 }
                 if(i > 0) {
                     item.setAmount(i);
-                    dropItem(players[1], item);
+                    droppedItems[1] |= dropItem(players[1], item);
                 }
             }
         }
@@ -170,7 +171,7 @@ public class Trade {
                 }
                 if(fit > 0) {
                     item.setAmount(fit);
-                    dropItem(players[i], item);
+                    droppedItems[i] |= dropItem(players[i], item);
                 }
 
                 this.players[i].getOpenInventory().setCursor(null);
@@ -188,6 +189,12 @@ public class Trade {
             getTradeLog().log(players[0], players[1], "Trade Cancelled");
             this.players[0].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[0]));
             this.players[1].sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", this.players[1]));
+        }
+
+        for (int i = 0; i < droppedItems.length; i++) {
+            if (droppedItems[i]) {
+                this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
+            }
         }
 
         TradeSystem.man().playCancelSound(this.players[0]);
@@ -217,14 +224,10 @@ public class Trade {
         }, TradeSystem.getInstance());
     }
 
-    private void dropItem(Player player, ItemStack itemStack) {
-        if (player == null || itemStack == null || itemStack.getType() == Material.AIR) return;
+    private boolean dropItem(Player player, ItemStack itemStack) {
+        if (player == null || itemStack == null || itemStack.getType() == Material.AIR) return false;
         player.getWorld().dropItem(player.getLocation(), itemStack);
-
-        String msg = Lang.get("Item_Dropped", player)
-                .replace("%amount%", String.valueOf(itemStack.getAmount()))
-                .replace("%item%", itemStack.getType().name());
-        player.sendMessage(msg);
+        return true;
     }
 
     private boolean canPickup(Player player, ItemStack item) {
@@ -302,6 +305,7 @@ public class Trade {
             guis[0].pause = true;
             guis[1].pause = true;
 
+            boolean[] droppedItems = new boolean[]{ false, false };
             for(Integer slot : slots) {
                 //using original one to prevent dupe glitches!!!
                 ItemStack i0 = guis[1].getItem(slot);
@@ -322,7 +326,7 @@ public class Trade {
                         i0.setAmount(i0.getAmount() - rest);
                         if(i0.getAmount() > 0) player1.getInventory().addItem(i0);
 
-                        dropItem(player1, toDrop);
+                        droppedItems[0] |= dropItem(player1, toDrop);
                     }
                     getTradeLog().log(player1, player2, player1.getName() + " received " + i0.getAmount() + "x " + i0.getType());
                 }
@@ -339,7 +343,7 @@ public class Trade {
                         i1.setAmount(i1.getAmount() - rest);
                         if(i1.getAmount() > 0) player2.getInventory().addItem(i1);
 
-                        dropItem(player2, toDrop);
+                        droppedItems[1] |= dropItem(player2, toDrop);
                     }
                     getTradeLog().log(player1, player2, player2.getName() + " received " + i1.getAmount() + "x " + i1.getType());
                 }
@@ -370,6 +374,12 @@ public class Trade {
 
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
             player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));
+
+            for (int i = 0; i < droppedItems.length; i++) {
+                if (droppedItems[i]) {
+                    this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
+                }
+            }
             getTradeLog().log(player1, player2, "Trade Finished");
 
             TradeSystem.man().playFinishSound(player1);
