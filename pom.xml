@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>tradesystem</artifactId>
-    <version>1.2.1_Hotfix-1</version>
+    <version>1.2.1_Hotfix-2</version>
 
     <repositories>
         <repository>
@@ -61,6 +61,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.3</version>
+
+                <configuration>
+                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                    <relocations>
+                        <relocation>
+                            <pattern>de.codingair.codingapi</pattern>
+                            <shadedPattern>de.codingair.tradesystem.codingapi</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -69,14 +80,6 @@
                         </goals>
                     </execution>
                 </executions>
-
-                <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>com.github.CodingAir:CodingAPI</include>
-                        </includes>
-                    </artifactSet>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -91,7 +94,8 @@
         <dependency>
             <groupId>com.github.CodingAir</groupId>
             <artifactId>CodingAPI</artifactId>
-            <version>1.5</version>
+            <version>1.7</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.ess3</groupId>
