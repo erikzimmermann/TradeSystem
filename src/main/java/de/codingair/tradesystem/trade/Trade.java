@@ -389,7 +389,7 @@ public class Trade {
         int interval = TradeSystem.man().getCountdownInterval();
         int repetitions = TradeSystem.man().getCountdownRepetitions();
 
-        if(interval == 0 && repetitions == 0) runnable.run();
+        if(interval == 0 || repetitions == 0) runnable.run();
         else {
             this.countdown = new BukkitRunnable() {
                 @Override
