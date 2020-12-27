@@ -15,6 +15,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import java.util.UUID;
 
@@ -68,16 +69,14 @@ public class TradeListener implements Listener, ChatButtonListener {
     }
 
     @EventHandler
-    public void onPickup(EntityPickupItemEvent e) {
-        if(e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            Trade t = TradeSystem.man().getTrade(p);
+    public void onPickup(PlayerPickupItemEvent e) {
+        Player p = e.getPlayer();
+        Trade t = TradeSystem.man().getTrade(p);
 
-            if(t != null) {
-                if(!TradeSystem.man().isDropItems()) {
-                    //does it fit?
-                    if(!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
-                }
+        if(t != null) {
+            if(!TradeSystem.man().isDropItems()) {
+                //does it fit?
+                if(!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
             }
         }
     }
