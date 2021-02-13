@@ -439,6 +439,7 @@ public class Trade {
     }
 
     private void callTradeEvent(Player receiver, Player sender, ItemStack item) {
+        if(item == null) return;
         TradeItemEvent event = new TradeItemEvent(receiver, sender, item);
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.callEvent(event);
