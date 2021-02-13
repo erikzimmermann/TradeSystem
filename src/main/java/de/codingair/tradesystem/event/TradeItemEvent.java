@@ -25,9 +25,9 @@ public class TradeItemEvent extends Event {
     /**
      * @param receiver The player who received the item.
      * @param sender The player who gave their item away.
-     * @param item The item.
+     * @param item The item being transferred.
      */
-    public TradeItemEvent(Player receiver, org.bukkit.entity.Player sender, ItemStack item) {
+    public TradeItemEvent(Player receiver, Player sender, ItemStack item) {
         this.receiver = Objects.requireNonNull(receiver, "receiver must not be null!");
         this.sender = Objects.requireNonNull(sender, "sender must not be null!");
         this.item = Objects.requireNonNull(item, "item must not be null!");
@@ -39,14 +39,23 @@ public class TradeItemEvent extends Event {
         return getHandlerList();
     }
 
+    /**
+     * @return The player who received the item.
+     */
     public Player getReceiver() {
         return this.receiver;
     }
 
+    /**
+     * @return The player who gave their item away.
+     */
     public Player getSender() {
         return this.sender;
     }
 
+    /**
+     * @return The item being transferred.
+     */
     public ItemStack getItem() {
         return this.item;
     }
