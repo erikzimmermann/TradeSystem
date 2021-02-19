@@ -1,16 +1,10 @@
 package de.codingair.tradesystem.trade;
 
-import de.codingair.codingapi.API;
-import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
-import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.tools.items.ItemBuilder;
-import de.codingair.codingapi.tools.items.XMaterial;
-import de.codingair.tradesystem.TradeSystem;
-import de.codingair.tradesystem.trade.layout.Function;
-import de.codingair.tradesystem.trade.layout.Item;
-import de.codingair.tradesystem.trade.layout.utils.Pattern;
-import de.codingair.tradesystem.utils.Lang;
-import de.codingair.tradesystem.utils.Profile;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,12 +13,21 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import de.codingair.codingapi.API;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
+import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
+import de.codingair.codingapi.tools.items.ItemBuilder;
+import de.codingair.codingapi.tools.items.XMaterial;
+import de.codingair.tradesystem.TradeSystem;
+import de.codingair.tradesystem.event.TradeItemEvent;
+import de.codingair.tradesystem.trade.layout.Function;
+import de.codingair.tradesystem.trade.layout.Item;
+import de.codingair.tradesystem.trade.layout.utils.Pattern;
+import de.codingair.tradesystem.utils.Lang;
+import de.codingair.tradesystem.utils.Profile;
 
 import static de.codingair.tradesystem.tradelog.TradeLogService.getTradeLog;
 
@@ -318,6 +321,7 @@ public class Trade {
                     int rest = fit(player1, i0);
 
                     if(rest <= 0) {
+                        callTradeEvent(player1, player2, i0);
                         player1.getInventory().addItem(i0);
                     } else {
                         ItemStack toDrop = i0.clone();
@@ -335,6 +339,7 @@ public class Trade {
                     int rest = fit(player2, i1);
 
                     if(rest <= 0) {
+                        callTradeEvent(player2, player1, i0);
                         player2.getInventory().addItem(i1);
                     } else {
                         ItemStack toDrop = i1.clone();
@@ -431,6 +436,13 @@ public class Trade {
 
             this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
         }
+    }
+
+    private void callTradeEvent(Player receiver, Player sender, ItemStack item) {
+        if(item == null) return;
+        TradeItemEvent event = new TradeItemEvent(receiver, sender, item);
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.callEvent(event);
     }
 
     public boolean isFinished() {
