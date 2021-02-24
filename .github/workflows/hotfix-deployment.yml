@@ -19,16 +19,14 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: |
-        cd ./TradeSystem
         mvn clean package
-        cd ../
     - name: Deploy
       run: |
         rank="<@&793495434235609138>"
         milestone=15
         
         upload() {
-            file=$(find "./TradeSystem/target" -type f -name "TradeSystem_v*.jar" | head -n 1)
+            file=$(find "./target" -type f -name "TradeSystem_v*.jar" | head -n 1)
             name=${file##*/}
             name=${name[@]//.jar/}
             info=${name##*_}
