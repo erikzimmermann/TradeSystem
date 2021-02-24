@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.codingair</groupId>
-    <artifactId>tradesystem</artifactId>
+    <artifactId>TradeSystem</artifactId>
     <version>1.2.1_Hotfix-2</version>
 
     <repositories>
