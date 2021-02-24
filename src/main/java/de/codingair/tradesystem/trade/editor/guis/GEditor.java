@@ -25,9 +25,8 @@ import java.util.List;
 public class GEditor extends GUI {
     private final GMenu menu;
     private final Function function;
-    private boolean changed = false;
-
     private final Callback<List<Item>> callback;
+    private boolean changed = false;
 
     public GEditor(Player p, GMenu menu, Callback<List<Item>> callback) {
         this(p, menu, null, callback);
@@ -42,19 +41,19 @@ public class GEditor extends GUI {
         addListener(new GUIListener() {
             @Override
             public void onInvClickEvent(InventoryClickEvent e) {
-                if(!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
+                if (!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
 
-                if(function != null) {
-                    switch(function) {
+                if (function != null) {
+                    switch (function) {
                         case EMPTY_FIRST_TRADER:
                         case EMPTY_SECOND_TRADER:
-                            if(e.getCurrentItem() == null || e.getCurrentItem().getType().equals(Material.AIR) || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_FIRST_TRADER || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_SECOND_TRADER) {
+                            if (e.getCurrentItem() == null || e.getCurrentItem().getType().equals(Material.AIR) || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_FIRST_TRADER || menu.getActionIcon(e.getSlot(), false).getFunction() == Function.EMPTY_SECOND_TRADER) {
                                 e.setCancelled(false);
 
-                                switch(e.getAction()) {
+                                switch (e.getAction()) {
                                     case COLLECT_TO_CURSOR:
-                                        for(Item item : menu.getItems()) {
-                                            if(item.getFunction() == function) item.setFunction(null);
+                                        for (Item item : menu.getItems()) {
+                                            if (item.getFunction() == function) item.setFunction(null);
                                         }
                                         break;
 
@@ -84,13 +83,13 @@ public class GEditor extends GUI {
                         default:
                             Item item = menu.getActionIcon(e.getSlot(), false);
 
-                            if(item.getItem().getType() == Material.AIR) {
+                            if (item.getItem().getType() == Material.AIR) {
                                 getPlayer().sendMessage(Lang.getPrefix() + "§c" + Lang.get("Editor_No_Item", p));
                                 return;
                             }
 
                             Item old = menu.getItem(function);
-                            if(old != null) old.setFunction(null);
+                            if (old != null) old.setFunction(null);
 
                             item.setFunction(function);
                             menu.reinitialize();
@@ -99,19 +98,19 @@ public class GEditor extends GUI {
                             break;
                     }
                 } else {
-                    if((e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) || (e.getCursor() != null && e.getCursor().getType() != Material.AIR) && !e.isCancelled())
+                    if ((e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) || (e.getCursor() != null && e.getCursor().getType() != Material.AIR) && !e.isCancelled())
                         changed = true;
                 }
             }
 
             @Override
             public void onInvOpenEvent(InventoryOpenEvent e) {
-                if(function != null) {
-                    switch(function) {
+                if (function != null) {
+                    switch (function) {
                         case EMPTY_FIRST_TRADER:
                             int amount = 25 - menu.getAmountOf(Function.EMPTY_FIRST_TRADER);
 
-                            if(amount > 0) {
+                            if (amount > 0) {
                                 e.getView().setCursor(new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).setAmount(amount).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideName(true).setHideEnchantments(true).getItem());
                                 getPlayer().updateInventory();
                             }
@@ -119,7 +118,7 @@ public class GEditor extends GUI {
                         case EMPTY_SECOND_TRADER:
                             amount = 25 - menu.getAmountOf(Function.EMPTY_SECOND_TRADER);
 
-                            if(amount > 0) {
+                            if (amount > 0) {
                                 e.getView().setCursor(new ItemBuilder(XMaterial.WHITE_STAINED_GLASS_PANE).setAmount(amount).addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideName(true).setHideEnchantments(true).getItem());
                                 getPlayer().updateInventory();
                             }
@@ -130,18 +129,18 @@ public class GEditor extends GUI {
 
             @Override
             public void onInvCloseEvent(InventoryCloseEvent e) {
-                if(function == null) {
+                if (function == null) {
                     List<Item> items = new ArrayList<>();
 
-                    for(int i = 0; i < 54; i++) {
+                    for (int i = 0; i < 54; i++) {
                         items.add(new Item(i, getItem(i), null));
                     }
 
                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
-                        if(changed) callback.accept(items);
+                        if (changed) callback.accept(items);
                         else callback.accept(null);
                     });
-                } else if(function == Function.EMPTY_FIRST_TRADER || function == Function.EMPTY_SECOND_TRADER) {
+                } else if (function == Function.EMPTY_FIRST_TRADER || function == Function.EMPTY_SECOND_TRADER) {
                     e.getView().setCursor(new ItemStack(Material.AIR));
 
                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
@@ -149,7 +148,7 @@ public class GEditor extends GUI {
                         menu.setChanged(true);
                         changeGUI(menu);
                     });
-                } else if(!GEditor.this.isClosingByOperation() && !GEditor.this.isClosingByButton()) {
+                } else if (!GEditor.this.isClosingByOperation() && !GEditor.this.isClosingByButton()) {
                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
                         menu.reinitialize();
                         changeGUI(menu);
@@ -159,25 +158,25 @@ public class GEditor extends GUI {
 
             @Override
             public void onInvDragEvent(InventoryDragEvent e) {
-                if(function != null) {
-                    switch(function) {
+                if (function != null) {
+                    switch (function) {
                         case EMPTY_FIRST_TRADER:
                         case EMPTY_SECOND_TRADER:
                             boolean correct = true;
-                            for(Integer i : e.getRawSlots()) {
-                                if(i > 53) {
+                            for (Integer i : e.getRawSlots()) {
+                                if (i > 53) {
                                     correct = false;
                                     break;
                                 }
                             }
 
                             e.setCancelled(true);
-                            if(!correct) return;
+                            if (!correct) return;
                             e.setCancelled(false);
 
-                            for(Integer i : e.getRawSlots()) {
+                            for (Integer i : e.getRawSlots()) {
                                 Item item = menu.getActionIcon(i, false);
-                                if(item == null) continue;
+                                if (item == null) continue;
                                 item.setFunction(function);
                             }
 
@@ -204,16 +203,16 @@ public class GEditor extends GUI {
         setMoveOwnItems(function == null);
         setCanDropItems(false);
 
-        for(Item item : menu.getItems()) {
-            if(function == null) {
-                if(item.getFunction() != null && (item.getFunction() == Function.EMPTY_FIRST_TRADER || item.getFunction() == Function.EMPTY_SECOND_TRADER || item.getFunction().isAmbiguous()))
+        for (Item item : menu.getItems()) {
+            if (function == null) {
+                if (item.getFunction() != null && (item.getFunction() == Function.EMPTY_FIRST_TRADER || item.getFunction() == Function.EMPTY_SECOND_TRADER || item.getFunction().isAmbiguous()))
                     continue;
                 setItem(item.getSlot(), item.getItem());
             } else {
-                if(item.getFunction() == null) {
+                if (item.getFunction() == null) {
                     setItem(item.getSlot(), item.getItem());
                 } else {
-                    switch(item.getFunction()) {
+                    switch (item.getFunction()) {
                         case DECORATION:
                             setItem(item.getSlot(), new ItemBuilder(item.getItem()).setHideName(true).getItem());
                             break;

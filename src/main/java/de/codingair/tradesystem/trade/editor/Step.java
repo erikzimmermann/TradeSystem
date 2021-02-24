@@ -11,8 +11,8 @@ public enum Step {
     public Step getNext() {
         int current = 0;
 
-        for(Step step : values()) {
-            if(step == this) break;
+        for (Step step : values()) {
+            if (step == this) break;
             current++;
         }
 
@@ -22,8 +22,8 @@ public enum Step {
     public Step getPrevious() {
         int current = 0;
 
-        for(Step step : values()) {
-            if(step == this) break;
+        for (Step step : values()) {
+            if (step == this) break;
             current++;
         }
 

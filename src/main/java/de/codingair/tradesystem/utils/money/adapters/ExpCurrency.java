@@ -30,4 +30,9 @@ public class ExpCurrency implements Adapter {
         player.setLevel(level);
         player.setExp(exp);
     }
+
+    @Override
+    public boolean valid() {
+        return true;
+    }
 }

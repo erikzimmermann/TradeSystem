@@ -54,12 +54,12 @@ public class GMenu extends GUI {
         this.menu = page == null ? Menu.MAIN : page;
         setMoveOwnItems(true);
 
-        if(pattern != null) {
+        if (pattern != null) {
             this.editing = pattern;
             this.name = pattern.getName();
             this.items = new ArrayList<>(pattern.getItems());
         } else {
-            for(int i = 0; i < 54; i++) {
+            for (int i = 0; i < 54; i++) {
                 this.items.add(new Item(i, new ItemStack(Material.AIR), null));
             }
         }
@@ -77,10 +77,10 @@ public class GMenu extends GUI {
 
             @Override
             public void onInvCloseEvent(InventoryCloseEvent e) {
-                if(isClosingByButton() || isClosingByOperation() || !changed) return;
+                if (isClosingByButton() || isClosingByOperation() || !changed) return;
 
                 Sound.UI_BUTTON_CLICK.playSound(getPlayer());
-                if(menu != Menu.CLOSE) menu = menu == Menu.MAIN ? Menu.CLOSE : Menu.MAIN;
+                if (menu != Menu.CLOSE) menu = menu == Menu.MAIN ? Menu.CLOSE : Menu.MAIN;
 
                 reinitialize(menu == Menu.CLOSE ? Lang.get("Layout_Confirm_Close", p) : getTitle());
                 Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> open(), 1);
@@ -132,7 +132,7 @@ public class GMenu extends GUI {
         setItem(7, 1, gray);
         setItem(7, 2, gray);
 
-        if(menu == Menu.MAIN) {
+        if (menu == Menu.MAIN) {
             boolean ready = ready();
 
             ItemBuilder builder = new ItemBuilder(ready ? XMaterial.LIME_TERRACOTTA : XMaterial.RED_TERRACOTTA)
@@ -145,17 +145,17 @@ public class GMenu extends GUI {
 
             builder.addText("");
 
-            if(ready) {
+            if (ready) {
                 builder.addText("§8» §a" + Lang.get("Save", p));
 
                 addButton(new ItemButton(4, builder.getItem()) {
                     @Override
                     public void onClick(InventoryClickEvent e) {
-                        for(Item item : items) {
-                            if(item.getFunction() == null) item.setFunction(Function.DECORATION);
+                        for (Item item : items) {
+                            if (item.getFunction() == null) item.setFunction(Function.DECORATION);
                         }
 
-                        if(editing == null) {
+                        if (editing == null) {
                             AbstractPattern ap = new AbstractPattern(items, name);
                             TradeSystem.getInstance().getLayoutManager().addPattern(ap);
                             TradeSystem.getInstance().getLayoutManager().setAvailable(name, true);
@@ -172,26 +172,26 @@ public class GMenu extends GUI {
                 builder.addText("§8» " + Lang.get("Not_Ready_For_Saving", p));
                 setItem(4, builder.getItem());
             }
-        } else if(menu != Menu.CLOSE) {
+        } else if (menu != Menu.CLOSE) {
             addButton(new ItemButton(4, new ItemBuilder(Head.CYAN_ARROW_LEFT.getItem()).setName("§7» §b" + Lang.get("Back", p)).setHideName(false).getItem()) {
                 @Override
                 public void onClick(InventoryClickEvent e) {
-                    if(menu == Menu.AMBIGUOUS_FUNCTIONS) {
+                    if (menu == Menu.AMBIGUOUS_FUNCTIONS) {
                         int slot = 11;
-                        if(GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
+                        if (GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
                             Item item = GMenu.this.getItem(Function.PICK_STATUS_NOT_READY);
-                            if(item != null) items.remove(item);
+                            if (item != null) items.remove(item);
                             items.add(new Item(GMenu.this.getItem(Function.PICK_STATUS_NONE).getSlot(), GMenu.this.getItem(slot), Function.PICK_STATUS_NOT_READY));
                             changed = true;
                         }
 
                         slot = 15;
-                        if(GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
+                        if (GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
                             Item item = GMenu.this.getItem(Function.MONEY_REPLACEMENT);
-                            if(item != null) items.remove(item);
+                            if (item != null) items.remove(item);
 
                             item = GMenu.this.getItem(Function.MONEY_REPLACEMENT);
-                            if(item != null) items.remove(item);
+                            if (item != null) items.remove(item);
 
                             items.add(new Item(GMenu.this.getItem(Function.PICK_MONEY).getSlot(), GMenu.this.getItem(slot), Function.MONEY_REPLACEMENT));
                             items.add(new Item(GMenu.this.getItem(Function.SHOW_MONEY).getSlot(), GMenu.this.getItem(slot), Function.MONEY_REPLACEMENT));
@@ -199,17 +199,17 @@ public class GMenu extends GUI {
                         }
 
                         slot = 20;
-                        if(GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
+                        if (GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
                             Item item = GMenu.this.getItem(Function.PICK_STATUS_READY);
-                            if(item != null) items.remove(item);
+                            if (item != null) items.remove(item);
                             items.add(new Item(GMenu.this.getItem(Function.PICK_STATUS_NONE).getSlot(), GMenu.this.getItem(slot), Function.PICK_STATUS_READY));
                             changed = true;
                         }
 
                         slot = 24;
-                        if(GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
+                        if (GMenu.this.getItem(slot) != null && GMenu.this.getItem(slot).getType() != Material.AIR) {
                             Item item = GMenu.this.getItem(Function.SHOW_STATUS_READY);
-                            if(item != null) items.remove(item);
+                            if (item != null) items.remove(item);
                             items.add(new Item(GMenu.this.getItem(Function.SHOW_STATUS_NOT_READY).getSlot(), GMenu.this.getItem(slot), Function.SHOW_STATUS_READY));
                             changed = true;
                         }
@@ -224,10 +224,10 @@ public class GMenu extends GUI {
 
         setEditableSlots(false, 11, 15, 20, 24);
 
-        switch(menu) {
+        switch (menu) {
             case MAIN:
                 ItemBuilder builder = new ItemBuilder(XMaterial.BEACON).setText("§8» §b" + Lang.get("Layout_Set_Items", p));
-                if(!itemsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+                if (!itemsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 addButton(new ItemButton(2, 2, builder.getItem()) {
                     @Override
@@ -235,12 +235,12 @@ public class GMenu extends GUI {
                         changeGUI(new GEditor(p, GMenu.this, new Callback<List<Item>>() {
                             @Override
                             public void accept(List<Item> list) {
-                                if(list != null && !list.isEmpty()) {
-                                    for(int i = 0; i < 54; i++) {
+                                if (list != null && !list.isEmpty()) {
+                                    for (int i = 0; i < 54; i++) {
                                         Item base = getItemOf(GMenu.this.items, i);
                                         Item toCompare = GMenu.this.getItemOf(list, i);
 
-                                        if((base.getItem() == null && toCompare.getItem() != null) || !base.getItem().isSimilar(toCompare.getItem())) {
+                                        if ((base.getItem() == null && toCompare.getItem() != null) || !base.getItem().isSimilar(toCompare.getItem())) {
                                             GMenu.this.items.remove(base);
                                             GMenu.this.items.add(toCompare);
                                             changed = true;
@@ -256,18 +256,18 @@ public class GMenu extends GUI {
                 }.setOption(option));
 
                 builder = new ItemBuilder(XMaterial.NAME_TAG).setText("§8» §b" + Lang.get("Layout_Set_Name", p));
-                if(!nameReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+                if (!nameReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 ItemBuilder finalBuilder = builder;
-                addButton(new SyncAnvilGUIButton(3,2) {
+                addButton(new SyncAnvilGUIButton(3, 2) {
                     @Override
                     public void onClick(AnvilClickEvent e) {
-                        if(TradeSystem.getInstance().getLayoutManager().getPattern(e.getInput()) != null) {
+                        if (TradeSystem.getInstance().getLayoutManager().getPattern(e.getInput()) != null) {
                             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Layout_Name_Already_Exists", p));
                             return;
                         }
 
-                        if(e.getInput().contains(" ")) {
+                        if (e.getInput().contains(" ")) {
                             p.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Name_Space", p));
                             return;
                         }
@@ -294,9 +294,9 @@ public class GMenu extends GUI {
                 });
 
                 builder = new ItemBuilder(XMaterial.REDSTONE).setText("§8» §b" + Lang.get("Layout_Set_Functions", p));
-                if(itemsReady() && !functionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+                if (itemsReady() && !functionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
-                if(itemsReady()) {
+                if (itemsReady()) {
                     addButton(new ItemButton(5, 2, builder.getItem()) {
                         @Override
                         public void onClick(InventoryClickEvent e) {
@@ -310,9 +310,9 @@ public class GMenu extends GUI {
                 }
 
                 builder = new ItemBuilder(XMaterial.COMPARATOR).setText("§8» §b" + Lang.get("Layout_Set_Ambiguous_Functions", p));
-                if(functionsReady() && !ambiguousFunctionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+                if (functionsReady() && !ambiguousFunctionsReady()) builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
-                if(functionsReady()) {
+                if (functionsReady()) {
                     addButton(new ItemButton(6, 2, builder.getItem()) {
                         @Override
                         public void onClick(InventoryClickEvent e) {
@@ -334,10 +334,10 @@ public class GMenu extends GUI {
                 setItem(7, 2, new ItemStack(Material.AIR));
 
                 int i = 0;
-                for(Function value : Function.values()) {
-                    if(value.isAmbiguous() || !value.isFunction()) continue;
+                for (Function value : Function.values()) {
+                    if (value.isAmbiguous() || !value.isFunction()) continue;
 
-                    switch(value) {
+                    switch (value) {
                         case PICK_MONEY:
                             builder = new ItemBuilder(XMaterial.SUNFLOWER).setName("§8» §b" + Lang.get("Layout_Set_Money", p));
                             break;
@@ -380,10 +380,10 @@ public class GMenu extends GUI {
                             continue;
                     }
 
-                    if(getItem(value) == null) {
+                    if (getItem(value) == null) {
                         builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
-                    } else if(value == Function.EMPTY_FIRST_TRADER || value == Function.EMPTY_SECOND_TRADER) {
-                        if(getAmountOf(Function.EMPTY_FIRST_TRADER) != getAmountOf(Function.EMPTY_SECOND_TRADER)) {
+                    } else if (value == Function.EMPTY_FIRST_TRADER || value == Function.EMPTY_SECOND_TRADER) {
+                        if (getAmountOf(Function.EMPTY_FIRST_TRADER) != getAmountOf(Function.EMPTY_SECOND_TRADER)) {
                             builder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
                         }
                     }
@@ -394,7 +394,7 @@ public class GMenu extends GUI {
                             changeGUI(new GEditor(p, GMenu.this, value, new Callback<List<Item>>() {
                                 @Override
                                 public void accept(List<Item> list) {
-                                    if(list != null && !list.isEmpty()) {
+                                    if (list != null && !list.isEmpty()) {
                                         GMenu.this.items.clear();
                                         GMenu.this.items.addAll(list);
                                         changed = true;
@@ -430,13 +430,13 @@ public class GMenu extends GUI {
                 setEditableSlots(true, 11, 15, 20, 24);
 
                 Item item = getItem(Function.PICK_STATUS_NOT_READY);
-                if(item != null) setItem(11, item.getItem());
+                if (item != null) setItem(11, item.getItem());
                 item = getItem(Function.PICK_STATUS_READY);
-                if(item != null) setItem(20, item.getItem());
+                if (item != null) setItem(20, item.getItem());
                 item = getItem(Function.MONEY_REPLACEMENT);
-                if(item != null) setItem(15, item.getItem());
+                if (item != null) setItem(15, item.getItem());
                 item = getItem(Function.SHOW_STATUS_READY);
-                if(item != null) setItem(24, item.getItem());
+                if (item != null) setItem(24, item.getItem());
                 break;
 
             case CLOSE:
@@ -462,32 +462,28 @@ public class GMenu extends GUI {
     }
 
     private Item getItemOf(List<Item> list, int slot) {
-        for(Item item : list) {
-            if(item.getFunction() != null && item.getFunction().isAmbiguous()) continue;
-            if(item.getSlot() == slot) return item;
+        for (Item item : list) {
+            if (item.getFunction() != null && item.getFunction().isAmbiguous()) continue;
+            if (item.getSlot() == slot) return item;
         }
 
         return null;
     }
 
-    public enum Menu {
-        MAIN, FUNCTIONS, AMBIGUOUS_FUNCTIONS, CLOSE
-    }
-
     private boolean itemsReady() {
         int physically = 0;
 
-        for(Item item : this.items) {
-            if(item.getItem() != null && item.getItem().getType() != Material.AIR) physically++;
+        for (Item item : this.items) {
+            if (item.getItem() != null && item.getItem().getType() != Material.AIR) physically++;
         }
 
         return physically >= 5;
     }
 
     private boolean functionsReady() {
-        for(Function f : Function.values()) {
-            if(!f.isFunction() || f.isAmbiguous()) continue;
-            if(getItem(f) == null) {
+        for (Function f : Function.values()) {
+            if (!f.isFunction() || f.isAmbiguous()) continue;
+            if (getItem(f) == null) {
                 return false;
             }
         }
@@ -496,9 +492,9 @@ public class GMenu extends GUI {
     }
 
     private boolean ambiguousFunctionsReady() {
-        for(Function f : Function.values()) {
-            if(!f.isAmbiguous()) continue;
-            if(getItem(f) == null) return false;
+        for (Function f : Function.values()) {
+            if (!f.isAmbiguous()) continue;
+            if (getItem(f) == null) return false;
         }
 
         return true;
@@ -509,17 +505,17 @@ public class GMenu extends GUI {
     }
 
     private boolean ready() {
-        if(!itemsReady()) return false;
-        if(!nameReady()) return false;
-        if(!ambiguousFunctionsReady()) return false;
+        if (!itemsReady()) return false;
+        if (!nameReady()) return false;
+        if (!ambiguousFunctionsReady()) return false;
         else return functionsReady();
     }
 
     public int getAmountOf(Function f) {
         int i = 0;
 
-        for(Item item : this.items) {
-            if(item.getFunction() == f) i++;
+        for (Item item : this.items) {
+            if (item.getFunction() == f) i++;
         }
 
         return i;
@@ -530,22 +526,22 @@ public class GMenu extends GUI {
     }
 
     public Item getItem(Function function) {
-        for(Item item : this.items) {
-            if(item.getFunction() == function) return item;
+        for (Item item : this.items) {
+            if (item.getFunction() == function) return item;
         }
 
         return null;
     }
 
     public Item getActionIcon(int slot, boolean ambiguous) {
-        for(Item item : this.items) {
-            if(ambiguous) {
-                if(item.getFunction() != null && item.getFunction().isAmbiguous()) {
-                    if(item.getSlot() == slot) return item;
+        for (Item item : this.items) {
+            if (ambiguous) {
+                if (item.getFunction() != null && item.getFunction().isAmbiguous()) {
+                    if (item.getSlot() == slot) return item;
                 }
             } else {
-                if(item.getFunction() == null || !item.getFunction().isAmbiguous()) {
-                    if(item.getSlot() == slot) return item;
+                if (item.getFunction() == null || !item.getFunction().isAmbiguous()) {
+                    if (item.getSlot() == slot) return item;
                 }
             }
         }
@@ -559,5 +555,9 @@ public class GMenu extends GUI {
 
     public void setChanged(boolean changed) {
         this.changed = changed;
+    }
+
+    public enum Menu {
+        MAIN, FUNCTIONS, AMBIGUOUS_FUNCTIONS, CLOSE
     }
 }

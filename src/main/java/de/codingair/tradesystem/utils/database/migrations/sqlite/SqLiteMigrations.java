@@ -13,7 +13,7 @@ public class SqLiteMigrations implements SqlMigrations {
 
     private static SqLiteMigrations instance;
     // Define all migrations in this list.
-    private static List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
+    private static final List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
 
     private SqLiteMigrations() {
     }

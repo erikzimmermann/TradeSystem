@@ -8,6 +8,7 @@ import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.tradelog.TradeLog;
 import de.codingair.tradesystem.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.utils.Lang;
+import de.codingair.tradesystem.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,10 +19,10 @@ import java.util.List;
 import static de.codingair.tradesystem.tradelog.TradeLogService.getTradeLog;
 
 public class TradeLogCMD extends CommandBuilder {
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/mm/YYYY - HH:mm:ss");
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
 
     public TradeLogCMD() {
-        super(TradeSystem.getInstance(), "tradelog", "Trade-Log-CMD", new BaseComponent(TradeSystem.PERMISSION_LOG) {
+        super(TradeSystem.getInstance(), "tradelog", "Trade-Log-CMD", new BaseComponent(Permissions.PERMISSION_LOG) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("No_Permissions"));
@@ -45,10 +46,10 @@ public class TradeLogCMD extends CommandBuilder {
 
 
         //LOG
-        getBaseComponent().addChild(new MultiCommandComponent(TradeSystem.PERMISSION_LOG) {
+        getBaseComponent().addChild(new MultiCommandComponent() {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(Player player : Bukkit.getOnlinePlayers()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     suggestions.add(player.getName());
                 }
             }

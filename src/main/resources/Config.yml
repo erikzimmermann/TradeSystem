@@ -7,8 +7,12 @@ TradeSystem:
   #If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
   Permissions: true
 
-  # Both traders have to add an item/money to finish the trade
+  #Command aliases for /trade
+  Trade_Aliases: []
+
+  #Both traders have to add an item/money to finish the trade
   Trade_Both: true
+  #Also means Exp trading
   Trade_with_money: true
   #Values: Vault, Essentials, Exp
   Economy_priority:
@@ -31,11 +35,11 @@ TradeSystem:
     Interval: 20
     Repetitions: 3
 
-  # true: After finishing a trade all overflowing items will be dropped, if the inventory is full
-  # false: Prevent the trade partner to put too much items into the gui
+  #true: After finishing a trade all overflowing items will be dropped, if the inventory is full
+  #false: Prevent the trade partner to put too much items into the gui
   Trade_Drop_Items: true
 
-  # In seconds (e.g. after <60> seconds the request will be expired)
+  #In seconds (e.g. after <60> seconds the request will be expired)
   Trade_Request_Expiration_Time: 60
 
   Action_To_Cancel:
@@ -58,7 +62,7 @@ TradeSystem:
       Value: 1000000
 
   #BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
-  # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
+  #WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
   Tradelog:
     Enabled: false
     Database:
@@ -70,7 +74,7 @@ TradeSystem:
       Db_user: root
       Db_password: password
 
-  # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
+  #Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:
     Trade_Started:
       Name: LEVEL_UP

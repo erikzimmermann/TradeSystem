@@ -1,0 +1,117 @@
+No_Permissions: '&c您没有该操作的权限!'
+No_Money: '&c你没有足够的钱!'
+Enter_Correct_Amount: '&c请输入一个有效的金额.'
+Only_X_Coins: '&c你只有%coins%块钱!'
+Only_1_Coin: '&c你仅剩%coins%块钱!'
+Trade_Was_Cancelled: '&c交易已取消！'
+Trade_Was_Finished: '&7交易已完成&7.'
+Cannot_Trade_With_Yourself: '&c你不能与自己交易.'
+Player_Not_Online: '&c该玩家未进入交易所.'
+Want_To_Trade: '&7玩家&c%player%&7想要和你交易. &8[%accept% &8| %deny%&8]'
+Want_To_Trade_Accept: '&a接受'
+Want_To_Trade_Deny: '&c拒绝'
+Want_To_Trade_Hover: '&8» 点击 «'
+Player_Is_Invited: '&7已邀请玩家&c%Player%&7.'
+Command_How_To: '&7使用: /trade <玩家名, accept, deny, toggle>进行交易'
+Command_How_To_Accept: '&7使用: /trade accept <玩家名>接受交易请求'
+Command_How_To_Deny: '&7使用: /trade deny <玩家名>拒绝交易请求'
+Player_Of_Request_Not_Online: '&c交易请求的玩家不在交易所!'
+Request_Accepted: '&7您已&a接受&7交易请求&7.'
+Request_Was_Accepted: '&7您对&c%player%&7发起的交易已被&a接受&7.'
+Request_Denied: '&7您已拒绝交易请求.'
+Request_Was_Denied: '&7您的交易请求被&c%player%&c拒绝&7.'
+No_Request_Found: '&c您尚未收到该玩家的任何交易请求!'
+No_Requests_Found: '&c您尚未收到任何交易请求!'
+Too_many_requests: '&c您有很多请求&7, 请指定交易玩家名称.'
+GUI_Title: '&c正在与&e%player%&c进行交易.%tradesystem_countdown_fancy%'
+Money_Amount: 金额
+Coin: 金币
+Coins: 金币
+Status: 目前状态
+Ready: 已准备
+Not_Ready: 未准备
+Wait_For_Other_Player: 正等待对方...
+Trade_Only_With_Objects: 你必须拿点东西放在左边来完成交易.
+Click_To_Change: 点击切换模式
+Cancel_Trade: 点击取消
+Not_Able_To_Trade: 你暂时无法进行交易.
+Player_Is_Not_Able_Trade: 目标玩家暂时无法进行交易.
+TRADE_EDITOR: 编辑器 - 交易所界面
+TRADE_EDITOR_FUNCTIONS: 编辑器 - 功能
+EDITOR_RESET: 界面已重置。.
+Editor_Command_How_To: '&7使用: /tradeEditor [reset]'
+Editor_Not_Empty: 物品栏空间不足!
+Editor_No_Item: 没有此物品!
+Layout_Name: 显示名称
+Layout_Name_Already_Exists: 这个显示名称已被占用!
+Layout_Finished: 新界面创建 &a成功&7.
+Layout_Edited: 界面编辑 &a成功&7.
+Layout_Editor: '&c交易界面 &8- &c编辑器'
+Layout_Confirm_Close: '&c此界面 &8- &c是否保存?'
+Save: 保存
+Not_Ready_For_Saving: '&c这个界面暂时无法保存'
+Items: 界面排版
+Set: 已设置
+Not_Set: 未设置
+Functions: 功能图标选择
+Name: 此模板名称
+Ambiguous_Functions: 实现功能
+Layout_Set_Items: 编辑交易所界面
+Layout_Set_Functions: 设置功能图标
+Layout_Set_Name: 设置此模板名称
+Layout_Set_Ambiguous_Functions: 设置实现功能
+Layout_Editor_Set_Items: '&c退出以保存此界面'
+Back: 返回
+Trader: 己方名称
+Other: 对方名称
+Layout_Set_Own_Slots: 设置己方交易栏
+Layout_Set_Other_Slots: 设置对方交易栏
+Layout_Set_Cancel: 设设置取消图标
+Layout_Set_Other_Not_Ready: 设置对方状态显示图标
+Layout_Set_Status: 己方状态图标
+Layout_Set_Money: 己方金额图标
+Layout_Set_Other_Money: 对方金额图标
+Help_TradeSystem: '&7使用 &e/%label% <layout, reload>设置交易所'
+Help_TradeSystem_Layout: '&7使用 &e/%label% layout <create, edit, delete, activate>设置交易所界面'
+Help_TradeSystem_Layout_Activate: '&7使用 &e/%label% layout activate <名称>激活界面'
+Help_TradeSystem_Layout_Delete: '&7使用 &e/%label% layout delete <名称>删除界面'
+Help_TradeSystem_Layout_Edit: '&7使用 &e/%label% layout edit <名称>编辑界面'
+Help_TradeLog: "&7使用  &e/%label% <name>"
+Layout_Does_Not_Exist: '&c这个界面不存在!'
+Layout_Activated: '&7界面 ''&b%name%&7'' 已&a激活&7.'
+Layout_Deleted: '&7界面 ''&b%name%&7'' 已&c删除&7.'
+Enter_Correct_Name_Space: '&c请勿输入空格.'
+Sure_That_You_Want_To_Loose_Your_Data: '&7你确定要&c放弃&7你的更改?'
+Close: 确定
+Cannot_Delete_Standard: '&7你无法&c删除&7默认模板!'
+Cannot_Edit_Standard: '&7你无法&c编辑&7默认模板!'
+Layout_Already_Activated: '&7这个界面&c已激活&7!'
+Layout_Set_Replacement_For_Money: '&7当&e未安装经济插件时&7所选图标将会被此&e替换&7.'
+Layout_Hint_Same_Slot_Amount: '&7双方的交易栏&c数量&7需要&c相同&7!'
+Current_Amount: 目前设置数量
+Trade_Spam: '&7该玩家 &c已经收到过一个交易请求了&7!'
+Plugin_Reloading: '&c插件正在重载...'
+Success_Plugin_Reloaded: '&a插件载入成功.'
+Player_is_not_in_range: '&7玩家&c%player%&7现在&c不在范围内&7!'
+Cannot_trade_in_that_GameMode: '&7你 &c无法在&7这个模式交易!'
+Other_cannot_trade_in_that_GameMode: '&7该玩家&c无法在&7那个模式交易!'
+Trade_cancelled_by_attack: '&c有内鬼，终止交易！'
+Trade_Partner_No_Space: '&7对方的背包&c没有&7足够的空间!'
+Trade_Offline: '&7你已经&c退出&7交易所'
+Trade_Online: '&7你已经&a进入&7交易所'
+Trade_Partner_is_Offline: '&7该玩家&c未进入&7交易所!'
+Trade_You_are_Offline: '&7使用"%command%&e/trade toggle%command%&7"进入交易所.'
+Trade_Placed_Blocked_Item: '&7此物品&c无法&7进行交易!'
+Cannot_trade_in_bed: '&c你无法进行交易&7,因为你躺在床上.'
+Cannot_trade_in_world: '&7这个世界&c无法&7进行交易!'
+Other_cannot_trade_in_world: '&7该玩家处于§c无法&7交易的世界!'
+Cannot_trade_while_invisible: '&7你&c无法&7在&c隐身状态&7下交易!'
+Other_is_already_trading: '&7该玩家&c正在&7交易!'
+Online: 正在交易所
+Offline: 已离开交易所
+Your_request_epired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
+Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
+Fancy_Countdown: '&7正在处理-&e%seconds%s'
+Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
+Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
+TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"

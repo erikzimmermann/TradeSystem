@@ -24,27 +24,27 @@ public class TradeSystemPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player p, String id) {
-        switch(id.toLowerCase()) {
+        switch (id.toLowerCase()) {
             case "trade_partner": {
                 Trade t = TradeSystem.man().getTrade(p);
-                if(t != null) return t.getOther(p).getDisplayName();
+                if (t != null) return t.getOther(p).getDisplayName();
                 break;
             }
             case "countdown": {
                 Trade t = TradeSystem.man().getTrade(p);
                 int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20);
-                if(t != null && t.getCountdown() != null) return remaining + "";
+                if (t != null && t.getCountdown() != null) return remaining + "";
                 break;
             }
             case "countdown_fancy": {
                 Trade t = TradeSystem.man().getTrade(p);
-                if(t != null && t.getCountdown() != null) {
+                if (t != null && t.getCountdown() != null) {
                     int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20);
                     return Lang.get("Fancy_Countdown").replace("%seconds%", remaining + "");
                 } else return "";
             }
             case "status":
-                if(TradeSystem.man().isOffline(p)) return Lang.get("Offline");
+                if (TradeSystem.man().isOffline(p)) return Lang.get("Offline");
                 else return Lang.get("Online");
         }
 

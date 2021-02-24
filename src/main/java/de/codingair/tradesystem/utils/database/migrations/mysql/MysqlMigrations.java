@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MysqlMigrations implements SqlMigrations {
-    private static MysqlMigrations instance;
     // Define all migrations in this list.
     private static final List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
+    private static MysqlMigrations instance;
     private final Connection connection;
 
     private MysqlMigrations() {
@@ -20,7 +20,7 @@ public class MysqlMigrations implements SqlMigrations {
     }
 
     public static MysqlMigrations getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new MysqlMigrations();
         }
         return instance;
@@ -28,13 +28,13 @@ public class MysqlMigrations implements SqlMigrations {
 
     @Override
     public void createMigrationTable() {
-        try(Statement stmt = connection.createStatement()) {
+        try (Statement stmt = connection.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
                     + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
                     + "	version integer NOT NULL\n"
                     + ");";
             stmt.execute(sql);
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -49,8 +49,8 @@ public class MysqlMigrations implements SqlMigrations {
                     .sorted(Comparator.comparingInt(Migration::getVersion))
                     .collect(Collectors.toList());
 
-            for(Migration migration : validMigrations) {
-                try(Statement stmt = connection.createStatement()) {
+            for (Migration migration : validMigrations) {
+                try (Statement stmt = connection.createStatement()) {
                     String sql = migration.getStatement();
                     stmt.execute(sql);
 
@@ -61,16 +61,16 @@ public class MysqlMigrations implements SqlMigrations {
                     connection.commit();
                 }
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     private int getMaxVersion() {
-        try(Statement stmt = connection.createStatement()) {
+        try (Statement stmt = connection.createStatement()) {
             ResultSet resultSet = stmt.executeQuery("SELECT max(version) as max from migrations");
             return resultSet.next() ? resultSet.getInt("max") : 0;
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
