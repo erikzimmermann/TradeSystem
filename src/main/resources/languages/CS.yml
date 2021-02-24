@@ -23,7 +23,7 @@ Request_Was_Denied: '&7Vaše obchodní žádost z  &c%player% &7byla zamítnuta&
 No_Request_Found: '&cOd tohoto hráče jsi nedostal žádné obchodní požadavky!'
 No_Requests_Found: '&cNeobdržel jsi zádné obchodní požadavky!'
 Too_many_requests: '&cMáš nekolik požadavků&7, upřesni prosím jméno hráče.'
-GUI_Title: '&cObchodovat z %player%%TRADESYSTEM_COUNTDOWN_FANCY%'
+GUI_Title: '&cObchodovat z %player%%tradesystem_countdown_fancy%'
 Money_Amount: Tvůj obnos peněz
 Coin: mince
 Coins: Mince
@@ -114,3 +114,4 @@ Request_expired: '&7Požadavek na obchod od &e%player% &7již vypršel&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Obchod byl &czrušen &7kvůli &cchybě ekonomiky&7.'
 Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
+TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
