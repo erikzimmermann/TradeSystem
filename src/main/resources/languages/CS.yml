@@ -23,7 +23,7 @@ Request_Was_Denied: '&7Vaše obchodní žádost z  &c%player% &7byla zamítnuta&
 No_Request_Found: '&cOd tohoto hráče jsi nedostal žádné obchodní požadavky!'
 No_Requests_Found: '&cNeobdržel jsi zádné obchodní požadavky!'
 Too_many_requests: '&cMáš nekolik požadavků&7, upřesni prosím jméno hráče.'
-GUI_Title: '&cObchodovat z %player%%TRADESYSTEM_COUNTDOWN_FANCY%'
+GUI_Title: '&cObchodovat z %player%%tradesystem_countdown_fancy%'
 Money_Amount: Tvůj obnos peněz
 Coin: mince
 Coins: Mince

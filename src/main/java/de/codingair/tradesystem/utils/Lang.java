@@ -1,12 +1,13 @@
 package de.codingair.tradesystem.utils;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.TradeSystem;
 import de.codingair.tradesystem.extras.placeholderapi.PAPI;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ public class Lang {
 
         if (folder.exists()) {
             for (File file : folder.listFiles()) {
-                if (file.length() == 0) file.delete();
+                if (file.length() == 0) //noinspection ResultOfMethodCallIgnored
+                    file.delete();
             }
         }
     }
@@ -43,6 +45,7 @@ public class Lang {
             File file = new File(plugin.getDataFolder() + "/Languages/", language);
             if (!file.exists()) {
                 try {
+                    //noinspection ResultOfMethodCallIgnored
                     file.createNewFile();
                     copy(is, new FileOutputStream(file));
                 } catch (IOException e) {
@@ -54,32 +57,28 @@ public class Lang {
 
     public static String getPrefix() {
         String prefix = getConfig().getString("TradeSystem.Prefix", "&8» &r");
-        prefix = ChatColor.translateAlternateColorCodes('&', prefix);
-
+        prefix = ChatColor.translateAll('&', prefix);
         return prefix;
     }
 
-    public static String getLanguageKey() {
-        return getConfig().getString("TradeSystem.Language", "ENG");
+    public static @NotNull String getLanguageKey() {
+        String key = getConfig().getString("TradeSystem.Language");
+        if (key == null) return "ENG";
+        return key;
     }
 
     public static void initializeFile() {
         getLanguageFile(getLanguageKey());
     }
 
-    private static FileConfiguration getLanguageFile(String langTag) {
-        try {
-            ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
-            if (file == null) {
-                prepareFile(new File(TradeSystem.getInstance().getDataFolder(), "/Languages/" + langTag + ".yml"));
-                TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
-                return getLanguageFile(langTag);
-            }
-            return file.getConfig();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    private static @NotNull FileConfiguration getLanguageFile(String langTag) {
+        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
+        if (file == null) {
+            prepareFile(new File(TradeSystem.getInstance().getDataFolder(), "/Languages/" + langTag + ".yml"));
+            TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
+            return getLanguageFile(langTag);
         }
+        return file.getConfig();
     }
 
     private static void prepareFile(File file) {
@@ -92,12 +91,7 @@ public class Lang {
 
             String s;
             while ((s = in.readLine()) != null) {
-                lines.add(s.replace("%ACCEPT%", "%accept%")
-                        .replace("%DENY%", "%deny%")
-                        .replace("%PLAYER%", "%player%")
-                        .replace("%NAME%", "%name%")
-                        .replace("%COMMAND%", "%command%")
-                        .replace("%LABEL%", "%label%"));
+                lines.add(s);
                 origin.add(s);
             }
 
@@ -133,7 +127,7 @@ public class Lang {
 
     private static String prepare(Player player, String s) {
         s = s.replace("\\n", "\n");
-        s = ChatColor.translateAlternateColorCodes('&', s);
+        s = ChatColor.translateAll('&', s);
         if (player != null) s = PAPI.convert(s, player);
         return s;
     }
@@ -145,6 +139,7 @@ public class Lang {
     private static void mkDir(File file) {
         if (!file.exists()) {
             try {
+                //noinspection ResultOfMethodCallIgnored
                 file.mkdirs();
             } catch (SecurityException ex) {
                 throw new IllegalArgumentException("Plugin is not permitted to create a folder!");
@@ -152,21 +147,19 @@ public class Lang {
         }
     }
 
-    private static long copy(InputStream from, OutputStream to) throws IOException {
-        if (from == null) return -1;
+    private static void copy(InputStream from, OutputStream to) throws IOException {
+        if (from == null) return;
         if (to == null) throw new NullPointerException();
 
         byte[] buf = new byte[4096];
-        long total = 0L;
 
         while (true) {
             int r = from.read(buf);
             if (r == -1) {
-                return total;
+                return;
             }
 
             to.write(buf, 0, r);
-            total += r;
         }
     }
 }

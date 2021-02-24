@@ -23,7 +23,7 @@ Request_Was_Denied: '&7您的交易请求被&c%player%&c拒绝&7.'
 No_Request_Found: '&c您尚未收到该玩家的任何交易请求!'
 No_Requests_Found: '&c您尚未收到任何交易请求!'
 Too_many_requests: '&c您有很多请求&7, 请指定交易玩家名称.'
-GUI_Title: '&c正在与&e%player%&c进行交易.%TRADESYSTEM_COUNTDOWN_FANCY%'
+GUI_Title: '&c正在与&e%player%&c进行交易.%tradesystem_countdown_fancy%'
 Money_Amount: 金额
 Coin: 金币
 Coins: 金币
