@@ -47,7 +47,7 @@ public class TradeSystemCMD extends CommandBuilder {
                     String s = Lang.getPrefix() + Lang.get("Success_Plugin_Reloaded");
                     TradeSystem.getInstance().reload();
                     sender.sendMessage(s);
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 return false;
@@ -81,8 +81,8 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout", "edit").addChild(new MultiCommandComponent() {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
-                    if(layout.isStandard()) continue;
+                for (AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
+                    if (layout.isStandard()) continue;
                     suggestions.add(layout.getName());
                 }
             }
@@ -91,12 +91,12 @@ public class TradeSystemCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 AbstractPattern pattern = TradeSystem.getInstance().getLayoutManager().getPattern(argument);
 
-                if(pattern == null) {
+                if (pattern == null) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
                     return false;
                 }
 
-                if(pattern.isStandard()) {
+                if (pattern.isStandard()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Edit_Standard"));
                     return false;
                 }
@@ -117,7 +117,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout", "activate").addChild(new MultiCommandComponent() {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
+                for (AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
                     suggestions.add(layout.getName());
                 }
             }
@@ -126,12 +126,12 @@ public class TradeSystemCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 Pattern pattern = TradeSystem.getInstance().getLayoutManager().getPattern(argument);
 
-                if(pattern == null) {
+                if (pattern == null) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
                     return false;
                 }
 
-                if(TradeSystem.getInstance().getLayoutManager().getActive().getName().equals(pattern.getName())) {
+                if (TradeSystem.getInstance().getLayoutManager().getActive().getName().equals(pattern.getName())) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Already_Activated"));
                     return false;
                 }
@@ -153,27 +153,27 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout", "delete").addChild(new MultiCommandComponent() {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
-                    if(layout.isStandard()) continue;
+                for (AbstractPattern layout : TradeSystem.getInstance().getLayoutManager().getLayouts()) {
+                    if (layout.isStandard()) continue;
                     suggestions.add(layout.getName());
                 }
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                Pattern pattern = TradeSystem.getInstance().getLayoutManager().getPattern(argument);
+                AbstractPattern pattern = TradeSystem.getInstance().getLayoutManager().getPattern(argument);
 
-                if(pattern == null) {
+                if (pattern == null) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
                     return false;
                 }
 
-                if(pattern.isStandard()) {
+                if (pattern.isStandard()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Delete_Standard"));
                     return false;
                 }
 
-                TradeSystem.getInstance().getLayoutManager().remove(pattern.getName());
+                TradeSystem.getInstance().getLayoutManager().remove(pattern);
                 TradeSystem.getInstance().getLayoutManager().setActive(TradeSystem.getInstance().getLayoutManager().getPattern("Standard"));
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted").replace("%name%", pattern.getName()));
                 return false;

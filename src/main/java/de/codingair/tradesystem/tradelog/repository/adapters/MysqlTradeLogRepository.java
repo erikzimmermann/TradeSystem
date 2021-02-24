@@ -2,7 +2,6 @@ package de.codingair.tradesystem.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.tradelog.TradeLog;
 import de.codingair.tradesystem.tradelog.repository.TradeLogRepository;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -25,14 +24,14 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     public void log(Player player1, Player player2, String message) {
         String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?);";
 
-        try(PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, player1.getName());
             pstmt.setString(2, player2.getName());
             pstmt.setString(3, message);
             pstmt.setLong(4, System.currentTimeMillis());
 
             pstmt.executeUpdate();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -42,13 +41,13 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 20;";
 
-        try(PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerName);
             pstmt.setString(2, playerName);
             ResultSet rs = pstmt.executeQuery();
 
             List<TradeLog> result = new ArrayList<>();
-            while(rs.next()) {
+            while (rs.next()) {
                 result.add(new TradeLog(
                         rs.getString(2),
                         rs.getString(3),
@@ -57,7 +56,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
                 ));
             }
             return result;
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;

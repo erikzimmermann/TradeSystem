@@ -41,7 +41,7 @@ public class UpdateNotifier {
             Pattern pattern = Pattern.compile("Download: \\d*");
             Matcher matcher = pattern.matcher(content);
 
-            if(matcher.find()) downloadLink = String.format(URL_DOWNLOAD, ID, matcher.group().replaceAll("\\D*", ""));
+            if (matcher.find()) downloadLink = String.format(URL_DOWNLOAD, ID, matcher.group().replaceAll("\\D*", ""));
             else return false;
 
             this.version = version;

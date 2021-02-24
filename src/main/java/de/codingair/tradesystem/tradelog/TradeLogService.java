@@ -12,16 +12,16 @@ public class TradeLogService {
     private static TradeLogService instance;
     private final TradeLogRepository tradeLogRepository = TradeSystem.getInstance().getTradeLogRepository();
 
-    public static TradeLogService getTradeLog() {
-        if(instance == null) instance = new TradeLogService();
-        return instance;
-    }
-
     private TradeLogService() {
     }
 
+    public static TradeLogService getTradeLog() {
+        if (instance == null) instance = new TradeLogService();
+        return instance;
+    }
+
     public void log(Player player1, Player player2, String message) {
-        if(tradeLogRepository == null) return;
+        if (tradeLogRepository == null) return;
 
         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
             tradeLogRepository.log(player1, player2, message);
@@ -29,7 +29,7 @@ public class TradeLogService {
     }
 
     public List<TradeLog> getLogMessages(String playerName) {
-        if(tradeLogRepository == null) return new ArrayList<>();
+        if (tradeLogRepository == null) return new ArrayList<>();
         return tradeLogRepository.getLogMessages(playerName);
     }
 

@@ -10,16 +10,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Lang {
     private static void deleteEmptyFiles(JavaPlugin plugin) {
         File folder = new File(plugin.getDataFolder(), "/Languages/");
 
-        if(folder.exists()) {
-            for(File file : folder.listFiles()) {
-                if(file.length() == 0) file.delete();
+        if (folder.exists()) {
+            for (File file : folder.listFiles()) {
+                if (file.length() == 0) file.delete();
             }
         }
     }
@@ -36,17 +35,17 @@ public class Lang {
         languages.add("RUS.yml");
 
         File folder = new File(plugin.getDataFolder(), "/Languages/");
-        if(!folder.exists()) mkDir(folder);
+        if (!folder.exists()) mkDir(folder);
 
-        for(String language : languages) {
+        for (String language : languages) {
             InputStream is = plugin.getResource("languages/" + language);
 
             File file = new File(plugin.getDataFolder() + "/Languages/", language);
-            if(!file.exists()) {
+            if (!file.exists()) {
                 try {
                     file.createNewFile();
                     copy(is, new FileOutputStream(file));
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -71,13 +70,13 @@ public class Lang {
     private static FileConfiguration getLanguageFile(String langTag) {
         try {
             ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
-            if(file == null) {
+            if (file == null) {
                 prepareFile(new File(TradeSystem.getInstance().getDataFolder(), "/Languages/" + langTag + ".yml"));
                 TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
                 return getLanguageFile(langTag);
             }
             return file.getConfig();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -92,7 +91,7 @@ public class Lang {
             List<String> origin = new ArrayList<>();
 
             String s;
-            while((s = in.readLine()) != null) {
+            while ((s = in.readLine()) != null) {
                 lines.add(s.replace("%ACCEPT%", "%accept%")
                         .replace("%DENY%", "%deny%")
                         .replace("%PLAYER%", "%player%")
@@ -105,11 +104,11 @@ public class Lang {
             reader.close();
             in.close();
 
-            if(!lines.equals(origin)) {
+            if (!lines.equals(origin)) {
                 FileWriter writer = new FileWriter(file);
                 BufferedWriter out = new BufferedWriter(writer);
 
-                for(String line : lines) {
+                for (String line : lines) {
                     out.write(line + "\n");
                 }
 
@@ -117,7 +116,7 @@ public class Lang {
                 out.close();
                 writer.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -135,7 +134,7 @@ public class Lang {
     private static String prepare(Player player, String s) {
         s = s.replace("\\n", "\n");
         s = ChatColor.translateAlternateColorCodes('&', s);
-        if(player != null) s = PAPI.convert(s, player);
+        if (player != null) s = PAPI.convert(s, player);
         return s;
     }
 
@@ -144,25 +143,25 @@ public class Lang {
     }
 
     private static void mkDir(File file) {
-        if(!file.exists()) {
+        if (!file.exists()) {
             try {
                 file.mkdirs();
-            } catch(SecurityException ex) {
+            } catch (SecurityException ex) {
                 throw new IllegalArgumentException("Plugin is not permitted to create a folder!");
             }
         }
     }
 
     private static long copy(InputStream from, OutputStream to) throws IOException {
-        if(from == null) return -1;
-        if(to == null) throw new NullPointerException();
+        if (from == null) return -1;
+        if (to == null) throw new NullPointerException();
 
         byte[] buf = new byte[4096];
         long total = 0L;
 
-        while(true) {
+        while (true) {
             int r = from.read(buf);
-            if(r == -1) {
+            if (r == -1) {
                 return total;
             }
 

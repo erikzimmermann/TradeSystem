@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 public class Essentials implements Adapter {
     @Override
     public double getMoney(Player player) {
-        if(check(player)) return 0;
+        if (check(player)) return 0;
 
         try {
             return Economy.getMoneyExact(player.getName()).doubleValue();
-        } catch(UserDoesNotExistException e) {
+        } catch (UserDoesNotExistException e) {
             e.printStackTrace();
             return 0;
         }
@@ -24,30 +24,30 @@ public class Essentials implements Adapter {
 
     @Override
     public void withdraw(Player player, double amount) {
-        if(check(player)) return;
+        if (check(player)) return;
 
         try {
             Economy.substract(player.getName(), new BigDecimal(amount));
-        } catch(UserDoesNotExistException | NoLoanPermittedException e) {
+        } catch (UserDoesNotExistException | NoLoanPermittedException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void deposit(Player player, double amount) {
-        if(check(player)) return;
+        if (check(player)) return;
 
         try {
             Economy.add(player.getName(), new BigDecimal(amount));
-        } catch(UserDoesNotExistException | NoLoanPermittedException e) {
+        } catch (UserDoesNotExistException | NoLoanPermittedException e) {
             e.printStackTrace();
         }
     }
 
     private boolean check(Player player) {
-        if(!Bukkit.getPluginManager().isPluginEnabled("Essentials")) return true;
+        if (!Bukkit.getPluginManager().isPluginEnabled("Essentials")) return true;
 
-        if(!Economy.playerExists(player.getName())) Economy.createNPC(player.getName());
+        if (!Economy.playerExists(player.getName())) Economy.createNPC(player.getName());
         return false;
     }
 }

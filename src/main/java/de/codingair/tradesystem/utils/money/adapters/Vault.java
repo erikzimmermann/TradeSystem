@@ -30,7 +30,7 @@ public class Vault implements Adapter {
 
     private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        if(economyProvider != null) {
+        if (economyProvider != null) {
             economy = economyProvider.getProvider();
         }
 

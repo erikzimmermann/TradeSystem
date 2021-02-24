@@ -49,7 +49,7 @@ public class TradeLogCMD extends CommandBuilder {
         getBaseComponent().addChild(new MultiCommandComponent(Permissions.PERMISSION_LOG) {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(Player player : Bukkit.getOnlinePlayers()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     suggestions.add(player.getName());
                 }
             }

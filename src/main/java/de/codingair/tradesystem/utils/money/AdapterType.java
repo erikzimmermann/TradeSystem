@@ -22,32 +22,28 @@ public enum AdapterType {
         this.adapter = adapter;
     }
 
-    public Adapter getAdapter() {
-        return adapter;
-    }
-
     public static Adapter getActive() {
-        if(USE != null) return USE.adapter;
+        if (USE != null) return USE.adapter;
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
 
-        for(String s : config.getStringList("TradeSystem.Economy_priority")) {
+        for (String s : config.getStringList("TradeSystem.Economy_priority")) {
             AdapterType type = AdapterType.getByName(s);
-            if(type != null && type.getAdapter() != null) {
+            if (type != null && type.getAdapter() != null) {
                 USE = type;
                 break;
             }
         }
 
-        if(USE == null) USE = NONE;
+        if (USE == null) USE = NONE;
         return getActive();
     }
 
     private static AdapterType getByName(String name) {
         name = name.toUpperCase();
-        for(AdapterType value : values()) {
-            if(value.name().equals(name)) return value;
+        for (AdapterType value : values()) {
+            if (value.name().equals(name)) return value;
         }
 
         return null;
@@ -55,5 +51,9 @@ public enum AdapterType {
 
     public static boolean canEnable() {
         return getActive() != null;
+    }
+
+    public Adapter getAdapter() {
+        return adapter;
     }
 }

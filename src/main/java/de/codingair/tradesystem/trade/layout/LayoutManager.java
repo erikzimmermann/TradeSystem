@@ -6,6 +6,7 @@ import de.codingair.tradesystem.trade.layout.layouts.Standard;
 import de.codingair.tradesystem.trade.layout.utils.AbstractPattern;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +27,16 @@ public class LayoutManager {
         FileConfiguration config = file.getConfig();
 
         List<String> dataList = config.getStringList("Layouts");
+        int standardLayouts = this.layouts.size();
 
-        int amount = this.layouts.size();
-
-        if(dataList != null) {
-            for(String data : dataList) {
-                AbstractPattern ap = AbstractPattern.getFromJSONString(data);
-                if(ap != null) this.layouts.add(ap);
-            }
+        for (String data : dataList) {
+            AbstractPattern ap = AbstractPattern.getFromJSONString(data);
+            if (ap != null) this.layouts.add(ap);
         }
 
         setActive(getPattern(config.getString("Active", null)));
 
-        TradeSystem.log("    ...got " + (this.layouts.size() - amount) + " layout(s)");
+        TradeSystem.log("    ...got " + (this.layouts.size() - standardLayouts) + " layout(s)");
     }
 
     public void save() {
@@ -48,8 +46,8 @@ public class LayoutManager {
 
         List<String> data = new ArrayList<>();
 
-        for(AbstractPattern layout : this.layouts) {
-            if(layout.isStandard()) continue;
+        for (AbstractPattern layout : this.layouts) {
+            if (layout.isStandard()) continue;
             data.add(layout.toJSONString());
         }
 
@@ -61,10 +59,10 @@ public class LayoutManager {
     }
 
     public AbstractPattern getPattern(String name) {
-        if(name == null) return null;
+        if (name == null) return null;
 
-        for(AbstractPattern layout : this.layouts) {
-            if(layout.getName().equals(name)) return layout;
+        for (AbstractPattern layout : this.layouts) {
+            if (layout.getName().equals(name)) return layout;
         }
 
         return null;
@@ -74,9 +72,8 @@ public class LayoutManager {
         this.layouts.add(pattern);
     }
 
-    public boolean remove(String name) {
-        AbstractPattern pattern = getPattern(name);
-        return pattern != null && this.layouts.remove(pattern);
+    public boolean remove(@NotNull AbstractPattern pattern) {
+        return this.layouts.remove(pattern);
     }
 
     public Pattern getActive() {
@@ -84,7 +81,7 @@ public class LayoutManager {
     }
 
     public void setActive(Pattern active) {
-        if(active == null) return;
+        if (active == null) return;
         this.active = active;
     }
 
@@ -97,7 +94,7 @@ public class LayoutManager {
     }
 
     public void setAvailable(String name, boolean available) {
-        if(!available && !this.reservedNames.contains(name)) this.reservedNames.add(name);
+        if (!available && !this.reservedNames.contains(name)) this.reservedNames.add(name);
         else this.reservedNames.remove(name);
     }
 }

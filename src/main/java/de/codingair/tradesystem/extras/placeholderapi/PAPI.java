@@ -11,16 +11,16 @@ public class PAPI {
     private static Boolean enabled = null;
 
     public static boolean isEnabled() {
-        if(enabled == null) enabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+        if (enabled == null) enabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
         return enabled;
     }
 
     public static String convert(String s, Player player) {
-        if(isEnabled()) return PlaceholderAPI.setPlaceholders(player, s);
+        if (isEnabled()) return PlaceholderAPI.setPlaceholders(player, s);
         else {
             Trade t = TradeSystem.man().getTrade(player);
 
-            if(t != null) {
+            if (t != null) {
                 int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20);
 
                 return s
@@ -36,6 +36,6 @@ public class PAPI {
     }
 
     public static void register() {
-        if(isEnabled()) new TradeSystemPlaceholder().register();
+        if (isEnabled()) new TradeSystemPlaceholder().register();
     }
 }

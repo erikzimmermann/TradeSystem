@@ -11,7 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -24,7 +23,7 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @Override
     public void onForeignClick(Player player, UUID id, String type) {
-        if(type != null && type.equals("TRADE_TOGGLE")) {
+        if (type != null && type.equals("TRADE_TOGGLE")) {
             player.performCommand("trade toggle");
         }
     }
@@ -41,28 +40,28 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent e) {
-        if(!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightclick() || players.contains(e.getPlayer()) || !e.getPlayer().isSneaking()) return;
+        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightclick() || players.contains(e.getPlayer()) || !e.getPlayer().isSneaking()) return;
 
-        if(e.getRightClicked() instanceof Player) {
+        if (e.getRightClicked() instanceof Player) {
             Player p = e.getPlayer();
             Player other = (Player) e.getRightClicked();
 
-            if(!p.canSee(other)) return;
+            if (!p.canSee(other)) return;
 
             players.add(p, 1);
             TradeCMD.request(p, other);
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler (priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDeath(EntityDamageEvent e) {
-        if(e.getEntity() instanceof Player) {
+        if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
             Trade trade = TradeSystem.getInstance().getTradeManager().getTrade(player);
 
-            if(trade != null) {
+            if (trade != null) {
                 double finalDamage = e.getFinalDamage();
-                if((TradeSystem.getInstance().getTradeManager().isCancelOnDamage() && finalDamage > 0) || (player.getHealth() - e.getFinalDamage() <= 0))
+                if ((TradeSystem.getInstance().getTradeManager().isCancelOnDamage() && finalDamage > 0) || (player.getHealth() - e.getFinalDamage() <= 0))
                     trade.cancel(Lang.getPrefix() + Lang.get("Trade_cancelled_by_attack", player));
             }
         }
@@ -73,10 +72,10 @@ public class TradeListener implements Listener, ChatButtonListener {
         Player p = e.getPlayer();
         Trade t = TradeSystem.man().getTrade(p);
 
-        if(t != null) {
-            if(!TradeSystem.man().isDropItems()) {
+        if (t != null) {
+            if (!TradeSystem.man().isDropItems()) {
                 //does it fit?
-                if(!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
+                if (!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
             }
         }
     }
