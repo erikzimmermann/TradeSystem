@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Item {
+    private static boolean failure = false;
     private int slot;
     private ItemStack item;
     private Function function;
@@ -17,6 +18,24 @@ public class Item {
         this.slot = slot;
         this.item = item;
         this.function = function;
+    }
+
+    public static Item fromJSONString(String s) {
+        try {
+            JSONObject json = (JSONObject) new JSONParser().parse(s);
+
+            int slot = Integer.parseInt("" + json.get("Slot"));
+            ItemStack item = json.get("Item") == null ? null : ItemBuilder.getFromJSON((String) json.get("Item")).getItem();
+            Function function = json.get("Function") == null ? null : Function.valueOf((String) json.get("Function"));
+
+            return new Item(slot, item, function);
+        } catch (ParseException e) {
+            if (!failure) {
+                failure = true;
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
     public int getSlot() {
@@ -28,10 +47,10 @@ public class Item {
     }
 
     public ItemStack getItem() {
-        if(this.item == null) return new ItemStack(Material.AIR);
+        if (this.item == null) return new ItemStack(Material.AIR);
         ItemBuilder builder = new ItemBuilder(this.item).removeEnchantments().setHideStandardLore(true).removeLore();
 
-        if(builder.getName() != null) builder.setName(ChatColor.translateAlternateColorCodes('&', builder.getName()));
+        if (builder.getName() != null) builder.setName(ChatColor.translateAlternateColorCodes('&', builder.getName()));
         else builder.setHideName(true);
 
         return builder.getItem();
@@ -62,24 +81,5 @@ public class Item {
         json.put("Function", this.function == null ? null : this.function.name());
 
         return json.toJSONString();
-    }
-
-    private static boolean failure = false;
-    public static Item fromJSONString(String s) {
-        try {
-            JSONObject json = (JSONObject) new JSONParser().parse(s);
-
-            int slot = Integer.parseInt("" + json.get("Slot"));
-            ItemStack item = json.get("Item") == null ? null : ItemBuilder.getFromJSON((String) json.get("Item")).getItem();
-            Function function = json.get("Function") == null ? null : Function.valueOf((String) json.get("Function"));
-
-            return new Item(slot, item, function);
-        } catch(ParseException e) {
-            if(!failure) {
-                failure = true;
-                e.printStackTrace();
-            }
-            return null;
-        }
     }
 }

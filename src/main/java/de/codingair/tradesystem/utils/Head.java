@@ -43,7 +43,7 @@ public enum Head {
 
             String url = (String) json.get("url");
             return GameProfileUtils.getGameProfile(UUID.randomUUID(), "Name", 10, "Signature", url, null);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             return null;
         }

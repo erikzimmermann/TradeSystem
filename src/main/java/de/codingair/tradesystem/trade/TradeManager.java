@@ -57,14 +57,14 @@ public class TradeManager {
 
         boolean save = false;
         requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
-        if(requestExpirationTime <= 10) {
+        if (requestExpirationTime <= 10) {
             config.set("TradeSystem.Trade_Request_Expiration_Time", 10);
             save = true;
         }
 
-        if(config.getBoolean("TradeSystem.Trade_Distance.enabled", true)) {
+        if (config.getBoolean("TradeSystem.Trade_Distance.enabled", true)) {
             this.distance = config.getInt("TradeSystem.Trade_Distance.distance_in_blocks", 50);
-            if(this.distance < 1) {
+            if (this.distance < 1) {
                 config.set("TradeSystem.Trade.distance_in_blocks", 1);
                 save = true;
             }
@@ -76,7 +76,7 @@ public class TradeManager {
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
-        if(config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
+        if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
             countdownInterval = config.getInt("TradeSystem.Trade_Countdown.Interval");
         } else {
@@ -84,25 +84,25 @@ public class TradeManager {
         }
 
         moneyShortcuts.clear();
-        if(config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
+        if (config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
             List<?> data = config.getList("TradeSystem.Easy_Money_Selection.Shortcuts");
-            if(data != null) {
-                for(Object s : data) {
-                    if(s instanceof Map) {
+            if (data != null) {
+                for (Object s : data) {
+                    if (s instanceof Map) {
                         try {
                             JSON json = new JSON((Map<?, ?>) s);
 
                             int value = json.getInteger("Value", -1);
-                            if(value < 0) continue;
+                            if (value < 0) continue;
 
                             JSONArray a = json.getList("Keys");
 
-                            if(a == null) continue;
-                            for(Object o : a) {
+                            if (a == null) continue;
+                            for (Object o : a) {
                                 String key = ((String) o).trim().toLowerCase();
                                 moneyShortcuts.put(key, value);
                             }
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             throw new MalformedParametersException("Malformed money selection for input: '" + s + "'");
                         }
                     }
@@ -115,73 +115,73 @@ public class TradeManager {
         this.soundStarted = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)).ifPresent(s -> this.soundStarted = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0)));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
         }
-        if(this.soundStarted == null) TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
+        if (this.soundStarted == null) TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
 
         this.soundFinish = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)).ifPresent(s -> this.soundFinish = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.soundFinish == null) TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
+        if (this.soundFinish == null) TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
 
         this.soundBlocked = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)).ifPresent(s -> this.soundBlocked = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.soundBlocked == null) TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
+        if (this.soundBlocked == null) TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
 
         this.soundCancel = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)).ifPresent(s -> this.soundCancel = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.soundCancel == null) TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
+        if (this.soundCancel == null) TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
 
         this.soundRequest = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)).ifPresent(s -> this.soundRequest = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
+        if (this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
         this.countdownTick = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Tick.Name", null)).ifPresent(s -> this.countdownTick = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
+        if (this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
 
         this.countdownStop = null;
         try {
             Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Stop.Name", null)).ifPresent(s -> this.countdownStop = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Pitch", 1.0)));
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
-        if(this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+        if (this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
 
-        if(this.allowedGameModes != null) this.allowedGameModes.clear();
+        if (this.allowedGameModes != null) this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
-        if(this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
+        if (this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
 
-        if(this.blockedWorlds != null) this.blockedWorlds.clear();
+        if (this.blockedWorlds != null) this.blockedWorlds.clear();
         this.blockedWorlds = config.getStringList("TradeSystem.Blocked_Worlds");
-        if(this.blockedWorlds == null) this.blockedWorlds = new ArrayList<>();
+        if (this.blockedWorlds == null) this.blockedWorlds = new ArrayList<>();
 
         TradeSystem.log("  > Loading blacklist");
         List<String> l = config.getStringList("TradeSystem.Blacklist");
-        if(l != null && !l.isEmpty()) {
-            for(String s : l) {
+        if (l != null && !l.isEmpty()) {
+            for (String s : l) {
                 BlockedItem item = BlockedItem.fromString(s);
-                if(item != null) this.blacklist.add(item);
+                if (item != null) this.blacklist.add(item);
                 else {
                     TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + s + "\"). Skipping...");
                 }
             }
         }
 
-        if(this.blacklist.isEmpty()) {
+        if (this.blacklist.isEmpty()) {
             this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0));
             this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0, "&cExample"));
             this.blacklist.add(new BlockedItem("&cExample, which blocks all items with this strange name!"));
@@ -190,35 +190,35 @@ public class TradeManager {
 
         TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
 
-        if(save) file.saveConfig();
+        if (save) file.saveConfig();
     }
 
     public void playRequestSound(Player player) {
-        if(this.soundRequest != null) this.soundRequest.play(player);
+        if (this.soundRequest != null) this.soundRequest.play(player);
     }
 
     public void playStartSound(Player player) {
-        if(this.soundStarted != null) this.soundStarted.play(player);
+        if (this.soundStarted != null) this.soundStarted.play(player);
     }
 
     public void playFinishSound(Player player) {
-        if(this.soundFinish != null) this.soundFinish.play(player);
+        if (this.soundFinish != null) this.soundFinish.play(player);
     }
 
     public void playBlockSound(Player player) {
-        if(this.soundBlocked != null) this.soundBlocked.play(player);
+        if (this.soundBlocked != null) this.soundBlocked.play(player);
     }
 
     public void playCancelSound(Player player) {
-        if(this.soundCancel != null) this.soundCancel.play(player);
+        if (this.soundCancel != null) this.soundCancel.play(player);
     }
 
     public void playCountdownTickSound(Player player) {
-        if(this.countdownTick != null) this.countdownTick.play(player);
+        if (this.countdownTick != null) this.countdownTick.play(player);
     }
 
     public void playCountdownStopSound(Player player) {
-        if(this.countdownStop != null) this.countdownStop.play(player);
+        if (this.countdownStop != null) this.countdownStop.play(player);
     }
 
     public void saveBlackList() {
@@ -226,7 +226,7 @@ public class TradeManager {
         FileConfiguration config = file.getConfig();
         List<String> l = new ArrayList<>();
 
-        for(BlockedItem block : this.blacklist) {
+        for (BlockedItem block : this.blacklist) {
             l.add(block.toString());
         }
 
@@ -235,7 +235,7 @@ public class TradeManager {
     }
 
     public void startTrade(Player player, Player other) {
-        if(API.getRemovable(player, TradingGUI.class) != null || API.getRemovable(player, AnvilGUI.class) != null || API.getRemovable(other, TradingGUI.class) != null || API.getRemovable(other, AnvilGUI.class) != null) {
+        if (API.getRemovable(player, TradingGUI.class) != null || API.getRemovable(player, AnvilGUI.class) != null || API.getRemovable(other, TradingGUI.class) != null || API.getRemovable(other, AnvilGUI.class) != null) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }
@@ -256,7 +256,7 @@ public class TradeManager {
     public void cancelAll() {
         List<Trade> tradeList = new ArrayList<>(this.tradeList);
 
-        for(Trade trade : tradeList) {
+        for (Trade trade : tradeList) {
             trade.cancel();
         }
 
@@ -270,8 +270,8 @@ public class TradeManager {
     }
 
     public Trade getTrade(Player player) {
-        for(Trade trade : this.tradeList) {
-            if(trade.isParticipant(player)) return trade;
+        for (Trade trade : this.tradeList) {
+            if (trade.isParticipant(player)) return trade;
         }
 
         return null;
@@ -319,7 +319,7 @@ public class TradeManager {
     }
 
     public boolean toggle(Player player) {
-        if(offline.remove(player)) return false;
+        if (offline.remove(player)) return false;
         this.offline.add(player);
         return true;
     }
@@ -329,8 +329,8 @@ public class TradeManager {
     }
 
     public boolean isBlocked(ItemStack item) {
-        for(BlockedItem blocked : this.blacklist) {
-            if(blocked.matches(item)) return true;
+        for (BlockedItem blocked : this.blacklist) {
+            if (blocked.matches(item)) return true;
         }
 
         return false;
@@ -345,10 +345,10 @@ public class TradeManager {
     }
 
     public boolean isBlockedWorld(World w) {
-        if(w == null) return true;
+        if (w == null) return true;
 
-        for(String world : this.blockedWorlds) {
-            if(w.getName().equalsIgnoreCase(world)) return true;
+        for (String world : this.blockedWorlds) {
+            if (w.getName().equalsIgnoreCase(world)) return true;
         }
 
         return false;
@@ -364,8 +364,8 @@ public class TradeManager {
 
         //1,000,000
         char[] c = (money + "").toCharArray();
-        for(int i = c.length - 1; i >= 0; i--) {
-            if((s.length() + 1) % 4 == 0) s.insert(0, ",");
+        for (int i = c.length - 1; i >= 0; i--) {
+            if ((s.length() + 1) % 4 == 0) s.insert(0, ",");
             s.insert(0, c[i]);
         }
 

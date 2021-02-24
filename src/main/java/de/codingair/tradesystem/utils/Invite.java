@@ -15,10 +15,10 @@ public class Invite {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || (!(o instanceof String) && getClass() != o.getClass())) return false;
+        if (this == o) return true;
+        if (o == null || (!(o instanceof String) && getClass() != o.getClass())) return false;
 
-        if(o instanceof String) {
+        if (o instanceof String) {
             String invite = (String) o;
             return this.name.equalsIgnoreCase(invite);
         }

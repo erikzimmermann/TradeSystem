@@ -55,7 +55,7 @@ public class TradeCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("toggle") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                if(TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
+                if (TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline", (Player) sender));
                     invites.remove(sender.getName());
                 } else {
@@ -69,24 +69,24 @@ public class TradeCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("accept") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                if(((Player) sender).isSleeping()) {
+                if (((Player) sender).isSleeping()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", (Player) sender));
                     return false;
                 }
 
-                if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
+                if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
                     sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", (Player) sender));
                     return false;
                 }
 
                 Set<Invite> l = invites.get(sender.getName());
 
-                if(l == null || l.isEmpty()) {
+                if (l == null || l.isEmpty()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", (Player) sender));
-                } else if(l.size() == 1) {
+                } else if (l.size() == 1) {
                     Player other = Bukkit.getPlayer(l.stream().findAny().get().getName());
 
-                    if(other == null) {
+                    if (other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
@@ -104,31 +104,31 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 Set<Invite> l = invites.get(sender.getName());
-                if(l == null) return;
-                for(Invite invite : l) {
+                if (l == null) return;
+                for (Invite invite : l) {
                     suggestions.add(invite.getName());
                 }
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                if(((Player) sender).isSleeping()) {
+                if (((Player) sender).isSleeping()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", (Player) sender));
                     return false;
                 }
 
-                if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
+                if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(((Player) sender).getWorld())) {
                     sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", (Player) sender));
                     return false;
                 }
 
                 Set<Invite> l = invites.get(sender.getName());
 
-                if(l != null && l.remove(new Invite(argument))) {
+                if (l != null && l.remove(new Invite(argument))) {
                     Player other = Bukkit.getPlayer(argument);
-                    if(l.isEmpty()) invites.remove(sender.getName());
+                    if (l.isEmpty()) invites.remove(sender.getName());
 
-                    if(other == null) {
+                    if (other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
@@ -151,12 +151,12 @@ public class TradeCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 Set<Invite> l = invites.get(sender.getName());
 
-                if(l == null || l.isEmpty()) {
+                if (l == null || l.isEmpty()) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", (Player) sender));
-                } else if(l.size() == 1) {
+                } else if (l.size() == 1) {
                     Player other = Bukkit.getPlayer(l.stream().findAny().get().getName());
 
-                    if(other == null) {
+                    if (other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
@@ -172,8 +172,8 @@ public class TradeCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 Set<Invite> l = invites.get(sender.getName());
-                if(l == null) return;
-                for(Invite invite : l) {
+                if (l == null) return;
+                for (Invite invite : l) {
                     suggestions.add(invite.getName());
                 }
             }
@@ -182,11 +182,11 @@ public class TradeCMD extends CommandBuilder {
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 Set<Invite> l = invites.get(sender.getName());
 
-                if(l != null && l.remove(new Invite(argument))) {
+                if (l != null && l.remove(new Invite(argument))) {
                     Player other = Bukkit.getPlayer(argument);
-                    if(l.isEmpty()) invites.remove(sender.getName());
+                    if (l.isEmpty()) invites.remove(sender.getName());
 
-                    if(other == null) {
+                    if (other == null) {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                         return false;
                     }
@@ -205,11 +205,11 @@ public class TradeCMD extends CommandBuilder {
         getBaseComponent().addChild(new MultiCommandComponent(PERMISSION_INITIATE) {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    if(player.getName().equals(sender.getName()) || !((Player) sender).canSee(player)) continue;
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.getName().equals(sender.getName()) || !((Player) sender).canSee(player)) continue;
 
                     Set<Invite> l = invites.get(player.getName());
-                    if(l != null && l.contains(new Invite(sender.getName()))) continue;
+                    if (l != null && l.contains(new Invite(sender.getName()))) continue;
                     suggestions.add(player.getName());
                 }
             }
@@ -223,12 +223,12 @@ public class TradeCMD extends CommandBuilder {
     }
 
     public static void request(Player p, Player other) {
-        if(PERMISSION != null && !p.hasPermission(PERMISSION)) {
+        if (PERMISSION != null && !p.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", p));
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().isOffline(p)) {
+        if (TradeSystem.getInstance().getTradeManager().isOffline(p)) {
             String[] a = Lang.get("Trade_You_are_Offline", p).split("%command%", -1);
 
             String s0 = a[0];
@@ -250,71 +250,71 @@ public class TradeCMD extends CommandBuilder {
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
+        if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", p));
             return;
         }
 
-        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
+        if (!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode", p));
             return;
         }
 
-        if(p.isSleeping()) {
+        if (p.isSleeping()) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", p));
             return;
         }
 
-        if(other == null) {
+        if (other == null) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return;
         }
 
-        if(other.equals(p)) {
+        if (other.equals(p)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself", p));
             return;
         }
 
-        if(!other.canSee(p)) {
+        if (!other.canSee(p)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible", p));
             return;
         }
 
-        if(!p.canSee(other)) {
+        if (!p.canSee(other)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return;
         }
 
-        if(PERMISSION != null && !other.hasPermission(PERMISSION)) {
+        if (PERMISSION != null && !other.hasPermission(PERMISSION)) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade", p));
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
+        if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world", p));
             return;
         }
 
-        if(!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
+        if (!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode", p));
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().isOffline(other)) {
+        if (TradeSystem.getInstance().getTradeManager().isOffline(other)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", p));
             return;
         }
 
-        if(TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
-            if(!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
+        if (TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
+            if (!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
                 p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p).replace("%player%", other.getName()));
                 return;
             }
         }
 
         TimeSet<Invite> l = TradeSystem.getInstance().getTradeCMD().getInvites().get(p.getName());
-        if(l != null && l.remove(new Invite(other.getName()))) {
-            if(l.isEmpty()) TradeSystem.getInstance().getTradeCMD().getInvites().remove(p.getName());
+        if (l != null && l.remove(new Invite(other.getName()))) {
+            if (l.isEmpty()) TradeSystem.getInstance().getTradeCMD().getInvites().remove(p.getName());
 
             p.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", p));
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", p).replace("%player%", p.getName()));
@@ -324,12 +324,12 @@ public class TradeCMD extends CommandBuilder {
         }
 
         l = TradeSystem.getInstance().getTradeCMD().getInvites().get(other.getName());
-        if(l != null && l.contains(new Invite(p.getName()))) {
+        if (l != null && l.contains(new Invite(p.getName()))) {
             p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam", p));
             return;
         }
 
-        if(l == null) l = new TimeSet<Invite>() {
+        if (l == null) l = new TimeSet<Invite>() {
             @Override
             public void timeout(Invite i) {
                 p.sendMessage(Lang.getPrefix() + Lang.get("Your_request_epired", p).replace("%player%", other.getName()));
@@ -368,10 +368,10 @@ public class TradeCMD extends CommandBuilder {
 
     public void removesInvitesWith(Player player) {
         invites.entrySet().removeIf(e -> {
-            if(e.getKey().equals(player.getName())) return true;
+            if (e.getKey().equals(player.getName())) return true;
 
             Set<Invite> invites = e.getValue();
-            if(invites == null) return true;
+            if (invites == null) return true;
 
             invites.remove(new Invite(player.getName()));
             return invites.isEmpty();

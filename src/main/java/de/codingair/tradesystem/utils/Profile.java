@@ -11,7 +11,7 @@ public class Profile {
     }
 
     public int getMoney() {
-        if(!AdapterType.canEnable()) {
+        if (!AdapterType.canEnable()) {
             return 0;
         }
 
@@ -19,7 +19,7 @@ public class Profile {
     }
 
     public void withdraw(double money) {
-        if(!AdapterType.canEnable()) {
+        if (!AdapterType.canEnable()) {
             return;
         }
 
@@ -27,7 +27,7 @@ public class Profile {
     }
 
     public void deposit(double money) {
-        if(!AdapterType.canEnable()) {
+        if (!AdapterType.canEnable()) {
             return;
         }
 

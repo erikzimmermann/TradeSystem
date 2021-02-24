@@ -10,6 +10,8 @@ public interface Pattern {
      * @return an array with 54 items
      */
     List<Item> getItems();
+
     String getName();
+
     boolean isStandard();
 }
