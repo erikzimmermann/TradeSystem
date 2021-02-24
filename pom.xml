@@ -96,6 +96,12 @@
             <artifactId>CodingAPI</artifactId>
             <version>1.7</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ess3</groupId>
