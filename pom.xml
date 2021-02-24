@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>TradeSystem</artifactId>
-    <version>1.2.1_Hotfix-3</version>
+    <version>1.2.1_Hotfix-4</version>
 
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
