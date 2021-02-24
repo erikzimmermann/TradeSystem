@@ -27,7 +27,7 @@ public class TradeCMD extends CommandBuilder {
     public static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
     private final TimeMap<String, TimeSet<Invite>> invites = new TimeMap<>();
 
-    public TradeCMD() {
+    public TradeCMD(String... commandAliases) {
         super(TradeSystem.getInstance(), "trade", "Trade-System-CMD", new BaseComponent(PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
@@ -49,7 +49,7 @@ public class TradeCMD extends CommandBuilder {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
                 return false;
             }
-        }.setOnlyPlayers(true), true);
+        }.setOnlyPlayers(true), true, commandAliases);
 
         //TOGGLE
         getBaseComponent().addChild(new CommandComponent("toggle") {

@@ -39,9 +39,12 @@ import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TradeSystem extends JavaPlugin {
@@ -179,7 +182,7 @@ public class TradeSystem extends JavaPlugin {
     }
 
     private void registerCommands() {
-        tradeCMD = new TradeCMD();
+        tradeCMD = new TradeCMD(getTradeAliases());
         tradeCMD.register();
 
         tradeSystemCMD = new TradeSystemCMD();
@@ -187,6 +190,21 @@ public class TradeSystem extends JavaPlugin {
 
         tradeLogCMD = new TradeLogCMD();
         tradeLogCMD.register();
+    }
+
+    @NotNull
+    private String[] getTradeAliases() {
+        List<String> aliases = new ArrayList<>();
+
+        List<?> l = fileManager.getFile("Config").getConfig().getList("TradeSystem.Trade_Aliases");
+        if (l != null) {
+            for (Object o : l) {
+                if (o instanceof String) {
+                    aliases.add((String) o);
+                }
+            }
+        }
+        return aliases.toArray(new String[0]);
     }
 
     private void startUpdateNotifier() {
