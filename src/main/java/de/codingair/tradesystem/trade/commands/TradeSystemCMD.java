@@ -9,6 +9,7 @@ import de.codingair.tradesystem.trade.editor.guis.GMenu;
 import de.codingair.tradesystem.trade.layout.utils.AbstractPattern;
 import de.codingair.tradesystem.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.utils.Lang;
+import de.codingair.tradesystem.utils.Permissions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class TradeSystemCMD extends CommandBuilder {
     public TradeSystemCMD() {
-        super(TradeSystem.getInstance(), "tradesystem", "Trade-System-CMD", new BaseComponent(TradeSystem.PERMISSION_MODIFY) {
+        super(TradeSystem.getInstance(), "tradesystem", "Trade-System-CMD", new BaseComponent(Permissions.PERMISSION_MODIFY) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("No_Permissions"));

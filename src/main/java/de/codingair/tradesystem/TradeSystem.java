@@ -23,6 +23,7 @@ import de.codingair.tradesystem.tradelog.repository.adapters.MysqlTradeLogReposi
 import de.codingair.tradesystem.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.utils.BackwardSupport;
 import de.codingair.tradesystem.utils.Lang;
+import de.codingair.tradesystem.utils.Permissions;
 import de.codingair.tradesystem.utils.Profile;
 import de.codingair.tradesystem.utils.database.DatabaseInitializer;
 import de.codingair.tradesystem.utils.database.DatabaseType;
@@ -44,10 +45,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TradeSystem extends JavaPlugin {
-    public static final String PERMISSION_NOTIFY = "TradeSystem.Notify";
-    public static final String PERMISSION_MODIFY = "TradeSystem.Modify";
-    public static final String PERMISSION_LOG = "TradeSystem.Log";
-
     private static TradeSystem instance;
 
     private final LayoutManager layoutManager = new LayoutManager();
@@ -61,7 +58,24 @@ public class TradeSystem extends JavaPlugin {
     private TradeSystemCMD tradeSystemCMD;
     private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
+
     private UTFConfig oldConfig;
+
+    public static void log(String message) {
+        Bukkit.getLogger().info(message);
+    }
+
+    public static TradeSystem getInstance() {
+        return instance;
+    }
+
+    public static Profile getProfile(Player player) {
+        return new Profile(player);
+    }
+
+    public static TradeManager man() {
+        return instance.tradeManager;
+    }
 
     @Override
     public void onEnable() {
@@ -116,7 +130,7 @@ public class TradeSystem extends JavaPlugin {
         log("__________________________________________________________");
         log(" ");
         log("                       TradeSystem [" + getDescription().getVersion() + "]");
-        if(needsUpdate) {
+        if (needsUpdate) {
             log(" ");
             log("New update available [v" + updateNotifier.getVersion() + " - " + updateNotifier.getUpdateInfo() + "]. Download it on \n\n" + updateNotifier.getDownloadLink() + "\n");
         }
@@ -151,7 +165,7 @@ public class TradeSystem extends JavaPlugin {
     }
 
     private void checkPermissions() {
-        if(!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
+        if (!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
             TradeCMD.PERMISSION = null;
             TradeCMD.PERMISSION_INITIATE = null;
         }
@@ -180,7 +194,7 @@ public class TradeSystem extends JavaPlugin {
         Runnable runnable = () -> {
             needsUpdate = updateNotifier.read();
 
-            if(needsUpdate) {
+            if (needsUpdate) {
                 log("-----< TradeSystem >-----");
                 log("New update available [" + updateNotifier.getUpdateInfo() + "].");
                 log("Download it on\n\n" + updateNotifier.getDownloadLink() + "\n");
@@ -199,8 +213,8 @@ public class TradeSystem extends JavaPlugin {
     }
 
     private void updateCommandList() {
-        if(Version.get().isBiggerThan(Version.v1_12)) {
-            for(Player player : Bukkit.getOnlinePlayers()) {
+        if (Version.get().isBiggerThan(Version.v1_12)) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
             }
         }
@@ -209,22 +223,18 @@ public class TradeSystem extends JavaPlugin {
     public void reload() throws FileNotFoundException {
         try {
             API.getInstance().reload(this);
-        } catch(InvalidDescriptionException | InvalidPluginException e) {
+        } catch (InvalidDescriptionException | InvalidPluginException e) {
             e.printStackTrace();
         }
     }
 
-    public static void log(String message) {
-        Bukkit.getLogger().info(message);
-    }
-
     public void notifyPlayers(Player player) {
-        if(player == null) {
-            for(Player p : Bukkit.getOnlinePlayers()) {
+        if (player == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
                 notifyPlayers(p);
             }
         } else {
-            if(player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
+            if (player.hasPermission(Permissions.PERMISSION_NOTIFY) && needsUpdate) {
                 player.sendMessage("");
                 player.sendMessage("");
                 player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getDownloadLink());
@@ -247,14 +257,6 @@ public class TradeSystem extends JavaPlugin {
         this.fileManager.unloadFile(file);
     }
 
-    public static TradeSystem getInstance() {
-        return instance;
-    }
-
-    public static Profile getProfile(Player player) {
-        return new Profile(player);
-    }
-
     public TradeManager getTradeManager() {
         return tradeManager;
     }
@@ -275,21 +277,17 @@ public class TradeSystem extends JavaPlugin {
         return tradeCMD;
     }
 
-    public static TradeManager man() {
-        return instance.tradeManager;
-    }
-
     public UTFConfig getOldConfig() {
         return oldConfig;
     }
 
     public TradeLogRepository getTradeLogRepository() {
-        if(!TradeLogOptions.isEnabled()) {
+        if (!TradeLogOptions.isEnabled()) {
             return null;
         }
 
         DatabaseType type = DatabaseUtil.database().getType();
-        switch(type) {
+        switch (type) {
             case MYSQL:
                 return new MysqlTradeLogRepository(MySQLConnection.getConnection());
             case SQLITE:
