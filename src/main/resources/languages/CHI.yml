@@ -76,7 +76,7 @@ Help_TradeSystem_Layout: '&7使用 &e/%label% layout <create, edit, delete, acti
 Help_TradeSystem_Layout_Activate: '&7使用 &e/%label% layout activate <名称>激活界面'
 Help_TradeSystem_Layout_Delete: '&7使用 &e/%label% layout delete <名称>删除界面'
 Help_TradeSystem_Layout_Edit: '&7使用 &e/%label% layout edit <名称>编辑界面'
-Help_TradeLog: "&7使用  &e/%label% <playerName>"
+Help_TradeLog: "&7使用  &e/%label% <name>"
 Layout_Does_Not_Exist: '&c这个界面不存在!'
 Layout_Activated: '&7界面 ''&b%name%&7'' 已&a激活&7.'
 Layout_Deleted: '&7界面 ''&b%name%&7'' 已&c删除&7.'
@@ -113,3 +113,4 @@ Your_request_epired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
 Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
 Fancy_Countdown: '&7正在处理-&e%seconds%s'
 Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
+Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'

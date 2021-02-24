@@ -76,7 +76,7 @@ Help_TradeSystem_Layout: "&7Benutze &e/%label% layout <create, edit, delete, act
 Help_TradeSystem_Layout_Activate: "&7Benutze &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Benutze &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Benutze &e/%label% layout edit <name>"
-Help_TradeLog: "&7Benutze &e/%label% <playerName>"
+Help_TradeLog: "&7Benutze &e/%label% <name>"
 Layout_Does_Not_Exist: "&cDieses Layout existiert nicht!"
 Layout_Activated: "&7Das Layout '&b%name%&7' wurde &aaktiviert&7."
 Layout_Deleted: "&7Das Layout '&b%name%&7' wurde &cgelöscht&7."
@@ -113,3 +113,4 @@ Your_request_epired: '&7Deine Handelsanfrage an &e%player% &7ist &cabgelaufen&7.
 Request_expired: '&7Die Handelsanfrage von &e%player% &7ist &cabgelaufen&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Der Handel wurde aufgrund eines &cEconomy Fehlers abgebrochen&7.'
+Items_Dropped: '&7Dein Inventar war &cvoll&7, ein paar Items wurden &cauf den Boden gelegt&7!'
