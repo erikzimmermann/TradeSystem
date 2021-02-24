@@ -29,7 +29,7 @@ import de.codingair.tradesystem.utils.database.DatabaseType;
 import de.codingair.tradesystem.utils.database.DatabaseUtil;
 import de.codingair.tradesystem.utils.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.utils.updates.NotifyListener;
-import de.codingair.tradesystem.utils.updates.UpdateChecker;
+import de.codingair.tradesystem.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
@@ -55,8 +55,7 @@ public class TradeSystem extends JavaPlugin {
     private final DatabaseInitializer databaseInitializer = new DatabaseInitializer();
     private final FileManager fileManager = new FileManager(this);
 
-    private final UpdateChecker updateNotifier = new UpdateChecker("https://www.spigotmc.org/resources/trade-system-only-gui.58434/history");
-    private final Timer timer = new Timer();
+    private final UpdateNotifier updateNotifier = new UpdateNotifier();
     private boolean needsUpdate = false;
 
     private TradeSystemCMD tradeSystemCMD;
@@ -66,42 +65,106 @@ public class TradeSystem extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        timer.start();
+        instance = this;
         Version.load();
         API.getInstance().onEnable(this);
-        instance = this;
 
-        copyConfig();
+        printConsoleInfo(() -> {
+            loadConfigFiles();
+            loadManagers();
+            registerListeners();
+            checkPermissions();
+            registerCommands();
+
+            //initiates metrics
+            new MetricsManager().start();
+
+            afterOnEnable();
+            startUpdateNotifier();
+
+            new BackwardSupport();
+            Lang.initializeFile();
+        });
+
+        PAPI.register();
+        notifyPlayers(null);
+    }
+
+    @Override
+    public void onDisable() {
+        API.getInstance().onDisable(this);
+
+        printConsoleInfo(() -> {
+            log("  > Cancelling all active trades");
+            this.tradeManager.cancelAll();
+            this.layoutManager.save();
+
+            this.tradeCMD.unregister();
+            this.tradeSystemCMD.unregister();
+            this.tradeLogCMD.unregister();
+
+            HandlerList.unregisterAll(this);
+            this.fileManager.destroy();
+        });
+    }
+
+    private void printConsoleInfo(Runnable runnable) {
+        Timer timer = new Timer();
+        timer.start();
 
         log(" ");
         log("__________________________________________________________");
         log(" ");
         log("                       TradeSystem [" + getDescription().getVersion() + "]");
+        if(needsUpdate) {
+            log(" ");
+            log("New update available [v" + updateNotifier.getVersion() + " - " + updateNotifier.getUpdateInfo() + "]. Download it on \n\n" + updateNotifier.getDownloadLink() + "\n");
+        }
         log(" ");
         log("Status:");
         log(" ");
         log("MC-Version: " + Version.get().fullVersion());
         log(" ");
 
+        runnable.run();
+
+        log(" ");
+        log("Finished (" + timer.result() + ")");
+        log(" ");
+        log("__________________________________________________________");
+        log(" ");
+    }
+
+    private void loadManagers() {
+        this.tradeManager.load();
+        this.layoutManager.load();
+        this.databaseInitializer.initialize();
+    }
+
+    private void loadConfigFiles() {
+        copyConfig();
+
         this.fileManager.loadFile("Config", "/");
         this.fileManager.loadFile("Layouts", "/");
 
         Lang.initPreDefinedLanguages(this);
+    }
 
-        this.tradeManager.load();
-        this.layoutManager.load();
-        this.databaseInitializer.initialize();
-
-        Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
-        TradeListener listener;
-        Bukkit.getPluginManager().registerEvents(listener = new TradeListener(), this);
-        ChatButtonManager.getInstance().addListener(listener);
-
+    private void checkPermissions() {
         if(!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
             TradeCMD.PERMISSION = null;
             TradeCMD.PERMISSION_INITIATE = null;
         }
+    }
 
+    private void registerListeners() {
+        Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
+        TradeListener listener;
+        Bukkit.getPluginManager().registerEvents(listener = new TradeListener(), this);
+        ChatButtonManager.getInstance().addListener(listener);
+    }
+
+    private void registerCommands() {
         tradeCMD = new TradeCMD();
         tradeCMD.register();
 
@@ -110,80 +173,24 @@ public class TradeSystem extends JavaPlugin {
 
         tradeLogCMD = new TradeLogCMD();
         tradeLogCMD.register();
-
-        //initiates metrics
-        new MetricsManager();
-
-        afterOnEnable();
-        startUpdateNotifier();
-
-        new BackwardSupport();
-        Lang.initializeFile();
-
-        log(" ");
-        log("Finished (" + timer.result() + ")");
-        log(" ");
-        log("__________________________________________________________");
-        log(" ");
-
-        PAPI.register();
-
-        notifyPlayers(null);
-    }
-
-    @Override
-    public void onDisable() {
-        timer.start();
-        API.getInstance().onDisable(this);
-
-        log(" ");
-        log("__________________________________________________________");
-        log(" ");
-        log("                       TradeSystem [" + getDescription().getVersion() + "]");
-        if(needsUpdate) {
-            log(" ");
-            log("New update available [v" + updateNotifier.getVersion() + " - " + TradeSystem.this.updateNotifier.getUpdateInfo() + "]. Download it on \n\n" + updateNotifier.getDownload() + "\n");
-        }
-        log(" ");
-        log("Status:");
-        log(" ");
-        log("MC-Version: " + Version.get().name());
-        log(" ");
-        log("  > Cancelling all active trades");
-        this.tradeManager.cancelAll();
-        this.layoutManager.save();
-
-        this.tradeCMD.unregister();
-        this.tradeSystemCMD.unregister();
-        this.tradeLogCMD.unregister();
-
-        HandlerList.unregisterAll(this);
-
-        log(" ");
-        log("Done (" + timer.result() + ")");
-        log(" ");
-        log("__________________________________________________________");
-        log(" ");
-
-        this.fileManager.destroy();
     }
 
     private void startUpdateNotifier() {
         Value<BukkitTask> task = new Value<>(null);
         Runnable runnable = () -> {
-            needsUpdate = updateNotifier.needsUpdate();
+            needsUpdate = updateNotifier.read();
 
             if(needsUpdate) {
                 log("-----< TradeSystem >-----");
                 log("New update available [" + updateNotifier.getUpdateInfo() + "].");
-                log("Download it on\n\n" + updateNotifier.getDownload() + "\n");
+                log("Download it on\n\n" + updateNotifier.getDownloadLink() + "\n");
                 log("------------------------");
 
                 task.getValue().cancel();
             }
         };
 
-        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 5, 5 * 60 * 20L));
+        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 60 * 2, 20L * 60 * 60)); //check every hour on GitHub
     }
 
     private void afterOnEnable() {
@@ -220,7 +227,7 @@ public class TradeSystem extends JavaPlugin {
             if(player.hasPermission(TradeSystem.PERMISSION_NOTIFY) && needsUpdate) {
                 player.sendMessage("");
                 player.sendMessage("");
-                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + TradeSystem.getInstance().updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getLink());
+                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getDownloadLink());
                 player.sendMessage("");
                 player.sendMessage("");
             }
@@ -233,6 +240,7 @@ public class TradeSystem extends JavaPlugin {
         IReflection.FieldAccessor<Map<String, Object>> map = IReflection.getField(MemorySection.class, "map");
         Map<String, Object> copy = new HashMap<>(map.get(file.getConfig()));
 
+        //noinspection ConstantConditions
         this.oldConfig = (UTFConfig) IReflection.getConstructor(UTFConfig.class).newInstance();
         map.set(oldConfig, copy);
 

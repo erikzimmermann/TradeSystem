@@ -14,7 +14,7 @@ import java.util.Map;
 public class MetricsManager {
     public static int TRADES = 0;
 
-    public MetricsManager() {
+    public void start() {
         Metrics metrics = new Metrics(TradeSystem.getInstance(), 6959);
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
