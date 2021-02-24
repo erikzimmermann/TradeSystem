@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ public class Lang {
         deleteEmptyFiles(plugin);
 
         List<String> languages = new ArrayList<>();
+        languages.add("CHI.yml");
+        languages.add("CS.yml");
+        languages.add("CZE.yml");
         languages.add("ENG.yml");
         languages.add("ES.yml");
         languages.add("FR.yml");
@@ -45,9 +49,7 @@ public class Lang {
             File file = new File(plugin.getDataFolder() + "/Languages/", language);
             if (!file.exists()) {
                 try {
-                    //noinspection ResultOfMethodCallIgnored
-                    file.createNewFile();
-                    copy(is, new FileOutputStream(file));
+                    if (file.createNewFile()) copy(is, new FileOutputStream(file));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,55 +76,20 @@ public class Lang {
     private static @NotNull FileConfiguration getLanguageFile(String langTag) {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
         if (file == null) {
-            prepareFile(new File(TradeSystem.getInstance().getDataFolder(), "/Languages/" + langTag + ".yml"));
             TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
             return getLanguageFile(langTag);
         }
         return file.getConfig();
     }
 
-    private static void prepareFile(File file) {
-        try {
-            FileReader reader = new FileReader(file);
-            BufferedReader in = new BufferedReader(reader);
-
-            List<String> lines = new ArrayList<>();
-            List<String> origin = new ArrayList<>();
-
-            String s;
-            while ((s = in.readLine()) != null) {
-                lines.add(s);
-                origin.add(s);
-            }
-
-            reader.close();
-            in.close();
-
-            if (!lines.equals(origin)) {
-                FileWriter writer = new FileWriter(file);
-                BufferedWriter out = new BufferedWriter(writer);
-
-                for (String line : lines) {
-                    out.write(line + "\n");
-                }
-
-                out.flush();
-                out.close();
-                writer.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static @NotNull String get(String key) {
+        return get(key, null);
     }
 
-    public static String get(String key) {
+    public static @NotNull String get(@NotNull String key, @Nullable Player p) {
         String s = getLanguageFile(getLanguageKey()).getString(key, null);
-        return s == null ? null : prepare(null, s);
-    }
-
-    public static String get(String key, Player p) {
-        String s = getLanguageFile(getLanguageKey()).getString(key, null);
-        return s == null ? null : prepare(p, s);
+        if (s == null) throw new NullPointerException("Message " + key + " cannot be found in " + getLanguageKey());
+        return prepare(p, s);
     }
 
     private static String prepare(Player player, String s) {
