@@ -15,25 +15,32 @@ public class Vault implements Adapter {
 
     @Override
     public double getMoney(Player player) {
+        if (this.economy == null) return 0;
         return this.economy.getBalance(player);
     }
 
     @Override
     public void withdraw(Player player, double amount) {
+        if (this.economy == null) return;
         this.economy.withdrawPlayer(player, amount);
     }
 
     @Override
     public void deposit(Player player, double amount) {
+        if (this.economy == null) return;
         this.economy.depositPlayer(player, amount);
     }
 
     private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider != null) {
-            economy = economyProvider.getProvider();
-        }
+        if (economyProvider != null) this.economy = economyProvider.getProvider();
 
-        return (economy != null);
+        return this.economy != null;
+    }
+
+    @Override
+    public boolean valid() {
+        if (this.economy != null) return true;
+        return setupEconomy();
     }
 }

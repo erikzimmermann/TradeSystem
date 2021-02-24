@@ -8,4 +8,6 @@ public interface Adapter {
     void withdraw(Player player, double amount);
 
     void deposit(Player player, double amount);
+
+    boolean valid();
 }

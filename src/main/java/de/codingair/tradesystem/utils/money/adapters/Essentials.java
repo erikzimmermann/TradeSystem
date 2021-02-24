@@ -4,18 +4,18 @@ import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import de.codingair.tradesystem.utils.money.Adapter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 
 public class Essentials implements Adapter {
+
     @Override
     public double getMoney(Player player) {
-        if (check(player)) return 0;
+        check(player);
 
         try {
-            return Economy.getMoneyExact(player.getName()).doubleValue();
+            return Economy.getMoneyExact(player.getUniqueId()).doubleValue();
         } catch (UserDoesNotExistException e) {
             e.printStackTrace();
             return 0;
@@ -24,10 +24,10 @@ public class Essentials implements Adapter {
 
     @Override
     public void withdraw(Player player, double amount) {
-        if (check(player)) return;
+        check(player);
 
         try {
-            Economy.substract(player.getName(), new BigDecimal(amount));
+            Economy.subtract(player.getUniqueId(), new BigDecimal(amount));
         } catch (UserDoesNotExistException | NoLoanPermittedException e) {
             e.printStackTrace();
         }
@@ -35,19 +35,21 @@ public class Essentials implements Adapter {
 
     @Override
     public void deposit(Player player, double amount) {
-        if (check(player)) return;
+        check(player);
 
         try {
-            Economy.add(player.getName(), new BigDecimal(amount));
+            Economy.add(player.getUniqueId(), new BigDecimal(amount));
         } catch (UserDoesNotExistException | NoLoanPermittedException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean check(Player player) {
-        if (!Bukkit.getPluginManager().isPluginEnabled("Essentials")) return true;
+    private void check(Player player) {
+        if (!Economy.playerExists(player.getUniqueId())) Economy.createNPC(player.getName());
+    }
 
-        if (!Economy.playerExists(player.getName())) Economy.createNPC(player.getName());
-        return false;
+    @Override
+    public boolean valid() {
+        return true;
     }
 }
