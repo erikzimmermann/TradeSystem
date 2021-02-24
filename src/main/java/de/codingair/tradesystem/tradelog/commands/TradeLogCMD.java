@@ -46,7 +46,7 @@ public class TradeLogCMD extends CommandBuilder {
 
 
         //LOG
-        getBaseComponent().addChild(new MultiCommandComponent(Permissions.PERMISSION_LOG) {
+        getBaseComponent().addChild(new MultiCommandComponent() {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for (Player player : Bukkit.getOnlinePlayers()) {

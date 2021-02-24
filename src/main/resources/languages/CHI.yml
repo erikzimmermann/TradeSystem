@@ -114,3 +114,4 @@ Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
 Fancy_Countdown: '&7正在处理-&e%seconds%s'
 Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
 Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
+TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
