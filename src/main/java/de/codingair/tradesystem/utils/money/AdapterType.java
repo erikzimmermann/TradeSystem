@@ -23,7 +23,12 @@ public enum AdapterType {
     }
 
     public static Adapter getActive() {
-        if (USE != null) return USE.adapter;
+        if (USE != null) {
+            if (USE.adapter == null) return null;
+            if (!USE.adapter.valid()) return null;
+
+            return USE.adapter;
+        }
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();

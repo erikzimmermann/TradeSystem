@@ -30,7 +30,7 @@ jobs:
             name=${file##*/}
             name=${name[@]//.jar/}
             info=${name##*_}
-            version=${name:13}
+            version=${name:12}
             version=${version[@]//_$info/}
             
             if [ $info == $version ]

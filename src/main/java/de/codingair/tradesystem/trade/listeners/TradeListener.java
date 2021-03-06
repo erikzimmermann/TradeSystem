@@ -11,8 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 
@@ -26,16 +24,6 @@ public class TradeListener implements Listener, ChatButtonListener {
         if (type != null && type.equals("TRADE_TOGGLE")) {
             player.performCommand("trade toggle");
         }
-    }
-
-    @EventHandler
-    public void onLie(PlayerBedEnterEvent e) {
-        TradeSystem.getInstance().getTradeCMD().removesInvitesWith(e.getPlayer());
-    }
-
-    @EventHandler
-    public void onChangeWorld(PlayerChangedWorldEvent e) {
-        TradeSystem.getInstance().getTradeCMD().removesInvitesWith(e.getPlayer());
     }
 
     @EventHandler
