@@ -66,7 +66,8 @@ public class UpdateNotifier {
             String s = builder.toString();
             if (!s.isEmpty()) return s;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            //might return code 403 (spam lock)
+//            ex.printStackTrace();
         }
 
         return null;
