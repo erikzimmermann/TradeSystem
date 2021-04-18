@@ -76,6 +76,11 @@ public class TradingGUI extends GUI {
 
             @Override
             public void onInvClickEvent(InventoryClickEvent e) {
+                //cancel faster --> fix dupe glitch
+                if (e.getView().getTopInventory().equals(e.getClickedInventory()) && trade.getSlots().contains(e.getSlot()) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
+                    trade.getReady()[trade.getId(getPlayer())] = false;
+                }
+
                 if (e.getClick().name().equals("SWAP_OFFHAND")) {
                     if (e.getView().getTopInventory().equals(e.getClickedInventory())) {
                         e.setCancelled(true);
