@@ -1,7 +1,5 @@
 package de.codingair.tradesystem.trade;
 
-import de.codingair.codingapi.API;
-import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
@@ -291,18 +289,14 @@ public class Trade {
         }
 
         Runnable runnable = () -> {
-            TradeSystem.man().getTradeList().remove(Trade.this);
-
-            for (Player player : players) {
-                AnvilGUI gui = API.getRemovable(player, AnvilGUI.class);
-                if (gui != null) {
-                    gui.clearInventory();
-                    player.closeInventory();
-                }
-            }
-
             guis[0].pause = true;
             guis[1].pause = true;
+
+            for (Player player : players) {
+                player.closeInventory();
+            }
+
+            TradeSystem.man().getTradeList().remove(Trade.this);
 
             boolean[] droppedItems = new boolean[] {false, false};
             for (Integer slot : slots) {
@@ -352,26 +346,14 @@ public class Trade {
 
             guis[0].clear();
             guis[1].clear();
-            guis[0].close();
-            guis[1].close();
+            guis[0].close(players[0], true);
+            guis[1].close(players[1], true);
 
             double diff = -money[0] + money[1];
-            if (diff < 0) {
-                p0.withdraw(-diff);
-                getTradeLog().log(player1, player2, player1 + " payed money: " + diff);
-            } else if (diff > 0) {
-                p0.deposit(diff);
-                getTradeLog().log(player1, player2, player1 + " received money: " + diff);
-            }
+            handleMoney(player1, player2, p0, diff);
 
             diff = -money[1] + money[0];
-            if (diff < 0) {
-                p1.withdraw(-diff);
-                getTradeLog().log(player1, player2, player2 + " payed money: " + diff);
-            } else if (diff > 0) {
-                p1.deposit(diff);
-                getTradeLog().log(player1, player2, player2 + " received money: " + diff);
-            }
+            handleMoney(player2, player1, p1, diff);
 
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
             player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));
@@ -414,8 +396,8 @@ public class Trade {
                     }
 
                     if (countdownTicks == repetitions) {
-                        this.cancel();
                         runnable.run();
+                        this.cancel();
                         countdownTicks = 0;
                         countdown = null;
                         return;
@@ -431,6 +413,16 @@ public class Trade {
             };
 
             this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
+        }
+    }
+
+    private void handleMoney(Player p, Player other, Profile profile, double diff) {
+        if (diff < 0) {
+            profile.withdraw(-diff);
+            getTradeLog().log(p, other, p + " payed money: " + diff);
+        } else if (diff > 0) {
+            profile.deposit(diff);
+            getTradeLog().log(p, other, p + " received money: " + diff);
         }
     }
 
