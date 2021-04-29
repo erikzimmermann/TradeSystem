@@ -30,14 +30,10 @@ public class RequestManager {
     }
 
     private static void sendRequest(Player sender, String invited) {
-        System.out.println("Sending TradeInvitePacket...");
         TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), invited, TradeSystem.proxy().getTradeHash()), sender)
                 .whenComplete((result, t) -> {
                     if (t != null) t.printStackTrace();
-                    else {
-                        System.out.println("Result: " + result.getResult().name());
-                        RuleManager.handle(sender, invited, result);
-                    }
+                    else RuleManager.handle(sender, invited, result);
                 });
     }
 

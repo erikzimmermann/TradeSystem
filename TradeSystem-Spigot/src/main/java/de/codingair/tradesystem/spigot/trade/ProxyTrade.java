@@ -281,8 +281,8 @@ public class ProxyTrade extends Trade {
 
             this.player.closeInventory();
 
-            TradeSystem.man().getTrades().remove(this.player.getName());
-            TradeSystem.man().getTrades().remove(this.other);
+            TradeSystem.man().getTrades().remove(this.player.getName().toLowerCase());
+            TradeSystem.man().getTrades().remove(this.other.toLowerCase());
 
             boolean[] droppedItems = new boolean[] {false, false};
             for (int i = 0; i < slots.size(); i++) {

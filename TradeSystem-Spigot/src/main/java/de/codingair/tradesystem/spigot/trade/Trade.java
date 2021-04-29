@@ -139,7 +139,8 @@ public abstract class Trade {
         playCancelSound();
         closeInventories();
 
-        TradeSystem.man().getTradesList().remove(this);
+        TradeSystem.man().getTrades().remove(players[0].toLowerCase());
+        TradeSystem.man().getTrades().remove(players[1].toLowerCase());
         if (!alreadyCalled) cancelling(message);
     }
 

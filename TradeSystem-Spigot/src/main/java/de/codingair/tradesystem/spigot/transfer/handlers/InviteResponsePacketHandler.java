@@ -31,13 +31,13 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.NOT_ONLINE));
         }
 
+        TradeSystem.invitations().invalidate(player, packet.getResponding());
         if (packet.isAccept()) {
             //start
             TradeSystem.man().startTrade(player, null, packet.getResponding());
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS));
         } else {
             //ignored answer
-            TradeSystem.invitations().invalidate(player, packet.getResponding());
             player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", player).replace("%player%", packet.getResponding()));
             return CompletableFuture.completedFuture(null);
         }

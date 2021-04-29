@@ -61,7 +61,8 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
         BLOCKED_WORLD,
         GAME_MODE,
         SLEEPING,
-        IS_ALREADY_TRADING
+        IS_ALREADY_TRADING,
+        START_TRADING
     }
 
     public static class ResultPacket implements ResponsePacket {

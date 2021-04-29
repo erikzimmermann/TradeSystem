@@ -235,7 +235,8 @@ public class BukkitTrade extends Trade {
                 player.closeInventory();
             }
 
-            TradeSystem.man().getTradesList().remove(this);
+            TradeSystem.man().getTrades().remove(super.players[0].toLowerCase());
+            TradeSystem.man().getTrades().remove(super.players[1].toLowerCase());
 
             boolean[] droppedItems = new boolean[] {false, false};
             for (Integer slot : slots) {

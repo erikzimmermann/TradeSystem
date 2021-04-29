@@ -3,8 +3,9 @@ package de.codingair.tradesystem.spigot.trade.managers;
 import de.codingair.codingapi.tools.time.TimeMap;
 import de.codingair.codingapi.tools.time.TimeSet;
 import de.codingair.tradesystem.proxy.packets.InviteResponsePacket;
-import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.proxy.packets.TradeStateUpdatePacket;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.Invite;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -59,7 +60,7 @@ public class InvitationManager {
             @Override
             public void timeout(Invite i) {
                 if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_epired", inviter).replace("%player%", nameReceiver));
-                if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver).replace("%player%", inviter.getName()));
+                if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver).replace("%player%", nameInviter));
             }
         };
 
@@ -75,9 +76,20 @@ public class InvitationManager {
         if (l.isEmpty()) instance().clear(player.getName());
 
         player.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", player));
-        if (other != null) other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", player.getName()));
-
-        TradeSystem.getInstance().getTradeManager().startTrade(player, other, name);
+        if (other != null) {
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", player.getName()));
+            TradeSystem.getInstance().getTradeManager().startTrade(player, other, name);
+        } else {
+            //START PROXY
+            TradeSystem.proxyHandler().send(new TradeInvitePacket(player.getName(), name, TradeSystem.proxy().getTradeHash()), player).whenComplete((suc, t) -> {
+                if (t != null) t.printStackTrace();
+                else {
+                    if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
+                        TradeSystem.getInstance().getTradeManager().startTrade(player, null, name);
+                    } else RuleManager.message(player, name, suc.getResult());
+                }
+            });
+        }
     }
 
     @Nullable
@@ -216,5 +228,11 @@ public class InvitationManager {
             return accept(sender, other);
         } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", sender));
         return true;
+    }
+
+    public boolean isInvited(Player inviter, String receiver) {
+        Set<Invite> l = getInvites(receiver);
+        if (l == null) return false;
+        return l.contains(new Invite(inviter.getName()));
     }
 }

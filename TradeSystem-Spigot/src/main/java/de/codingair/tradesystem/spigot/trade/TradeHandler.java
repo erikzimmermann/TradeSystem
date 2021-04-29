@@ -237,7 +237,14 @@ public class TradeHandler {
     }
 
     public void startTrade(Player player, @Nullable Player other, @NotNull String name) {
+        if (TradeSystem.man().isTrading(player)) {
+            System.out.println("TEST1");
+            player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
+            return;
+        }
+
         if (TradeSystem.man().isTrading(player) || TradeSystem.man().isTrading(other)) {
+            System.out.println("TEST2");
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }

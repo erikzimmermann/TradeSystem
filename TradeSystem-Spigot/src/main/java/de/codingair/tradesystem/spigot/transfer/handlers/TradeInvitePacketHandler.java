@@ -8,6 +8,7 @@ import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.trade.managers.RuleManager;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
+import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -18,10 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeInvitePacket, TradeInvitePacket.ResultPacket> {
     @Override
     public @NotNull CompletableFuture<TradeInvitePacket.ResultPacket> response(@NotNull TradeInvitePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
-        System.out.println("TradeInvitePacketHandler");
-
         Player player = Bukkit.getPlayer(packet.getRecipient());
-
         TradeInvitePacket.Result result;
 
         //same trade options?
@@ -33,14 +31,21 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
                 result = RuleManager.isOtherViolatingRules(player);
 
                 if (result == TradeInvitePacket.Result.INVITED) {
-                    System.out.println("inviting");
-                    InvitationManager.registerExpiration(null, packet.getInviter(), player, player.getName());
-                    RequestManager.sendRequest(packet.getInviter(), player);
+                    if (TradeSystem.invitations().isInvited(player, packet.getInviter())) {
+                        //double invite -> start trading
+
+                        TradeSystem.invitations().invalidate(player, packet.getInviter());
+                        player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", packet.getInviter()));
+                        TradeSystem.man().startTrade(player, null, packet.getInviter());
+                        result = TradeInvitePacket.Result.START_TRADING;
+                    } else {
+                        InvitationManager.registerExpiration(null, packet.getInviter(), player, player.getName());
+                        RequestManager.sendRequest(packet.getInviter(), player);
+                    }
                 }
             }
         } else result = TradeInvitePacket.Result.INCOMPATIBLE;
 
-        System.out.println("Result: " + result.name());
         return CompletableFuture.completedFuture(new TradeInvitePacket.ResultPacket(result));
     }
 }
