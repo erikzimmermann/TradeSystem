@@ -7,7 +7,6 @@ import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.spigot.utils.money.AdapterType;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -17,12 +16,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ProxyDataManager {
     //abbreviation to case-sensitive name
-    private final Cache<String, String> CACHE = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
+    private final Cache<String, String> cache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
 
     /**
      * lower-case to case-sensitive
@@ -35,6 +33,11 @@ public class ProxyDataManager {
 
     public void join(String player) {
         this.players.put(player.toLowerCase(), player);
+    }
+
+    public void clearPlayers() {
+        this.cache.invalidateAll();
+        this.players.clear();
     }
 
     public void quit(String player) {
@@ -71,7 +74,7 @@ public class ProxyDataManager {
         String found = this.players.get(lowerName);
         if (found != null) return found;
 
-        found = CACHE.getIfPresent(lowerName);
+        found = cache.getIfPresent(lowerName);
         if (found != null) return found;
 
         int delta = 2147483647;
@@ -90,7 +93,7 @@ public class ProxyDataManager {
         }
 
 
-        if (found != null) CACHE.put(lowerName, found);
+        if (found != null) cache.put(lowerName, found);
         return found;
     }
 

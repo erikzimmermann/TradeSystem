@@ -31,6 +31,7 @@ public class SpigotHandler extends OneWayDataHandler<Player> implements PluginMe
         registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
         registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
         registerHandler(TradeCheckEconomyPacket.class, new TradeCheckEconomyPacketHandler());
+        registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
     }
 
     public void onEnable() {
