@@ -11,10 +11,8 @@
 
     <modules>
         <module>TradeSystem-Spigot</module>
-        <module>TradeSystem-Bundle</module>
         <module>TradeSystem-Packets</module>
-        <module>TradeSystem-Proxy</module>
-        <module>TradeSystem-Velocity</module>
+        <module>TradeSystem-Bundle</module>
     </modules>
 
     <properties>
@@ -31,64 +29,19 @@
         </repository>
     </repositories>
 
-    <build>
-        <finalName>TradeSystem_v${project.version}</finalName>
-
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <includes>
-                    <include>*</include>
-                    <include>*/**</include>
-                </includes>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
-
-                <configuration>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-                    <relocations>
-                        <relocation>
-                            <pattern>de.codingair.codingapi</pattern>
-                            <shadedPattern>tradesystem.codingapi</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>de.codingair.packetmanagement</pattern>
-                            <shadedPattern>tradesystem.packetmanagement</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.github.CodingAir</groupId>
                 <artifactId>CodingAPI</artifactId>
                 <version>1.14</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.CodingAir</groupId>
                 <artifactId>PacketManagement</artifactId>
                 <version>1.10</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

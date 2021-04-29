@@ -17,7 +17,7 @@
     </properties>
 
     <build>
-        <finalName>WarpSystem_v${project.version}</finalName>
+        <finalName>TradeSystem_v${project.version}</finalName>
 
         <plugins>
             <plugin>
@@ -60,20 +60,18 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>TradeSystem-Proxy</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>TradeSystem-Velocity</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>TradeSystem-Spigot</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.CodingAir</groupId>
+            <artifactId>CodingAPI</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.CodingAir</groupId>
+            <artifactId>PacketManagement</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>
