@@ -13,6 +13,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.trade.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.trade.commands.TradeSystemCMD;
+import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
@@ -210,6 +211,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         ChatButtonManager.getInstance().addListener(tradeListener);
 
         Bukkit.getPluginManager().registerEvents(new ExpirationListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
     }
 
     private void registerCommands() {
