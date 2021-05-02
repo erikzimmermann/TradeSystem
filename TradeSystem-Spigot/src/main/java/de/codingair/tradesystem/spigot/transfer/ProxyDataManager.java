@@ -6,6 +6,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
+import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.utils.money.AdapterType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,7 +53,12 @@ public class ProxyDataManager {
         int tradeSlots = layout.getTradeSlotCount();
         int cooldown = TradeSystem.man().getCountdownRepetitions() * TradeSystem.man().getCountdownInterval();
 
-        return Objects.hash(money, type, tradeSlots, cooldown);
+        int blacklist = 0;
+        for (BlockedItem blockedItem : TradeSystem.man().getBlacklist()) {
+            blacklist = Objects.hash(blacklist, blockedItem.hashCode());
+        }
+
+        return Objects.hash(money, type, tradeSlots, cooldown, blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {
