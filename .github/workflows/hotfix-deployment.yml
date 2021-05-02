@@ -26,7 +26,7 @@ jobs:
         milestone=16
         
         upload() {
-            file=$(find "./target" -type f -name "TradeSystem_v*.jar" | head -n 1)
+            file=$(find "./TradeSystem-Bundle/target" -type f -name "TradeSystem_v*.jar" | head -n 1)
             name=${file##*/}
             name=${name[@]//.jar/}
             info=${name##*_}
