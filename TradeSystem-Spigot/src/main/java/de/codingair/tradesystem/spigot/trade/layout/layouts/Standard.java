@@ -2,10 +2,10 @@ package de.codingair.tradesystem.spigot.trade.layout.layouts;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
-import de.codingair.tradesystem.spigot.trade.layout.utils.AbstractPattern;
-import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.spigot.trade.layout.Function;
 import de.codingair.tradesystem.spigot.trade.layout.Item;
+import de.codingair.tradesystem.spigot.trade.layout.utils.AbstractPattern;
+import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

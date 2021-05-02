@@ -1,12 +1,10 @@
 package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
-import de.codingair.packetmanagement.utils.SerializedGeneric;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 public class TradeMoneyUpdatePacket implements Packet {
     private String sender, recipient;

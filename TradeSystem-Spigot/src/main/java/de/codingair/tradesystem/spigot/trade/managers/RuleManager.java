@@ -2,8 +2,8 @@ package de.codingair.tradesystem.spigot.trade.managers;
 
 import de.codingair.codingapi.player.chat.ChatButton;
 import de.codingair.codingapi.player.chat.SimpleMessage;
-import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import net.md_5.bungee.api.chat.TextComponent;

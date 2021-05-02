@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.spigot.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.spigot.tradelog.TradeLog;
-import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
 import de.codingair.tradesystem.spigot.tradelog.repository.TradeLogRepository;
+import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
