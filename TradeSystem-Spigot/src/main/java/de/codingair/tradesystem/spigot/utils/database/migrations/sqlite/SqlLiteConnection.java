@@ -2,7 +2,6 @@ package de.codingair.tradesystem.spigot.utils.database.migrations.sqlite;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
