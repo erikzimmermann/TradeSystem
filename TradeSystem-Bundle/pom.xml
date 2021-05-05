@@ -30,11 +30,11 @@
                     <relocations>
                         <relocation>
                             <pattern>de.codingair.codingapi</pattern>
-                            <shadedPattern>tradesystem.codingapi</shadedPattern>
+                            <shadedPattern>de.codingair.tradesystem.codingapi</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.codingair.packetmanagement</pattern>
-                            <shadedPattern>tradesystem.packetmanagement</shadedPattern>
+                            <shadedPattern>de.codingair.tradesystem.packetmanagement</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
