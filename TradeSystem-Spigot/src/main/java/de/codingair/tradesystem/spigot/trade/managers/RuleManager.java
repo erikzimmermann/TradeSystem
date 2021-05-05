@@ -8,6 +8,9 @@ import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Level;
 
 public class RuleManager {
 
@@ -45,7 +48,7 @@ public class RuleManager {
             InvitationManager.registerExpiration(player, player.getName(), null, other);
         }
 
-        message(player, other, result.getResult());
+        message(player, other, result.getResult(), result.getServer());
     }
 
     public static TradeInvitePacket.Result isOtherViolatingRules(Player other) {
@@ -92,27 +95,27 @@ public class RuleManager {
 
         //main rules
         if (Permissions.PERMISSION != null && !other.hasPermission(Permissions.PERMISSION)) {
-            message(p, other.getName(), TradeInvitePacket.Result.NO_PERMISSION);
+            message(p, other.getName(), TradeInvitePacket.Result.NO_PERMISSION, null);
             return true;
         }
 
         if (TradeSystem.getInstance().getTradeManager().isOffline(other)) {
-            message(p, other.getName(), TradeInvitePacket.Result.MARKED_AS_OFFLINE);
+            message(p, other.getName(), TradeInvitePacket.Result.MARKED_AS_OFFLINE, null);
             return true;
         }
 
         if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
-            message(p, other.getName(), TradeInvitePacket.Result.BLOCKED_WORLD);
+            message(p, other.getName(), TradeInvitePacket.Result.BLOCKED_WORLD, null);
             return true;
         }
 
         if (!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
-            message(p, other.getName(), TradeInvitePacket.Result.GAME_MODE);
+            message(p, other.getName(), TradeInvitePacket.Result.GAME_MODE, null);
             return true;
         }
 
         if (other.isSleeping()) {
-            message(p, other.getName(), TradeInvitePacket.Result.SLEEPING);
+            message(p, other.getName(), TradeInvitePacket.Result.SLEEPING, null);
             return true;
         }
 
@@ -137,15 +140,27 @@ public class RuleManager {
         return false;
     }
 
-    public static void message(Player player, String other, TradeInvitePacket.Result result) {
+    public static void message(Player player, String other, TradeInvitePacket.Result result, @Nullable String server) {
         switch (result) {
             case NO_PERMISSION:
                 player.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade", player));
                 break;
 
+            case NOT_ONLINE:
             case MARKED_AS_OFFLINE:
             case SLEEPING:
+                player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", player));
+                break;
+
+            case OTHER_GROUP:
             case INCOMPATIBLE:
+                assert server != null;
+                TradeSystem.getInstance().getLogger().log(Level.WARNING,
+                        "\"" + player.getName() + "\" tried to trade with \"" + other + "\" on server \"" + server + "\" but the trade configurations from both servers are incompatible.\n\n" +
+                                "You have two options to solve this:\n" +
+                                "1. Use the group function in the trade-configuration file on your proxy to separate both servers from each other or\n" +
+                                "2. Copy the Config.yml from one server to the other server"
+                );
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", player));
                 break;
 

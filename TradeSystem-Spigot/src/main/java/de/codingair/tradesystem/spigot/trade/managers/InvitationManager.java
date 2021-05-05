@@ -86,7 +86,7 @@ public class InvitationManager {
                 else {
                     if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
                         TradeSystem.getInstance().getTradeManager().startTrade(player, null, name);
-                    } else RuleManager.message(player, name, suc.getResult());
+                    } else RuleManager.message(player, name, suc.getResult(), suc.getServer());
                 }
             });
         }

@@ -2,6 +2,8 @@ package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.RequestPacket;
 import de.codingair.packetmanagement.packets.ResponsePacket;
+import de.codingair.packetmanagement.utils.ByteMask;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -67,6 +69,7 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
 
     public static class ResultPacket implements ResponsePacket {
         private Result result;
+        private @Nullable String server;
 
         public ResultPacket() {
         }
@@ -75,18 +78,40 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
             this.result = result;
         }
 
+        public ResultPacket(Result result, @Nullable String server) {
+            this.result = result;
+            this.server = server;
+        }
+
         @Override
         public void write(DataOutputStream out) throws IOException {
-            out.writeByte(result.ordinal());
+            ByteMask mask = new ByteMask((byte) result.ordinal());
+
+            //use negation bit for server indication
+            mask.setBit(7, this.server != null);
+            mask.write(out);
+
+            if (this.server != null) out.writeUTF(this.server);
         }
 
         @Override
         public void read(DataInputStream in) throws IOException {
-            result = Result.values()[in.readByte()];
+            ByteMask mask = new ByteMask();
+            mask.read(in);
+
+            boolean hasServer = mask.getBit(7);
+            mask.setBit(7, false);
+
+            result = Result.values()[mask.getByte()];
+            if (hasServer) this.server = in.readUTF();
         }
 
         public Result getResult() {
             return result;
+        }
+
+        public @Nullable String getServer() {
+            return server;
         }
     }
 }
