@@ -40,7 +40,7 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent e) {
-        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightclick() || players.contains(e.getPlayer()) || !e.getPlayer().isSneaking()) return;
+        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightClick() || players.contains(e.getPlayer()) || !e.getPlayer().isSneaking()) return;
 
         if (e.getRightClicked() instanceof Player) {
             Player p = e.getPlayer();
