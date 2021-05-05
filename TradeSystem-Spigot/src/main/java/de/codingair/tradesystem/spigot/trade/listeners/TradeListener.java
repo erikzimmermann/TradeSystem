@@ -12,7 +12,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.UUID;
 
@@ -24,6 +26,16 @@ public class TradeListener implements Listener, ChatButtonListener {
         if (type != null && type.equals("TRADE_TOGGLE")) {
             player.performCommand("trade toggle");
         }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        TradeSystem.man().join(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        TradeSystem.man().quit(e.getPlayer());
     }
 
     @EventHandler

@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
@@ -21,11 +23,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
 
 public class TradeHandler {
-    private final Set<Player> offline = new HashSet<>();
+    /**
+     * Allow disconnected players to reconnect with same options so they don't have to disable trade requests again.
+     */
+    private final Cache<String, Boolean> disconnectedOffline = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+    private final Set<String> offline = new HashSet<>();
+
     private final HashMap<String, Trade> trades = new HashMap<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
@@ -265,6 +273,22 @@ public class TradeHandler {
         else return new ProxyTrade(player, name);
     }
 
+    public void quit(Player player) {
+        //save options
+        if (this.offline.remove(player.getName())) {
+            //just use any value
+            this.disconnectedOffline.put(player.getName(), true);
+        }
+    }
+
+    public void join(Player player) {
+        //revive options
+        if (this.disconnectedOffline.getIfPresent(player.getName()) != null) {
+            this.disconnectedOffline.invalidate(player.getName());
+            this.offline.add(player.getName());
+        }
+    }
+
     public void cancelAll() {
         List<Trade> tradeList = new ArrayList<>(this.trades.values());
 
@@ -330,12 +354,12 @@ public class TradeHandler {
     }
 
     public boolean isOffline(Player player) {
-        return this.offline.contains(player);
+        return this.offline.contains(player.getName());
     }
 
     public boolean toggle(Player player) {
-        if (offline.remove(player)) return false;
-        this.offline.add(player);
+        if (offline.remove(player.getName())) return false;
+        this.offline.add(player.getName());
         return true;
     }
 
