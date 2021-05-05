@@ -301,7 +301,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         IReflection.FieldAccessor<Map<String, Object>> map = IReflection.getField(MemorySection.class, "map");
         Map<String, Object> copy = new HashMap<>(map.get(file.getConfig()));
 
-        //noinspection ConstantConditions
         this.oldConfig = (UTFConfig) IReflection.getConstructor(UTFConfig.class).newInstance();
         map.set(oldConfig, copy);
 
@@ -318,14 +317,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public FileManager getFileManager() {
         return fileManager;
-    }
-
-    public boolean needsUpdate() {
-        return needsUpdate;
-    }
-
-    public TradeCMD getTradeCMD() {
-        return tradeCMD;
     }
 
     public UTFConfig getOldConfig() {

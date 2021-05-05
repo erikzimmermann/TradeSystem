@@ -47,13 +47,8 @@ public class MySQLConnection {
         }
     }
 
-    public Connection initDataSource() {
-        try {
-            getDataSource();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
+    public Connection initDataSource() throws SQLException {
+        getDataSource();
         return connection;
     }
 }

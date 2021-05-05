@@ -1,7 +1,9 @@
 package de.codingair.tradesystem.spigot.utils.database.migrations;
 
-public interface SqlMigrations {
-    void createMigrationTable();
+import java.sql.SQLException;
 
-    void runMigrations();
+public interface SqlMigrations {
+    void createMigrationTable() throws SQLException;
+
+    void runMigrations() throws SQLException;
 }
