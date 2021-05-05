@@ -159,6 +159,11 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
+    protected void synchronizeTitle() {
+        guis[0].synchronizeTitle();
+    }
+
+    @Override
     protected void playCountDownStopSound() {
         TradeSystem.man().playCountdownStopSound(player);
     }

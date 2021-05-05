@@ -75,10 +75,11 @@ public abstract class Trade {
             countdown.cancel();
             countdownTicks = 0;
             countdown = null;
-            guis[0].synchronizeTitle();
-            guis[1].synchronizeTitle();
+            synchronizeTitle();
         }
     }
+
+    protected abstract void synchronizeTitle();
 
     void updateReady(int id, boolean ready) {
         callReadyUpdate(id, ready);
