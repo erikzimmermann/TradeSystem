@@ -1,0 +1,120 @@
+No_Permissions: '&cBunun için yetkin bulunmuyor!'
+No_Money: '&cYeteri kadar paran yok!'
+Enter_Correct_Amount: '&cLütfen geçerli bir miktar girin.'
+Only_X_Coins: '&cSadece %coins% paranız var!'
+Only_1_Coin: '&cSadece %coins% paranız var!'
+Trade_Was_Cancelled: '&cTakas iptal edildi.'
+Trade_Was_Finished: '&7Takas &atamamlandı&7.'
+Cannot_Trade_With_Yourself: '&cKendinle takas yapamazsın.'
+Player_Not_Online: '&cBu oyuncu aktif değil.'
+Want_To_Trade: ' &c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[%accept% &8|
+  %deny%&8]'
+Want_To_Trade_Accept: '&aKabul et'
+Want_To_Trade_Deny: '&cReddet'
+Want_To_Trade_Hover: '&8» Tıkla «'
+Player_Is_Invited: '&c%player% &7adlı oyuncuya istek gönderildi.'
+Command_How_To: '&7Komut: /trade <oyuncu adı, accept, deny, toggle>'
+Command_How_To_Accept: '&7Komut: /trade accept <Player>'
+Command_How_To_Deny: '&7Komut: /trade deny <Player>'
+Player_Of_Request_Not_Online: '&cTakas teklifi yollayan oyuncu artık aktif değil!'
+Request_Accepted: '&7Takas isteğini &akabul&7 ettiniz.'
+Request_Was_Accepted: '&c%player% &7a yolladığınız takas iteği &akabul edildi&7.'
+Request_Denied: '&7Takas isteğini &creddettiniz.'
+Request_Was_Denied: '&c%player% &7a yolladığınız takas isteği &creddedildi&7.'
+No_Request_Found: '&cBu oyuncudan herhangi bir takas teklifi almadınız!'
+No_Requests_Found: '&cSize yollanan herhangi bir takas teklifi yok!'
+Too_many_requests: '&cSize gelen bir çok takas isteği var&7, lütfen oyuncunun ismini belirtin.'
+GUI_Title: '&c%player% &7ile yapılan takas&c %tradesystem_countdown_fancy%'
+Money_Amount: Para miktarı
+Coin: Para
+Coins: Para
+Status: Durum
+Ready: Hazır
+Not_Ready: Hazır değil
+Wait_For_Other_Player: Öteki oyuncuyu bekleyin...
+Trade_Only_With_Objects: Takası tamamlamak için bir şeyler eklemelisiniz.
+Click_To_Change: Değiştirmek için tıklayın
+Cancel_Trade: İptal etmek için tıklayın
+Not_Able_To_Trade: Takas yapamıyorsunuz.
+Player_Is_Not_Able_Trade: Bu oyuncu takas yapamıyor.
+TRADE_EDITOR: Editör - Takas
+TRADE_EDITOR_FUNCTIONS: Editör - Fonksiyonlar
+EDITOR_RESET: Geçici olarak kaydedilen guiniz sıfırlandı.
+Editor_Command_How_To: '&7Komut: /tradeEditor [reset]'
+Editor_Not_Empty: Arayüzde boş yer yok!
+Editor_No_Item: Arayüzde eşya yok!
+Layout_Name: Arayüz-ismi
+Layout_Name_Already_Exists: Bu arayüz ismi zaten alınmış!
+Layout_Finished: Arayüz&a başarılı bir şekilde&7 oluşturuldu.
+Layout_Edited: Arayüz &abaşarılı bir şekilde&7 değiştirildi.
+Layout_Editor: '&cArayüz &8- &cEditör'
+Layout_Confirm_Close: '&cArayüz &8- &cKaydet?'
+Save: Kaydet
+Not_Ready_For_Saving: '&cArayüz şu anlık kaydedilemez'
+Items: Eşyalar
+Set: Hazır
+Not_Set: Hazır değil
+Functions: İkonlar
+Name: Ad
+Ambiguous_Functions: Değişken ikonlar
+Layout_Set_Items: Guideki ikonların yerlerini belirleyin/düzenleyin
+Layout_Set_Functions: İkonları ayarlayın
+Layout_Set_Name: Arayüz ismi belirlerin
+Layout_Set_Ambiguous_Functions: Değişken ikonları ayarlayın.
+Layout_Editor_Set_Items: '&cDevam etmek için kapayın'
+Back: Geri
+Trader: Siz
+Other: Takas Partneri
+Layout_Set_Own_Slots: Kendi takas slotlarını belirle
+Layout_Set_Other_Slots: Partnerinin takas slotlarını belirle
+Layout_Set_Cancel: İptal etme tuşu ayarla
+Layout_Set_Other_Not_Ready: Partnerin için hazır değil tuşu ayarla
+Layout_Set_Status: Kendi hazır verme/hazır olmama tuşunu ayarla
+Layout_Set_Money: Kendi para tuşunu ayarla
+Layout_Set_Other_Money: Partnerinin para tuşunu ayarla
+Help_TradeSystem: '&7Komut: &e/%label% <layout, reload>'
+Help_TradeSystem_Layout: '&7Komut: &e/%label% layout <create, edit, delete, activate>'
+Help_TradeSystem_Layout_Activate: '&7Komut: &e/%label% layout activate <name>'
+Help_TradeSystem_Layout_Delete: '&7Komut: &e/%label% layout delete <name>'
+Help_TradeSystem_Layout_Edit: '&7Komut: &e/%label% layout edit <name>'
+Help_TradeLog: '&7Komut: &e/%label% <name>'
+Layout_Does_Not_Exist: '&cBöyle bir arayüz yok!'
+Layout_Activated: '&b%name%&7 arayüzü &aaktive edildi&7.'
+Layout_Deleted: '&7&b%name%&7 arayüzü &csilindi&7.'
+Enter_Correct_Name_Space: '&cLütfen boşluk kullanmayın.'
+Sure_That_You_Want_To_Loose_Your_Data: '&7Değişiklikleri kaydetmek &cistemediğinden&f emin misin?'
+Close: Kapat
+Cannot_Delete_Standard: '&7Standart arayüzü silemezsin!'
+Cannot_Edit_Standard: '&7Standart arayüzü değiştiremezsin!'
+Layout_Already_Activated: '&7Bu arayüz zaten aktif!'
+Layout_Set_Replacement_For_Money: '
+  &eHiçbir ekonomi plugini tespit edilemediğinde para işareti ile yer değişterecek ikon.'
+Layout_Hint_Same_Slot_Amount: '&7İki tarafın da eşit miktarda takas slotu olmalı&7!'
+Current_Amount: Şu anki miktar
+Trade_Spam: '&7Bu oyuncu zaten bir takas teklifi aldı&7!'
+Plugin_Reloading: '&cPlugin yenileniyor/reloadlanıyor...'
+Success_Plugin_Reloaded: '&aPlugin yenilendi/reloadlandı.'
+Player_is_not_in_range: '&7&c%player% adlı oyuncu takas yapmak için çok uzakta&7!'
+Cannot_trade_in_that_GameMode: '&cŞu anki oyun modunuzda takas yapamazsınız&7!'
+Other_cannot_trade_in_that_GameMode: '&7Bu oyuncu &cşu anki oyun modunda takas yapamaz!'
+Trade_cancelled_by_attack: '&cBiri size saldırdığı için takas iptal oldu.'
+Trade_Partner_No_Space: '&7Takas parterinizin &cenvanterinde yer yok&7!'
+Trade_Offline: '&7Artık takas yapmaya &ctakas teklifi almayacaksınız!'
+Trade_Online: '&7Artık takas yapmaya &amüsaitsiniz&7!'
+Trade_Partner_is_Offline: '&7Bu oyuncu takas içim &cmüsait değil&7.'
+Trade_You_are_Offline: '&7Use "%command%&e/trade toggle%command%&7" to trade again.'
+Trade_Placed_Blocked_Item: '&7Bu item takasa müsait değil!'
+Cannot_trade_in_bed: '&7Yatakta yatarken takas yapamazsınız.'
+Cannot_trade_in_world: 'Bu dünyada &ctakas yapamazsınız &7!'
+Other_cannot_trade_in_world: '&7Bu oyuncu &7bu dünyada §ctakas yapamaz!'
+Cannot_trade_while_invisible: '&cGörünmez&7 iken takas yapamazsınız!'
+Other_is_already_trading: '&7Bu oyuncu zaten şu an takas yapıyor!'
+Online: Aktif
+Offline: Offline
+Your_request_epired: '&e%player% &7e yolladığınız takas teklifinin süresi doldu.'
+Request_expired: '&7&e%player% &7ın takas teklifinin &csüresi doldu&7.'
+Fancy_Countdown: ' &7- &e%seconds%s'
+Economy_Error: '&7Takas &ciptal edildi. &7Bir &cekonomi hatası yüzüden&7.'
+Items_Dropped: '&7Envanteriniz &cdolu&7, bazı eşyalar yere &cbırakıldı&7!'
+TradeLog_Disabled: '&7Takas girişi &ckapatılmış&7!'
+#kreumat
