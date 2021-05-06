@@ -4,7 +4,6 @@ import de.codingair.codingapi.files.ConfigFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CommandManager {
@@ -48,18 +47,12 @@ public class CommandManager {
             }
         }
 
-        System.out.println("Amount of '" + configTag + "': " + aliases.size());
-        System.out.println(Arrays.toString(aliases.toArray()));
-
         if (aliases.isEmpty()) {
             String def = configTag.toLowerCase();
             aliases.add(def);
             this.configFile.getConfig().set(path, aliases);
             this.configFile.saveConfig();
         }
-        System.out.println(Arrays.toString(aliases.toArray()));
-        System.out.println("");
-
         return aliases.toArray(new String[0]);
     }
 }
