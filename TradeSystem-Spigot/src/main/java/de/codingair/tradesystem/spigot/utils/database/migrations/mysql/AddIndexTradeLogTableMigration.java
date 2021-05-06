@@ -6,8 +6,8 @@ public class AddIndexTradeLogTableMigration implements Migration {
     @Override
     public String getStatement() {
         return "ALTER TABLE tradelog "
-                + "ADD INDEX(player1) "
-                + "ADD INDEX(player2) "
+                + "ADD INDEX(player1), "
+                + "ADD INDEX(player2), "
                 + "ADD INDEX(timestamp);";
     }
 
