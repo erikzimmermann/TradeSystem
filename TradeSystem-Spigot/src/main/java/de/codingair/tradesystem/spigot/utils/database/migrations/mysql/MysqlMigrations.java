@@ -41,6 +41,8 @@ public class MysqlMigrations implements SqlMigrations {
 
     @Override
     public void runMigrations() throws SQLException {
+        // Disabling auto commit because we want to manually commit
+        connection.setAutoCommit(false);
         int maxVersion = getMaxVersion();
 
         List<Migration> validMigrations = migrations.stream().filter(m -> m.getVersion() > maxVersion)
@@ -59,6 +61,9 @@ public class MysqlMigrations implements SqlMigrations {
                 connection.commit();
             }
         }
+
+        // Reenabling auto commit
+        connection.setAutoCommit(true);
     }
 
     private int getMaxVersion() {
