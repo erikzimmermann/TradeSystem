@@ -15,6 +15,7 @@ public class BackwardSupport {
 
         moveShiftRightClick();
         moveRequestCooldownInSek();
+        moveCommandAliases();
 
         if (changed) current.saveConfig();
     }
@@ -33,6 +34,14 @@ public class BackwardSupport {
         if (old.get("TradeSystem.Request_Cooldown_In_Sek", null) != null) {
             //old
             current.getConfig().set("TradeSystem.Trade_Request_Expiration_Time", old.getInt("TradeSystem.Request_Cooldown_In_Sek"));
+            changed = true;
+        }
+    }
+
+    private void moveCommandAliases() {
+        if (old.get("TradeSystem.Trade_Aliases", null) != null) {
+            //old
+            current.getConfig().set("TradeSystem.Commands.Trade", old.getList("TradeSystem.Trade_Aliases"));
             changed = true;
         }
     }
