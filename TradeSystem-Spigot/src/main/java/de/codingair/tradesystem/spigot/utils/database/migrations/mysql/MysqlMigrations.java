@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 public class MysqlMigrations implements SqlMigrations {
     // Define all migrations in this list.
-    private static final List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
+    private static final List<Migration> migrations = Arrays.asList(
+            new CreateTradeLogTableMigration(),
+            new AddIndexTradeLogTableMigration());
     private static MysqlMigrations instance;
     private final Connection connection;
 
