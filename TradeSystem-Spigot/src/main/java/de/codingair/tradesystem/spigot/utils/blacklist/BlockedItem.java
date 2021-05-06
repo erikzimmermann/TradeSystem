@@ -4,6 +4,7 @@ import de.codingair.codingapi.server.specification.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,21 +12,21 @@ import org.json.simple.parser.ParseException;
 import java.util.Objects;
 
 public class BlockedItem {
-    private final Material material;
+    private final @Nullable Material material;
     private final byte data;
-    private final String name;
+    private final @Nullable String name;
 
-    public BlockedItem(Material material, byte data, String name) {
+    public BlockedItem(@Nullable Material material, byte data, @Nullable String name) {
         this.material = material;
         this.data = data;
         this.name = name;
     }
 
-    public BlockedItem(Material material, byte data) {
+    public BlockedItem(@Nullable Material material, byte data) {
         this(material, data, null);
     }
 
-    public BlockedItem(String name) {
+    public BlockedItem(@Nullable String name) {
         this(null, (byte) 0, name);
     }
 
@@ -104,6 +105,7 @@ public class BlockedItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(material, data, name);
+        int material = this.material == null ? 0 : this.material.ordinal();
+        return Objects.hash(material, data, name + "");
     }
 }

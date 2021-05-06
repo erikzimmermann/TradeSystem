@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
@@ -21,11 +23,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.MalformedParametersException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
 
 public class TradeHandler {
-    private final Set<Player> offline = new HashSet<>();
+    /**
+     * Allow disconnected players to reconnect with same options so they don't have to disable trade requests again.
+     */
+    private final Cache<String, Boolean> disconnectedOffline = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+    private final Set<String> offline = new HashSet<>();
+
     private final HashMap<String, Trade> trades = new HashMap<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
@@ -58,6 +66,8 @@ public class TradeHandler {
         FileConfiguration config = file.getConfig();
 
         boolean save = false;
+
+        //load options
         requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
         if (requestExpirationTime <= 10) {
             config.set("TradeSystem.Trade_Request_Expiration_Time", 10);
@@ -85,6 +95,7 @@ public class TradeHandler {
             countdownRepetitions = (countdownInterval = 0);
         }
 
+        //load money abbreviations like 1k = 1,000
         moneyShortcuts.clear();
         if (config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
             List<?> data = config.getList("TradeSystem.Easy_Money_Selection.Shortcuts");
@@ -113,67 +124,39 @@ public class TradeHandler {
         }
 
         TradeSystem.log("  > Loading sounds");
-
-        this.soundStarted = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Started.Name", null)).ifPresent(s -> this.soundStarted = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Started.Pitch", 1.0)));
-        } catch (Exception ex) {
-        }
+        this.soundStarted = getSound("Trade_Started", config, "LEVEL_UP");
         if (this.soundStarted == null) TradeSystem.log("    > No start sound detected (maybe a spelling mistake?)");
 
-        this.soundFinish = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Finished.Name", null)).ifPresent(s -> this.soundFinish = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Finished.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.soundFinish = getSound("Trade_Finished", config, "LEVEL_UP");
         if (this.soundFinish == null) TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
 
-        this.soundBlocked = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Blocked.Name", null)).ifPresent(s -> this.soundBlocked = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Blocked.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.soundBlocked = getSound("Trade_Blocked", config, "NOTE_BASS");
         if (this.soundBlocked == null) TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
 
-        this.soundCancel = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Cancelled.Name", null)).ifPresent(s -> this.soundCancel = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Cancelled.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.soundCancel = getSound("Trade_Cancelled", config, "ITEM_BREAK");
         if (this.soundCancel == null) TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
 
-        this.soundRequest = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Trade_Request.Name", null)).ifPresent(s -> this.soundRequest = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Trade_Request.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.soundRequest = getSound("Trade_Request", config, "ORB_PICKUP");
         if (this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
-        this.countdownTick = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Tick.Name", null)).ifPresent(s -> this.countdownTick = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Tick.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.countdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
         if (this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
 
-        this.countdownStop = null;
-        try {
-            Sound.matchXSound(config.getString("TradeSystem.Sounds.Countdown_Stop.Name", null)).ifPresent(s -> this.countdownStop = new SoundData(s, (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Volume", 0.6), (float) config.getDouble("TradeSystem.Sounds.Countdown_Stop.Pitch", 1.0)));
-        } catch (Exception ignored) {
-        }
+        this.countdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
         if (this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
 
+        //load allowed game modes
         if (this.allowedGameModes != null) this.allowedGameModes.clear();
         this.allowedGameModes = config.getStringList("TradeSystem.Allowed_GameModes");
-        if (this.allowedGameModes == null) this.allowedGameModes = new ArrayList<>();
 
+        //load blocked worlds
         if (this.blockedWorlds != null) this.blockedWorlds.clear();
         this.blockedWorlds = config.getStringList("TradeSystem.Blocked_Worlds");
-        if (this.blockedWorlds == null) this.blockedWorlds = new ArrayList<>();
 
+        //load blacklisted items and add example items if there are no items.
         TradeSystem.log("  > Loading blacklist");
         List<String> l = config.getStringList("TradeSystem.Blacklist");
-        if (l != null && !l.isEmpty()) {
+        if (!l.isEmpty()) {
             for (String s : l) {
                 BlockedItem item = BlockedItem.fromString(s);
                 if (item != null) this.blacklist.add(item);
@@ -193,6 +176,21 @@ public class TradeHandler {
         TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
 
         if (save) file.saveConfig();
+    }
+
+    private SoundData getSound(String name, FileConfiguration config, String def) {
+        try {
+            String sound = config.getString("TradeSystem.Sounds." + name + ".Name", def);
+            assert sound != null;
+
+            Optional<Sound> opt = Sound.matchXSound(sound);
+            return opt.map(value -> new SoundData(value,
+                    (float) config.getDouble("TradeSystem.Sounds." + name + ".Volume", 0.6),
+                    (float) config.getDouble("TradeSystem.Sounds." + name + ".Pitch", 1.0))
+            ).orElse(null);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public void playRequestSound(Player player) {
@@ -265,6 +263,22 @@ public class TradeHandler {
         else return new ProxyTrade(player, name);
     }
 
+    public void quit(Player player) {
+        //save options
+        if (this.offline.remove(player.getName())) {
+            //just use any value
+            this.disconnectedOffline.put(player.getName(), true);
+        }
+    }
+
+    public void join(Player player) {
+        //revive options
+        if (this.disconnectedOffline.getIfPresent(player.getName()) != null) {
+            this.disconnectedOffline.invalidate(player.getName());
+            this.offline.add(player.getName());
+        }
+    }
+
     public void cancelAll() {
         List<Trade> tradeList = new ArrayList<>(this.trades.values());
 
@@ -305,7 +319,7 @@ public class TradeHandler {
         return distance;
     }
 
-    public boolean isRequestOnShiftRightclick() {
+    public boolean isRequestOnShiftRightClick() {
         return requestOnShiftRightclick;
     }
 
@@ -330,12 +344,12 @@ public class TradeHandler {
     }
 
     public boolean isOffline(Player player) {
-        return this.offline.contains(player);
+        return this.offline.contains(player.getName());
     }
 
     public boolean toggle(Player player) {
-        if (offline.remove(player)) return false;
-        this.offline.add(player);
+        if (offline.remove(player.getName())) return false;
+        this.offline.add(player.getName());
         return true;
     }
 

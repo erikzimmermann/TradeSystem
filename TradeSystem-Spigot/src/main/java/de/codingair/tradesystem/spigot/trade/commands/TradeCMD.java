@@ -5,6 +5,7 @@ import de.codingair.codingapi.server.commands.builder.CommandBuilder;
 import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.utils.Invite;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -13,12 +14,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 public class TradeCMD extends CommandBuilder {
-    public TradeCMD(String... commandAliases) {
-        super(TradeSystem.getInstance(), "trade", "Trade-System-CMD", new BaseComponent(Permissions.PERMISSION) {
+    public TradeCMD(String[] aliases, CommandManager commandManager) {
+        super(TradeSystem.getInstance(), aliases[0], "Trade-System-CMD", new BaseComponent(Permissions.PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
                 sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", (Player) sender));
@@ -39,63 +41,74 @@ public class TradeCMD extends CommandBuilder {
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
                 return true;
             }
-        }.setOnlyPlayers(true), true, commandAliases);
+        }.setOnlyPlayers(true), true, Arrays.copyOfRange(aliases, 1, aliases.length));
 
         //TOGGLE
-        getBaseComponent().addChild(new CommandComponent("toggle") {
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String[] args) {
-                return toggle(sender);
-            }
-        });
+        for (String cmd : commandManager.getToggleAliases()) {
+            System.out.println("TOGGLE: '" + cmd + "'");
+            getBaseComponent().addChild(new CommandComponent(cmd) {
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String[] args) {
+                    return toggle(sender);
+                }
+            });
+        }
 
         //ACCEPT
-        getBaseComponent().addChild(new CommandComponent("accept") {
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String[] args) {
-                return TradeSystem.invitations().accept((Player) sender);
-            }
-        });
-
-        getComponent("accept").addChild(new MultiCommandComponent() {
-            @Override
-            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                Set<Invite> l = TradeSystem.invitations().getInvites(sender.getName());
-                if (l == null) return;
-                for (Invite invite : l) {
-                    suggestions.add(invite.getName());
+        for (String cmd : commandManager.getAcceptAliases()) {
+            System.out.println("ACCEPT: '" + cmd + "'");
+            getBaseComponent().addChild(new CommandComponent(cmd) {
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String[] args) {
+                    return TradeSystem.invitations().accept((Player) sender);
                 }
-            }
+            });
 
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                return TradeSystem.invitations().accept((Player) sender, argument);
-            }
-        });
+            getComponent(cmd).addChild(new MultiCommandComponent() {
+                @Override
+                public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
+                    Set<Invite> l = TradeSystem.invitations().getInvites(sender.getName());
+                    if (l == null) return;
+                    for (Invite invite : l) {
+                        suggestions.add(invite.getName());
+                    }
+                }
+
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                    return TradeSystem.invitations().accept((Player) sender, argument);
+                }
+            });
+        }
+
 
         //DENY
-        getBaseComponent().addChild(new CommandComponent("deny") {
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String[] args) {
-                return deny(sender);
-            }
-        });
-
-        getComponent("deny").addChild(new MultiCommandComponent() {
-            @Override
-            public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                Set<Invite> l = TradeSystem.invitations().getInvites(sender.getName());
-                if (l == null) return;
-                for (Invite invite : l) {
-                    suggestions.add(invite.getName());
+        for (String cmd : commandManager.getDenyAliases()) {
+            System.out.println("DENY: '" + cmd + "'");
+            getBaseComponent().addChild(new CommandComponent(cmd) {
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String[] args) {
+                    return deny(sender);
                 }
-            }
+            });
 
-            @Override
-            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                return TradeSystem.invitations().deny(sender, argument);
-            }
-        });
+            getComponent(cmd).addChild(new MultiCommandComponent() {
+                @Override
+                public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
+                    Set<Invite> l = TradeSystem.invitations().getInvites(sender.getName());
+                    if (l == null) return;
+                    for (Invite invite : l) {
+                        suggestions.add(invite.getName());
+                    }
+                }
+
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                    return TradeSystem.invitations().deny(sender, argument);
+                }
+            });
+        }
+
 
         //INVITE
         getBaseComponent().addChild(new MultiCommandComponent(Permissions.PERMISSION_INITIATE) {

@@ -5,6 +5,7 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
 
 import java.sql.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ public class SqLiteMigrations implements SqlMigrations {
 
     private static SqLiteMigrations instance;
     // Define all migrations in this list.
-    private static final List<Migration> migrations = Arrays.asList(new CreateTradeLogTableMigration());
+    private static final List<Migration> migrations = Collections.singletonList(new CreateTradeLogTableMigration());
 
     private SqLiteMigrations() {
     }
@@ -26,7 +27,7 @@ public class SqLiteMigrations implements SqlMigrations {
     }
 
     @Override
-    public void createMigrationTable() {
+    public void createMigrationTable() throws SQLException {
         try (Connection connect = SqlLiteConnection.connect();
              Statement stmt = connect.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
@@ -34,14 +35,11 @@ public class SqLiteMigrations implements SqlMigrations {
                     + "	version integer NOT NULL\n"
                     + ");";
             stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
     }
 
     @Override
-    public void runMigrations() {
+    public void runMigrations() throws SQLException {
         try (Connection connect = SqlLiteConnection.connect()) {
             connect.setAutoCommit(false);
             int maxVersion = getMaxVersion();
@@ -61,8 +59,6 @@ public class SqLiteMigrations implements SqlMigrations {
                     connect.commit();
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

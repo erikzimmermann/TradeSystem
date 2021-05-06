@@ -27,42 +27,35 @@ public class MysqlMigrations implements SqlMigrations {
     }
 
     @Override
-    public void createMigrationTable() {
+    public void createMigrationTable() throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
                     + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
                     + "	version integer NOT NULL\n"
                     + ");";
             stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
     }
 
     @Override
-    public void runMigrations() {
-        try {
-            int maxVersion = getMaxVersion();
+    public void runMigrations() throws SQLException {
+        int maxVersion = getMaxVersion();
 
-            List<Migration> validMigrations = migrations.stream().filter(m -> m.getVersion() > maxVersion)
-                    .sorted(Comparator.comparingInt(Migration::getVersion))
-                    .collect(Collectors.toList());
+        List<Migration> validMigrations = migrations.stream().filter(m -> m.getVersion() > maxVersion)
+                .sorted(Comparator.comparingInt(Migration::getVersion))
+                .collect(Collectors.toList());
 
-            for (Migration migration : validMigrations) {
-                try (Statement stmt = connection.createStatement()) {
-                    String sql = migration.getStatement();
-                    stmt.execute(sql);
+        for (Migration migration : validMigrations) {
+            try (Statement stmt = connection.createStatement()) {
+                String sql = migration.getStatement();
+                stmt.execute(sql);
 
-                    PreparedStatement migrationStatement = connection.prepareStatement("INSERT INTO migrations (version) VALUES (?);");
-                    migrationStatement.setInt(1, migration.getVersion());
-                    migrationStatement.execute();
+                PreparedStatement migrationStatement = connection.prepareStatement("INSERT INTO migrations (version) VALUES (?);");
+                migrationStatement.setInt(1, migration.getVersion());
+                migrationStatement.execute();
 
-                    connection.commit();
-                }
+                connection.commit();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

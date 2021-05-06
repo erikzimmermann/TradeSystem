@@ -29,4 +29,10 @@ target/
 repo/
 out/
 META-INF/
+
+# =========================
+# Other
+# =========================
+
 dependency-reduced-pom.xml
+spigotmc/

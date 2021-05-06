@@ -19,6 +19,7 @@ import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
 import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
+import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.tradelog.commands.TradeLogCMD;
@@ -67,6 +68,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final UpdateNotifier updateNotifier = new UpdateNotifier();
     private boolean needsUpdate = false;
 
+    private CommandManager commandManager;
     private TradeSystemCMD tradeSystemCMD;
     private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
@@ -109,6 +111,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
         printConsoleInfo(() -> {
             loadConfigFiles();
+            new BackwardSupport();
+            this.commandManager = new CommandManager(getFileManager().getFile("Config"));
             loadManagers();
 
             //register packet channels before listening to events
@@ -124,7 +128,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             afterOnEnable();
             startUpdateNotifier();
 
-            new BackwardSupport();
             Lang.initializeFile();
         });
 
@@ -215,7 +218,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void registerCommands() {
-        tradeCMD = new TradeCMD(getTradeAliases());
+        tradeCMD = new TradeCMD(this.commandManager.getTradeAliases(), this.commandManager);
         tradeCMD.register();
 
         tradeSystemCMD = new TradeSystemCMD();
@@ -223,21 +226,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
         tradeLogCMD = new TradeLogCMD();
         tradeLogCMD.register();
-    }
-
-    @NotNull
-    private String[] getTradeAliases() {
-        List<String> aliases = new ArrayList<>();
-
-        List<?> l = fileManager.getFile("Config").getConfig().getList("TradeSystem.Trade_Aliases");
-        if (l != null) {
-            for (Object o : l) {
-                if (o instanceof String) {
-                    aliases.add((String) o);
-                }
-            }
-        }
-        return aliases.toArray(new String[0]);
     }
 
     private void startUpdateNotifier() {
@@ -301,7 +289,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         IReflection.FieldAccessor<Map<String, Object>> map = IReflection.getField(MemorySection.class, "map");
         Map<String, Object> copy = new HashMap<>(map.get(file.getConfig()));
 
-        //noinspection ConstantConditions
         this.oldConfig = (UTFConfig) IReflection.getConstructor(UTFConfig.class).newInstance();
         map.set(oldConfig, copy);
 
@@ -318,14 +305,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public FileManager getFileManager() {
         return fileManager;
-    }
-
-    public boolean needsUpdate() {
-        return needsUpdate;
-    }
-
-    public TradeCMD getTradeCMD() {
-        return tradeCMD;
     }
 
     public UTFConfig getOldConfig() {

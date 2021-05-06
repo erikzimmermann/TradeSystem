@@ -5,7 +5,7 @@
     <parent>
         <artifactId>TradeSystem</artifactId>
         <groupId>de.codingair</groupId>
-        <version>1.2.2_Hotfix-5</version>
+        <version>1.3.0_Hotfix-1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,11 +30,11 @@
                     <relocations>
                         <relocation>
                             <pattern>de.codingair.codingapi</pattern>
-                            <shadedPattern>tradesystem.codingapi</shadedPattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.codingapi</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.codingair.packetmanagement</pattern>
-                            <shadedPattern>tradesystem.packetmanagement</shadedPattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.packetmanagement</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

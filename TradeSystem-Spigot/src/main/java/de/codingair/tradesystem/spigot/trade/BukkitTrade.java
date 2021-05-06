@@ -67,6 +67,12 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
+    protected void synchronizeTitle() {
+        guis[0].synchronizeTitle();
+        guis[1].synchronizeTitle();
+    }
+
+    @Override
     protected void playCountDownStopSound() {
         TradeSystem.man().playCountdownStopSound(players[0]);
         TradeSystem.man().playCountdownStopSound(players[1]);

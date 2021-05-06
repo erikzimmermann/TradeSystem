@@ -5,6 +5,8 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.sql.SQLException;
+
 public class DatabaseUtil {
     private static final String MYSQL_STRING = "MYSQL";
     private static final String SQLITE_STRING = "SQLITE";
@@ -22,7 +24,7 @@ public class DatabaseUtil {
         } else if (SQLITE_STRING.equalsIgnoreCase(databaseType)) {
             this.databaseType = DatabaseType.SQLITE;
         } else {
-            throw new RuntimeException("Invalid database type configured: " + databaseType);
+            throw new IllegalStateException("Invalid database type configured: " + databaseType);
         }
     }
 
@@ -31,13 +33,13 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public void init() {
+    public void init() throws SQLException {
         if (databaseType == DatabaseType.MYSQL) {
             MySQLConnection.getInstance().initDataSource();
         } else if (databaseType == DatabaseType.SQLITE) {
             //No initialization needed
         } else {
-            throw new RuntimeException("No database configured");
+            throw new IllegalStateException("No database configured");
         }
     }
 

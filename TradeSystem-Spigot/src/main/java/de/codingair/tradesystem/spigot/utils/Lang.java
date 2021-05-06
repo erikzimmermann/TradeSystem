@@ -90,7 +90,7 @@ public class Lang {
 
     public static @NotNull String get(@NotNull String key, @Nullable Player p) {
         String s = getLanguageFile(getLanguageKey()).getString(key, null);
-        if (s == null) throw new NullPointerException("Message " + key + " cannot be found in " + getLanguageKey());
+        if (s == null) throw new NullPointerException("Message \"" + key + "\" cannot be found in " + getLanguageKey());
         return prepare(p, s);
     }
 
