@@ -9,6 +9,7 @@ import de.codingair.tradesystem.spigot.event.TradeItemEvent;
 import de.codingair.tradesystem.spigot.trade.layout.Function;
 import de.codingair.tradesystem.spigot.trade.layout.Item;
 import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
+import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
@@ -21,6 +22,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.text.NumberFormatter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
@@ -120,10 +124,10 @@ public abstract class Trade {
         stopListeners();
 
         if (message != null) {
-            getTradeLog().log(players[0], players[1], "Trade Cancelled: " + message);
+            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
             sendMessage(message);
         } else {
-            getTradeLog().log(players[0], players[1], "Trade Cancelled");
+            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
 
             for (int i = 0; i < 2; i++) {
                 String m = Lang.getPrefix() + getPlaceholderMessage(i, "Trade_Was_Cancelled");
@@ -212,13 +216,16 @@ public abstract class Trade {
 
     protected abstract void finish();
 
-    protected void handleMoney(String p, String other, Profile profile, double diff) {
+    protected void handleMoney(String p1, String p2, String receiver, Profile profile, double diff) {
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
+        String fancyDiff = format.format(diff);
+
         if (diff < 0) {
             profile.withdraw(-diff);
-            getTradeLog().log(p, other, p + " payed money: " + diff);
+            getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
         } else if (diff > 0) {
             profile.deposit(diff);
-            getTradeLog().log(p, other, p + " received money: " + diff);
+            getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
         }
     }
 
