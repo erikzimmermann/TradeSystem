@@ -6,6 +6,7 @@ import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -15,7 +16,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TradeLogCMD extends CommandBuilder {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
@@ -58,14 +61,48 @@ public class TradeLogCMD extends CommandBuilder {
                 try {
                     if (TradeLogOptions.isEnabled()) {
                         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
-                            List<TradeLog> logMessages = TradeLogService.getTradeLog().getLogMessages(argument);
-                            sender.sendMessage("§c============= TRADE LOG ==============");
+                            List<TradeLog> log = TradeLogService.getTradeLog().getLogMessages(argument);
 
-                            for (TradeLog logMessage : logMessages) {
-                                sender.sendMessage("§2[" + logMessage.getTimestamp().format(formatter) + "]: " +
-                                        "[" + logMessage.getPlayer1Name() + " - " + logMessage.getPlayer2Name() + "]");
-                                sender.sendMessage(logMessage.getMessage());
+                            List<String> messages = new ArrayList<>();
+                            messages.add("§0");
+                            messages.add("§0");
+                            messages.add("§7§m                            §c §lTRADE LOG§7 §m                            ");
+                            messages.add("§0");
+
+                            if (log.isEmpty()) messages.add("  §c-");
+                            else {
+                                String p1 = null;
+                                String p2 = null;
+                                boolean samePlayers = false;
+
+                                for (int i = 0; i < log.size(); i++) {
+                                    TradeLog l = log.get(i);
+                                    boolean last = i + 1 == log.size();
+
+                                    String name1 = l.getPlayer1Name();
+                                    String name2 = l.getPlayer2Name();
+
+                                    samePlayers = p1 == null || Objects.equals(p1, name1) && Objects.equals(p2, name2);
+                                    if (!samePlayers) {
+                                        messages.add("§0");
+                                        messages.add("§8§m                               §7 Players: §e" + p1 + " §7& §e" + p2);
+                                        if (!last) messages.add("§0");
+                                    }
+
+                                    String color = TradeLogMessages.getByString(l.getMessage()).getColor();
+                                    messages.add("§8" + l.getTimestamp().format(formatter) + " " + color + "» §7" + l.getMessage());
+
+                                    p1 = name1;
+                                    p2 = name2;
+                                }
+
+                                if (samePlayers) {
+                                    messages.add("§0");
+                                    messages.add("§8§m                               §7 Players: §e" + p1 + " §7& §e" + p2);
+                                }
                             }
+
+                            sender.sendMessage(messages.toArray(new String[0]));
                         });
                     } else {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled").replace("%label%", label));

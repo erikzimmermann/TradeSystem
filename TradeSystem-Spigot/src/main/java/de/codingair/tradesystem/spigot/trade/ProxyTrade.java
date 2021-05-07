@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
@@ -312,7 +313,7 @@ public class ProxyTrade extends Trade {
 
                         droppedItems[0] |= dropItem(this.player, toDrop);
                     }
-                    getTradeLog().log(this.player.getName(), this.other, this.player.getName() + " received " + i0.getAmount() + "x " + i0.getType());
+                    getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
                 }
             }
 
@@ -320,11 +321,11 @@ public class ProxyTrade extends Trade {
             guis[0].close(this.player, true);
 
             double diff = -money[0] + money[1];
-            handleMoney(this.player.getName(), this.other, profile, diff);
+            handleMoney(this.player.getName(), this.other, this.player.getName(), profile, diff);
 
             this.player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.player));
             if (droppedItems[0]) this.player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.player));
-            getTradeLog().log(this.player.getName(), this.other, "Trade Finished");
+            getTradeLog().logLater(this.player.getName(), this.other, TradeLogMessages.FINISHED.get(), 20);
 
             TradeSystem.man().playFinishSound(this.player);
         }

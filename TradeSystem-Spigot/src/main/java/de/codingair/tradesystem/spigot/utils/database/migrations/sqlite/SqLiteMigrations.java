@@ -5,7 +5,6 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
 
 import java.sql.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +13,9 @@ public class SqLiteMigrations implements SqlMigrations {
 
     private static SqLiteMigrations instance;
     // Define all migrations in this list.
-    private static final List<Migration> migrations = Collections.singletonList(new CreateTradeLogTableMigration());
+    private static final List<Migration> migrations = Arrays.asList(
+            new CreateTradeLogTableMigration(),
+            new AddIndexTradeLogTableMigration());
 
     private SqLiteMigrations() {
     }
