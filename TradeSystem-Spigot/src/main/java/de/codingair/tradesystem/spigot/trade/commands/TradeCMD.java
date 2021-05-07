@@ -45,7 +45,6 @@ public class TradeCMD extends CommandBuilder {
 
         //TOGGLE
         for (String cmd : commandManager.getToggleAliases()) {
-            System.out.println("TOGGLE: '" + cmd + "'");
             getBaseComponent().addChild(new CommandComponent(cmd) {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
@@ -56,7 +55,6 @@ public class TradeCMD extends CommandBuilder {
 
         //ACCEPT
         for (String cmd : commandManager.getAcceptAliases()) {
-            System.out.println("ACCEPT: '" + cmd + "'");
             getBaseComponent().addChild(new CommandComponent(cmd) {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
@@ -84,7 +82,6 @@ public class TradeCMD extends CommandBuilder {
 
         //DENY
         for (String cmd : commandManager.getDenyAliases()) {
-            System.out.println("DENY: '" + cmd + "'");
             getBaseComponent().addChild(new CommandComponent(cmd) {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
