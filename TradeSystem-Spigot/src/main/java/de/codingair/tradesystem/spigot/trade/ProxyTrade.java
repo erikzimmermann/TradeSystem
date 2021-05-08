@@ -4,15 +4,20 @@ import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +93,7 @@ public class ProxyTrade extends Trade {
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
-            items[i] = contents[i] == null ? null : contents[i].serialize();
+            if (contents[i] != null) items[i] = ItemStackUtils.serializeItemStack(contents[i]);
         }
 
         PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, items);
@@ -96,7 +101,7 @@ public class ProxyTrade extends Trade {
     }
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
-        TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, item == null ? null : item.serialize(), (byte) slotId);
+        TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
         TradeSystem.proxyHandler().send(packet, this.player);
         sent[slotId] = item == null ? null : item.clone();
     }

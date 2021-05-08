@@ -6,6 +6,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.proxy.packets.PlayerInventoryPacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
+import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,8 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
         for (int i = 0; i < packet.getItems().length; i++) {
             if (packet.getItems()[i] == null) continue;
 
-            Map<String, Object> item = (Map<String, Object>) packet.getItems()[i];
-            items[i] = ItemStack.deserialize(item);
+            Map<String, Object> data = (Map<String, Object>) packet.getItems()[i];
+            items[i] = ItemStackUtils.deserializeItemStack(data);
         }
 
         t.setOtherInventory(items);
