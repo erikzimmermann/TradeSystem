@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class TradeSystemPlaceholder extends PlaceholderExpansion {
     @Override
     public String getIdentifier() {
-        return "de/codingair/tradesystem";
+        return "tradesystem";
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
@@ -22,8 +23,8 @@ import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeL
 public class BukkitTrade extends Trade {
     private final Player[] players = new Player[2];
 
-    BukkitTrade(Player p0, Player p1) {
-        super(p0.getName(), p1.getName());
+    BukkitTrade(Player p0, Player p1, boolean initiationServer) {
+        super(p0.getName(), p1.getName(), initiationServer);
         this.players[0] = p0;
         this.players[1] = p1;
     }
@@ -268,7 +269,7 @@ public class BukkitTrade extends Trade {
 
                         droppedItems[0] |= dropItem(player1, toDrop);
                     }
-                    getTradeLog().log(player1.getName(), player2.getName(), player1.getName() + " received " + i0.getAmount() + "x " + i0.getType());
+                    getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i0.getAmount() + "x " + i0.getType()));
                 }
 
                 if (i1 != null && i1.getType() != Material.AIR) {
@@ -286,7 +287,7 @@ public class BukkitTrade extends Trade {
 
                         droppedItems[1] |= dropItem(player2, toDrop);
                     }
-                    getTradeLog().log(player1.getName(), player2.getName(), player2.getName() + " received " + i1.getAmount() + "x " + i1.getType());
+                    getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player2.getName(), i1.getAmount() + "x " + i1.getType()));
                 }
             }
 
@@ -296,10 +297,10 @@ public class BukkitTrade extends Trade {
             guis[1].close(players[1], true);
 
             double diff = -money[0] + money[1];
-            handleMoney(player1.getName(), player2.getName(), p0, diff);
+            handleMoney(player1.getName(), player2.getName(), player1.getName(), p0, diff);
 
             diff = -money[1] + money[0];
-            handleMoney(player2.getName(), player1.getName(), p1, diff);
+            handleMoney(player1.getName(), player2.getName(), player2.getName(), p1, diff);
 
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
             player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));
@@ -309,7 +310,7 @@ public class BukkitTrade extends Trade {
                     this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
                 }
             }
-            getTradeLog().log(player1.getName(), player2.getName(), "Trade Finished");
+            getTradeLog().logLater(player1.getName(), player2.getName(), TradeLogMessages.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(player1);
             TradeSystem.man().playFinishSound(player2);

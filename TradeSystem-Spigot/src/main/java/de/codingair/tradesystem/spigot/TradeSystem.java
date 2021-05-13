@@ -19,6 +19,7 @@ import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
 import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
+import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.tradelog.commands.TradeLogCMD;
@@ -45,12 +46,9 @@ import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TradeSystem extends JavaPlugin implements Proxy {
@@ -67,6 +65,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final UpdateNotifier updateNotifier = new UpdateNotifier();
     private boolean needsUpdate = false;
 
+    private CommandManager commandManager;
     private TradeSystemCMD tradeSystemCMD;
     private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
@@ -109,6 +108,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
         printConsoleInfo(() -> {
             loadConfigFiles();
+            new BackwardSupport();
+            this.commandManager = new CommandManager(getFileManager().getFile("Config"));
             loadManagers();
 
             //register packet channels before listening to events
@@ -124,7 +125,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             afterOnEnable();
             startUpdateNotifier();
 
-            new BackwardSupport();
             Lang.initializeFile();
         });
 
@@ -215,7 +215,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void registerCommands() {
-        tradeCMD = new TradeCMD(getTradeAliases());
+        tradeCMD = new TradeCMD(this.commandManager.getTradeAliases(), this.commandManager);
         tradeCMD.register();
 
         tradeSystemCMD = new TradeSystemCMD();
@@ -223,21 +223,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
         tradeLogCMD = new TradeLogCMD();
         tradeLogCMD.register();
-    }
-
-    @NotNull
-    private String[] getTradeAliases() {
-        List<String> aliases = new ArrayList<>();
-
-        List<?> l = fileManager.getFile("Config").getConfig().getList("TradeSystem.Trade_Aliases");
-        if (l != null) {
-            for (Object o : l) {
-                if (o instanceof String) {
-                    aliases.add((String) o);
-                }
-            }
-        }
-        return aliases.toArray(new String[0]);
     }
 
     private void startUpdateNotifier() {

@@ -36,13 +36,13 @@ public class ProxyDataManager {
         this.players.put(player.toLowerCase(), player);
     }
 
+    public void quit(String player) {
+        this.players.remove(player.toLowerCase());
+    }
+
     public void clearPlayers() {
         this.cache.invalidateAll();
         this.players.clear();
-    }
-
-    public void quit(String player) {
-        this.players.remove(player.toLowerCase());
     }
 
     public int getTradeHash() {

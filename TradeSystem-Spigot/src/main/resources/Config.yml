@@ -7,13 +7,12 @@ TradeSystem:
   #If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
   Permissions: true
 
-  #Command aliases for /trade
-  Trade_Aliases: []
-
   #Both traders have to add an item/money to finish the trade
   Trade_Both: true
   #Also means Exp trading
   Trade_with_money: true
+  #The GUI type which will be used to enter the money amount. Available options: SIGN, ANVIL
+  Money_GUI: SIGN
   #Values: Vault, Essentials, Exp
   Economy_priority:
     - Vault
@@ -60,6 +59,17 @@ TradeSystem:
         - "m"
         - "mio"
       Value: 1000000
+
+  #Warning: The aliases will not be validated. Make sure they are correct.
+  Commands:
+    Trade:
+    - trade
+    Accept:
+    - accept
+    Deny:
+    - deny
+    Toggle:
+    - toggle
 
   #BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
   #WARNING - This log does not remove files automatically after some time, so you have to do it yourself.

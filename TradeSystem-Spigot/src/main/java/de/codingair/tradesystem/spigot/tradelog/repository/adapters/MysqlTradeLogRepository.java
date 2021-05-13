@@ -38,7 +38,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     @Override
     public List<TradeLog> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
-                "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 20;";
+                "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, playerName);
