@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import de.codingair.tradesystem.spigot.utils.MoneyGUI;
 import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,6 +50,7 @@ public class TradeHandler {
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
 
+    private MoneyGUI moneyGUI = MoneyGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean tradeMoney = true;
@@ -85,6 +87,7 @@ public class TradeHandler {
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
+        this.moneyGUI = MoneyGUI.getByName(config.getString("TradeSystem.Money_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
@@ -411,5 +414,9 @@ public class TradeHandler {
 
     public InvitationManager getInvitationManager() {
         return invitationManager;
+    }
+
+    public MoneyGUI getMoneyGUI() {
+        return moneyGUI;
     }
 }

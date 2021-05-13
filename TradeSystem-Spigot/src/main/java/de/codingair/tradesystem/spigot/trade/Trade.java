@@ -35,6 +35,7 @@ public abstract class Trade {
     protected final int[] moneyBackup = new int[] {0, 0};
     protected final int[] money = new int[] {0, 0};
     protected final boolean[] ready = new boolean[] {false, false};
+    protected boolean cancelling = false;
     protected final boolean[] cursor = new boolean[] {false, false};
     protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
     protected final List<Integer> slots = new ArrayList<>();
@@ -118,6 +119,7 @@ public abstract class Trade {
     }
 
     public void cancel(String message, boolean alreadyCalled) {
+        this.cancelling = true;
         boolean[] droppedItems = closeGUI();
         if (droppedItems == null) return;
 
@@ -291,32 +293,6 @@ public abstract class Trade {
 
     boolean emptyTrades() {
         return noMoneyAdded() && noItemsAdded();
-    }
-
-    public boolean cancelBlockedItems(Player player) {
-        List<Integer> blocked = new ArrayList<>();
-
-        for (Integer slot : this.slots) {
-            ItemStack item = this.guis[getId(player)].getItem(slot);
-
-            if (item != null && item.getType() != Material.AIR) {
-                if (TradeSystem.man().isBlocked(item)) blocked.add(slot);
-            }
-        }
-
-        for (Integer slot : blocked) {
-            ItemStack transport = this.guis[getId(player)].getItem(slot).clone();
-            this.guis[getId(player)].setItem(slot, new ItemStack(Material.AIR));
-
-            player.getInventory().addItem(transport);
-        }
-
-        player.updateInventory();
-
-        boolean found = !blocked.isEmpty();
-        blocked.clear();
-
-        return found;
     }
 
     /**

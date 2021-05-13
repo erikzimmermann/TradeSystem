@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
+import de.codingair.codingapi.player.gui.sign.SignGUI;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
