@@ -22,8 +22,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.NumberFormatter;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -43,8 +41,10 @@ public abstract class Trade {
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
     protected Listener listener;
+    protected final boolean initiationServer;
 
-    protected Trade(String p0, String p1) {
+    protected Trade(String p0, String p1, boolean initiationServer) {
+        this.initiationServer = initiationServer;
         this.players[0] = p0;
         this.players[1] = p1;
 
@@ -126,10 +126,10 @@ public abstract class Trade {
         stopListeners();
 
         if (message != null) {
-            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
+            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
             sendMessage(message);
         } else {
-            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
+            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
 
             for (int i = 0; i < 2; i++) {
                 String m = Lang.getPrefix() + getPlaceholderMessage(i, "Trade_Was_Cancelled");
@@ -224,10 +224,18 @@ public abstract class Trade {
 
         if (diff < 0) {
             profile.withdraw(-diff);
-            getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            else {
+                //exception -> proxy trade -> handle money only on one server -> switch players
+                getTradeLog().log(p2, p1, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            }
         } else if (diff > 0) {
             profile.deposit(diff);
-            getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            else {
+                //exception -> proxy trade -> handle money only on one server -> switch players
+                getTradeLog().log(p2, p1, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            }
         }
     }
 

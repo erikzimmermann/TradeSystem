@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.player.gui.sign.SignGUI;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -24,8 +23,8 @@ import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeL
 public class BukkitTrade extends Trade {
     private final Player[] players = new Player[2];
 
-    BukkitTrade(Player p0, Player p1) {
-        super(p0.getName(), p1.getName());
+    BukkitTrade(Player p0, Player p1, boolean initiationServer) {
+        super(p0.getName(), p1.getName(), initiationServer);
         this.players[0] = p0;
         this.players[1] = p1;
     }
@@ -311,7 +310,7 @@ public class BukkitTrade extends Trade {
                     this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
                 }
             }
-            getTradeLog().logLater(player1.getName(), player2.getName(), TradeLogMessages.FINISHED.get(), 20);
+            getTradeLog().logLater(player1.getName(), player2.getName(), TradeLogMessages.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(player1);
             TradeSystem.man().playFinishSound(player2);

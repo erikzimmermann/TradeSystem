@@ -78,14 +78,14 @@ public class InvitationManager {
         player.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", player));
         if (other != null) {
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", player.getName()));
-            TradeSystem.getInstance().getTradeManager().startTrade(player, other, name);
+            TradeSystem.getInstance().getTradeManager().startTrade(other, player, player.getName(), true);
         } else {
             //START PROXY
             TradeSystem.proxyHandler().send(new TradeInvitePacket(player.getName(), name, TradeSystem.proxy().getTradeHash()), player).whenComplete((suc, t) -> {
                 if (t != null) t.printStackTrace();
                 else {
                     if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
-                        TradeSystem.getInstance().getTradeManager().startTrade(player, null, name);
+                        TradeSystem.getInstance().getTradeManager().startTrade(player, null, name, false);
                     } else RuleManager.message(player, name, suc.getResult(), suc.getServer());
                 }
             });
@@ -190,7 +190,7 @@ public class InvitationManager {
                                 if (l.isEmpty()) invites.remove(sender.getName());
 
                                 sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
-                                TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name);
+                                TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, false);
                             } else if (suc.getResult() == InviteResponsePacket.Result.NOT_ONLINE) {
                                 sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
                             } else if (suc.getResult() == InviteResponsePacket.Result.OTHER_GROUP) {
@@ -209,7 +209,7 @@ public class InvitationManager {
             sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender).replace("%player%", sender.getName()));
 
-            TradeSystem.getInstance().getTradeManager().startTrade(sender, other, other.getName());
+            TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), true);
         } else {
             sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", sender));
         }
