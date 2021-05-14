@@ -38,6 +38,8 @@ public class RequestManager {
     }
 
     public static void request(Player p, Player other) {
+        if (!other.isOnline()) return; //npc
+
         if (RuleManager.isViolatingRules(p, other)) return;
         requestFinalTrade(p, other);
     }
