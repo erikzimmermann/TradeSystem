@@ -341,7 +341,6 @@ public class TradingGUI extends GUI {
                             }
 
                             pause = true;
-
                             switch (TradeSystem.man().getMoneyGUI()) {
                                 case SIGN:
                                     openSignGUI();
@@ -417,6 +416,13 @@ public class TradingGUI extends GUI {
                                     String in;
                                     try {
                                         in = ChatColor.stripColor(s[0]).trim().toLowerCase();
+
+                                        if (in.isEmpty()) {
+                                            //cancel
+                                            goBack();
+                                            return;
+                                        }
+
                                         amount = processInput(in);
                                     } catch (NumberFormatException ignored) {
                                         in = "";
@@ -431,14 +437,18 @@ public class TradingGUI extends GUI {
                                         trade.getMoney()[id] = amount;
                                         trade.update();
 
-                                        pause = false;
-                                        close();
-                                        TradingGUI.this.open();
+                                        goBack();
                                         return;
                                     }
 
                                     getLines()[0] = in;
                                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), this::open);
+                                }
+
+                                private void goBack() {
+                                    pause = false;
+                                    close();
+                                    TradingGUI.this.open();
                                 }
                             }.open();
                         }
