@@ -4,6 +4,7 @@ import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
@@ -31,8 +32,8 @@ public class ProxyTrade extends Trade {
     private ItemStack[] otherInventory = null;
     private boolean finishing = false;
 
-    public ProxyTrade(Player player, String other) {
-        super(player.getName(), other);
+    public ProxyTrade(Player player, String other, boolean initiationServer) {
+        super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
 
@@ -88,7 +89,7 @@ public class ProxyTrade extends Trade {
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
-            items[i] = contents[i] == null ? null : contents[i].serialize();
+            if (contents[i] != null) items[i] = ItemStackUtils.serializeItemStack(contents[i]);
         }
 
         PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, items);
@@ -96,7 +97,7 @@ public class ProxyTrade extends Trade {
     }
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
-        TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, item == null ? null : item.serialize(), (byte) slotId);
+        TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
         TradeSystem.proxyHandler().send(packet, this.player);
         sent[slotId] = item == null ? null : item.clone();
     }
@@ -313,7 +314,12 @@ public class ProxyTrade extends Trade {
 
                         droppedItems[0] |= dropItem(this.player, toDrop);
                     }
-                    getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
+
+                    if (initiationServer) getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
+                    else {
+                        //exception -> proxy trade -> handle item on one server -> switch players
+                        getTradeLog().log(this.other, this.player.getName(), TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
+                    }
                 }
             }
 
@@ -325,7 +331,8 @@ public class ProxyTrade extends Trade {
 
             this.player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.player));
             if (droppedItems[0]) this.player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.player));
-            getTradeLog().logLater(this.player.getName(), this.other, TradeLogMessages.FINISHED.get(), 20);
+
+            if (initiationServer) getTradeLog().logLater(this.player.getName(), this.other, TradeLogMessages.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(this.player);
         }

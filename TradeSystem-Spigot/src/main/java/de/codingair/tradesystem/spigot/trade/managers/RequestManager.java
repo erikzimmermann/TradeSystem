@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class RequestManager {
 
@@ -37,7 +38,9 @@ public class RequestManager {
                 });
     }
 
-    public static void request(Player p, Player other) {
+    public static void request(Player p, @Nullable Player other) {
+        if (other != null && !other.isOnline()) return; //npc
+
         if (RuleManager.isViolatingRules(p, other)) return;
         requestFinalTrade(p, other);
     }

@@ -10,7 +10,9 @@ import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
+import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import de.codingair.tradesystem.spigot.utils.MoneyGUI;
 import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,6 +51,7 @@ public class TradeHandler {
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
 
+    private MoneyGUI moneyGUI = MoneyGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean tradeMoney = true;
@@ -85,6 +88,7 @@ public class TradeHandler {
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
+        this.moneyGUI = MoneyGUI.getByName(config.getString("TradeSystem.Money_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
@@ -234,20 +238,22 @@ public class TradeHandler {
         file.saveConfig();
     }
 
-    public void startTrade(Player player, @Nullable Player other, @NotNull String name) {
+    public void startTrade(Player player, @Nullable Player other, @NotNull String name, boolean initiationServer) {
         if (TradeSystem.man().isTrading(player) || TradeSystem.man().isTrading(other)) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }
 
-        getTradeLog().log(name, player.getName(), "Trade started");
+        //log only one start (proxy trades have a start on each server)
+        if (initiationServer) getTradeLog().log(player.getName(), name, TradeLogMessages.STARTED.get());
+
         player.closeInventory();
         if (other != null) other.closeInventory();
 
         MetricsManager.TRADES++;
 
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
-            Trade trade = createTrade(player, other, name);
+            Trade trade = createTrade(player, other, name, initiationServer);
 
             //register
             this.trades.put(player.getName().toLowerCase(), trade);
@@ -258,9 +264,9 @@ public class TradeHandler {
     }
 
     @NotNull
-    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name) {
-        if (other != null) return new BukkitTrade(other, player);
-        else return new ProxyTrade(player, name);
+    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name, boolean initiationServer) {
+        if (other != null) return new BukkitTrade(player, other, initiationServer);
+        else return new ProxyTrade(player, name, initiationServer);
     }
 
     public void quit(Player player) {
@@ -411,5 +417,9 @@ public class TradeHandler {
 
     public InvitationManager getInvitationManager() {
         return invitationManager;
+    }
+
+    public MoneyGUI getMoneyGUI() {
+        return moneyGUI;
     }
 }

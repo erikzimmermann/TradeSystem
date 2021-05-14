@@ -22,8 +22,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.NumberFormatter;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -35,6 +33,7 @@ public abstract class Trade {
     protected final int[] moneyBackup = new int[] {0, 0};
     protected final int[] money = new int[] {0, 0};
     protected final boolean[] ready = new boolean[] {false, false};
+    protected boolean cancelling = false;
     protected final boolean[] cursor = new boolean[] {false, false};
     protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
     protected final List<Integer> slots = new ArrayList<>();
@@ -42,8 +41,10 @@ public abstract class Trade {
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
     protected Listener listener;
+    protected final boolean initiationServer;
 
-    protected Trade(String p0, String p1) {
+    protected Trade(String p0, String p1, boolean initiationServer) {
+        this.initiationServer = initiationServer;
         this.players[0] = p0;
         this.players[1] = p1;
 
@@ -118,16 +119,17 @@ public abstract class Trade {
     }
 
     public void cancel(String message, boolean alreadyCalled) {
+        this.cancelling = true;
         boolean[] droppedItems = closeGUI();
         if (droppedItems == null) return;
 
         stopListeners();
 
         if (message != null) {
-            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
+            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
             sendMessage(message);
         } else {
-            getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
+            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
 
             for (int i = 0; i < 2; i++) {
                 String m = Lang.getPrefix() + getPlaceholderMessage(i, "Trade_Was_Cancelled");
@@ -222,10 +224,18 @@ public abstract class Trade {
 
         if (diff < 0) {
             profile.withdraw(-diff);
-            getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            else {
+                //exception -> proxy trade -> handle money only on one server -> switch players
+                getTradeLog().log(p2, p1, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
+            }
         } else if (diff > 0) {
             profile.deposit(diff);
-            getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            else {
+                //exception -> proxy trade -> handle money only on one server -> switch players
+                getTradeLog().log(p2, p1, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
+            }
         }
     }
 
@@ -291,32 +301,6 @@ public abstract class Trade {
 
     boolean emptyTrades() {
         return noMoneyAdded() && noItemsAdded();
-    }
-
-    public boolean cancelBlockedItems(Player player) {
-        List<Integer> blocked = new ArrayList<>();
-
-        for (Integer slot : this.slots) {
-            ItemStack item = this.guis[getId(player)].getItem(slot);
-
-            if (item != null && item.getType() != Material.AIR) {
-                if (TradeSystem.man().isBlocked(item)) blocked.add(slot);
-            }
-        }
-
-        for (Integer slot : blocked) {
-            ItemStack transport = this.guis[getId(player)].getItem(slot).clone();
-            this.guis[getId(player)].setItem(slot, new ItemStack(Material.AIR));
-
-            player.getInventory().addItem(transport);
-        }
-
-        player.updateInventory();
-
-        boolean found = !blocked.isEmpty();
-        blocked.clear();
-
-        return found;
     }
 
     /**

@@ -30,7 +30,7 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
         TradeSystem.invitations().invalidate(player, packet.getResponding());
         if (packet.isAccept()) {
             //start
-            TradeSystem.man().startTrade(player, null, packet.getResponding());
+            TradeSystem.man().startTrade(player, null, packet.getResponding(), true);
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS));
         } else {
             //ignored answer

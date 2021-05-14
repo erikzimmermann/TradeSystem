@@ -5,6 +5,7 @@ import de.codingair.codingapi.player.gui.inventory.gui.GUI;
 import de.codingair.codingapi.player.gui.inventory.gui.GUIListener;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButton;
 import de.codingair.codingapi.player.gui.inventory.gui.itembutton.ItemButtonOption;
+import de.codingair.codingapi.player.gui.sign.SignGUI;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.codingapi.tools.items.ItemBuilder;
@@ -15,6 +16,7 @@ import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.money.AdapterType;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -140,6 +142,7 @@ public class TradingGUI extends GUI {
                                     item.setAmount(item.getAmount() + 1);
                                     remove.add(e.getSlot());
                                 } else {
+                                    assert e.getCursor() != null;
                                     item = e.getCursor().clone();
                                     item.setAmount(1);
                                 }
@@ -149,6 +152,7 @@ public class TradingGUI extends GUI {
                             }
 
                             case "PLACE_SOME": {
+                                assert e.getCurrentItem() != null;
                                 ItemStack item = e.getCurrentItem().clone();
                                 item.setAmount(item.getMaxStackSize());
 
@@ -160,6 +164,7 @@ public class TradingGUI extends GUI {
                             }
 
                             case "PLACE_ALL":
+                                assert e.getCursor() != null;
                                 if (!trade.fitsTrade(getPlayer(), e.getCursor().clone())) fits = false;
                                 break;
 
@@ -177,8 +182,14 @@ public class TradingGUI extends GUI {
                                 if (item != null && !trade.fitsTrade(getPlayer(), remove, item.clone())) fits = false;
                                 else if (isMovable(e.getSlot())) { //only own items
                                     e.setCancelled(true);
-                                    ItemStack top = e.getView().getTopInventory().getItem(e.getSlot()).clone();
-                                    ItemStack bottom = e.getView().getBottomInventory().getItem(e.getHotbarButton()).clone();
+
+                                    ItemStack current = e.getView().getTopInventory().getItem(e.getSlot());
+                                    assert current != null;
+                                    ItemStack top = current.clone();
+
+                                    current = e.getView().getBottomInventory().getItem(e.getHotbarButton());
+                                    assert current != null;
+                                    ItemStack bottom = current.clone();
 
                                     e.getView().getTopInventory().setItem(e.getSlot(), bottom);
                                     e.getView().getBottomInventory().setItem(e.getHotbarButton(), top);
@@ -190,6 +201,7 @@ public class TradingGUI extends GUI {
                                 List<Integer> remove = new ArrayList<>();
                                 remove.add(e.getSlot());
 
+                                assert e.getCursor() != null;
                                 if (!trade.fitsTrade(getPlayer(), remove, e.getCursor().clone())) fits = false;
                                 break;
                             }
@@ -198,6 +210,7 @@ public class TradingGUI extends GUI {
                             case "DROP_ALL_SLOT":
                             case "DROP_ONE_CURSOR":
                             case "DROP_ONE_SLOT":
+                                assert e.getCurrentItem() != null;
                                 if (!trade.fitsTrade(getPlayer(), e.getCurrentItem().clone())) fits = false;
                                 break;
 
@@ -328,6 +341,18 @@ public class TradingGUI extends GUI {
                             }
 
                             pause = true;
+                            switch (TradeSystem.man().getMoneyGUI()) {
+                                case SIGN:
+                                    openSignGUI();
+                                    break;
+
+                                case ANVIL:
+                                    openAnvilGUI();
+                                    break;
+                            }
+                        }
+
+                        private void openAnvilGUI() {
                             AnvilGUI.openAnvil(TradeSystem.getInstance(), getPlayer(), new AnvilListener() {
                                 private int amount = -999;
 
@@ -337,22 +362,7 @@ public class TradingGUI extends GUI {
 
                                     try {
                                         String in = e.getInput(false).trim().toLowerCase();
-                                        Integer factor = TradeSystem.getInstance().getTradeManager().getMoneyShortcutFactor(in);
-
-                                        //example: "1,000,000.5" -> "1.5 mio"
-                                        if (factor != null) {
-                                            //allow comma
-                                            in = in.replaceAll(",", ".");
-                                            String moneyIn = in.replaceAll("[a-z]", "").trim();
-                                            amount = (int) (Double.parseDouble(moneyIn) * factor);
-                                        } else {
-                                            in = in.replaceAll(",", "");
-                                            int sep = in.indexOf(".");
-                                            if (sep == -1) sep = in.length();
-
-                                            String moneyIn = in.substring(0, sep).replaceAll("\\D", "");
-                                            amount = Integer.parseInt(moneyIn);
-                                        }
+                                        amount = processInput(in);
                                     } catch (NumberFormatException ignored) {
                                     }
 
@@ -387,6 +397,79 @@ public class TradingGUI extends GUI {
                                     });
                                 }
                             }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : TradeSystem.getInstance().getTradeManager().makeMoneyFancy(trade.getMoney()[id]) + "").getItem());
+                        }
+
+                        private void openSignGUI() {
+                            String input = "";
+                            if (trade.getMoney()[id] != 0) input += trade.getMoney()[id];
+
+                            new SignGUI(getPlayer(), TradeSystem.getInstance(), input, "^^^^^^^^", "Enter money", "above") {
+                                @Override
+                                public void onSignChangeEvent(String[] s) {
+                                    if (trade.cancelling) {
+                                        close();
+                                        return;
+                                    }
+
+                                    int amount = -999;
+
+                                    String in;
+                                    try {
+                                        in = ChatColor.stripColor(s[0]).trim().toLowerCase();
+
+                                        if (in.isEmpty()) {
+                                            //cancel
+                                            goBack();
+                                            return;
+                                        }
+
+                                        amount = processInput(in);
+                                    } catch (NumberFormatException ignored) {
+                                        in = "";
+                                    }
+
+                                    int max;
+                                    if (amount < 0) {
+                                        getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", getPlayer()));
+                                    } else if (amount > (max = TradeSystem.getProfile(getPlayer()).getMoney())) {
+                                        getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
+                                    } else {
+                                        trade.getMoney()[id] = amount;
+                                        trade.update();
+
+                                        goBack();
+                                        return;
+                                    }
+
+                                    getLines()[0] = in;
+                                    Bukkit.getScheduler().runTask(TradeSystem.getInstance(), this::open);
+                                }
+
+                                private void goBack() {
+                                    pause = false;
+                                    close();
+                                    TradingGUI.this.open();
+                                }
+                            }.open();
+                        }
+
+                        private int processInput(String in) {
+                            Integer factor = TradeSystem.getInstance().getTradeManager().getMoneyShortcutFactor(in);
+
+                            //example: "1,000,000.5" -> "1.5 mio"
+                            if (factor != null) {
+                                //allow comma
+                                in = in.replaceAll(",", ".");
+                                String moneyIn = in.replaceAll("[a-z]", "").trim();
+                                return (int) (Double.parseDouble(moneyIn) * factor);
+                            } else {
+                                in = in.replaceAll(",", "");
+                                int sep = in.indexOf(".");
+                                if (sep == -1) sep = in.length();
+
+                                String moneyIn = in.substring(0, sep).replaceAll("\\D", "");
+                                return Integer.parseInt(moneyIn);
+                            }
                         }
                     }.setOption(option));
                 }
@@ -427,14 +510,7 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_NOT_READY: {
-                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
-
-                if (!canFinish) {
-                    for (Integer slot : trade.getSlots()) {
-                        if (getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
-                    }
-                    if (trade.getMoney()[id] != 0) canFinish = true;
-                }
+                boolean canFinish = canFinish();
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if (canFinish) {
@@ -452,14 +528,7 @@ public class TradingGUI extends GUI {
             }
 
             case PICK_STATUS_READY: {
-                boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
-
-                if (!canFinish) {
-                    for (Integer slot : trade.getSlots()) {
-                        if (getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
-                    }
-                    if (trade.getMoney()[id] != 0) canFinish = true;
-                }
+                boolean canFinish = canFinish();
 
                 ItemBuilder ready = new ItemBuilder(item.getItem());
                 if (canFinish) {
@@ -503,5 +572,17 @@ public class TradingGUI extends GUI {
                 break;
             }
         }
+    }
+
+    private boolean canFinish() {
+        boolean canFinish = !TradeSystem.getInstance().getTradeManager().isTradeBoth() && !trade.emptyTrades();
+
+        if (!canFinish) {
+            for (Integer slot : trade.getSlots()) {
+                if (getItem(slot) != null && !getItem(slot).getType().equals(Material.AIR)) canFinish = true;
+            }
+            if (trade.getMoney()[id] != 0) canFinish = true;
+        }
+        return canFinish;
     }
 }

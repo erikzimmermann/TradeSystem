@@ -46,6 +46,7 @@ public class TradeListener implements Listener, ChatButtonListener {
             Player p = e.getPlayer();
             Player other = (Player) e.getRightClicked();
 
+            if (!other.isOnline()) return; //npc
             if (!p.canSee(other)) return;
 
             players.add(p, 1);

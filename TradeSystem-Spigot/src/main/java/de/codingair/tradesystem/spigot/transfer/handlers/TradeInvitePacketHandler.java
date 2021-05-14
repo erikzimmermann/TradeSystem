@@ -36,7 +36,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
 
                         TradeSystem.invitations().invalidate(player, packet.getInviter());
                         player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", packet.getInviter()));
-                        TradeSystem.man().startTrade(player, null, packet.getInviter());
+                        TradeSystem.man().startTrade(player, null, packet.getInviter(), true);
                         result = TradeInvitePacket.Result.START_TRADING;
                     } else {
                         InvitationManager.registerExpiration(null, packet.getInviter(), player, player.getName());
