@@ -400,57 +400,59 @@ public class TradingGUI extends GUI {
                         }
 
                         private void openSignGUI() {
-                            String input = "";
-                            if (trade.getMoney()[id] != 0) input += trade.getMoney()[id];
+                            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+                                String input = "";
+                                if (trade.getMoney()[id] != 0) input += trade.getMoney()[id];
 
-                            new SignGUI(getPlayer(), TradeSystem.getInstance(), input, "^^^^^^^^", "Enter money", "above") {
-                                @Override
-                                public void onSignChangeEvent(String[] s) {
-                                    if (trade.cancelling) {
-                                        close();
-                                        return;
-                                    }
+                                new SignGUI(getPlayer(), TradeSystem.getInstance(), input, "^^^^^^^^", "Enter money", "above") {
+                                    @Override
+                                    public void onSignChangeEvent(String[] s) {
+                                        if (trade.cancelling) {
+                                            close();
+                                            return;
+                                        }
 
-                                    int amount = -999;
+                                        int amount = -999;
 
-                                    String in;
-                                    try {
-                                        in = ChatColor.stripColor(s[0]).trim().toLowerCase();
+                                        String in;
+                                        try {
+                                            in = ChatColor.stripColor(s[0]).trim().toLowerCase();
 
-                                        if (in.isEmpty()) {
-                                            //cancel
+                                            if (in.isEmpty()) {
+                                                //cancel
+                                                goBack();
+                                                return;
+                                            }
+
+                                            amount = processInput(in);
+                                        } catch (NumberFormatException ignored) {
+                                            in = "";
+                                        }
+
+                                        int max;
+                                        if (amount < 0) {
+                                            getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", getPlayer()));
+                                        } else if (amount > (max = TradeSystem.getProfile(getPlayer()).getMoney())) {
+                                            getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
+                                        } else {
+                                            trade.getMoney()[id] = amount;
+                                            trade.update();
+
                                             goBack();
                                             return;
                                         }
 
-                                        amount = processInput(in);
-                                    } catch (NumberFormatException ignored) {
-                                        in = "";
+                                        getLines()[0] = in;
+                                        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), this::open);
                                     }
 
-                                    int max;
-                                    if (amount < 0) {
-                                        getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", getPlayer()));
-                                    } else if (amount > (max = TradeSystem.getProfile(getPlayer()).getMoney())) {
-                                        getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
-                                    } else {
-                                        trade.getMoney()[id] = amount;
-                                        trade.update();
-
-                                        goBack();
-                                        return;
+                                    private void goBack() {
+                                        pause = false;
+                                        close();
+                                        TradingGUI.this.open();
                                     }
-
-                                    getLines()[0] = in;
-                                    Bukkit.getScheduler().runTask(TradeSystem.getInstance(), this::open);
-                                }
-
-                                private void goBack() {
-                                    pause = false;
-                                    close();
-                                    TradingGUI.this.open();
-                                }
-                            }.open();
+                                }.open();
+                            });
                         }
 
                         private int processInput(String in) {
