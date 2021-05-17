@@ -115,3 +115,4 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Obchod byl &6ukončen &7z důvodu &cchyby serveru&7.'
 Items_Dropped: '&7Inventář byl plný, některé předměty jsou na &6zemi&7.'
 TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
+Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"

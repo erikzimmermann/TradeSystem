@@ -7,8 +7,7 @@ Trade_Was_Cancelled: '&cTakas iptal edildi.'
 Trade_Was_Finished: '&7Takas &atamamlandı&7.'
 Cannot_Trade_With_Yourself: '&cKendinle takas yapamazsın.'
 Player_Not_Online: '&cBu oyuncu aktif değil.'
-Want_To_Trade: ' &c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[%accept% &8|
-  %deny%&8]'
+Want_To_Trade: ' &c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[%accept% &8| %deny%&8]'
 Want_To_Trade_Accept: '&aKabul et'
 Want_To_Trade_Deny: '&cReddet'
 Want_To_Trade_Hover: '&8» Tıkla «'
@@ -87,8 +86,7 @@ Close: Kapat
 Cannot_Delete_Standard: '&7Standart arayüzü silemezsin!'
 Cannot_Edit_Standard: '&7Standart arayüzü değiştiremezsin!'
 Layout_Already_Activated: '&7Bu arayüz zaten aktif!'
-Layout_Set_Replacement_For_Money: '
-  &eHiçbir ekonomi plugini tespit edilemediğinde para işareti ile yer değişterecek ikon.'
+Layout_Set_Replacement_For_Money: '&eHiçbir ekonomi plugini tespit edilemediğinde para işareti ile yer değişterecek ikon.'
 Layout_Hint_Same_Slot_Amount: '&7İki tarafın da eşit miktarda takas slotu olmalı&7!'
 Current_Amount: Şu anki miktar
 Trade_Spam: '&7Bu oyuncu zaten bir takas teklifi aldı&7!'
@@ -117,4 +115,4 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Takas &ciptal edildi. &7Bir &cekonomi hatası yüzüden&7.'
 Items_Dropped: '&7Envanteriniz &cdolu&7, bazı eşyalar yere &cbırakıldı&7!'
 TradeLog_Disabled: '&7Takas girişi &ckapatılmış&7!'
-#kreumat
+Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"

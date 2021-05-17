@@ -404,7 +404,13 @@ public class TradingGUI extends GUI {
                                 String input = "";
                                 if (trade.getMoney()[id] != 0) input += trade.getMoney()[id];
 
-                                new SignGUI(getPlayer(), TradeSystem.getInstance(), input, "^^^^^^^^", "Enter money", "above") {
+                                String[] text = new String[4];
+                                text[0] = input;
+
+                                String[] description = Lang.get("Sign_Enter_Amount").split("\n", 3);
+                                System.arraycopy(description, 0, text, 1, 3);
+
+                                new SignGUI(getPlayer(), TradeSystem.getInstance(), text) {
                                     @Override
                                     public void onSignChangeEvent(String[] s) {
                                         if (trade.cancelling) {
