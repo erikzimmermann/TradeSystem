@@ -3,7 +3,7 @@ package de.codingair.tradesystem.spigot.extras.bstats;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
+import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.utils.money.AdapterType;
 import org.bukkit.Material;
 

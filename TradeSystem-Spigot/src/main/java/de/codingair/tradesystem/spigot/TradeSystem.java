@@ -10,22 +10,23 @@ import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.codingapi.utils.Value;
 import de.codingair.packetmanagement.utils.Proxy;
+import de.codingair.tradesystem.spigot.commands.TradeCMD;
+import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.placeholderapi.PAPI;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
+import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
-import de.codingair.tradesystem.spigot.trade.commands.TradeCMD;
-import de.codingair.tradesystem.spigot.trade.commands.TradeSystemCMD;
+import de.codingair.tradesystem.spigot.trade.gui_v2.listeners.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
 import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
-import de.codingair.tradesystem.spigot.tradelog.commands.TradeLogCMD;
-import de.codingair.tradesystem.spigot.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.tradelog.repository.adapters.MysqlTradeLogRepository;
-import de.codingair.tradesystem.spigot.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.transfer.ProxyDataManager;
 import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
@@ -212,6 +213,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
         Bukkit.getPluginManager().registerEvents(new ExpirationListener(), this);
         Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
     }
 
     private void registerCommands() {

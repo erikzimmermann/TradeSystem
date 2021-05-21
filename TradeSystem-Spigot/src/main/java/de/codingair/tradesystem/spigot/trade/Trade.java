@@ -1,17 +1,30 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.google.common.collect.Comparators;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
+import de.codingair.codingapi.player.gui.inventory.v2.GUI;
+import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.event.ProxyTradeItemEvent;
-import de.codingair.tradesystem.spigot.event.TradeItemEvent;
-import de.codingair.tradesystem.spigot.trade.layout.Function;
-import de.codingair.tradesystem.spigot.trade.layout.Item;
-import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.events.ProxyTradeItemEvent;
+import de.codingair.tradesystem.spigot.events.TradeItemEvent;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.Transition;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.feedback.FinishResult;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.ShowStatusIcon;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.StatusIcon;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,58 +34,50 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
-import java.text.NumberFormat;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
-import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
+import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public abstract class Trade {
     protected final String[] players = new String[2];
-    protected final TradingGUI[] guis = new TradingGUI[2];
-    protected final int[] moneyBackup = new int[] {0, 0};
-    protected final int[] money = new int[] {0, 0};
-    protected final boolean[] ready = new boolean[] {false, false};
-    protected boolean cancelling = false;
-    protected final boolean[] cursor = new boolean[] {false, false};
-    protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
+    protected final boolean initiationServer;
+    protected final TradeLayout[] layout = new TradeLayout[2];
+    protected final TradingGUI2[] guis = new TradingGUI2[2];
     protected final List<Integer> slots = new ArrayList<>();
     protected final List<Integer> otherSlots = new ArrayList<>();
+    protected final boolean[] ready = new boolean[] {false, false};
+    protected final boolean[] pause = new boolean[] {false, false};
+    protected final boolean[] cursor = new boolean[] {false, false};
+    protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
+    protected Pattern pattern;
+    protected Listener listener;
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
-    protected Listener listener;
-    protected final boolean initiationServer;
+    protected boolean cancelling = false;
 
     protected Trade(String p0, String p1, boolean initiationServer) {
         this.initiationServer = initiationServer;
         this.players[0] = p0;
         this.players[1] = p1;
-
-        Pattern layout = TradeSystem.getInstance().getLayoutManager().getActive();
-
-        for (Item item : layout.getItems()) {
-            if (item == null || item.getFunction() == null) continue;
-            if (item.getFunction().equals(Function.EMPTY_FIRST_TRADER)) slots.add(item.getSlot());
-            else if (item.getFunction().equals(Function.EMPTY_SECOND_TRADER)) otherSlots.add(item.getSlot());
-        }
     }
 
-    boolean[] getReady() {
+    public boolean[] getReady() {
         return ready;
     }
 
-    int[] getMoney() {
-        return money;
+    @Deprecated
+    public int[] getMoney() {
+        throw new IllegalStateException("Not supported anymore");
     }
 
-    protected abstract void updateGUI(boolean forceUpdate);
+    protected abstract void updateGUI();
 
-    void update() {
-        update(false);
-    }
-
-    void update(boolean forceUpdate) {
-        updateGUI(forceUpdate);
+    public void update() {
+        updateGUI();
 
         if (this.ready[0] && this.ready[1]) finish();
         else if (countdown != null) {
@@ -84,26 +89,114 @@ public abstract class Trade {
         }
     }
 
+    protected void updateStatusIcon(Player player, int id) {
+        StatusIcon icon = layout[id].getIcon(StatusIcon.class);
+        int slot = layout[id].getSlotOf(icon);
+
+        Button b = icon.getButton(this, player, getOther(player).orElse(null), getOther(player.getName()));
+        guis[id].getActive().addButton(slot, b);
+        guis[id].setItem(slot, b.buildItem());
+
+        ShowStatusIcon showIcon = layout[id].getIcon(ShowStatusIcon.class);
+        int showSlot = layout[id].getSlotOf(showIcon);
+
+        b = showIcon.getButton(this, player, getOther(player).orElse(null), getOther(player.getName()));
+        guis[id].getActive().addButton(showSlot, b);
+        guis[id].setItem(showSlot, b.buildItem());
+    }
+
+    /**
+     * <b>Simulates</b> all trade icon exchanges.
+     *
+     * @param player The player which tries to finish.
+     * @return {@link Boolean#TRUE} if the simulation had no issues.
+     */
+    protected boolean tryFinish(@NotNull Player player) {
+        int id = getId(player);
+
+        Player other = getOther(player).orElse(null);
+        String othersName = getOther(player.getName());
+
+        for (TradeIcon icon : layout[id].getIcons()) {
+            FinishResult result = icon.tryFinish(this, player, other, othersName, this.initiationServer);
+
+            switch (result) {
+                case ERROR_ECONOMY:
+                    cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
+                    return false;
+
+                case PASS:
+                    break;
+            }
+        }
+
+        return true;
+    }
+
+    protected void finishPlayer(@NotNull Player player) {
+        int id = getId(player);
+
+        Player other = getOther(player).orElse(null);
+        String othersName = getOther(player.getName());
+
+        for (TradeIcon icon : layout[id].getIcons()) {
+            icon.onFinish(this, player, other, othersName, this.initiationServer);
+        }
+    }
+
+    public void updateLater(long delay) {
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), this::update, delay);
+    }
+
     protected abstract void synchronizeTitle();
 
-    void updateReady(int id, boolean ready) {
+    public void updateReady(int id, boolean ready) {
         callReadyUpdate(id, ready);
         this.ready[id] = ready;
-        update(true);
+        update();
     }
 
     protected abstract void callReadyUpdate(int id, boolean ready);
 
     protected abstract void playCountDownStopSound();
 
+    protected abstract void initializeGUIs();
+
     protected abstract void startGUI();
 
     protected abstract void playStartSound();
 
     void start() {
+        initializeGUIs();
+        buildPattern();
         startListeners();
         startGUI();
         playStartSound();
+    }
+
+    private void buildPattern() {
+        this.pattern = TradeSystem.getInstance().getLayoutManager().getActive();
+        buildSlots();
+
+        this.layout[0] = pattern.build();
+        this.layout[1] = pattern.build();
+    }
+
+    private void buildSlots() {
+        slots.addAll(pattern.getSlotsOf(TradeSlot.class));
+        Collections.sort(slots);
+
+        //Sort other slots in a way that the trade layout is symmetrically.
+        otherSlots.addAll(pattern.getSlotsOf(TradeSlotOther.class));
+        otherSlots.sort((o1, o2) -> {
+            int row1 = o1 / 9;
+            int row2 = o2 / 9;
+
+            if (row1 != row2) return Integer.compare(row1, row2);
+
+            //reverse
+            return Integer.compare(o2, o1);
+        });
     }
 
     public void cancel() {
@@ -125,6 +218,13 @@ public abstract class Trade {
 
         stopListeners();
 
+        playCancelSound();
+        closeInventories();
+
+        TradeSystem.man().getTrades().remove(players[0].toLowerCase());
+        TradeSystem.man().getTrades().remove(players[1].toLowerCase());
+        if (!alreadyCalled) cancelling(message);
+
         if (message != null) {
             if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
             sendMessage(message);
@@ -142,13 +242,6 @@ public abstract class Trade {
                 sendMessage(i, Lang.getPrefix() + getPlaceholderMessage(i, "Items_Dropped"));
             }
         }
-
-        playCancelSound();
-        closeInventories();
-
-        TradeSystem.man().getTrades().remove(players[0].toLowerCase());
-        TradeSystem.man().getTrades().remove(players[1].toLowerCase());
-        if (!alreadyCalled) cancelling(message);
     }
 
     protected abstract void closeInventories();
@@ -167,7 +260,7 @@ public abstract class Trade {
         Bukkit.getPluginManager().registerEvents(this.listener = getPickUpListener(), TradeSystem.getInstance());
     }
 
-    protected boolean dropItem(Player player, ItemStack itemStack) {
+    public boolean dropItem(Player player, ItemStack itemStack) {
         if (player == null || itemStack == null || itemStack.getType() == Material.AIR) return false;
         player.getWorld().dropItem(player.getLocation(), itemStack);
         return true;
@@ -199,7 +292,7 @@ public abstract class Trade {
     /**
      * Returns the amount, which doesn't fit
      */
-    protected int fit(Player player, ItemStack item) {
+    public int fit(Player player, ItemStack item) {
         int amount = item.getAmount();
 
         for (int i = 0; i < 36; i++) {
@@ -217,27 +310,6 @@ public abstract class Trade {
     }
 
     protected abstract void finish();
-
-    protected void handleMoney(String p1, String p2, String receiver, Profile profile, double diff) {
-        NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
-        String fancyDiff = format.format(diff);
-
-        if (diff < 0) {
-            profile.withdraw(-diff);
-            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
-            else {
-                //exception -> proxy trade -> handle money only on one server -> switch players
-                getTradeLog().log(p2, p1, TradeLogMessages.PAYED_MONEY.get(receiver, fancyDiff));
-            }
-        } else if (diff > 0) {
-            profile.deposit(diff);
-            if (initiationServer) getTradeLog().log(p1, p2, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
-            else {
-                //exception -> proxy trade -> handle money only on one server -> switch players
-                getTradeLog().log(p2, p1, TradeLogMessages.RECEIVED_MONEY.get(receiver, fancyDiff));
-            }
-        }
-    }
 
     protected void callTradeEvent(@NotNull Player receiver, @NotNull Player sender, ItemStack item) {
         if (item == null) return;
@@ -257,22 +329,22 @@ public abstract class Trade {
         return !TradeSystem.man().getTradesList().contains(this);
     }
 
-    int getOtherId(int id) {
+    public int getOtherId(@Range (from = 0, to = 1) int id) {
         if (id == 1) return 0;
         else return 1;
     }
 
-    int getOtherId(Player player) {
+    public int getOtherId(Player player) {
         return getOtherId(getId(player));
     }
 
-    int getId(Player player) {
+    public int getId(Player player) {
         if (player.getName().equals(this.players[0])) return 0;
         else if (player.getName().equals(this.players[1])) return 1;
         else return -999;
     }
 
-    List<Integer> getSlots() {
+    public List<Integer> getSlots() {
         return slots;
     }
 
@@ -284,7 +356,7 @@ public abstract class Trade {
         return player.getName().equals(this.players[0]) || player.getName().equals(this.players[1]);
     }
 
-    boolean noItemsAdded() {
+    public boolean noItemsAdded() {
         if (guis[0] != null && guis[1] != null) {
             for (int i = 0; i < slots.size(); i++) {
                 if (guis[0].getItem(slots.get(i)) != null && guis[0].getItem(slots.get(i)).getType() != Material.AIR) return false;
@@ -295,12 +367,9 @@ public abstract class Trade {
         return true;
     }
 
-    boolean noMoneyAdded() {
-        return this.money[0] == 0 && this.money[1] == 0;
-    }
-
-    boolean emptyTrades() {
-        return noMoneyAdded() && noItemsAdded();
+    @Deprecated
+    public boolean emptyTrades() {
+        return noItemsAdded();
     }
 
     /**
@@ -364,7 +433,7 @@ public abstract class Trade {
 
         items.clear();
 
-        TradingGUI gui = guis[getId(player)];
+        TradingGUI2 gui = guis[getId(player)];
         for (Integer slot : toRemove.keySet()) {
             ItemStack item = gui.getItem(slot).clone();
             item.setAmount(item.getAmount() - toRemove.get(slot));
@@ -433,5 +502,118 @@ public abstract class Trade {
 
         if (this.players[0].equals(p)) return this.players[1];
         else return this.players[0];
+    }
+
+    public TradeLayout[] getLayout() {
+        return this.layout;
+    }
+
+    public boolean[] getPause() {
+        return pause;
+    }
+
+    public void synchronizeTradeIcon(int playerId, TradeIcon icon) {
+        if (icon instanceof Transition) {
+            int otherId = getOtherId(playerId);
+            informTransition(icon, otherId);
+        }
+
+        icon.updateItem(this, playerId);
+    }
+
+    protected void informTransition(TradeIcon icon, int otherId) {
+        try {
+            Method method = findInform(icon.getClass());
+
+            @SuppressWarnings ("unchecked")
+            Class<? extends TradeIcon> c = (Class<? extends TradeIcon>) method.getParameterTypes()[0];
+            if (TradeIcon.class.equals(c)) throw new IllegalStateException("The TradeIcon " + icon.getClass().getName() + " has no proper implemented inform method! " +
+                    "You cannot use generics and must specify a target TradeIcon with you method.");
+
+            TradeIcon consumer = getLayout()[otherId].getIcon(c);
+            method.invoke(icon, consumer);
+            consumer.updateItem(this, otherId);
+        } catch (ClassCastException | InvocationTargetException | IllegalAccessException | NoSuchMethodException ex) {
+            throw new IllegalStateException("Cannot execute method inform(TradeIcon) of " + icon.getClass().getName(), ex);
+        }
+    }
+
+    private @NotNull Method findInform(Class<?> icon) throws NoSuchMethodException {
+        for (Method m : icon.getDeclaredMethods()) {
+            if (m.getName().equals("inform") && m.getParameterCount() == 1 && TradeIcon.class.isAssignableFrom(m.getParameterTypes()[0])) return m;
+        }
+
+        for (Class<?> i : icon.getInterfaces()) {
+            try {
+                return findInform(i);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+
+        if (icon.getSuperclass() != null) {
+            try {
+                return findInform(icon.getSuperclass());
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+
+        //transition without transition method?
+        throw new NoSuchMethodException();
+    }
+
+    public TradingGUI2[] getGUIs() {
+        return guis;
+    }
+
+    public void handleClickResult(@NotNull TradeIcon tradeIcon, int playerId, @NotNull GUI gui, @NotNull IconResult result, long updateLaterDelay) {
+        switch (result) {
+            case PASS:
+                return;
+
+            case UPDATE:
+                //calls an update
+                updateReady(playerId, false);
+                synchronizeTradeIcon(playerId, tradeIcon);
+                break;
+
+            case UPDATE_LATER:
+                updateReady(playerId, false);
+
+                //calls update() another time - not important
+                updateLater(updateLaterDelay);
+                break;
+
+            case GUI:
+                try {
+                    gui.open();
+                } catch (AlreadyOpenedException ignored) {
+                } catch (NoPageException | IsWaitingException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case READY:
+                updateReady(playerId, true);
+                break;
+
+            case NOT_READY:
+                updateReady(playerId, false);
+                break;
+
+            case CANCEL:
+                cancel();
+                break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + result);
+        }
+    }
+
+    public boolean isInitiationServer() {
+        return initiationServer;
+    }
+
+    public String[] getPlayers() {
+        return players;
     }
 }

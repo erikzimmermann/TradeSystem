@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class TradeItemUpdatePacket implements Packet {
     private String sender, recipient;
-    private Map<String, Object> item; //item.serialize()
+    private Map<String, Object> item;
     private int slotId; //own slotId
 
     public TradeItemUpdatePacket() {

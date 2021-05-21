@@ -12,7 +12,7 @@ TradeSystem:
   #Also means Exp trading
   Trade_with_money: true
   #The GUI type which will be used to enter the money amount. Available options: SIGN, ANVIL
-  Money_GUI: SIGN
+  Input_GUI: ANVIL
   #Values: Vault, Essentials, Exp
   Economy_priority:
     - Vault

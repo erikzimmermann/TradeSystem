@@ -1,9 +1,15 @@
 package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Profile;
@@ -18,11 +24,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
+import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class ProxyTrade extends Trade {
     private final Player player;
@@ -46,37 +55,50 @@ public class ProxyTrade extends Trade {
         update();
     }
 
-    public void receiveMoneyData(double money) {
-        super.money[1] = (int) money;
-        update();
-    }
-
-    public boolean receiveEconomyCheck(double money) {
-        if (super.money[1] == (int) money) {
-            confirmFinish();
-            return true;
-        } else {
-            callEconomyError();
-            return false;
-        }
+    public boolean receiveEconomyCheck() {
+        confirmFinish();
+        return true;
     }
 
     public void receiveState(TradeStateUpdatePacket.State state, String extra) {
         switch (state) {
             case READY:
                 ready[1] = true;
-                update(true);
+                update();
                 break;
 
             case NOT_READY:
                 ready[1] = false;
-                update(true);
+                update();
                 break;
 
             case CANCELLED:
                 cancel(extra, true);
                 break;
         }
+    }
+
+    public void receiveTradeIconUpdate(TradeIcon icon) {
+        super.synchronizeTradeIcon(1, icon);
+    }
+
+    @Override
+    public void synchronizeTradeIcon(int playerId, TradeIcon icon) {
+        super.synchronizeTradeIcon(playerId, icon);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
+
+        try {
+            icon.serialize(out);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+
+        int slot = layout[playerId].getSlotOf(icon);
+
+        TradeIconUpdatePacket packet = new TradeIconUpdatePacket(slot, baos.toByteArray());
+        TradeSystem.proxyHandler().send(packet, this.player);
     }
 
     public void synchronizeState(@NotNull TradeStateUpdatePacket.State state, String extra) {
@@ -102,11 +124,6 @@ public class ProxyTrade extends Trade {
         sent[slotId] = item == null ? null : item.clone();
     }
 
-    private void synchronizeMoney(double money) {
-        TradeMoneyUpdatePacket packet = new TradeMoneyUpdatePacket(player.getName(), other, money);
-        TradeSystem.proxyHandler().send(packet, this.player);
-    }
-
     private ItemStack getSent(int slot) {
         if (slot < 0 || slot >= 54) return null;
         return sent[slot];
@@ -118,9 +135,8 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void updateGUI(boolean forceUpdate) {
+    protected void updateGUI() {
         if (guis[0] != null) {
-            boolean update = forceUpdate;
             for (int i = 0; i < slots.size(); i++) {
                 int slot = slots.get(i);
 
@@ -129,7 +145,6 @@ public class ProxyTrade extends Trade {
                     synchronizeItem(i, item);
 
                     ready[0] = ready[1] = false;
-                    update = true;
                 }
 
                 int otherSlot = otherSlots.get(i);
@@ -138,25 +153,10 @@ public class ProxyTrade extends Trade {
                     guis[0].setItem(otherSlot, getReceived(i));
 
                     ready[0] = ready[1] = false;
-                    update = true;
                 }
             }
 
-            if (money[0] != moneyBackup[0]) {
-                synchronizeMoney(money[0]);
-
-                moneyBackup[0] = money[0];
-                ready[0] = ready[1] = false;
-                update = true;
-            }
-
-            if (money[1] != moneyBackup[1]) {
-                moneyBackup[1] = money[1];
-                ready[0] = ready[1] = false;
-                update = true;
-            }
-
-            if (update) guis[0].initialize(this.player);
+            updateStatusIcon(player, 0);
         }
     }
 
@@ -171,11 +171,21 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
+    protected void initializeGUIs() {
+        this.guis[0] = new TradingGUI2(this.player, this, 0);
+    }
+
+    @Override
     protected void startGUI() {
+        this.guis[0].prepareStart();
         synchronizeInventory();
 
-        this.guis[0] = new TradingGUI(this.player, 0, this);
-        this.guis[0].open();
+        this.guis[0] = new TradingGUI2(this.player, this, 0);
+        try {
+            this.guis[0].open();
+        } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -282,9 +292,7 @@ public class ProxyTrade extends Trade {
         if (!finishing) finishing = true;
         else {
             //finish
-            Profile profile = TradeSystem.getProfile(this.player);
-
-            guis[0].pause = true;
+            pause[0] = true;
 
             this.player.closeInventory();
 
@@ -324,10 +332,13 @@ public class ProxyTrade extends Trade {
             }
 
             guis[0].clear();
-            guis[0].close(this.player, true);
+            try {
+                guis[0].close();
+            } catch (AlreadyClosedException e) {
+                e.printStackTrace();
+            }
 
-            double diff = -money[0] + money[1];
-            handleMoney(this.player.getName(), this.other, this.player.getName(), profile, diff);
+            finishPlayer(this.player);
 
             this.player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.player));
             if (droppedItems[0]) this.player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.player));
@@ -339,14 +350,9 @@ public class ProxyTrade extends Trade {
     }
 
     private void checkFinish() {
-        Profile profile = TradeSystem.getProfile(this.player);
+        tryFinish(this.player);
 
-        if (profile.getMoney() < money[0]) {
-            callEconomyError();
-            return;
-        }
-
-        TradeSystem.proxyHandler().send(new TradeCheckEconomyPacket(this.player.getName(), this.other, money[0]), this.player).whenComplete((suc, t) -> {
+        TradeSystem.proxyHandler().send(new TradeCheckFinishPacket(this.player.getName(), this.other), this.player).whenComplete((suc, t) -> {
             if (t != null) t.printStackTrace();
             else if (suc.getBoolean()) confirmFinish();
             else callEconomyError();
@@ -362,7 +368,7 @@ public class ProxyTrade extends Trade {
         if (this.countdown != null) return;
 
         if (this.guis[0] == null) return;
-        if (this.guis[0].pause) return;
+        if (pause[0]) return;
 
         int interval = TradeSystem.man().getCountdownInterval();
         int repetitions = TradeSystem.man().getCountdownRepetitions();
@@ -426,5 +432,11 @@ public class ProxyTrade extends Trade {
 
     public void setOtherInventory(ItemStack[] otherInventory) {
         this.otherInventory = otherInventory;
+    }
+
+    @Override
+    protected void informTransition(TradeIcon icon, int otherId) {
+        if (otherId == 1) return;
+        super.informTransition(icon, otherId);
     }
 }

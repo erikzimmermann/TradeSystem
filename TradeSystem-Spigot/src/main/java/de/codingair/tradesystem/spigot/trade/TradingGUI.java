@@ -39,7 +39,8 @@ public class TradingGUI extends GUI {
     public TradingGUI(Player p, int id, Trade trade) {
         super(p, Lang.get("GUI_Title", p).replace("%player%", trade.getOther(p.getName())), 54, TradeSystem.getInstance(), false);
 
-        this.layout = TradeSystem.getInstance().getLayoutManager().getActive();
+//        this.layout = TradeSystem.getInstance().getLayoutManager().getActive();
+        this.layout = null;
         this.trade = trade;
         this.id = id;
 
@@ -329,7 +330,7 @@ public class TradingGUI extends GUI {
             case PICK_MONEY: {
                 if (AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) {
                     int money = trade.getMoney()[id];
-                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeMoneyFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer()))).addLore("", "§7» " + Lang.get("Click_To_Change", getPlayer()));
+                    ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeAmountFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer()))).addLore("", "§7» " + Lang.get("Click_To_Change", getPlayer()));
                     if (trade.getMoney()[id] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                     addButton(new ItemButton(item.getSlot(), moneyBuilder.getItem()) {
@@ -341,7 +342,7 @@ public class TradingGUI extends GUI {
                             }
 
                             pause = true;
-                            switch (TradeSystem.man().getMoneyGUI()) {
+                            switch (TradeSystem.man().getInputGUI()) {
                                 case SIGN:
                                     openSignGUI();
                                     break;
@@ -375,7 +376,7 @@ public class TradingGUI extends GUI {
                                     int max;
                                     if (amount > (max = TradeSystem.getProfile(e.getPlayer()).getMoney())) {
                                         amount = -999;
-                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
+                                        e.getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeAmountFancy(max) + "")));
                                         return;
                                     }
 
@@ -396,7 +397,7 @@ public class TradingGUI extends GUI {
                                         open();
                                     });
                                 }
-                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : TradeSystem.getInstance().getTradeManager().makeMoneyFancy(trade.getMoney()[id]) + "").getItem());
+                            }, new ItemBuilder(Material.PAPER).setName(trade.getMoney()[id] == 0 ? (Lang.get("Money_Amount", getPlayer()) + "...") : TradeSystem.getInstance().getTradeManager().makeAmountFancy(trade.getMoney()[id]) + "").getItem());
                         }
 
                         private void openSignGUI() {
@@ -439,7 +440,7 @@ public class TradingGUI extends GUI {
                                         if (amount < 0) {
                                             getPlayer().sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", getPlayer()));
                                         } else if (amount > (max = TradeSystem.getProfile(getPlayer()).getMoney())) {
-                                            getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeMoneyFancy(max) + "")));
+                                            getPlayer().sendMessage(Lang.getPrefix() + (max == 1 ? Lang.get("Only_1_Coin", getPlayer()).replace("%coins%", max + "") : Lang.get("Only_X_Coins", getPlayer()).replace("%coins%", TradeSystem.getInstance().getTradeManager().makeAmountFancy(max) + "")));
                                         } else {
                                             trade.getMoney()[id] = amount;
                                             trade.update();
@@ -487,7 +488,8 @@ public class TradingGUI extends GUI {
             case SHOW_MONEY: {
                 int money = trade.getMoney()[trade.getOtherId(id)];
 
-                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem()).setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeMoneyFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer())));
+                ItemBuilder moneyBuilder = new ItemBuilder(item.getItem())
+                        .setName("§e" + Lang.get("Money_Amount", getPlayer()) + ": §7" + TradeSystem.getInstance().getTradeManager().makeAmountFancy(money) + " " + (money == 1 ? Lang.get("Coin", getPlayer()) : Lang.get("Coins", getPlayer())));
                 if (trade.getMoney()[trade.getOtherId(id)] > 0) moneyBuilder.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
                 if (AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney()) setItem(item.getSlot(), moneyBuilder.getItem());

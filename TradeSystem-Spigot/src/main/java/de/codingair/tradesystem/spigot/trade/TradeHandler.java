@@ -8,12 +8,12 @@ import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import de.codingair.tradesystem.spigot.utils.MoneyGUI;
-import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -27,7 +27,7 @@ import java.lang.reflect.MalformedParametersException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
+import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class TradeHandler {
     /**
@@ -51,7 +51,7 @@ public class TradeHandler {
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
 
-    private MoneyGUI moneyGUI = MoneyGUI.SIGN;
+    private InputGUI inputGUI = InputGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean tradeMoney = true;
@@ -88,7 +88,7 @@ public class TradeHandler {
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
-        this.moneyGUI = MoneyGUI.getByName(config.getString("TradeSystem.Money_GUI", "SIGN"));
+        this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
         this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
@@ -238,14 +238,14 @@ public class TradeHandler {
         file.saveConfig();
     }
 
-    public void startTrade(Player player, @Nullable Player other, @NotNull String name, boolean initiationServer) {
+    public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
         if (TradeSystem.man().isTrading(player) || TradeSystem.man().isTrading(other)) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }
 
         //log only one start (proxy trades have a start on each server)
-        if (initiationServer) getTradeLog().log(player.getName(), name, TradeLogMessages.STARTED.get());
+        if (initiationServer) getTradeLog().log(player.getName(), othersName, TradeLogMessages.STARTED.get());
 
         player.closeInventory();
         if (other != null) other.closeInventory();
@@ -253,11 +253,11 @@ public class TradeHandler {
         MetricsManager.TRADES++;
 
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
-            Trade trade = createTrade(player, other, name, initiationServer);
+            Trade trade = createTrade(player, other, othersName, initiationServer);
 
             //register
             this.trades.put(player.getName().toLowerCase(), trade);
-            this.trades.put(name.toLowerCase(), trade);
+            this.trades.put(othersName.toLowerCase(), trade);
 
             trade.start();
         }, 5L);
@@ -394,7 +394,7 @@ public class TradeHandler {
         return moneyShortcuts.get(key);
     }
 
-    public String makeMoneyFancy(int money) {
+    public String makeAmountFancy(int money) {
         StringBuilder s = new StringBuilder();
 
         //1,000,000
@@ -419,7 +419,7 @@ public class TradeHandler {
         return invitationManager;
     }
 
-    public MoneyGUI getMoneyGUI() {
-        return moneyGUI;
+    public InputGUI getInputGUI() {
+        return inputGUI;
     }
 }

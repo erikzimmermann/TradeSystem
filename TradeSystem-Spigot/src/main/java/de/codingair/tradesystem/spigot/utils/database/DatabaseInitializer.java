@@ -1,7 +1,7 @@
 package de.codingair.tradesystem.spigot.utils.database;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogOptions;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
 import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MysqlMigrations;
 import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqLiteMigrations;

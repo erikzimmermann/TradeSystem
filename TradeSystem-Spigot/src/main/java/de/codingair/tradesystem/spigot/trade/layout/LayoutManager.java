@@ -2,9 +2,9 @@ package de.codingair.tradesystem.spigot.trade.layout;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.trade.layout.layouts.Standard;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui_v2.layout.utils.DefaultPattern;
 import de.codingair.tradesystem.spigot.trade.layout.utils.AbstractPattern;
-import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,15 +13,15 @@ import java.util.List;
 
 public class LayoutManager {
     private final List<String> reservedNames = new ArrayList<>();
-    private final List<AbstractPattern> layouts = new ArrayList<>();
+    private final List<Pattern> layouts = new ArrayList<>();
     private Pattern active;
 
     public void load() {
         this.layouts.clear();
 
         TradeSystem.log("  > Loading layouts");
-        this.layouts.add(new Standard());
-        this.active = getPattern("Standard");
+//        this.layouts.add(new Standard());
+        this.active = new DefaultPattern();
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
@@ -29,12 +29,12 @@ public class LayoutManager {
         List<String> dataList = config.getStringList("Layouts");
         int standardLayouts = this.layouts.size();
 
-        for (String data : dataList) {
-            AbstractPattern ap = AbstractPattern.getFromJSONString(data);
-            if (ap != null) this.layouts.add(ap);
-        }
+//        for (String data : dataList) {
+//            AbstractPattern ap = AbstractPattern.getFromJSONString(data);
+//            if (ap != null) this.layouts.add(ap);
+//        }
 
-        setActive(getPattern(config.getString("Active", null)));
+//        setActive(getPattern(config.getString("Active", null)));
 
         TradeSystem.log("    ...got " + (this.layouts.size() - standardLayouts) + " layout(s)");
     }
@@ -46,13 +46,13 @@ public class LayoutManager {
 
         List<String> data = new ArrayList<>();
 
-        for (AbstractPattern layout : this.layouts) {
-            if (layout.isStandard()) continue;
-            data.add(layout.toJSONString());
-        }
+//        for (Pattern layout : this.layouts) {
+//            if (layout.isStandard()) continue;
+//            data.add(layout.toJSONString());
+//        }
 
         config.set("Layouts", data);
-        config.set("Active", this.active.getName());
+//        config.set("Active", this.active.getName());
         file.saveConfig();
 
         TradeSystem.log("    ...saved " + data.size() + " layout(s)");
@@ -61,32 +61,37 @@ public class LayoutManager {
     public AbstractPattern getPattern(String name) {
         if (name == null) return null;
 
-        for (AbstractPattern layout : this.layouts) {
-            if (layout.getName().equals(name)) return layout;
+        for (Pattern layout : this.layouts) {
+//            if (layout.getName().equals(name)) return layout;
         }
 
-        return null;
+        throw new IllegalStateException("Not implemented yet");
+//        return null;
     }
 
     public void addPattern(AbstractPattern pattern) {
-        this.layouts.add(pattern);
+//        this.layouts.add(pattern);
+        throw new IllegalStateException("Not implemented yet");
     }
 
     public boolean remove(@NotNull AbstractPattern pattern) {
-        return this.layouts.remove(pattern);
+//        return this.layouts.remove(pattern);
+        throw new IllegalStateException("Not implemented yet");
     }
 
     public Pattern getActive() {
         return active;
     }
 
-    public void setActive(Pattern active) {
+    public void setActive(de.codingair.tradesystem.spigot.trade.layout.utils.Pattern active) {
         if (active == null) return;
-        this.active = active;
+//        this.active = active;
+        throw new IllegalStateException("Not implemented yet");
     }
 
     public List<AbstractPattern> getLayouts() {
-        return layouts;
+//        return layouts;
+        throw new IllegalStateException("Not implemented yet");
     }
 
     public boolean isAvailable(String name) {
