@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 public class MySQLConnection {
 
@@ -26,15 +27,15 @@ public class MySQLConnection {
         if (connection == null) {
             try {
                 getDataSource();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
 
         return connection;
     }
 
-    private static void getDataSource() throws SQLException {
+    private static void getDataSource() throws Exception {
         if (connection == null) {
             String host = config.getString("TradeSystem.Tradelog.Database.Db_host");
             int port = config.getInt("TradeSystem.Tradelog.Database.Db_port");
@@ -47,8 +48,7 @@ public class MySQLConnection {
         }
     }
 
-    public Connection initDataSource() throws SQLException {
+    public void initDataSource() throws Exception {
         getDataSource();
-        return connection;
     }
 }

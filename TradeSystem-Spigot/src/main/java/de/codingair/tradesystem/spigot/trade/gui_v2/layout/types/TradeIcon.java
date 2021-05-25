@@ -1,9 +1,8 @@
 package de.codingair.tradesystem.spigot.trade.gui_v2.layout.types;
 
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.TradeLayout;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.feedback.FinishResult;
 import org.bukkit.entity.Player;
@@ -95,7 +94,7 @@ public interface TradeIcon {
     default void updateItem(Trade trade, int playerId) {
         int slot = trade.getLayout()[playerId].getSlotOf(this);
 
-        TradingGUI2 gui = trade.getGUIs()[playerId];
+        TradingGUI gui = trade.getGUIs()[playerId];
         Button button = gui.getActive().getButtonAt(slot);
         gui.setItem(slot, button.buildItem());
     }
@@ -110,7 +109,7 @@ public interface TradeIcon {
         int playerId = trade.getId(player);
         int slot = trade.getLayout()[playerId].getSlotOf(this);
 
-        TradingGUI2 gui = trade.getGUIs()[playerId];
+        TradingGUI gui = trade.getGUIs()[playerId];
         Button button = getButton(trade, player, trade.getOther(player).orElse(null), trade.getOther(player.getName()));
         gui.getActive().addButton(slot, button);
         gui.setItem(slot, button.buildItem());

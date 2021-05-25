@@ -1,9 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
-import com.google.common.collect.Comparators;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
-import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -13,7 +11,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.ProxyTradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.TradeLayout;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
@@ -46,32 +44,29 @@ public abstract class Trade {
     protected final String[] players = new String[2];
     protected final boolean initiationServer;
     protected final TradeLayout[] layout = new TradeLayout[2];
-    protected final TradingGUI2[] guis = new TradingGUI2[2];
+    protected final TradingGUI[] guis = new TradingGUI[2];
     protected final List<Integer> slots = new ArrayList<>();
     protected final List<Integer> otherSlots = new ArrayList<>();
+
     protected final boolean[] ready = new boolean[] {false, false};
     protected final boolean[] pause = new boolean[] {false, false};
     protected final boolean[] cursor = new boolean[] {false, false};
     protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
+
     protected Pattern pattern;
     protected Listener listener;
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
     protected boolean cancelling = false;
 
-    protected Trade(String p0, String p1, boolean initiationServer) {
+    protected Trade(String player0, String player1, boolean initiationServer) {
         this.initiationServer = initiationServer;
-        this.players[0] = p0;
-        this.players[1] = p1;
+        this.players[0] = player0;
+        this.players[1] = player1;
     }
 
     public boolean[] getReady() {
         return ready;
-    }
-
-    @Deprecated
-    public int[] getMoney() {
-        throw new IllegalStateException("Not supported anymore");
     }
 
     protected abstract void updateGUI();
@@ -91,18 +86,10 @@ public abstract class Trade {
 
     protected void updateStatusIcon(Player player, int id) {
         StatusIcon icon = layout[id].getIcon(StatusIcon.class);
-        int slot = layout[id].getSlotOf(icon);
-
-        Button b = icon.getButton(this, player, getOther(player).orElse(null), getOther(player.getName()));
-        guis[id].getActive().addButton(slot, b);
-        guis[id].setItem(slot, b.buildItem());
+        icon.updateButton(this, player);
 
         ShowStatusIcon showIcon = layout[id].getIcon(ShowStatusIcon.class);
-        int showSlot = layout[id].getSlotOf(showIcon);
-
-        b = showIcon.getButton(this, player, getOther(player).orElse(null), getOther(player.getName()));
-        guis[id].getActive().addButton(showSlot, b);
-        guis[id].setItem(showSlot, b.buildItem());
+        showIcon.updateButton(this, player);
     }
 
     /**
@@ -174,7 +161,7 @@ public abstract class Trade {
         playStartSound();
     }
 
-    private void buildPattern() {
+    protected void buildPattern() {
         this.pattern = TradeSystem.getInstance().getLayoutManager().getActive();
         buildSlots();
 
@@ -325,10 +312,6 @@ public abstract class Trade {
         pluginManager.callEvent(event);
     }
 
-    public boolean isFinished() {
-        return !TradeSystem.man().getTradesList().contains(this);
-    }
-
     public int getOtherId(@Range (from = 0, to = 1) int id) {
         if (id == 1) return 0;
         else return 1;
@@ -346,30 +329,6 @@ public abstract class Trade {
 
     public List<Integer> getSlots() {
         return slots;
-    }
-
-    List<Integer> getOtherSlots() {
-        return otherSlots;
-    }
-
-    public boolean isParticipant(Player player) {
-        return player.getName().equals(this.players[0]) || player.getName().equals(this.players[1]);
-    }
-
-    public boolean noItemsAdded() {
-        if (guis[0] != null && guis[1] != null) {
-            for (int i = 0; i < slots.size(); i++) {
-                if (guis[0].getItem(slots.get(i)) != null && guis[0].getItem(slots.get(i)).getType() != Material.AIR) return false;
-                if (guis[1].getItem(slots.get(i)) != null && guis[1].getItem(slots.get(i)).getType() != Material.AIR) return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Deprecated
-    public boolean emptyTrades() {
-        return noItemsAdded();
     }
 
     /**
@@ -433,7 +392,7 @@ public abstract class Trade {
 
         items.clear();
 
-        TradingGUI2 gui = guis[getId(player)];
+        TradingGUI gui = guis[getId(player)];
         for (Integer slot : toRemove.keySet()) {
             ItemStack item = gui.getItem(slot).clone();
             item.setAmount(item.getAmount() - toRemove.get(slot));
@@ -512,13 +471,13 @@ public abstract class Trade {
         return pause;
     }
 
-    public void synchronizeTradeIcon(int playerId, TradeIcon icon) {
+    public void synchronizeTradeIcon(int playerId, TradeIcon icon, boolean updateIcon) {
         if (icon instanceof Transition) {
             int otherId = getOtherId(playerId);
             informTransition(icon, otherId);
         }
 
-        icon.updateItem(this, playerId);
+        if (updateIcon) icon.updateItem(this, playerId);
     }
 
     protected void informTransition(TradeIcon icon, int otherId) {
@@ -561,7 +520,7 @@ public abstract class Trade {
         throw new NoSuchMethodException();
     }
 
-    public TradingGUI2[] getGUIs() {
+    public TradingGUI[] getGUIs() {
         return guis;
     }
 
@@ -573,7 +532,7 @@ public abstract class Trade {
             case UPDATE:
                 //calls an update
                 updateReady(playerId, false);
-                synchronizeTradeIcon(playerId, tradeIcon);
+                synchronizeTradeIcon(playerId, tradeIcon, true);
                 break;
 
             case UPDATE_LATER:

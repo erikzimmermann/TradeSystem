@@ -8,11 +8,10 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,8 +35,8 @@ import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.ge
 public class ProxyTrade extends Trade {
     private final Player player;
     private final String other;
-    private final ItemStack[] sent;
-    private final ItemStack[] received;
+    private ItemStack[] sent;
+    private ItemStack[] received;
     private ItemStack[] otherInventory = null;
     private boolean finishing = false;
 
@@ -45,6 +44,11 @@ public class ProxyTrade extends Trade {
         super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
+    }
+
+    @Override
+    protected void buildPattern() {
+        super.buildPattern();
 
         this.sent = new ItemStack[getSlots().size()];
         this.received = new ItemStack[getSlots().size()];
@@ -79,25 +83,26 @@ public class ProxyTrade extends Trade {
     }
 
     public void receiveTradeIconUpdate(TradeIcon icon) {
-        super.synchronizeTradeIcon(1, icon);
+        super.synchronizeTradeIcon(1, icon, false);
     }
 
     @Override
-    public void synchronizeTradeIcon(int playerId, TradeIcon icon) {
-        super.synchronizeTradeIcon(playerId, icon);
+    public void synchronizeTradeIcon(int playerId, TradeIcon icon, boolean updateIcon) {
+        super.synchronizeTradeIcon(playerId, icon, updateIcon);
 
+        //sync on proxy
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(baos);
 
         try {
             icon.serialize(out);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("An error occurred while serializing " + icon.getClass().getName(), e);
         }
 
         int slot = layout[playerId].getSlotOf(icon);
 
-        TradeIconUpdatePacket packet = new TradeIconUpdatePacket(slot, baos.toByteArray());
+        TradeIconUpdatePacket packet = new TradeIconUpdatePacket(player.getName(), other, slot, baos.toByteArray());
         TradeSystem.proxyHandler().send(packet, this.player);
     }
 
@@ -172,7 +177,7 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected void initializeGUIs() {
-        this.guis[0] = new TradingGUI2(this.player, this, 0);
+        this.guis[0] = new TradingGUI(this.player, this, 0);
     }
 
     @Override
@@ -180,7 +185,6 @@ public class ProxyTrade extends Trade {
         this.guis[0].prepareStart();
         synchronizeInventory();
 
-        this.guis[0] = new TradingGUI2(this.player, this, 0);
         try {
             this.guis[0].open();
         } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {

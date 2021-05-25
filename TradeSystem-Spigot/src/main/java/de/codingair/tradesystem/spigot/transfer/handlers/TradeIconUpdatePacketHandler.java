@@ -23,7 +23,7 @@ public class TradeIconUpdatePacketHandler implements PacketHandler<TradeIconUpda
         ProxyTrade t = TradeSystem.proxy().getTrade(player, packet.getRecipient(), packet.getSender());
 
         if (t != null) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(packet.a().getBytes());
+            ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
             DataInputStream in = new DataInputStream(bais);
 
             TradeIcon icon = t.getLayout()[1].getIcons()[packet.getSlot()];

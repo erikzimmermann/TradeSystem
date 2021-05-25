@@ -6,11 +6,11 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 
-public class TradingGUI2 extends GUI {
+public class TradingGUI extends GUI {
     private final Trade trade;
     private final int id;
 
-    public TradingGUI2(Player player, Trade trade, int id) {
+    public TradingGUI(Player player, Trade trade, int id) {
         super(player, TradeSystem.getInstance(), 54, Lang.get("GUI_Title", player).replace("%player%", trade.getOther(player.getName())));
 
         this.trade = trade;

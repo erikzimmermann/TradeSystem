@@ -33,7 +33,7 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public void init() throws SQLException {
+    public void init() throws Exception {
         if (databaseType == DatabaseType.MYSQL) {
             MySQLConnection.getInstance().initDataSource();
         } else if (databaseType == DatabaseType.SQLITE) {

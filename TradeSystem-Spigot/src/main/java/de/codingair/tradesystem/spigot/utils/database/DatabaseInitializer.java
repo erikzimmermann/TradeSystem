@@ -7,6 +7,7 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MysqlMigr
 import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqLiteMigrations;
 import org.bukkit.Bukkit;
 
+import java.sql.DriverManager;
 import java.util.logging.Level;
 
 public class DatabaseInitializer {
@@ -25,7 +26,6 @@ public class DatabaseInitializer {
                     TradeSystem.getInstance().getLogger().log(Level.INFO, "Database logging was started successfully.");
                 } catch (Exception ex) {
                     TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Database logging could not be started. For more information see error below: " + ex.getMessage());
-                    ex.printStackTrace();
                 }
             });
         } else TradeSystem.log("  > Database logging is disabled");

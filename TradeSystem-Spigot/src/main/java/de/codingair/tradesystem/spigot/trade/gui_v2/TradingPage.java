@@ -10,7 +10,7 @@ public class TradingPage extends Page {
     private final Trade trade;
     private final int id;
 
-    public TradingPage(TradingGUI2 gui, Trade trade, int id) {
+    public TradingPage(TradingGUI gui, Trade trade, int id) {
         super(gui);
         this.trade = trade;
         this.id = id;

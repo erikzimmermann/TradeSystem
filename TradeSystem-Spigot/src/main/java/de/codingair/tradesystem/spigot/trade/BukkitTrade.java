@@ -7,7 +7,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI2;
+import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -77,8 +77,8 @@ public class BukkitTrade extends Trade {
 
     @Override
     protected void initializeGUIs() {
-        this.guis[0] = new TradingGUI2(this.players[0], this, 0);
-        this.guis[1] = new TradingGUI2(this.players[1], this, 1);
+        this.guis[0] = new TradingGUI(this.players[0], this, 0);
+        this.guis[1] = new TradingGUI(this.players[1], this, 1);
     }
 
     @Override
