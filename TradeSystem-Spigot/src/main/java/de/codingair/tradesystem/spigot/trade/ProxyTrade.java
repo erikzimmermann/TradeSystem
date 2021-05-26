@@ -8,8 +8,8 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
+import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;

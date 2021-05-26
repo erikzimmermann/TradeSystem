@@ -52,6 +52,6 @@ public class MetricsManager {
             return trades;
         }));
 
-        metrics.addCustomChart(new Metrics.SingleLineChart("layouts", () -> TradeSystem.getInstance().getLayoutManager().getLayouts().size() - 1));
+        metrics.addCustomChart(new Metrics.SingleLineChart("layouts", () -> TradeSystem.getInstance().getLayoutManager().getPatterns().size() - 1));
     }
 }

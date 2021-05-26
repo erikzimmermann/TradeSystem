@@ -20,7 +20,7 @@ import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogReposi
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
-import de.codingair.tradesystem.spigot.trade.gui_v2.listeners.TradeGUIListener;
+import de.codingair.tradesystem.spigot.trade.listeners.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;

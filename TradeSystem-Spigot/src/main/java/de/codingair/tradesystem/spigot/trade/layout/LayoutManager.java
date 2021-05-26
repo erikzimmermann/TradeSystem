@@ -1,42 +1,51 @@
 package de.codingair.tradesystem.spigot.trade.layout;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.utils.DefaultPattern;
-import de.codingair.tradesystem.spigot.trade.layout.utils.AbstractPattern;
+import de.codingair.tradesystem.spigot.trade.layout.utils.DefaultPattern;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class LayoutManager {
-    private final List<String> reservedNames = new ArrayList<>();
-    private final List<Pattern> layouts = new ArrayList<>();
-    private Pattern active;
+    private final HashMap<String, Pattern> patterns = new HashMap<>();
+    private String active;
 
     public void load() {
-        this.layouts.clear();
+        this.patterns.clear();
 
         TradeSystem.log("  > Loading layouts");
-//        this.layouts.add(new Standard());
-        this.active = new DefaultPattern();
+
+        Pattern def = new DefaultPattern();
+        this.patterns.put(def.getName(), def);
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
 
-        List<String> dataList = config.getStringList("Layouts");
-        int standardLayouts = this.layouts.size();
+        int standardLayouts = this.patterns.size();
+        List<?> dataList = config.getList("Layouts");
 
-//        for (String data : dataList) {
-//            AbstractPattern ap = AbstractPattern.getFromJSONString(data);
-//            if (ap != null) this.layouts.add(ap);
-//        }
+        if (dataList != null) {
+            for (Object data : dataList) {
+                if (data instanceof Map) {
+                    JSON json = new JSON((Map<?, ?>) data);
 
-//        setActive(getPattern(config.getString("Active", null)));
+                    Pattern pattern = new Pattern();
+                    try {
+                        pattern.read(json);
+                        patterns.putIfAbsent(pattern.getName(), pattern);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
 
-        TradeSystem.log("    ...got " + (this.layouts.size() - standardLayouts) + " layout(s)");
+        this.active = config.getString("Active", DefaultPattern.NAME);
+
+        TradeSystem.log("    ...got " + (this.patterns.size() - standardLayouts) + " layout(s)");
     }
 
     public void save() {
@@ -44,62 +53,50 @@ public class LayoutManager {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
 
-        List<String> data = new ArrayList<>();
+        List<Map<?, ?>> data = new ArrayList<>();
 
-//        for (Pattern layout : this.layouts) {
-//            if (layout.isStandard()) continue;
-//            data.add(layout.toJSONString());
-//        }
+        for (Pattern pattern : this.patterns.values()) {
+            if (pattern.getClass().equals(DefaultPattern.class)) continue;
+
+            JSON json = new JSON();
+            pattern.write(json);
+            data.add(json);
+        }
 
         config.set("Layouts", data);
-//        config.set("Active", this.active.getName());
+        config.set("Active", this.active);
         file.saveConfig();
 
         TradeSystem.log("    ...saved " + data.size() + " layout(s)");
     }
 
-    public AbstractPattern getPattern(String name) {
+    public Pattern getPattern(String name) {
         if (name == null) return null;
 
-        for (Pattern layout : this.layouts) {
-//            if (layout.getName().equals(name)) return layout;
-        }
-
-        throw new IllegalStateException("Not implemented yet");
-//        return null;
+        return this.patterns.get(name);
     }
 
-    public void addPattern(AbstractPattern pattern) {
-//        this.layouts.add(pattern);
-        throw new IllegalStateException("Not implemented yet");
+    public boolean addPattern(Pattern pattern) {
+        return this.patterns.put(pattern.getName(), pattern) == null;
     }
 
-    public boolean remove(@NotNull AbstractPattern pattern) {
-//        return this.layouts.remove(pattern);
-        throw new IllegalStateException("Not implemented yet");
+    public boolean remove(@NotNull Pattern pattern) {
+        return this.patterns.remove(pattern.getName()) != null;
     }
 
     public Pattern getActive() {
-        return active;
+        return getPattern(active);
     }
 
-    public void setActive(de.codingair.tradesystem.spigot.trade.layout.utils.Pattern active) {
-        if (active == null) return;
-//        this.active = active;
-        throw new IllegalStateException("Not implemented yet");
+    public void setActive(@NotNull String name) {
+        this.active = name;
     }
 
-    public List<AbstractPattern> getLayouts() {
-//        return layouts;
-        throw new IllegalStateException("Not implemented yet");
+    public Collection<Pattern> getPatterns() {
+        return this.patterns.values();
     }
 
     public boolean isAvailable(String name) {
-        return getPattern(name) == null && !this.reservedNames.contains(name);
-    }
-
-    public void setAvailable(String name, boolean available) {
-        if (!available && !this.reservedNames.contains(name)) this.reservedNames.add(name);
-        else this.reservedNames.remove(name);
+        return getPattern(name) == null;
     }
 }

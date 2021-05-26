@@ -11,17 +11,17 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.ProxyTradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui_v2.TradingGUI;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.TradeLayout;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.TradeIcon;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.Transition;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.feedback.FinishResult;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.feedback.IconResult;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.ShowStatusIcon;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.StatusIcon;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.TradeSlot;
-import de.codingair.tradesystem.spigot.trade.gui_v2.layout.types.impl.TradeSlotOther;
+import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
+import de.codingair.tradesystem.spigot.trade.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
+import de.codingair.tradesystem.spigot.trade.layout.types.feedback.FinishResult;
+import de.codingair.tradesystem.spigot.trade.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.ShowStatusIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.StatusIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -105,6 +105,7 @@ public abstract class Trade {
         String othersName = getOther(player.getName());
 
         for (TradeIcon icon : layout[id].getIcons()) {
+            if (icon == null) continue;
             FinishResult result = icon.tryFinish(this, player, other, othersName, this.initiationServer);
 
             switch (result) {
@@ -127,6 +128,7 @@ public abstract class Trade {
         String othersName = getOther(player.getName());
 
         for (TradeIcon icon : layout[id].getIcons()) {
+            if (icon == null) continue;
             icon.onFinish(this, player, other, othersName, this.initiationServer);
         }
     }
