@@ -11,12 +11,10 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.layout.registration.EditorInfo;
-import de.codingair.tradesystem.spigot.trade.layout.registration.IconHandler;
-import de.codingair.tradesystem.spigot.trade.layout.registration.MultiEditorInfo;
-import de.codingair.tradesystem.spigot.trade.layout.registration.Type;
+import de.codingair.tradesystem.spigot.trade.layout.registration.*;
 import de.codingair.tradesystem.spigot.trade.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.DecorationIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlotOther;
@@ -78,6 +76,23 @@ public class Editor extends GUI {
         }
     }
 
+    @Override
+    public void open() throws AlreadyOpenedException, NoPageException, IsWaitingException {
+        super.open();
+        Sound.ENTITY_EXPERIENCE_ORB_PICKUP.playSound(player, 0.7F, 1);
+    }
+
+    @NotNull
+    Page getPage(@NotNull Type type) {
+        for (Page value : pages) {
+            if (value instanceof IconPage) {
+                if (((IconPage) value).getType() == type) return value;
+            }
+        }
+
+        throw new IllegalStateException("Could not found page with type " + type);
+    }
+
     private void applyPattern(@NotNull Pattern pattern) {
         int slot = -1;
 
@@ -105,139 +120,6 @@ public class Editor extends GUI {
                 variants.put(iconData.getTradeIcon(), iconData.getItems());
             }
         }
-    }
-
-    @Override
-    public void open() throws AlreadyOpenedException, NoPageException, IsWaitingException {
-        super.open();
-        Sound.ENTITY_EXPERIENCE_ORB_PICKUP.playSound(player, 0.7F, 1);
-    }
-
-    @NotNull
-    Page getPage(@NotNull Type type) {
-        for (Page value : pages) {
-            if (value instanceof IconPage) {
-                if (((IconPage) value).getType() == type) return value;
-            }
-        }
-
-        throw new IllegalStateException("Could not found page with type " + type);
-    }
-
-    void openLayoutInventory(@Nullable Class<? extends TradeIcon> setting, @Nullable Call callback) {
-        prepareLayout();
-
-        Bukkit.getPluginManager().registerEvents(createListener(setting, callback), TradeSystem.getInstance());
-        player.openInventory(this.layoutInventory);
-    }
-
-    private int countIcon(@NotNull Class<? extends TradeIcon> setting) {
-        int count = 0;
-
-        for (Class<? extends TradeIcon> value : this.icons.values()) {
-            if (value.equals(setting)) count++;
-        }
-
-        return count;
-    }
-
-    private void prepareLayout() {
-        ItemStack[] items = this.layoutInventory.getContents();
-
-        for (int i = 0; i < items.length; i++) {
-            Class<? extends TradeIcon> icon = this.icons.get(i);
-            if (icon != null) {
-                ItemStack item = items[i];
-                copy[i] = item == null ? null : item.clone();
-
-                if (TradeSlot.class.isAssignableFrom(icon)) {
-                    items[i] = buildSlotCursor(icon, 1);
-                } else {
-                    //item won't be null since we already linked it to a TradeIcon
-                    assert item != null;
-
-                    //add marker
-                    item.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
-
-                    ItemMeta meta = item.getItemMeta();
-                    assert meta != null;
-
-                    String name = IconHandler.getInfo(icon).getName();
-                    meta.setDisplayName("§c" + name);
-
-                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-
-                    item.setItemMeta(meta);
-                }
-            }
-        }
-    }
-
-    public int getSlotOf(@NotNull Class<? extends TradeIcon> icon) {
-        for (Map.Entry<Integer, Class<? extends TradeIcon>> e : icons.entrySet()) {
-            if (icon.equals(e.getValue())) return e.getKey();
-        }
-
-        return -1;
-    }
-
-    private void cleanLayout() {
-        for (int i = 0; i < this.copy.length; i++) {
-            cleanItem(i);
-        }
-    }
-
-    private void cleanItem(int slot) {
-        if (this.copy[slot] == null || this.layoutInventory.getItem(slot) == null) return;
-        this.layoutInventory.setItem(slot, this.copy[slot]);
-    }
-
-    public Map<Integer, Class<? extends TradeIcon>> getIcons() {
-        return icons;
-    }
-
-    public Inventory getLayoutInventory() {
-        return layoutInventory;
-    }
-
-    public boolean needsMoreDecorationItems() {
-        boolean needItems = false;
-        for (EditorInfo e : IconHandler.getNecessaryIcons()) {
-            if (!this.icons.containsValue(e.getTradeIcon())) {
-                needItems = true;
-                break;
-            }
-        }
-
-        if (!needItems) return false;
-
-        ItemStack[] items = this.layoutInventory.getContents();
-        for (int i = 0; i < items.length; i++) {
-            if (this.icons.containsKey(i)) continue;
-            if (items[i] != null && items[i].getType() != Material.AIR) return false;
-        }
-
-        return true;
-    }
-
-    @Nullable
-    public ItemStack[] getVariants(@NotNull Class<? extends TradeIcon> icon, @Nullable Integer size) {
-        if (size == null) return variants.get(icon);
-        return variants.computeIfAbsent(icon, i -> new ItemStack[size]);
-    }
-
-    public boolean canFinish() {
-        for (EditorInfo necessaryIcon : IconHandler.getNecessaryIcons()) {
-            if (!icons.containsValue(necessaryIcon.getTradeIcon())) {
-                return false;
-            }
-        }
-
-        int tradeSlots = (int) icons.values().stream().filter(i -> i.equals(TradeSlot.class)).count();
-        int otherTradeSlots = (int) icons.values().stream().filter(i -> i.equals(TradeSlotOther.class)).count();
-
-        if (tradeSlots == 0) return false;
-        return tradeSlots == otherTradeSlots;
     }
 
     public Pattern buildPattern() {
@@ -276,6 +158,97 @@ public class Editor extends GUI {
         return new Pattern(name, data);
     }
 
+    public boolean canFinish() {
+        //all necessary set?
+        for (EditorInfo necessaryIcon : IconHandler.getNecessaryIcons()) {
+            if (!icons.containsValue(necessaryIcon.getTradeIcon())) {
+                return false;
+            }
+        }
+
+        //all variants set?
+        for (Class<? extends TradeIcon> value : icons.values()) {
+            if (MultiTradeIcon.class.isAssignableFrom(value)) {
+                ItemStack[] items = variants.get(value);
+
+                if (items == null) return false;
+                for (ItemStack item : items) {
+                    if (item == null) return false;
+                }
+            }
+        }
+
+        //transition origins/targets set?
+        for (Class<? extends TradeIcon> value : icons.values()) {
+            if (Transition.class.isAssignableFrom(value)) {
+                Class<? extends TradeIcon> target = IconHandler.getTransitionTarget(value);
+                if (!icons.containsValue(target)) return false;
+            } else if (Transition.Consumer.class.isAssignableFrom(value)) {
+                TransitionTargetEditorInfo info = (TransitionTargetEditorInfo) IconHandler.getInfo(value);
+                Class<? extends TradeIcon> origin = info.getOrigin();
+                if (!icons.containsValue(origin)) return false;
+            }
+        }
+
+        //same trade slot amount?
+        int tradeSlots = (int) icons.values().stream().filter(i -> i.equals(TradeSlot.class)).count();
+        int otherTradeSlots = (int) icons.values().stream().filter(i -> i.equals(TradeSlotOther.class)).count();
+
+        if (tradeSlots == 0) return false;
+        return tradeSlots == otherTradeSlots;
+    }
+
+    void openLayoutInventory(@Nullable Class<? extends TradeIcon> setting, @Nullable Call callback) {
+        prepareLayout();
+
+        Bukkit.getPluginManager().registerEvents(createListener(setting, callback), TradeSystem.getInstance());
+        player.openInventory(this.layoutInventory);
+    }
+
+    private void prepareLayout() {
+        ItemStack[] items = this.layoutInventory.getContents();
+
+        for (int i = 0; i < items.length; i++) {
+            Class<? extends TradeIcon> icon = this.icons.get(i);
+            if (icon != null) {
+                ItemStack item = items[i];
+                copy[i] = item == null ? null : item.clone();
+
+                if (TradeSlot.class.isAssignableFrom(icon)) {
+                    items[i] = buildSlotCursor(icon, 1);
+                } else {
+                    //item won't be null since we already linked it to a TradeIcon
+                    assert item != null;
+
+                    //add marker
+                    item.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+
+                    ItemMeta meta = item.getItemMeta();
+                    assert meta != null;
+
+                    String name = IconHandler.getInfo(icon).getName();
+                    meta.setDisplayName("§c" + name);
+
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+                    item.setItemMeta(meta);
+                }
+            }
+        }
+    }
+
+    private void cleanLayout() {
+        for (int i = 0; i < this.copy.length; i++) {
+            cleanItem(i);
+        }
+    }
+
+    private void cleanItem(int slot) {
+        if (this.copy[slot] == null || this.layoutInventory.getItem(slot) == null) return;
+        this.layoutInventory.setItem(slot, this.copy[slot]);
+        this.copy[slot] = null;
+    }
+
     @NotNull
     private ItemStack buildSlotCursor(Class<? extends TradeIcon> icon, int amount) {
         ItemBuilder builder = new ItemBuilder();
@@ -291,6 +264,58 @@ public class Editor extends GUI {
         builder.setHideEnchantments(true);
         builder.setHideName(true);
         return builder.getItem();
+    }
+
+    public boolean needsMoreDecorationItems() {
+        boolean needItems = false;
+        for (EditorInfo e : IconHandler.getNecessaryIcons()) {
+            if (!this.icons.containsValue(e.getTradeIcon())) {
+                needItems = true;
+                break;
+            }
+        }
+
+        if (!needItems) return false;
+
+        ItemStack[] items = this.layoutInventory.getContents();
+        for (int i = 0; i < items.length; i++) {
+            if (this.icons.containsKey(i)) continue;
+            if (items[i] != null && items[i].getType() != Material.AIR) return false;
+        }
+
+        return true;
+    }
+
+    private int countIcon(@NotNull Class<? extends TradeIcon> setting) {
+        int count = 0;
+
+        for (Class<? extends TradeIcon> value : this.icons.values()) {
+            if (value.equals(setting)) count++;
+        }
+
+        return count;
+    }
+
+    public int getSlotOf(@NotNull Class<? extends TradeIcon> icon) {
+        for (Map.Entry<Integer, Class<? extends TradeIcon>> e : icons.entrySet()) {
+            if (icon.equals(e.getValue())) return e.getKey();
+        }
+
+        return -1;
+    }
+
+    public Map<Integer, Class<? extends TradeIcon>> getIcons() {
+        return icons;
+    }
+
+    public Inventory getLayoutInventory() {
+        return layoutInventory;
+    }
+
+    @Nullable
+    public ItemStack[] getVariants(@NotNull Class<? extends TradeIcon> icon, @Nullable Integer size) {
+        if (size == null) return variants.get(icon);
+        return variants.computeIfAbsent(icon, i -> new ItemStack[size]);
     }
 
     @NotNull
@@ -350,14 +375,15 @@ public class Editor extends GUI {
                         e.setCancelled(true);
 
                         if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null) {
-                            icons.remove(e.getSlot());
-                            icons.remove(getSlotOf(setting));
+                            removeIcon(e.getSlot());
+                            removeIcon(getSlotOf(setting));
                             icons.put(e.getSlot(), setting);
 
                             if (MultiTradeIcon.class.isAssignableFrom(setting)) {
                                 //set variant of multi icon
                                 MultiEditorInfo info = (MultiEditorInfo) IconHandler.getInfo(setting);
 
+                                cleanItem(e.getSlot());
                                 getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem();
                             }
 
@@ -382,6 +408,21 @@ public class Editor extends GUI {
                     if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null && icons.remove(e.getSlot()) != null) {
                         //remove marker
                         cleanItem(e.getSlot());
+                    }
+                }
+            }
+
+            private void removeIcon(int slot) {
+                Class<? extends TradeIcon> icon = icons.remove(slot);
+                if (icon == null) return;
+
+                if (Transition.class.isAssignableFrom(icon)) {
+                    EditorInfo info = IconHandler.getInfo(icon);
+                    Class<? extends TradeIcon> target = info.getTransitionTarget();
+                    assert target != null;
+
+                    if (icons.containsValue(target)) {
+                        removeIcon(getSlotOf(target));
                     }
                 }
             }

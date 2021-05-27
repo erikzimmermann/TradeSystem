@@ -65,6 +65,11 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
+                    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+                        return InputIcon.this.isClickable(trade, player, other, othersName);
+                    }
+
+                    @Override
                     public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
                         InputIcon.this.onFinish(trade, player, other, othersName, initiationServer);
                     }
@@ -122,6 +127,11 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     @Override
                     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
                         return InputIcon.this.prepareItemStack(layout, trade, player, other, othersName);
+                    }
+
+                    @Override
+                    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+                        return InputIcon.this.isClickable(trade, player, other, othersName);
                     }
 
                     @Override

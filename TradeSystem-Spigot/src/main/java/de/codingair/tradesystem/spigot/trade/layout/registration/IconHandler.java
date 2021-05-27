@@ -44,9 +44,9 @@ public class IconHandler {
 
             //economy
             register(ExpLevelIcon.class, new EditorInfo("Exp level icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
-            register(ShowExpLevelIcon.class, ExpLevelIcon.class, "Exp level preview icon");
+            register(ShowExpLevelIcon.class, new TransitionTargetEditorInfo("Exp level preview icon", ExpLevelIcon.class));
             register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
-            register(ShowExpPointIcon.class, ExpPointIcon.class, "Exp point preview icon");
+            register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
         } catch (TradeIconException e) {
             e.printStackTrace();
         }
@@ -106,25 +106,24 @@ public class IconHandler {
     }
 
     /**
-     * @param tradeIcon        The trade icon class to register.
-     * @param transitionOrigin The other {@link TradeIcon} which may forward information to 'tradeIcon'.
-     * @param name             The name of 'tradeIcon'.
+     * @param tradeIcon The trade icon class to register.
+     * @param info      The icon info of the registering icon.
      * @throws TradeIconException If the icon is not valid or 'transitionOrigin' is not registered.
      */
-    public static void register(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull Class<? extends TradeIcon> transitionOrigin, String name) throws TradeIconException {
+    public static void register(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull TransitionTargetEditorInfo info) throws TradeIconException {
         //check icon first before adding additional information
-        register(tradeIcon, new EditorInfo(name));
+        register(tradeIcon, (EditorInfo) info);
 
-        getInfo(transitionOrigin).setTransitionTarget(tradeIcon);
+        getInfo(info.getOrigin()).setTransitionTarget(tradeIcon);
     }
 
     /**
      * @param tradeIcon The trade icon class to register
-     * @param data      The icon data of the registering icon. Null, if this icon type is a {@link de.codingair.tradesystem.spigot.trade.layout.types.Transition} and should be configured together with the corresponding icon.
+     * @param info      The icon info of the registering icon.
      * @throws TradeIconException If the icon is not valid.
      */
-    public static void register(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull EditorInfo data) throws TradeIconException {
-        register(tradeIcon, data, false);
+    public static void register(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull EditorInfo info) throws TradeIconException {
+        register(tradeIcon, info, false);
     }
 
     /**

@@ -14,6 +14,7 @@ import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.layout.types.feedback.FinishResult;
@@ -484,14 +485,9 @@ public abstract class Trade {
 
     protected void informTransition(TradeIcon icon, int otherId) {
         try {
-            Method method = findInform(icon.getClass());
+            Method method = findInform(icon.getClass(), icon.getClass());
 
-            @SuppressWarnings ("unchecked")
-            Class<? extends TradeIcon> c = (Class<? extends TradeIcon>) method.getParameterTypes()[0];
-            if (TradeIcon.class.equals(c)) throw new IllegalStateException("The TradeIcon " + icon.getClass().getName() + " has no proper implemented inform method! " +
-                    "You cannot use generics and must specify a target TradeIcon with you method.");
-
-            TradeIcon consumer = getLayout()[otherId].getIcon(c);
+            TradeIcon consumer = getLayout()[otherId].getIcon(IconHandler.getTransitionTarget(icon.getClass()));
             method.invoke(icon, consumer);
             consumer.updateItem(this, otherId);
         } catch (ClassCastException | InvocationTargetException | IllegalAccessException | NoSuchMethodException ex) {
@@ -499,23 +495,16 @@ public abstract class Trade {
         }
     }
 
-    private @NotNull Method findInform(Class<?> icon) throws NoSuchMethodException {
-        for (Method m : icon.getDeclaredMethods()) {
-            if (m.getName().equals("inform") && m.getParameterCount() == 1 && TradeIcon.class.isAssignableFrom(m.getParameterTypes()[0])) return m;
+    private @NotNull Method findInform(Class<? extends TradeIcon> origin, Class<? extends TradeIcon> icon) throws NoSuchMethodException {
+        try {
+            return icon.getMethod("inform", IconHandler.getTransitionTarget(origin));
+        } catch (NoSuchMethodException ignored) {
         }
 
-        for (Class<?> i : icon.getInterfaces()) {
-            try {
-                return findInform(i);
-            } catch (NoSuchMethodException ignored) {
-            }
-        }
-
-        if (icon.getSuperclass() != null) {
-            try {
-                return findInform(icon.getSuperclass());
-            } catch (NoSuchMethodException ignored) {
-            }
+        //might be a generic
+        try {
+            return icon.getMethod("inform", TradeIcon.class);
+        } catch (NoSuchMethodException ignored) {
         }
 
         //transition without transition method?

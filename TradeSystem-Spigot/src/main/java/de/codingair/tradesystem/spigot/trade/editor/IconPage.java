@@ -242,7 +242,7 @@ public class IconPage extends Page {
                             ItemStack[] variants = editor.getVariants(editorInfo.getTradeIcon(), null);
                             ItemStack previous = variants == null ? null : variants[id];
 
-                            new ItemStackEnterGUI(gui.getPlayer(), "§8" + editorInfo.getName() + ": §c" + multiEditorInfo.getIconName()[id], previous, new Callback<ItemStack>() {
+                            new ItemStackEnterGUI(gui.getPlayer(), "§8" + editorInfo.getName() + ": §9" + multiEditorInfo.getIconName()[id], previous, new Callback<ItemStack>() {
                                 @Override
                                 public void accept(ItemStack itemStack) {
                                     editor.getVariants(editorInfo.getTradeIcon(), multiEditorInfo.getIconName().length)[id] = itemStack;

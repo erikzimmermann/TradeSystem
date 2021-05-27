@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class ExpPointIcon extends ExpIcon<ShowExpPointIcon> {
+public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     public ExpPointIcon(@NotNull ItemStack itemStack) {
         super(itemStack, "Exp_Point", "Exp_Points", TradeLogMessages.PAYED_EXP_POINTS, TradeLogMessages.RECEIVED_EXP_POINTS);
     }
@@ -17,11 +17,11 @@ public class ExpPointIcon extends ExpIcon<ShowExpPointIcon> {
 
     @Override
     public int getPlayerValue(Player player) {
-        return player.getLevel();
+        return player.getExpToLevel();
     }
 
     @Override
     public void setPlayerValue(Player player, int value) {
-        player.setLevel(value);
+        player.setTotalExperience(value);
     }
 }

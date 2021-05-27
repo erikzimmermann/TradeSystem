@@ -63,14 +63,9 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
 
             @Override
             public boolean canSwitch(ClickType clickType) {
-                return isClickable(trade, player, other, othersName);
+                return true;
             }
         };
-    }
-
-    @Override
-    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        return true;
     }
 
     protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {

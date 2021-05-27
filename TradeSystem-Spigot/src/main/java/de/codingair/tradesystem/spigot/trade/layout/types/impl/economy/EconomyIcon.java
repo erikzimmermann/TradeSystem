@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public abstract class ExpIcon<T extends TradeIcon & Transition.Consumer<Integer>> extends InputIcon<Integer> implements Transition<T, Integer> {
+public abstract class EconomyIcon<T extends Transition.Consumer<Integer> & TradeIcon> extends InputIcon<Integer> implements Transition<T, Integer> {
     private final String nameSingular;
     private final String namePlural;
     private final TradeLogMessages give;
     private final TradeLogMessages receive;
     private int value = 0;
 
-    public ExpIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive) {
+    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive) {
         super(itemStack);
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
@@ -73,6 +73,7 @@ public abstract class ExpIcon<T extends TradeIcon & Transition.Consumer<Integer>
                         .replace("%type%", getName(player, max == 1));
 
                 player.sendMessage(Lang.getPrefix() + s);
+                return IconResult.GUI;
             }
         }
 

@@ -77,6 +77,7 @@ public class LayoutPage extends Page {
                 } else {
                     builder.setType(XMaterial.LIGHT_GRAY_TERRACOTTA);
                     builder.setName("§7" + Lang.get("Finish"));
+                    builder.addLore("", Lang.get("Not_Ready_For_Saving"));
                 }
 
                 return builder.getItem();

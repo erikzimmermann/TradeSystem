@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class ExpLevelIcon extends ExpIcon<ShowExpLevelIcon> {
+public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     public ExpLevelIcon(@NotNull ItemStack itemStack) {
         super(itemStack, "Level", "Levels", TradeLogMessages.PAYED_EXP_LEVELS, TradeLogMessages.RECEIVED_EXP_LEVELS);
     }
