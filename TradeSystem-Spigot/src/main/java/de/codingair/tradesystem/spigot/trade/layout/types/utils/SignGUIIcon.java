@@ -29,17 +29,18 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
 
         String[] text;
         if (built == null) text = new String[0];
-        else if (built.length > 3) {
-            throw new IllegalStateException("Cannot open a SignGUI with more than 3 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(built));
+        else if (built.length > 4) {
+            throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(built));
         } else {
-            text = new String[4];
-            System.arraycopy(built, 0, text, 1, built.length);
+            text = built;
         }
 
         return new SignButton(text) {
             @Override
             public boolean onSignChangeEvent(GUI gui, String[] input) {
                 //executed on InventoryCloseEvent too
+                if (trade.isCancelling()) return true;
+
                 String origin = input[0];
                 G in = convertInput(origin);
                 IconResult result = processInput(trade, player, in, origin);

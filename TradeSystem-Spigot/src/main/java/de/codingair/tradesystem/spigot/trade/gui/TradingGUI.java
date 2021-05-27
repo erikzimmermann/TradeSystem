@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsNotWaitingException;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -23,6 +24,12 @@ public class TradingGUI extends GUI {
 
     public void prepareStart() {
         registerPage(new TradingPage(this, trade, id), true);
+    }
+
+    @Override
+    protected void continueGUI() throws IsNotWaitingException {
+        if (trade.isCancelling()) return;
+        super.continueGUI();
     }
 
     @Override

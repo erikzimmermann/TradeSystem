@@ -89,8 +89,6 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable Double input, @NotNull String origin) {
-        //reopen
-
         if (input == null || input < 0) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
             return IconResult.GUI;
