@@ -9,15 +9,8 @@ TradeSystem:
 
   #Both traders have to add an item/money to finish the trade
   Trade_Both: true
-  #Also means Exp trading
-  Trade_with_money: true
   #The GUI type which will be used to enter the money amount. Available options: SIGN, ANVIL
-  Money_GUI: SIGN
-  #Values: Vault, Essentials, Exp
-  Economy_priority:
-    - Vault
-    - Essentials
-    - Exp
+  Input_GUI: ANVIL
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50

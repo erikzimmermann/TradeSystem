@@ -1,8 +1,7 @@
 No_Permissions: '&cNemáš oprávnění pro tuto akci!'
 No_Money: '&cNemáš dostatek peněz!'
 Enter_Correct_Amount: '&cZadej prosím platnou částku.'
-Only_X_Coins: '&cMáte jen %coins% mincí!'
-Only_1_Coin: '&cMáš jen %coins% mincí!'
+Only_X_Amount: '&7You only have &c%amount% %type%&7!'
 Trade_Was_Cancelled: '&cTento obchod byl zrušen.'
 Trade_Was_Finished: '&7Tento obchod byl &adokončen&7.'
 Cannot_Trade_With_Yourself: '&cNemůžeš obchodovat sám se sebou.'
@@ -46,8 +45,7 @@ Layout_Name: Název rozložení
 Layout_Name_Already_Exists: Tento název rozložení je již přiřazen!
 Layout_Finished: Tento název rozložení je již přiřazen &asuccessfully&7.
 Layout_Edited: Rozložení upraveno &asuccessfully&7.
-Layout_Editor: '&cRozložení &8- &cEditor'
-Layout_Confirm_Close: '&cRozložení &8- &cUloženo?'
+Layout_Editor: '&9Rozložení &8- &9Editor'
 Save: Uloženo
 Not_Ready_For_Saving: '&cRozložení nelze uložit'
 Items: Items
@@ -73,6 +71,7 @@ Layout_Set_Money: Nastav vlastní ikonu peněz
 Layout_Set_Other_Money: Nastav ikonu peněz pro partnera
 Help_TradeSystem: '&7Zadej &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Zadej &e/%label% layout <create, edit, delete, activate>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
 Help_TradeSystem_Layout_Activate: '&7Zadej &e/%label% layout activate <name>'
 Help_TradeSystem_Layout_Delete: '&7Zadej &e/%label% layout delete <name>'
 Help_TradeSystem_Layout_Edit: '&7Zadej &e/%label% layout edit <name>'
@@ -116,3 +115,19 @@ Economy_Error: '&7Obchod byl &czrušen &7kvůli &cchybě ekonomiky&7.'
 Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
 TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
 Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
+Leftclick: 'Leftclick'
+Rightclick: 'Rightclick'
+Shift_Leftclick: 'Shift-Leftclick'
+Shift_Rightclick: 'Shift-Rightclick'
+Select: 'Select'
+Select_Foreign_Preview: 'Select foreign preview'
+Edit: 'Edit'
+Edit_Variant: 'Edit variant'
+Variant: 'Variant'
+Cancel: 'Cancel'
+Finish: 'Finish'
+Levels: 'Levels'
+Level: 'Level'
+Too_Little_Exp: '&cYou have &cno exp to trade&7.'
+Exp_Points: "Exp points"
+Exp_Point: "Exp point"
