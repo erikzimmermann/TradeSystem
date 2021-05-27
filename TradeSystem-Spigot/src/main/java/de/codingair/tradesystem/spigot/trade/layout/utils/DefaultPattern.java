@@ -4,8 +4,8 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ExpLevelIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpLevelIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

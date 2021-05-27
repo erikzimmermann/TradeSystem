@@ -1,6 +1,7 @@
-package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy;
+package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money;
 
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.EconomyIcon;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

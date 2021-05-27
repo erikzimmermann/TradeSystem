@@ -7,7 +7,14 @@ import de.codingair.tradesystem.spigot.trade.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.*;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpPointIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpPointIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.EssentialsIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.ShowEssentialsIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.ShowVaultIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.VaultIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +51,9 @@ public class IconHandler {
 
             register(VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
             register(ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
+
+            register(EssentialsIcon.class, new EditorInfo("Essentials icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Essentials"));
+            register(ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
         } catch (TradeIconException e) {
             e.printStackTrace();
         }
