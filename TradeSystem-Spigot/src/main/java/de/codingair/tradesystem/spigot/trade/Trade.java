@@ -572,4 +572,8 @@ public abstract class Trade {
     public String[] getPlayers() {
         return players;
     }
+
+    public boolean isCancelling() {
+        return cancelling;
+    }
 }
