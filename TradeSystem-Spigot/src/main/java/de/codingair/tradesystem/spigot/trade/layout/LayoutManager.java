@@ -4,8 +4,10 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.layout.utils.DefaultPattern;
+import de.codingair.tradesystem.spigot.trade.layout.utils.ImportHelper;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.json.simple.parser.ParseException;
 
 import java.util.*;
 
@@ -41,6 +43,14 @@ public class LayoutManager {
                     } catch (Exception e) {
                         e.printStackTrace();
                         crashedData.add(json);
+                    }
+                } else if (data instanceof String) {
+                    //old format! (v1.3.2)
+                    try {
+                        Pattern pattern = ImportHelper.convert((String) data);
+                        this.patterns.put(pattern.getName(), pattern);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
                 }
             }

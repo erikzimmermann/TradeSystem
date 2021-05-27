@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.listeners;
+package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;

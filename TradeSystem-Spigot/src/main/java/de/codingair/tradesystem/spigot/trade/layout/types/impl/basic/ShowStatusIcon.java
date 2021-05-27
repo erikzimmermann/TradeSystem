@@ -41,7 +41,7 @@ public class ShowStatusIcon extends MultiTradeIcon {
 
     }
 
-    private static class ShowReadyIcon extends DecorationIcon {
+    public static class ShowReadyIcon extends DecorationIcon {
         public ShowReadyIcon(@NotNull ItemStack itemStack) {
             super(itemStack);
         }
@@ -52,7 +52,7 @@ public class ShowStatusIcon extends MultiTradeIcon {
         }
     }
 
-    private static class ShowNotReadyIcon extends DecorationIcon {
+    public static class ShowNotReadyIcon extends DecorationIcon {
         public ShowNotReadyIcon(@NotNull ItemStack itemStack) {
             super(itemStack);
         }

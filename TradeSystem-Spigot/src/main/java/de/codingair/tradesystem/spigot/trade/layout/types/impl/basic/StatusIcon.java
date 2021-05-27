@@ -60,7 +60,7 @@ public class StatusIcon extends MultiTradeIcon {
         else return getIcon(NotReadyIcon.class);
     }
 
-    private static class ReadyIcon extends SimpleTradeIcon {
+    public static class ReadyIcon extends SimpleTradeIcon {
         public ReadyIcon(@NotNull ItemStack itemStack) {
             super(itemStack);
         }
@@ -107,7 +107,7 @@ public class StatusIcon extends MultiTradeIcon {
         }
     }
 
-    private static class NotReadyIcon extends SimpleTradeIcon {
+    public static class NotReadyIcon extends SimpleTradeIcon {
         public NotReadyIcon(@NotNull ItemStack itemStack) {
             super(itemStack);
         }
@@ -153,7 +153,7 @@ public class StatusIcon extends MultiTradeIcon {
         }
     }
 
-    private static class CannotReadyIcon extends SimpleTradeIcon {
+    public static class CannotReadyIcon extends SimpleTradeIcon {
         public CannotReadyIcon(@NotNull ItemStack itemStack) {
             super(itemStack);
         }
