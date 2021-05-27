@@ -12,9 +12,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ShowEconomyIcon extends SimpleShowIcon implements Transition.Consumer<Integer> {
+public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transition.Consumer<Double> {
     private final String namePlural;
-    private int value = 0;
+    private Double value = 0D;
 
     public ShowEconomyIcon(@NotNull ItemStack itemStack, @NotNull String namePlural) {
         super(itemStack);
@@ -30,11 +30,11 @@ public class ShowEconomyIcon extends SimpleShowIcon implements Transition.Consum
     }
 
     @Override
-    public void applyTransition(Integer value) {
+    public void applyTransition(Double value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public Double getValue() {
         return value;
     }
 }

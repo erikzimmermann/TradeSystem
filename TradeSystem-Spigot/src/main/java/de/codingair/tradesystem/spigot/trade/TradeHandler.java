@@ -394,7 +394,7 @@ public class TradeHandler {
         return moneyShortcuts.get(key);
     }
 
-    public String makeAmountFancy(int money) {
+    public String makeAmountFancy(double money) {
         StringBuilder s = new StringBuilder();
 
         //1,000,000

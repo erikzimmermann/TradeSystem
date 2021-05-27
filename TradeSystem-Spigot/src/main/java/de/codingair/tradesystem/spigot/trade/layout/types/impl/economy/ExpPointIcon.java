@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     public ExpPointIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Exp_Point", "Exp_Points", TradeLogMessages.PAYED_EXP_POINTS, TradeLogMessages.RECEIVED_EXP_POINTS);
+        super(itemStack, "Exp_Point", "Exp_Points", TradeLogMessages.PAYED_EXP_POINTS, TradeLogMessages.RECEIVED_EXP_POINTS, false);
     }
 
     @Override
@@ -16,12 +16,17 @@ public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     }
 
     @Override
-    public int getPlayerValue(Player player) {
-        return player.getExpToLevel();
+    public double getPlayerValue(Player player) {
+        return player.getTotalExperience();
     }
 
     @Override
-    public void setPlayerValue(Player player, int value) {
-        player.setTotalExperience(value);
+    public void withdraw(Player player, double value) {
+        player.setTotalExperience((int) (player.getTotalExperience() - value));
+    }
+
+    @Override
+    public void deposit(Player player, double value) {
+        player.setTotalExperience((int) (player.getTotalExperience() + value));
     }
 }

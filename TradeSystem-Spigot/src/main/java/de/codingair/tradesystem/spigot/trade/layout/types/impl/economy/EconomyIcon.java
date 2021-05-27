@@ -22,19 +22,21 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public abstract class EconomyIcon<T extends Transition.Consumer<Integer> & TradeIcon> extends InputIcon<Integer> implements Transition<T, Integer> {
+public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
     private final String nameSingular;
     private final String namePlural;
     private final TradeLogMessages give;
     private final TradeLogMessages receive;
-    private int value = 0;
+    private final boolean decimal;
+    private double value = 0;
 
-    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive) {
+    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive, boolean decimal) {
         super(itemStack);
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
         this.give = give;
         this.receive = receive;
+        this.decimal = decimal;
     }
 
     @Override
@@ -48,53 +50,59 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Integer> & Trade
     }
 
     @Override
-    public @Nullable Integer convertInput(@NotNull String input) {
-        if (input.isEmpty()) return 0;
+    public @Nullable Double convertInput(@NotNull String input) {
+        if (input.isEmpty()) return 0D;
 
         try {
-            return Integer.parseInt(input);
+            return Double.parseDouble(input);
         } catch (NumberFormatException ex) {
             return null;
         }
     }
 
     @Override
-    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable Integer input, @NotNull String origin) {
+    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable Double input, @NotNull String origin) {
         //reopen
-        if (input == null) return IconResult.GUI;
 
-        if (input < 0) {
+        if (input == null || input < 0) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
+            return IconResult.GUI;
         } else {
-            int max = getPlayerValue(player);
-            if (input > max) {
-                String s = Lang.get("Only_X_Amount")
-                        .replace("%amount%", TradeSystem.getInstance().getTradeManager().makeAmountFancy(max))
-                        .replace("%type%", getName(player, max == 1));
-
-                player.sendMessage(Lang.getPrefix() + s);
+            boolean isDecimal = input.intValue() != input;
+            if (!decimal && isDecimal) {
+                player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
                 return IconResult.GUI;
-            }
-        }
+            } else {
+                double max = getPlayerValue(player);
+                if (input > max) {
+                    String s = Lang.get("Only_X_Amount")
+                            .replace("%amount%", makeString(max))
+                            .replace("%type%", getName(player, max == 1));
 
-        this.value = input;
-        return IconResult.UPDATE;
+                    player.sendMessage(Lang.getPrefix() + s);
+                    return IconResult.GUI;
+                }
+            }
     }
 
+        this.value =input;
+        return IconResult.UPDATE;
+}
+
     @Override
-    public @NotNull String makeString(@Nullable Integer current) {
+    public @NotNull String makeString(@Nullable Double current) {
         if (current == null) return "";
         return TradeSystem.getInstance().getTradeManager().makeAmountFancy(current);
     }
 
     @Override
-    public @Nullable Integer getValue() {
+    public @Nullable Double getValue() {
         return value;
     }
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + TradeSystem.getInstance().getTradeManager().makeAmountFancy(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
@@ -120,23 +128,25 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Integer> & Trade
     public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
         int id = trade.getId(player);
         T show = trade.getLayout()[id].getIcon(getTargetClass());
-        int diff = show.getValue() - value;
+        double diff = show.getValue() - value;
 
         NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
-        String fancyDiff = format.format(diff);
+        String fancyDiff = format.format(decimal ? diff : (int) diff);
 
         if (diff < 0) {
-            setPlayerValue(player, getPlayerValue(player) + diff);
+            withdraw(player,  -diff);
             log(trade, give, player.getName(), fancyDiff);
         } else if (diff > 0) {
-            setPlayerValue(player, getPlayerValue(player) + diff);
+            deposit(player, diff);
             log(trade, receive, player.getName(), fancyDiff);
         }
     }
 
-    public abstract int getPlayerValue(Player player);
+    public abstract double getPlayerValue(Player player);
 
-    public abstract void setPlayerValue(Player player, int value);
+    public abstract void withdraw(Player player, double value);
+
+    public abstract void deposit(Player player, double value);
 
     @Override
     public boolean isEmpty() {
@@ -145,7 +155,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Integer> & Trade
 
     @Override
     public void serialize(@NotNull DataOutputStream out) throws IOException {
-        out.writeInt(this.value);
+        out.writeDouble(this.value);
     }
 
     @Override

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     public ExpLevelIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Level", "Levels", TradeLogMessages.PAYED_EXP_LEVELS, TradeLogMessages.RECEIVED_EXP_LEVELS);
+        super(itemStack, "Level", "Levels", TradeLogMessages.PAYED_EXP_LEVELS, TradeLogMessages.RECEIVED_EXP_LEVELS, false);
     }
 
     @Override
@@ -16,12 +16,17 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @Override
-    public int getPlayerValue(Player player) {
+    public double getPlayerValue(Player player) {
         return player.getLevel();
     }
 
     @Override
-    public void setPlayerValue(Player player, int value) {
-        player.setLevel(value);
+    public void withdraw(Player player, double value) {
+        player.setLevel((int) (player.getLevel() - value));
+    }
+
+    @Override
+    public void deposit(Player player, double value) {
+        player.setLevel((int) (player.getLevel() + value));
     }
 }

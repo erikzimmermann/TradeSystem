@@ -35,6 +35,6 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
         /**
          * @return The current stored value.
          */
-        int getValue();
+        G getValue();
     }
 }

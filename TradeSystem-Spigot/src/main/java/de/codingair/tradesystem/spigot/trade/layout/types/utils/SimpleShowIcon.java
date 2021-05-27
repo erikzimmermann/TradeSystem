@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class SimpleShowIcon extends ShowIcon implements Transition.Consumer<Integer> {
+public abstract class SimpleShowIcon<G> extends ShowIcon implements Transition.Consumer<G> {
 
     public SimpleShowIcon(@NotNull ItemStack itemStack) {
         super(itemStack);

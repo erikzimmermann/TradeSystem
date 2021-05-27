@@ -2,18 +2,12 @@ package de.codingair.tradesystem.spigot.trade.layout.registration;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
-import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.IconAlreadyRegisteredException;
-import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.IncompatibleTypesException;
-import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.NoProperConstructorException;
-import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.TradeIconException;
+import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.*;
 import de.codingair.tradesystem.spigot.trade.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ExpLevelIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ExpPointIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowExpLevelIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowExpPointIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.*;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class IconHandler {
-    public static final HashMap<String, Class<? extends TradeIcon>> TRADE_ICONS = new HashMap<>();
-    public static final LinkedHashMap<Class<? extends TradeIcon>, EditorInfo> ICON_DATA = new LinkedHashMap<>();
+    private static final HashMap<String, Class<? extends TradeIcon>> TRADE_ICONS = new HashMap<>();
+    private static final LinkedHashMap<Class<? extends TradeIcon>, EditorInfo> ICON_DATA = new LinkedHashMap<>();
 
     static {
         try {
@@ -47,6 +41,9 @@ public class IconHandler {
             register(ShowExpLevelIcon.class, new TransitionTargetEditorInfo("Exp level preview icon", ExpLevelIcon.class));
             register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
             register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
+
+            register(VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
+            register(ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
         } catch (TradeIconException e) {
             e.printStackTrace();
         }
@@ -137,6 +134,8 @@ public class IconHandler {
 
         try {
             if (!force) {
+                if (!data.matchRequirements()) throw new RequirementNotFulfilledException(tradeIcon);
+
                 if (MultiTradeIcon.class.isAssignableFrom(tradeIcon)) {
                     if (Transition.class.isAssignableFrom(tradeIcon))
                         //cannot handle both at the same time in the layout editor (IconPage.class)
