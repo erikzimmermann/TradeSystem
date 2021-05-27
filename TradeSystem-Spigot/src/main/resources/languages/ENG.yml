@@ -1,8 +1,7 @@
 No_Permissions: '&cYou don''t have permissions for that action!'
 No_Money: '&cYou have no money!'
 Enter_Correct_Amount: '&cPlease enter a valid amount.'
-Only_X_Coins: '&cYou only have %coins% Coins!'
-Only_1_Coin: '&cYou only have %coins% Coin!'
+Only_X_Amount: '&7You only have &c%amount% %type%&7!'
 Trade_Was_Cancelled: '&cThe trade was cancelled.'
 Trade_Was_Finished: '&7The trade was &afinished&7.'
 Cannot_Trade_With_Yourself: '&cYou cannot trade with yourself.'
@@ -129,3 +128,7 @@ Variant: 'Variant'
 Cancel: 'Cancel'
 Finish: 'Finish'
 Levels: 'Levels'
+Level: 'Level'
+Too_Little_Exp: '&cYou have &cno exp to trade&7.'
+Exp_Points: "Exp points"
+Exp_Point: "Exp point"

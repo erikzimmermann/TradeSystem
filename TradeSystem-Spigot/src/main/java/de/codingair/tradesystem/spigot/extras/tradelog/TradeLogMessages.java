@@ -11,6 +11,12 @@ public enum TradeLogMessages {
 
     PAYED_MONEY("payed money", "%s payed money: %s", "§8"),
     RECEIVED_MONEY("received money", "%s received money: %s", "§8"),
+
+    PAYED_EXP_LEVELS("traded exp levels", "%s traded exp levels: %s", "§8"),
+    RECEIVED_EXP_LEVELS("received exp levels", "%s received exp levels: %s", "§8"),
+    PAYED_EXP_POINTS("traded exp points", "%s traded exp points: %s", "§8"),
+    RECEIVED_EXP_POINTS("received exp points", "%s received exp points: %s", "§8"),
+
     RECEIVE_ITEM("received ", "%s received %s", "§8"),
     ;
 

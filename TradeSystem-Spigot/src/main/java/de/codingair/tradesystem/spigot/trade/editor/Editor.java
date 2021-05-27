@@ -71,8 +71,9 @@ public class Editor extends GUI {
 
         boolean first = true;
         for (Type value : Type.values()) {
-            registerPage(new IconPage(this, value, basic), first);
+            if (IconHandler.isTypeEmpty(value)) continue;
 
+            registerPage(new IconPage(this, value, basic), first);
             first = false;
         }
     }

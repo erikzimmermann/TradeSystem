@@ -11,7 +11,9 @@ import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ExpPointIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowExpPointIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +22,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class IconHandler {
-    public static final Set<Class<? extends TradeIcon>> TRADE_ICONS = new HashSet<>();
+    public static final HashMap<String, Class<? extends TradeIcon>> TRADE_ICONS = new HashMap<>();
     public static final LinkedHashMap<Class<? extends TradeIcon>, EditorInfo> ICON_DATA = new LinkedHashMap<>();
 
     static {
         try {
-            //register standard
+            //register basic
             register(DecorationIcon.class, new EditorInfo("Decoration", Type.BASIC, (editor) -> {
                 if (editor.needsMoreDecorationItems()) return new ItemBuilder(XMaterial.MINECART);
                 else return new ItemBuilder(XMaterial.CHEST_MINECART);
@@ -40,12 +42,30 @@ public class IconHandler {
                     .setAmount(Math.max(1, getAmountOf(TradeSlotOther.class, editor.getIcons()))), true));
             register(CancelIcon.class, new EditorInfo("Cancel icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.BARRIER), false));
 
+            //economy
             register(ExpLevelIcon.class, new EditorInfo("Exp level icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
             register(ShowExpLevelIcon.class, ExpLevelIcon.class, "Exp level preview icon");
-
+            register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
+            register(ShowExpPointIcon.class, ExpPointIcon.class, "Exp point preview icon");
         } catch (TradeIconException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isTypeEmpty(@NotNull Type type) {
+        for (EditorInfo value : ICON_DATA.values()) {
+            if (type.equals(value.getType())) return false;
+        }
+
+        return true;
+    }
+
+    @NotNull
+    public static Class<? extends TradeIcon> getIcon(@NotNull String name) {
+        Class<? extends TradeIcon> icon = TRADE_ICONS.get(name);
+        if (icon == null) throw new NullPointerException("Cannot find TradeIcon with name='" + name + "'");
+
+        return icon;
     }
 
     @NotNull
@@ -114,7 +134,7 @@ public class IconHandler {
      * @throws TradeIconException If the icon is not valid.
      */
     public static void register(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull EditorInfo data, boolean force) throws TradeIconException {
-        if (TRADE_ICONS.contains(tradeIcon)) throw new IconAlreadyRegisteredException(tradeIcon);
+        if (TRADE_ICONS.containsKey(tradeIcon.getSimpleName())) throw new IconAlreadyRegisteredException(tradeIcon);
 
         try {
             if (!force) {
@@ -136,7 +156,7 @@ public class IconHandler {
             }
 
             //approved
-            TRADE_ICONS.add(tradeIcon);
+            TRADE_ICONS.put(tradeIcon.getSimpleName(), tradeIcon);
             data.setTradeIcon(tradeIcon);
             ICON_DATA.put(tradeIcon, data);
         } catch (NoSuchMethodException e) {

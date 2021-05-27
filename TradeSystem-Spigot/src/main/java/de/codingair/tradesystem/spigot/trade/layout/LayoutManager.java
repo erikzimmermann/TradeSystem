@@ -11,6 +11,7 @@ import java.util.*;
 
 public class LayoutManager {
     private final HashMap<String, Pattern> patterns = new HashMap<>();
+    private final List<Map<?, ?>> crashedData = new ArrayList<>();
     private String active;
 
     public void load() {
@@ -27,6 +28,7 @@ public class LayoutManager {
         int standardLayouts = this.patterns.size();
         List<?> dataList = config.getList("Layouts");
 
+        crashedData.clear();
         if (dataList != null) {
             for (Object data : dataList) {
                 if (data instanceof Map) {
@@ -38,6 +40,7 @@ public class LayoutManager {
                         patterns.putIfAbsent(pattern.getName(), pattern);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        crashedData.add(json);
                     }
                 }
             }
@@ -62,6 +65,8 @@ public class LayoutManager {
             pattern.write(json);
             data.add(json);
         }
+
+        data.addAll(crashedData);
 
         config.set("Layouts", data);
         config.set("Active", this.active);

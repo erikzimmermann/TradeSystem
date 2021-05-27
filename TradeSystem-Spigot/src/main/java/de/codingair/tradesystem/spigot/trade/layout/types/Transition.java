@@ -19,6 +19,11 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
      */
     void inform(@NotNull T icon);
 
+    /**
+     * @return The target class.
+     */
+    Class<T> getTargetClass();
+
     interface Consumer<G> {
         /**
          * Do NOT update the {@link org.bukkit.inventory.ItemStack} instance after getting this update. It will be updated automatically.
@@ -26,5 +31,10 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
          * @param value The updated value.
          */
         void applyTransition(G value);
+
+        /**
+         * @return The current stored value.
+         */
+        int getValue();
     }
 }

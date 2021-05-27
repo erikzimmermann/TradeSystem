@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.layout.utils;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.codingapi.tools.io.utils.DataMask;
 import de.codingair.codingapi.tools.io.utils.Serializable;
+import de.codingair.tradesystem.spigot.trade.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
@@ -28,9 +29,9 @@ public class IconData implements Serializable {
 
     @SuppressWarnings ({"unchecked", "SuspiciousToArrayCall"})
     @Override
-    public boolean read(DataMask mask) throws ClassNotFoundException {
-        String classPath = mask.getString("icon");
-        this.tradeIcon = (Class<? extends TradeIcon>) Class.forName(classPath);
+    public boolean read(DataMask mask) {
+        String name = mask.getString("icon");
+        this.tradeIcon = IconHandler.getIcon(name);
         JSONArray items = mask.getList("items");
         this.items = (ItemStack[]) items.toArray(new ItemStack[0]);
 
@@ -39,7 +40,7 @@ public class IconData implements Serializable {
 
     @Override
     public void write(DataMask mask) {
-        mask.put("icon", tradeIcon.getName());
+        mask.put("icon", tradeIcon.getSimpleName());
         mask.put("items", Arrays.asList(items));
     }
 
