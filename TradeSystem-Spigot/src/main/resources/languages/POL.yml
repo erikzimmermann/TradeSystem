@@ -1,8 +1,7 @@
 No_Permissions: "&cNie masz uprawnień aby to wykonać!"
 No_Money: "&cNie masz pieniędzy!"
 Enter_Correct_Amount: "&cProszę wpisać właściwą ilość."
-Only_X_Coins: "&cMasz tylko %coins% Monet!"
-Only_1_Coin: "&cMasz tylko %coins% Monet!"
+Only_X_Amount: '&7You only have &c%amount% %type%&7!'
 Trade_Was_Cancelled: "&cWymiana została anulowana."
 Trade_Was_Finished: "&7Wymiana została &azakończona&7."
 Cannot_Trade_With_Yourself: "&cNie możesz się wymieniać ze sobą."
@@ -46,8 +45,7 @@ Layout_Name: "Nazwa-Układu"
 Layout_Name_Already_Exists: "Nazwa tego układu jest już zajęta!"
 Layout_Finished: "Układ stworzony &apomyślnie&7."
 Layout_Edited: "Układ edytowany &apomyślnie&7."
-Layout_Editor: "&cUkład &8- &cEdytor"
-Layout_Confirm_Close: "&cUkład &8- &cZapisz?"
+Layout_Editor: "&9Układ &8- &9Edytor"
 Save: "Zapisz"
 Not_Ready_For_Saving: "&cUkład nie może jeszcze zostać zapisany"
 Items: "Itemy"
@@ -73,6 +71,7 @@ Layout_Set_Money: "Ustaw własną ikonę pieniędzy"
 Layout_Set_Other_Money: "Ustaw własną ikonę pieniędzy od partnera"
 Help_TradeSystem: "&7Użycie &e/%label% <układ, reload>"
 Help_TradeSystem_Layout: "&7Użycie &e/%label% layout <create, edit, delete, activate>"
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
 Help_TradeSystem_Layout_Activate: "&7Użycie &e/%label% layout activate <nazwa>"
 Help_TradeSystem_Layout_Delete: "&7Użycie &e/%label% layout delete <nazwa>"
 Help_TradeSystem_Layout_Edit: "&7Użycie &e/%label% layout edit <nazwa>"
@@ -115,3 +114,20 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7The trade was &ccancelled &7due to an &ceconomy error&7.'
 Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
 TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
+Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
+Leftclick: 'Leftclick'
+Rightclick: 'Rightclick'
+Shift_Leftclick: 'Shift-Leftclick'
+Shift_Rightclick: 'Shift-Rightclick'
+Select: 'Select'
+Select_Foreign_Preview: 'Select foreign preview'
+Edit: 'Edit'
+Edit_Variant: 'Edit variant'
+Variant: 'Variant'
+Cancel: 'Cancel'
+Finish: 'Finish'
+Levels: 'Levels'
+Level: 'Level'
+Too_Little_Exp: '&cYou have &cno exp to trade&7.'
+Exp_Points: "Exp points"
+Exp_Point: "Exp point"

@@ -1,8 +1,7 @@
 No_Permissions: "&cDu hast keine Berechtigungen für diese Aktion!"
 No_Money: "&cDu hast kein Geld!"
 Enter_Correct_Amount: "&cBitte gib einen gültigen Betrag ein."
-Only_X_Coins: "&cDu hast nur maximal %coins% Coins!"
-Only_1_Coin: "&cDu hast nur maximal %coins% Coin!"
+Only_X_Amount: '&7Du hast nur &c%amount% %type%&7!'
 Trade_Was_Cancelled: "&cDer Handel wurde abgebrochen."
 Trade_Was_Finished: "&7Der Handel wurde &aabgeschlossen&7."
 Cannot_Trade_With_Yourself: "&cDu kannst mit dir selbst nicht handeln."
@@ -46,8 +45,7 @@ Layout_Name: "Layout-Name"
 Layout_Name_Already_Exists: "Dieser Name ist bereits vergeben!"
 Layout_Finished: "Das Layout wurde &aerfolgreich &7erstellt."
 Layout_Edited: "Das Layout wurde &aerfolgreich &7editiert."
-Layout_Editor: "&cLayouts &8- &cEditor"
-Layout_Confirm_Close: "&cLayout &8- &cSpeichern?"
+Layout_Editor: '&9Layout &8- &9Editor'
 Save: "Speichern"
 Not_Ready_For_Saving: "&cDas Layout kann momentan noch nicht gespeichert werden"
 Items: "Items"
@@ -73,6 +71,7 @@ Layout_Set_Money: "Eigenes 'Geld'-Symbol setzen"
 Layout_Set_Other_Money: "'Geld'-Symbol vom Partner setzen"
 Help_TradeSystem: "&7Benutze &e/%label% <layout, reload>"
 Help_TradeSystem_Layout: "&7Benutze &e/%label% layout <create, edit, delete, activate>"
+Help_TradeSystem_Layout_Create: '&7Benutze &e/%label% layout create <name>'
 Help_TradeSystem_Layout_Activate: "&7Benutze &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Benutze &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Benutze &e/%label% layout edit <name>"
@@ -115,3 +114,20 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Der Handel wurde aufgrund eines &cEconomy Fehlers abgebrochen&7.'
 Items_Dropped: '&7Dein Inventar war &cvoll&7, ein paar Items wurden &cauf den Boden gelegt&7!'
 TradeLog_Disabled: "&7Trade Logging ist &cdeaktiviert&7!"
+Sign_Enter_Amount: "^^^^^^^^\nBetrag oben\neingeben"
+Leftclick: 'Linksklick'
+Rightclick: 'Rechtsklick'
+Shift_Leftclick: 'Shift-Linksklick'
+Shift_Rightclick: 'Shift-Rechtsklick'
+Select: 'Auswählen'
+Select_Foreign_Preview: 'Fremde vorschau wählen'
+Edit: 'Bearbeiten'
+Edit_Variant: 'Variante bearbeiten'
+Variant: 'Variante'
+Cancel: 'Abbrechen'
+Finish: 'Fertigstellen'
+Levels: 'Level'
+Level: 'Level'
+Too_Little_Exp: '&cDu hast &ckeine Exp Level &7zum traden.'
+Exp_Points: "Exp Punkte"
+Exp_Point: "Exp Punkt"

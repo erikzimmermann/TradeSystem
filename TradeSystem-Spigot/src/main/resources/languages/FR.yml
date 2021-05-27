@@ -1,8 +1,7 @@
 No_Permissions: "&cVous n'avez pas les permissions de faire ça !"
 No_Money: "&cVous n'avez pas d'argent !"
 Enter_Correct_Amount: "&cVeuillez entrer un montant valide."
-Only_X_Coins: "&cVous n'avez que %coins% pièces!"
-Only_1_Coin: "&cVous n'avez que %coins% pièce!"
+Only_X_Amount: '&7You only have &c%amount% %type%&7!'
 Trade_Was_Cancelled: "&cl'opération a été &cannulée."
 Trade_Was_Finished: "&7L'échange est &aterminé."
 Cannot_Trade_With_Yourself: "&cVous ne pouvez pas échanger avec vous-même."
@@ -46,8 +45,7 @@ Layout_Name: "Nom du modèle"
 Layout_Name_Already_Exists: "Ce nom de modèle est déjà pris !"
 Layout_Finished: "Le modèle a été créé avec &asuccès&7."
 Layout_Edited: "Le modèle a été édité vec &asuccès&7."
-Layout_Editor: "&cÉditeur &8- &cModèle"
-Layout_Confirm_Close: "&cSauvegarder &8- &cModèle?"
+Layout_Editor: "&9Éditeur &8- &9Modèle"
 Save: "Sauvegarder"
 Not_Ready_For_Saving: "&cLe modèle ne peut pas encore être sauvegardé"
 Items: "Objets"
@@ -73,6 +71,7 @@ Layout_Set_Money: "Définir son icône d'argent"
 Layout_Set_Other_Money: "Définir l'icône d'argent du partenaire"
 Help_TradeSystem: "&7Utilisation &e/%label% <layout, reload>"
 Help_TradeSystem_Layout: "&7Utilisation &e/%label% layout <create, edit, delete, activate>"
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
 Help_TradeSystem_Layout_Activate: "&7Utilisation &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Utilisation &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Utilisation &e/%label% layout edit <name>"
@@ -115,3 +114,20 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7The trade was &ccancelled &7due to an &ceconomy error&7.'
 Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
 TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
+Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
+Leftclick: 'Leftclick'
+Rightclick: 'Rightclick'
+Shift_Leftclick: 'Shift-Leftclick'
+Shift_Rightclick: 'Shift-Rightclick'
+Select: 'Select'
+Select_Foreign_Preview: 'Select foreign preview'
+Edit: 'Edit'
+Edit_Variant: 'Edit variant'
+Variant: 'Variant'
+Cancel: 'Cancel'
+Finish: 'Finish'
+Levels: 'Levels'
+Level: 'Level'
+Too_Little_Exp: '&cYou have &cno exp to trade&7.'
+Exp_Points: "Exp points"
+Exp_Point: "Exp point"
