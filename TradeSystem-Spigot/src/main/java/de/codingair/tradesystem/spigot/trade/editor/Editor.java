@@ -96,19 +96,18 @@ public class Editor extends GUI {
     private void applyPattern(@NotNull Pattern pattern) {
         int slot = -1;
 
-        ItemStack own = buildSlotCursor(TradeSlot.class, 1);
-        ItemStack other = buildSlotCursor(TradeSlotOther.class, 1);
-
         for (IconData iconData : pattern) {
             slot++;
             if (iconData == null) continue;
 
+            if (TradeSlot.class.isAssignableFrom(iconData.getTradeIcon())) {
+                this.icons.put(slot, iconData.getTradeIcon());
+                continue;
+            }
+
             ItemStack adding = null;
             if (iconData.getItems().length > 0) {
                 adding = iconData.getItems()[0];
-            } else {
-                if (TradeSlotOther.class.isAssignableFrom(iconData.getTradeIcon())) adding = other;
-                else if (TradeSlot.class.isAssignableFrom(iconData.getTradeIcon())) adding = own;
             }
 
             layoutInventory.setItem(slot, adding);
@@ -215,7 +214,7 @@ public class Editor extends GUI {
                 copy[i] = item == null ? null : item.clone();
 
                 if (TradeSlot.class.isAssignableFrom(icon)) {
-                    items[i] = buildSlotCursor(icon, 1);
+                    layoutInventory.setItem(i, buildSlotCursor(icon, 1));
                 } else {
                     //item won't be null since we already linked it to a TradeIcon
                     assert item != null;
@@ -239,11 +238,17 @@ public class Editor extends GUI {
 
     private void cleanLayout() {
         for (int i = 0; i < this.copy.length; i++) {
-            cleanItem(i);
+            cleanItem(i, null);
         }
     }
 
-    private void cleanItem(int slot) {
+    private void cleanItem(int slot, @Nullable Class<? extends TradeIcon> icon) {
+        if (icon != null && TradeSlot.class.isAssignableFrom(icon)) {
+            this.copy[slot] = null;
+            this.layoutInventory.setItem(slot, null);
+            return;
+        }
+
         if (this.copy[slot] == null || this.layoutInventory.getItem(slot) == null) return;
         this.layoutInventory.setItem(slot, this.copy[slot]);
         this.copy[slot] = null;
@@ -262,7 +267,10 @@ public class Editor extends GUI {
         builder.setAmount(amount);
         builder.addEnchantment(Enchantment.DAMAGE_ALL, 1);
         builder.setHideEnchantments(true);
-        builder.setHideName(true);
+
+        EditorInfo info = IconHandler.getInfo(icon);
+        builder.setName("§c" + info.getName());
+
         return builder.getItem();
     }
 
@@ -375,6 +383,10 @@ public class Editor extends GUI {
                         e.setCancelled(true);
 
                         if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null) {
+                            Class<? extends TradeIcon> icon = icons.get(e.getSlot());
+                            //trade slots don't contain any items
+                            if (icon != null && TradeSlot.class.isAssignableFrom(icon)) return;
+
                             removeIcon(e.getSlot());
                             removeIcon(getSlotOf(setting));
                             icons.put(e.getSlot(), setting);
@@ -383,7 +395,7 @@ public class Editor extends GUI {
                                 //set variant of multi icon
                                 MultiEditorInfo info = (MultiEditorInfo) IconHandler.getInfo(setting);
 
-                                cleanItem(e.getSlot());
+                                cleanItem(e.getSlot(), null);
                                 getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem();
                             }
 
@@ -405,9 +417,10 @@ public class Editor extends GUI {
                         }
                     }
                 } else {
-                    if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null && icons.remove(e.getSlot()) != null) {
+                    Class<? extends TradeIcon> icon;
+                    if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null && (icon = icons.remove(e.getSlot())) != null) {
                         //remove marker
-                        cleanItem(e.getSlot());
+                        cleanItem(e.getSlot(), icon);
                     }
                 }
             }
