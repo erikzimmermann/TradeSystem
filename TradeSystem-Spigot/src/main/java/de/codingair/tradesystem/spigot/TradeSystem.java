@@ -20,10 +20,10 @@ import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogReposi
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
-import de.codingair.tradesystem.spigot.trade.listeners.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
+import de.codingair.tradesystem.spigot.trade.listeners.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
@@ -32,7 +32,6 @@ import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
-import de.codingair.tradesystem.spigot.utils.Profile;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseInitializer;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseUtil;
@@ -87,10 +86,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public static ProxyDataManager proxy() {
         return instance.proxyDataManager;
-    }
-
-    public static Profile getProfile(Player player) {
-        return new Profile(player);
     }
 
     public static TradeHandler man() {

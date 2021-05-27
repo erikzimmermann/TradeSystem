@@ -4,7 +4,6 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
-import de.codingair.tradesystem.spigot.utils.money.AdapterType;
 import org.bukkit.Material;
 
 import java.util.HashMap;
@@ -39,7 +38,6 @@ public class MetricsManager {
 
             map.put("Trade", 1);
             if (config.getBoolean("TradeSystem.Permissions", true)) map.put("Permissions", 1);
-            if (AdapterType.canEnable() && config.getBoolean("TradeSystem.Trade_with_money", true)) map.put("Economy", 1);
             if (!isStandardBlacklist(TradeSystem.getInstance().getTradeManager().getBlacklist())) map.put("Item blacklist", 1);
             if (!isStandardWorldList(TradeSystem.getInstance().getTradeManager().getBlockedWorlds())) map.put("Blocks worlds", 1);
 

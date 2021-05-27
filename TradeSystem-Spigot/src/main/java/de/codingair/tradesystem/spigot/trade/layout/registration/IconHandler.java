@@ -27,36 +27,8 @@ public class IconHandler {
     private static final LinkedHashMap<Class<? extends TradeIcon>, EditorInfo> ICON_DATA = new LinkedHashMap<>();
 
     static {
-        try {
-            //register basic
-            register(DecorationIcon.class, new EditorInfo("Decoration", Type.BASIC, (editor) -> {
-                if (editor.needsMoreDecorationItems()) return new ItemBuilder(XMaterial.MINECART);
-                else return new ItemBuilder(XMaterial.CHEST_MINECART);
-            }, true));
-            register(StatusIcon.class, new MultiEditorInfo("Status icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA), true,
-                    "Cannot ready", "Not ready", "Ready"));
-            register(ShowStatusIcon.class, new MultiEditorInfo("Status preview icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.LIME_TERRACOTTA), true,
-                    "Not ready", "Ready"));
-            register(TradeSlot.class, new EditorInfo("Own trade slots", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.BLACK_STAINED_GLASS)
-                    .setAmount(Math.max(1, getAmountOf(TradeSlot.class, editor.getIcons()))), true));
-            register(TradeSlotOther.class, new EditorInfo("Foreign trade slots", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.WHITE_STAINED_GLASS)
-                    .setAmount(Math.max(1, getAmountOf(TradeSlotOther.class, editor.getIcons()))), true));
-            register(CancelIcon.class, new EditorInfo("Cancel icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.BARRIER), false));
-
-            //economy
-            register(ExpLevelIcon.class, new EditorInfo("Exp level icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
-            register(ShowExpLevelIcon.class, new TransitionTargetEditorInfo("Exp level preview icon", ExpLevelIcon.class));
-            register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
-            register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
-
-            register(VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
-            register(ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
-
-            register(EssentialsIcon.class, new EditorInfo("Essentials icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Essentials"));
-            register(ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
-        } catch (TradeIconException e) {
-            e.printStackTrace();
-        }
+        registerBasic();
+        registerEconomy();
     }
 
     public static boolean isTypeEmpty(@NotNull Type type) {
@@ -179,5 +151,60 @@ public class IconHandler {
         EditorInfo info = ICON_DATA.get(icon);
         if (info == null) throw new IllegalStateException("IconInfo from " + icon.getName() + " could not be found.");
         return info;
+    }
+
+    private static void registerBasic() {
+        try {
+            //register basic
+            register(DecorationIcon.class, new EditorInfo("Decoration", Type.BASIC, (editor) -> {
+                if (editor.needsMoreDecorationItems()) return new ItemBuilder(XMaterial.MINECART);
+                else return new ItemBuilder(XMaterial.CHEST_MINECART);
+            }, true));
+            register(StatusIcon.class, new MultiEditorInfo("Status icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA), true,
+                    "Cannot ready", "Not ready", "Ready"));
+            register(ShowStatusIcon.class, new MultiEditorInfo("Status preview icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.LIME_TERRACOTTA), true,
+                    "Not ready", "Ready"));
+            register(TradeSlot.class, new EditorInfo("Own trade slots", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.BLACK_STAINED_GLASS)
+                    .setAmount(Math.max(1, getAmountOf(TradeSlot.class, editor.getIcons()))), true));
+            register(TradeSlotOther.class, new EditorInfo("Foreign trade slots", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.WHITE_STAINED_GLASS)
+                    .setAmount(Math.max(1, getAmountOf(TradeSlotOther.class, editor.getIcons()))), true));
+            register(CancelIcon.class, new EditorInfo("Cancel icon", Type.BASIC, (editor) -> new ItemBuilder(XMaterial.BARRIER), false));
+        } catch (TradeIconException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void registerEconomy() {
+        try {
+            //economy
+            registerExp();
+            registerVault();
+            registerEssentials();
+        } catch (TradeIconException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void registerExp() throws TradeIconException {
+        register(ExpLevelIcon.class, new EditorInfo("Exp level icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
+        register(ShowExpLevelIcon.class, new TransitionTargetEditorInfo("Exp level preview icon", ExpLevelIcon.class));
+        register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
+        register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
+    }
+
+    private static void registerVault() throws TradeIconException {
+        try {
+            register(VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
+            register(ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
+        } catch (RequirementNotFulfilledException ignored) {
+        }
+    }
+
+    private static void registerEssentials() throws TradeIconException {
+        try {
+            register(EssentialsIcon.class, new EditorInfo("Essentials icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Essentials"));
+            register(ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
+        } catch (RequirementNotFulfilledException ignored) {
+        }
     }
 }

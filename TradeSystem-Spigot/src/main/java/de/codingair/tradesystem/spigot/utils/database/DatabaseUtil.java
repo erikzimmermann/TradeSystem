@@ -5,8 +5,6 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.sql.SQLException;
-
 public class DatabaseUtil {
     private static final String MYSQL_STRING = "MYSQL";
     private static final String SQLITE_STRING = "SQLITE";
