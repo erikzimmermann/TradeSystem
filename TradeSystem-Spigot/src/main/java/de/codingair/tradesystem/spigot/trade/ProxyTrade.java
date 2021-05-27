@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import de.codingair.codingapi.API;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
@@ -290,6 +292,13 @@ public class ProxyTrade extends Trade {
     @Override
     protected void cancelling(String message) {
         synchronizeState(TradeStateUpdatePacket.State.CANCELLED, message);
+    }
+
+    @Override
+    protected void clearOpenAnvils() {
+        for (AnvilGUI gui : API.getRemovables(player, AnvilGUI.class)) {
+            gui.clearInventory();
+        }
     }
 
     public synchronized void confirmFinish() {

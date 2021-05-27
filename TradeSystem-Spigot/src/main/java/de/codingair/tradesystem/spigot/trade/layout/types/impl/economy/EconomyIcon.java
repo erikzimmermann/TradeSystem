@@ -53,8 +53,35 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     public @Nullable Double convertInput(@NotNull String input) {
         if (input.isEmpty()) return 0D;
 
+        Integer factor = TradeSystem.man().getMoneyShortcutFactor(input);
+
         try {
-            return Double.parseDouble(input);
+            int comma = input.indexOf(",");
+            boolean multiComma = comma != input.lastIndexOf(",");
+            boolean commaAndDot = comma != -1 && input.contains(".");
+
+            //1,500 -> 1.5 OR 1500 | Use 1.5 to avoid scam
+            String moneyIn = input;
+            if (multiComma || commaAndDot) {
+                //1,500,000.5
+                //1,500,000
+                //1,000.5
+                moneyIn = moneyIn.replace(",", "");
+            } else {
+                //1,500 -> 1.5
+                //1,5 -> 1.5
+                //1.5
+                moneyIn = moneyIn.replace(',', '.');
+            }
+
+            moneyIn = moneyIn.replaceAll("[\\D&&[^.]]", "");
+
+            if (factor != null) {
+                //allow comma
+                return Double.parseDouble(moneyIn) * factor;
+            } else {
+                return Double.parseDouble(moneyIn);
+            }
         } catch (NumberFormatException ex) {
             return null;
         }
@@ -76,21 +103,29 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
                 double max = getPlayerValue(player);
                 if (input > max) {
                     String s = Lang.get("Only_X_Amount")
-                            .replace("%amount%", makeString(max))
+                            .replace("%amount%", makeFancyString(max))
                             .replace("%type%", getName(player, max == 1));
 
                     player.sendMessage(Lang.getPrefix() + s);
                     return IconResult.GUI;
                 }
             }
-    }
+        }
 
-        this.value =input;
+        this.value = input;
         return IconResult.UPDATE;
-}
+    }
 
     @Override
     public @NotNull String makeString(@Nullable Double current) {
+        if (current == null) return "";
+
+        String s = current + "";
+        if (decimal) return s;
+        else return s.substring(0, s.indexOf("."));
+    }
+
+    public @NotNull String makeFancyString(@Nullable Double current) {
         if (current == null) return "";
         return TradeSystem.getInstance().getTradeManager().makeAmountFancy(current);
     }
@@ -102,7 +137,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeFancyString(value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
@@ -134,7 +169,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
         String fancyDiff = format.format(decimal ? diff : (int) diff);
 
         if (diff < 0) {
-            withdraw(player,  -diff);
+            withdraw(player, -diff);
             log(trade, give, player.getName(), fancyDiff);
         } else if (diff > 0) {
             deposit(player, diff);

@@ -34,6 +34,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
                 G in = convertInput(origin);
                 IconResult result = processInput(trade, player, in, origin);
 
+                getClickSound().play(player);
                 if (result != IconResult.GUI) {
                     //won't be closed until we say it.
                     e.setClose(true);

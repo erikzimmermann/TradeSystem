@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 
 public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
-    public EssentialsIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive) {
-        super(itemStack, nameSingular, namePlural, give, receive, true);
+    public EssentialsIcon(@NotNull ItemStack itemStack) {
+        super(itemStack, "Coin", "Coins", TradeLogMessages.PAYED_MONEY, TradeLogMessages.RECEIVED_MONEY, true);
     }
 
     @Override

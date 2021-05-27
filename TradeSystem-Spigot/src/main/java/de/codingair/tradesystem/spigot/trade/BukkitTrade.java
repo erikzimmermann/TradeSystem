@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import de.codingair.codingapi.API;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
@@ -214,6 +216,15 @@ public class BukkitTrade extends Trade {
     @Override
     protected void cancelling(String message) {
         //ignore
+    }
+
+    @Override
+    protected void clearOpenAnvils() {
+        for (Player player : this.players) {
+            for (AnvilGUI gui : API.getRemovables(player, AnvilGUI.class)) {
+                gui.clearInventory();
+            }
+        }
     }
 
     @Override

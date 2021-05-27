@@ -10,8 +10,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
-    public VaultIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive) {
-        super(itemStack, nameSingular, namePlural, give, receive, true);
+    public VaultIcon(@NotNull ItemStack itemStack) {
+        super(itemStack, "Coin", "Coins", TradeLogMessages.PAYED_MONEY, TradeLogMessages.RECEIVED_MONEY, true);
     }
 
     @Override

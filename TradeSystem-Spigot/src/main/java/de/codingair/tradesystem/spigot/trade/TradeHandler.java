@@ -54,7 +54,6 @@ public class TradeHandler {
     private InputGUI inputGUI = InputGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
-    private boolean tradeMoney = true;
 
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
@@ -90,7 +89,6 @@ public class TradeHandler {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
-        this.tradeMoney = config.getBoolean("TradeSystem.Trade_with_money", true);
 
         if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
@@ -371,10 +369,6 @@ public class TradeHandler {
         return false;
     }
 
-    public boolean isTradeMoney() {
-        return tradeMoney;
-    }
-
     public List<String> getBlockedWorlds() {
         return blockedWorlds;
     }
@@ -390,21 +384,36 @@ public class TradeHandler {
     }
 
     public Integer getMoneyShortcutFactor(String s) {
-        String key = s.replaceAll("[^a-z]", "");
+        String key = s.toLowerCase().replaceAll("[^a-z]", "");
         return moneyShortcuts.get(key);
     }
 
     public String makeAmountFancy(double money) {
-        StringBuilder s = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-        //1,000,000
-        char[] c = (money + "").toCharArray();
-        for (int i = c.length - 1; i >= 0; i--) {
-            if ((s.length() + 1) % 4 == 0) s.insert(0, ",");
-            s.insert(0, c[i]);
+        //1,000,000.5
+        String s = money + "";
+        char[] c = s.toCharArray();
+
+        int dot = s.indexOf(".");
+        boolean decimal = ((int) money) != money;
+
+        int behindDot;
+        if (decimal) behindDot = c.length - dot;
+        else behindDot = 0;
+
+        int commas = 0;
+        for (int i = (decimal ? c.length : dot) - 1; i >= 0; i--) {
+            int repetition = builder.length() - behindDot - commas;
+
+            if (i < dot && repetition > 0 && repetition % 3 == 0) {
+                commas++;
+                builder.insert(0, ",");
+            }
+            builder.insert(0, c[i]);
         }
 
-        return s.toString();
+        return builder.toString();
     }
 
     public int getCountdownRepetitions() {

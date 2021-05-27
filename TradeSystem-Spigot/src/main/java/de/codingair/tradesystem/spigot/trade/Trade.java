@@ -201,12 +201,18 @@ public abstract class Trade {
         cancel(message, false);
     }
 
+    /**
+     * Avoid moving the item which will be renamed into the players inventory.
+     */
+    protected abstract void clearOpenAnvils();
+
     public void cancel(String message, boolean alreadyCalled) {
         this.cancelling = true;
         boolean[] droppedItems = closeGUI();
         if (droppedItems == null) return;
 
         stopListeners();
+        clearOpenAnvils();
 
         playCancelSound();
         closeInventories();
