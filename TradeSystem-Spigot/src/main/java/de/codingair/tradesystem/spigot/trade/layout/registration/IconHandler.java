@@ -31,59 +31,6 @@ public class IconHandler {
         registerEconomy();
     }
 
-    public static boolean isTypeEmpty(@NotNull Type type) {
-        for (EditorInfo value : ICON_DATA.values()) {
-            if (type.equals(value.getType())) return false;
-        }
-
-        return true;
-    }
-
-    @NotNull
-    public static Class<? extends TradeIcon> getIcon(@NotNull String name) {
-        Class<? extends TradeIcon> icon = TRADE_ICONS.get(name);
-        if (icon == null) throw new NullPointerException("Cannot find TradeIcon with name='" + name + "'");
-
-        return icon;
-    }
-
-    @NotNull
-    public static Class<? extends TradeIcon> getTransitionTarget(@NotNull Class<? extends TradeIcon> icon) {
-        EditorInfo info = getInfo(icon);
-
-        Class<? extends TradeIcon> target = info.getTransitionTarget();
-        if (target == null) throw new IllegalStateException("Could not found a transition target for " + icon.getName());
-
-        return target;
-    }
-
-    public static int getAmountOf(@NotNull Class<? extends TradeIcon> icon, @NotNull Map<Integer, Class<? extends TradeIcon>> icons) {
-        return (int) icons.values().stream().filter(icon::equals).count();
-    }
-
-    public static List<EditorInfo> getIcons(@NotNull Type type) {
-        List<EditorInfo> icons = new ArrayList<>();
-
-        for (EditorInfo value : ICON_DATA.values()) {
-            if (value.nameOnly()) continue;
-            if (value.getType() == type) icons.add(value);
-        }
-
-        return icons;
-    }
-
-    public static List<EditorInfo> getNecessaryIcons() {
-        List<EditorInfo> icons = new ArrayList<>();
-
-        for (EditorInfo value : ICON_DATA.values()) {
-            if (value.getTradeIcon().equals(DecorationIcon.class)
-                    || TradeSlot.class.isAssignableFrom(value.getTradeIcon())) continue;
-            if (value.isNecessary()) icons.add(value);
-        }
-
-        return icons;
-    }
-
     /**
      * @param tradeIcon The trade icon class to register.
      * @param info      The icon info of the registering icon.
@@ -146,17 +93,10 @@ public class IconHandler {
         }
     }
 
-    @NotNull
-    public static EditorInfo getInfo(Class<? extends TradeIcon> icon) {
-        EditorInfo info = ICON_DATA.get(icon);
-        if (info == null) throw new IllegalStateException("IconInfo from " + icon.getName() + " could not be found.");
-        return info;
-    }
-
     private static void registerBasic() {
         try {
             //register basic
-            register(DecorationIcon.class, new EditorInfo("Decoration", Type.BASIC, (editor) -> {
+            register(DecorationIcon.class, new EditorInfo("Fill inventory", Type.BASIC, (editor) -> {
                 if (editor.needsMoreDecorationItems()) return new ItemBuilder(XMaterial.MINECART);
                 else return new ItemBuilder(XMaterial.CHEST_MINECART);
             }, true));
@@ -206,5 +146,65 @@ public class IconHandler {
             register(ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
         } catch (RequirementNotFulfilledException ignored) {
         }
+    }
+
+    @NotNull
+    public static EditorInfo getInfo(Class<? extends TradeIcon> icon) {
+        EditorInfo info = ICON_DATA.get(icon);
+        if (info == null) throw new IllegalStateException("IconInfo from " + icon.getName() + " could not be found.");
+        return info;
+    }
+
+    @NotNull
+    public static Class<? extends TradeIcon> getIcon(@NotNull String name) throws IconNotFoundException {
+        Class<? extends TradeIcon> icon = TRADE_ICONS.get(name);
+        if (icon == null) throw new IconNotFoundException(name);
+
+        return icon;
+    }
+
+    @NotNull
+    public static Class<? extends TradeIcon> getTransitionTarget(@NotNull Class<? extends TradeIcon> icon) {
+        EditorInfo info = getInfo(icon);
+
+        Class<? extends TradeIcon> target = info.getTransitionTarget();
+        if (target == null) throw new IllegalStateException("Could not found a transition target for " + icon.getName());
+
+        return target;
+    }
+
+    public static boolean isTypeEmpty(@NotNull Type type) {
+        for (EditorInfo value : ICON_DATA.values()) {
+            if (type.equals(value.getType())) return false;
+        }
+
+        return true;
+    }
+
+    public static int getAmountOf(@NotNull Class<? extends TradeIcon> icon, @NotNull Map<Integer, Class<? extends TradeIcon>> icons) {
+        return (int) icons.values().stream().filter(icon::equals).count();
+    }
+
+    public static List<EditorInfo> getIcons(@NotNull Type type) {
+        List<EditorInfo> icons = new ArrayList<>();
+
+        for (EditorInfo value : ICON_DATA.values()) {
+            if (value.nameOnly()) continue;
+            if (value.getType() == type) icons.add(value);
+        }
+
+        return icons;
+    }
+
+    public static List<EditorInfo> getNecessaryIcons() {
+        List<EditorInfo> icons = new ArrayList<>();
+
+        for (EditorInfo value : ICON_DATA.values()) {
+            if (value.getTradeIcon().equals(DecorationIcon.class)
+                    || TradeSlot.class.isAssignableFrom(value.getTradeIcon())) continue;
+            if (value.isNecessary()) icons.add(value);
+        }
+
+        return icons;
     }
 }

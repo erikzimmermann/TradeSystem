@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.layout;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.utils.DataMask;
 import de.codingair.codingapi.tools.io.utils.Serializable;
+import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.IconNotFoundException;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.layout.utils.IconData;
@@ -23,23 +24,33 @@ public class Pattern implements Serializable, Iterable<IconData> {
     }
 
     @Override
-    public boolean read(DataMask mask) throws Exception {
-        this.name = mask.getString("name");
+    public boolean read(DataMask mask) throws IconNotFoundException {
+        this.name = deserializeName(mask);
 
         Map<?, ?> icons = mask.get("icons");
         this.icons = new IconData[54];
 
+        IconNotFoundException exception = null;
         for (Map.Entry<?, ?> e : icons.entrySet()) {
             if (e.getKey() instanceof Integer && e.getValue() instanceof Map) {
-                JSON json = new JSON((Map<?, ?>) e.getValue());
+                try {
+                    JSON json = new JSON((Map<?, ?>) e.getValue());
 
-                IconData icon = new IconData();
-                icon.read(json);
-                this.icons[(Integer) e.getKey()] = icon;
+                    IconData icon = new IconData();
+                    icon.read(json);
+                    this.icons[(Integer) e.getKey()] = icon;
+                } catch (IconNotFoundException ex) {
+                    if (exception == null) exception = ex;
+                }
             }
         }
 
+        if (exception != null) throw exception;
         return true;
+    }
+
+    public static String deserializeName(DataMask mask) {
+        return mask.getString("name");
     }
 
     @Override
