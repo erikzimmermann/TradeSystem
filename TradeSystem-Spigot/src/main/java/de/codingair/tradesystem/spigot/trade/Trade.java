@@ -201,6 +201,10 @@ public abstract class Trade {
         cancel(message, false);
     }
 
+    public void cancelDueToGUIError() {
+        cancel(Lang.getPrefix() + Lang.get("Open_GUI_Error"));
+    }
+
     /**
      * Avoid moving the item which will be renamed into the players inventory.
      */

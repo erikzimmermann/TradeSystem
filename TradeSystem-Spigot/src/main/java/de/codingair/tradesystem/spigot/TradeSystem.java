@@ -21,6 +21,7 @@ import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.Mysql
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
+import de.codingair.tradesystem.spigot.trade.listeners.AntiGUIDupeListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
@@ -131,6 +132,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onDisable() {
         API.getInstance().onDisable(this);
+        Bukkit.getScheduler().cancelTasks(this);
 
         printConsoleInfo(() -> {
             log("  > Cancelling all active trades");
@@ -209,6 +211,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getPluginManager().registerEvents(new ExpirationListener(), this);
         Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
+        Bukkit.getPluginManager().registerEvents(new AntiGUIDupeListener(), this);
     }
 
     private void registerCommands() {

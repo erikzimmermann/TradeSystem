@@ -4,6 +4,7 @@ import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.codingapi.tools.io.utils.DataMask;
 import de.codingair.codingapi.tools.io.utils.Serializable;
 import de.codingair.tradesystem.spigot.trade.layout.registration.IconHandler;
+import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.IconNotFoundException;
 import de.codingair.tradesystem.spigot.trade.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
@@ -29,7 +30,7 @@ public class IconData implements Serializable {
 
     @SuppressWarnings ({"unchecked", "SuspiciousToArrayCall"})
     @Override
-    public boolean read(DataMask mask) {
+    public boolean read(DataMask mask) throws IconNotFoundException {
         String name = mask.getString("icon");
         this.tradeIcon = IconHandler.getIcon(name);
         JSONArray items = mask.getList("items");
