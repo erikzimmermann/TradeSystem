@@ -131,6 +131,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onDisable() {
         API.getInstance().onDisable(this);
+        Bukkit.getScheduler().cancelTasks(this);
 
         printConsoleInfo(() -> {
             log("  > Cancelling all active trades");
