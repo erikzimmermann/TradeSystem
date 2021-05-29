@@ -37,4 +37,8 @@ public class TradingGUI extends GUI {
         super.destroy();
         if (!trade.getPause()[id]) trade.cancel();
     }
+
+    public boolean isWaiting() {
+        return waiting;
+    }
 }

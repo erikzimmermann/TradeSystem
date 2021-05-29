@@ -131,3 +131,4 @@ Level: 'Level'
 Too_Little_Exp: '&cDu hast &ckeine Exp Level &7zum traden.'
 Exp_Points: "Exp Punkte"
 Exp_Point: "Exp Punkt"
+Open_GUI_Error: '&7The trade was &ccancelled &7due to an &copen inventory&7.'

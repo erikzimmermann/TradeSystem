@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.listeners.AntiGUIDupeListener;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -256,6 +257,11 @@ public class TradeHandler {
             //register
             this.trades.put(player.getName().toLowerCase(), trade);
             this.trades.put(othersName.toLowerCase(), trade);
+
+            if (AntiGUIDupeListener.isNotAllowed(player) || other != null && AntiGUIDupeListener.isNotAllowed(other)) {
+                trade.cancelDueToGUIError();
+                return;
+            }
 
             trade.start();
         }, 5L);
