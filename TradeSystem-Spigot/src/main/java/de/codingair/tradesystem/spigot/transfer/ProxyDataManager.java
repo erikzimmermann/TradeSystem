@@ -3,11 +3,10 @@ package de.codingair.tradesystem.spigot.transfer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.layout.utils.Pattern;
-import de.codingair.tradesystem.spigot.utils.blacklist.BlockedItem;
-import de.codingair.tradesystem.spigot.utils.money.AdapterType;
+import de.codingair.tradesystem.spigot.trade.layout.Pattern;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -46,11 +45,9 @@ public class ProxyDataManager {
     }
 
     public int getTradeHash() {
-        Pattern layout = TradeSystem.getInstance().getLayoutManager().getActive();
+        Pattern pattern = TradeSystem.getInstance().getLayoutManager().getActive();
 
-        boolean money = AdapterType.canEnable() && TradeSystem.getInstance().getTradeManager().isTradeMoney();
-        int type = AdapterType.getActiveType().ordinal();
-        int tradeSlots = layout.getTradeSlotCount();
+        int patternHash = pattern.hashCode();
         int cooldown = TradeSystem.man().getCountdownRepetitions() * TradeSystem.man().getCountdownInterval();
 
         int blacklist = 0;
@@ -58,7 +55,7 @@ public class ProxyDataManager {
             blacklist = Objects.hash(blacklist, blockedItem.hashCode());
         }
 
-        return Objects.hash(money, type, tradeSlots, cooldown, blacklist);
+        return Objects.hash(patternHash, cooldown, blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {

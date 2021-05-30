@@ -11,11 +11,11 @@ public enum PacketType {
     InviteResponsePacket(InviteResponsePacket.class),
     InviteResponsePacket_ResultPacket(InviteResponsePacket.ResultPacket.class),
     TradeItemUpdatePacket(TradeItemUpdatePacket.class),
-    TradeMoneyUpdatePacket(TradeMoneyUpdatePacket.class),
     TradeStateUpdatePacket(TradeStateUpdatePacket.class),
     PlayerInventoryPacket(PlayerInventoryPacket.class),
-    TradeCheckEconomyPacket(TradeCheckEconomyPacket.class),
+    TradeCheckFinishPacket(TradeCheckFinishPacket.class),
     SynchronizePlayersPacket(SynchronizePlayersPacket.class),
+    TradeIconUpdatePacket(TradeIconUpdatePacket.class),
     ;
 
     private final Class<? extends Packet> packetClass;

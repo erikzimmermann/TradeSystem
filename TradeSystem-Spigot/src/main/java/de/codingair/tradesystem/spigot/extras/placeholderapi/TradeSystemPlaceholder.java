@@ -5,20 +5,21 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TradeSystemPlaceholder extends PlaceholderExpansion {
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "tradesystem";
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "CodingAir";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return "1.1";
     }
 

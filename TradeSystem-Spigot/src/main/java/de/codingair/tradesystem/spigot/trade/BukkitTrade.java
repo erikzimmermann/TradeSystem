@@ -1,10 +1,16 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import de.codingair.codingapi.API;
+import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import de.codingair.tradesystem.spigot.utils.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
-import static de.codingair.tradesystem.spigot.tradelog.TradeLogService.getTradeLog;
+import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class BukkitTrade extends Trade {
     private final Player[] players = new Player[2];
@@ -30,7 +36,7 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void updateGUI(boolean forceUpdate) {
+    protected void updateGUI() {
         if (guis[0] != null && guis[1] != null) {
             for (int i = 0; i < slots.size(); i++) {
                 ItemStack item = guis[0].getItem(slots.get(i));
@@ -54,16 +60,8 @@ public class BukkitTrade extends Trade {
                 }
             }
 
-            if (money[0] != moneyBackup[0] || money[1] != moneyBackup[1]) {
-                moneyBackup[0] = money[0];
-                moneyBackup[1] = money[1];
-
-                ready[1] = false;
-                ready[0] = false;
-            }
-
-            guis[0].initialize(this.players[0]);
-            guis[1].initialize(this.players[1]);
+            updateStatusIcon(players[0], 0);
+            updateStatusIcon(players[1], 1);
         }
     }
 
@@ -80,12 +78,22 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void startGUI() {
-        this.guis[0] = new TradingGUI(this.players[0], 0, this);
-        this.guis[1] = new TradingGUI(this.players[1], 1, this);
+    protected void initializeGUIs() {
+        this.guis[0] = new TradingGUI(this.players[0], this, 0);
+        this.guis[1] = new TradingGUI(this.players[1], this, 1);
+    }
 
-        this.guis[0].open();
-        this.guis[1].open();
+    @Override
+    protected void startGUI() {
+        this.guis[0].prepareStart();
+        this.guis[1].prepareStart();
+
+        try {
+            this.guis[0].open();
+            this.guis[1].open();
+        } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -211,6 +219,15 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
+    protected void clearOpenAnvils() {
+        for (Player player : this.players) {
+            for (AnvilGUI gui : API.getRemovables(player, AnvilGUI.class)) {
+                gui.clearInventory();
+            }
+        }
+    }
+
+    @Override
     protected void callReadyUpdate(int id, boolean ready) {
         //ignore
     }
@@ -220,23 +237,18 @@ public class BukkitTrade extends Trade {
         if (this.countdown != null) return;
 
         if (this.guis[0] == null || this.guis[1] == null) return;
-        if (this.guis[0].pause && this.guis[1].pause) return;
+        if (pause[0] && pause[1]) return;
 
         // code to avoid some weird money dupe
         final Player player1 = players[0];
         final Player player2 = players[1];
 
-        Profile p0 = TradeSystem.getProfile(player1);
-        Profile p1 = TradeSystem.getProfile(player2);
-
         Runnable runnable = () -> {
-            if (p0.getMoney() < money[0] || p1.getMoney() < money[1]) {
-                cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
-                return;
-            }
+            if (!tryFinish(player1)) return;
+            if (!tryFinish(player2)) return;
 
-            guis[0].pause = true;
-            guis[1].pause = true;
+            pause[0] = true;
+            pause[1] = true;
 
             for (Player player : players) {
                 player.closeInventory();
@@ -293,14 +305,9 @@ public class BukkitTrade extends Trade {
 
             guis[0].clear();
             guis[1].clear();
-            guis[0].close(players[0], true);
-            guis[1].close(players[1], true);
 
-            double diff = -money[0] + money[1];
-            handleMoney(player1.getName(), player2.getName(), player1.getName(), p0, diff);
-
-            diff = -money[1] + money[0];
-            handleMoney(player1.getName(), player2.getName(), player2.getName(), p1, diff);
+            finishPlayer(player1);
+            finishPlayer(player2);
 
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
             player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));

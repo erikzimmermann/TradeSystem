@@ -5,8 +5,6 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.sql.SQLException;
-
 public class DatabaseUtil {
     private static final String MYSQL_STRING = "MYSQL";
     private static final String SQLITE_STRING = "SQLITE";
@@ -33,7 +31,7 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public void init() throws SQLException {
+    public void init() throws Exception {
         if (databaseType == DatabaseType.MYSQL) {
             MySQLConnection.getInstance().initDataSource();
         } else if (databaseType == DatabaseType.SQLITE) {
