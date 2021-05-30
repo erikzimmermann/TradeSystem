@@ -345,11 +345,6 @@ public class ProxyTrade extends Trade {
             }
 
             guis[0].clear();
-            try {
-                guis[0].close();
-            } catch (AlreadyClosedException e) {
-                e.printStackTrace();
-            }
 
             finishPlayer(this.player);
 

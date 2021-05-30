@@ -306,16 +306,6 @@ public class BukkitTrade extends Trade {
             guis[0].clear();
             guis[1].clear();
 
-            try {
-                guis[0].close();
-            } catch (AlreadyClosedException ignored) {
-            }
-
-            try {
-                guis[1].close();
-            } catch (AlreadyClosedException ignored) {
-            }
-
             finishPlayer(player1);
             finishPlayer(player2);
 
