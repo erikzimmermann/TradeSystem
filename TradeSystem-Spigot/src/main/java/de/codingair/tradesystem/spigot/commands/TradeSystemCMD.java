@@ -32,6 +32,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
             @Override
             public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
+                sender.sendMessage(Lang.getPrefix() + "§cOnly for players!");
             }
 
             @Override
