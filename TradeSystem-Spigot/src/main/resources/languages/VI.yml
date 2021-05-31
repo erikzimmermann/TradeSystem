@@ -108,7 +108,7 @@ Cannot_trade_while_invisible: '&7Bạn &ckhông thể giao dịch &7khi đang &c
 Other_is_already_trading: '&7Người chơi này hiện tại &cđang giao dịch&7!'
 Online: Trực tuyến
 Offline: Ngoại tuyến
-Your_request_epired: '&7Yêu cầu giao dịch đến &e%player% &7đã &chết hạn&7.'
+Your_request_expired: '&7Yêu cầu giao dịch đến &e%player% &7đã &chết hạn&7.'
 Request_expired: '&7Yêu cầu giao dịch từ &e%player% &7đã &chết hạn&7.'
 Fancy_Countdown: ' &7- &e%seconds% giây'
 Economy_Error: '&7Giao dịch &cđã hủy &7vì &clỗi thị trường&7.'

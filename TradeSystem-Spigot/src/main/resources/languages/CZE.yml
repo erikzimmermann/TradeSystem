@@ -108,7 +108,7 @@ Cannot_trade_while_invisible: '&6Nemůžete &7obchodovat, když jsi neviditelný
 Other_is_already_trading: '&7Tento &6hráč &7již obchoduje!'
 Online: Online
 Offline: Offline
-Your_request_epired: '&7Váše žádost o obchod hráči/ce 6e%player% &7vypršelad&7.'
+Your_request_expired: '&7Váše žádost o obchod hráči/ce 6e%player% &7vypršelad&7.'
 Request_expired: '&7Žádost o obchod od hráče/ky &6%player% &7vypršela&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Obchod byl &6ukončen &7z důvodu &cchyby serveru&7.'
