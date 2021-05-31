@@ -145,7 +145,7 @@ public class LayoutManager {
 
     public boolean isAvailable(@Nullable String name) {
         if (name == null) return true;
-        return getPattern(name) == null && incompletePatterns.containsKey(new Name(name)) && crashedPatterns.containsKey(new Name(name));
+        return getPattern(name) == null && !incompletePatterns.containsKey(new Name(name)) && !crashedPatterns.containsKey(new Name(name));
     }
 
     public Map<Name, Pattern> getIncompletePatterns() {

@@ -77,8 +77,7 @@ public class IconData implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(tradeIcon);
-        result = 31 * result + Arrays.hashCode(items);
-        return result;
+        if (tradeIcon == null) return 0;
+        return tradeIcon.getName().hashCode();
     }
 }

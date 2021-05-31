@@ -108,7 +108,7 @@ Cannot_trade_while_invisible: '&cGörünmez&7 iken takas yapamazsınız!'
 Other_is_already_trading: '&7Bu oyuncu zaten şu an takas yapıyor!'
 Online: Aktif
 Offline: Offline
-Your_request_epired: '&e%player% &7e yolladığınız takas teklifinin süresi doldu.'
+Your_request_expired: '&e%player% &7e yolladığınız takas teklifinin süresi doldu.'
 Request_expired: '&7&e%player% &7ın takas teklifinin &csüresi doldu&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Takas &ciptal edildi. &7Bir &cekonomi hatası yüzüden&7.'

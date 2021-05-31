@@ -193,7 +193,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public void deserialize(@NotNull DataInputStream in) throws IOException {
-        this.value = in.readInt();
+        this.value = in.readDouble();
     }
 
     @Override

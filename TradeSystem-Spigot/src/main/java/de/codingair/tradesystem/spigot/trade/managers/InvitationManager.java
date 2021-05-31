@@ -59,7 +59,7 @@ public class InvitationManager {
         if (l == null) l = new TimeSet<Invite>() {
             @Override
             public void timeout(Invite i) {
-                if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_epired", inviter).replace("%player%", nameReceiver));
+                if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter).replace("%player%", nameReceiver));
                 if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver).replace("%player%", nameInviter));
             }
         };
