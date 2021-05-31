@@ -21,6 +21,7 @@ import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.DecorationI
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -57,7 +58,7 @@ public class IconPage extends Page {
 
             @Override
             public @Nullable ItemStack buildItem() {
-                boolean alreadySet = !editor.getLayoutInventory().isEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
+                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
                 ItemBuilder builder = editorInfo.getEditorIcon(editor);
 
@@ -174,7 +175,7 @@ public class IconPage extends Page {
 
             @Override
             public boolean canClick(ClickType clickType) {
-                boolean alreadySet = !editor.getLayoutInventory().isEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
+                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return true;
                 else if (editorInfo.getTradeIcon().equals(TradeSlot.class) || editorInfo.getTradeIcon().equals(TradeSlotOther.class)) return true;
@@ -185,7 +186,7 @@ public class IconPage extends Page {
 
             @Override
             public void onClick(GUI gui, InventoryClickEvent e) {
-                boolean alreadySet = !editor.getLayoutInventory().isEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
+                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
                 if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
                     MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
@@ -204,7 +205,7 @@ public class IconPage extends Page {
 
             @Override
             public boolean canSwitch(ClickType clickType) {
-                boolean alreadySet = !editor.getLayoutInventory().isEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
+                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
                 if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
                     if (clickType == ClickType.SHIFT_LEFT) return false;
@@ -216,7 +217,7 @@ public class IconPage extends Page {
 
             @Override
             public boolean open(ClickType clickType, GUI gui, Call call) {
-                boolean alreadySet = !editor.getLayoutInventory().isEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
+                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class))
                     //special cases
@@ -273,6 +274,16 @@ public class IconPage extends Page {
                 return true;
             }
         };
+    }
+
+    private boolean isLayoutInventoryNotEmpty() {
+        ItemStack[] contents = editor.getLayoutInventory().getContents();
+
+        for (ItemStack content : contents) {
+            if (content != null && content.getType() != Material.AIR) return true;
+        }
+
+        return false;
     }
 
     public Type getType() {

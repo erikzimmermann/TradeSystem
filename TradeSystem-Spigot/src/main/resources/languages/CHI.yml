@@ -108,7 +108,7 @@ Cannot_trade_while_invisible: '&7你&c无法&7在&c隐身状态&7下交易!'
 Other_is_already_trading: '&7该玩家&c正在&7交易!'
 Online: 正在交易所
 Offline: 已离开交易所
-Your_request_epired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
+Your_request_expired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
 Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
 Fancy_Countdown: '&7正在处理-&e%seconds%s'
 Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
