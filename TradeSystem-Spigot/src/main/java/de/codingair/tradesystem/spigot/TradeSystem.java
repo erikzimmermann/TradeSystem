@@ -323,4 +323,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
                 throw new RuntimeException("Invalid database type provided: " + type);
         }
     }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
 }
