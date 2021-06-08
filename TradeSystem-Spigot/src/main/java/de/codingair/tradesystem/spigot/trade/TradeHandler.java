@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.MalformedParametersException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -389,37 +391,45 @@ public class TradeHandler {
         return false;
     }
 
+    @Nullable
     public Integer getMoneyShortcutFactor(String s) {
         String key = s.toLowerCase().replaceAll("[^a-z]", "");
         return moneyShortcuts.get(key);
     }
 
-    public String makeAmountFancy(double money) {
-        StringBuilder builder = new StringBuilder();
+    @NotNull
+    public String buildString(@NotNull Number value, boolean forceDecimal) {
+        DecimalFormat df = getDefaultDecimalFormat();
 
-        //1,000,000.5
-        String s = money + "";
-        char[] c = s.toCharArray();
-
-        int dot = s.indexOf(".");
-        boolean decimal = ((int) money) != money;
-
-        int behindDot;
-        if (decimal) behindDot = c.length - dot;
-        else behindDot = 0;
-
-        int commas = 0;
-        for (int i = (decimal ? c.length : dot) - 1; i >= 0; i--) {
-            int repetition = builder.length() - behindDot - commas;
-
-            if (i < dot && repetition > 0 && repetition % 3 == 0) {
-                commas++;
-                builder.insert(0, ",");
-            }
-            builder.insert(0, c[i]);
+        if (forceDecimal) {
+            df.setDecimalSeparatorAlwaysShown(true);
+            df.setMinimumFractionDigits(1);
         }
 
-        return builder.toString();
+        return df.format(value);
+    }
+
+    @NotNull
+    public String makeAmountFancy(@NotNull Number value) {
+        DecimalFormat df = getDefaultDecimalFormat();
+
+        df.setGroupingUsed(true);
+        df.setGroupingSize(3);
+
+        return df.format(value);
+    }
+
+    private DecimalFormat getDefaultDecimalFormat() {
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMaximumFractionDigits(2);
+        df.setMinimumIntegerDigits(1);
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        symbols.setGroupingSeparator(',');
+        df.setDecimalFormatSymbols(symbols);
+
+       return df;
     }
 
     public int getCountdownRepetitions() {
