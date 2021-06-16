@@ -55,14 +55,18 @@ public class RequestManager {
         TextComponent base = new TextComponent(TextComponent.fromLegacyText(Lang.getPrefix() + Lang.get("Want_To_Trade", recipient).replace("%player%", player)));
         base.setColor(ChatColor.GRAY);
 
+        String commandTrade = TradeSystem.getInstance().getCommandManager().getTradeAliases()[0];
+        String commandAccept = "/" + commandTrade + " " + TradeSystem.getInstance().getCommandManager().getAcceptAliases()[0];
+        String commandDeny = "/" + commandTrade + " " + TradeSystem.getInstance().getCommandManager().getDenyAliases()[0];
+
         SimpleMessage message = new SimpleMessage(recipient, base, TradeSystem.getInstance());
 
         TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept", recipient));
-        accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade accept " + player));
+        accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, commandAccept + " " + player));
         accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", recipient))}));
 
         TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny", recipient));
-        deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/trade deny " + player));
+        deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, commandDeny + " " + player));
         deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", recipient))}));
 
         message.replace("%accept%", accept);

@@ -43,8 +43,8 @@ public interface TradeIcon {
     void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer);
 
     /**
-     * Checks all trade icons for the last time to make sure that all collected data is correct.<br>
-     * Example: Has the player enough money has he wants to trade in?`<p>
+     * Checks all trade icons for the last time to ensure that all data is correct.<br>
+     * Example: Has the player enough money as he wants to trade in?<p>
      * <b>Do NOT exchange any goods here!</b>
      *
      * @param trade            The trade instance.
@@ -116,7 +116,7 @@ public interface TradeIcon {
     default void log(@NotNull Trade trade, @NotNull TradeLogMessages message, Object... vars) {
         if (trade.isInitiationServer()) getTradeLog().log(trade.getPlayers()[0], trade.getPlayers()[1], message.get(vars));
         else {
-            //exception -> proxy trade -> handle money only on one server -> switch players
+            //exception -> proxy trade -> handle exchange only on one server -> switch players
             getTradeLog().log(trade.getPlayers()[1], trade.getPlayers()[0], message.get(vars));
         }
     }

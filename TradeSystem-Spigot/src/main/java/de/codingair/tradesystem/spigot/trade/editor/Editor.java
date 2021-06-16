@@ -294,6 +294,18 @@ public class Editor extends GUI {
         return true;
     }
 
+    public boolean hasNoUsableItems() {
+        ItemStack[] items = this.layoutInventory.getContents();
+        for (int i = 0; i < items.length; i++) {
+            Class<? extends TradeIcon> current = this.icons.get(i);
+            if (current != null && TradeSlot.class.isAssignableFrom(current)) continue;
+
+            if (items[i] != null && items[i].getType() != Material.AIR) return false;
+        }
+
+        return true;
+    }
+
     private int countIcon(@NotNull Class<? extends TradeIcon> setting) {
         int count = 0;
 

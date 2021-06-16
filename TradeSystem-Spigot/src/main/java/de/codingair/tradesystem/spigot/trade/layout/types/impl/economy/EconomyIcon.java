@@ -118,14 +118,17 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     public @NotNull String makeString(@Nullable Double current) {
         if (current == null) return "";
 
-        String s = current + "";
-        if (decimal) return s;
-        else return s.substring(0, s.indexOf("."));
+        Number number = current;
+        if (!decimal) number = number.intValue();
+        return TradeSystem.man().buildString(number, decimal);
     }
 
     public @NotNull String makeFancyString(@Nullable Double current) {
         if (current == null) return "";
-        return TradeSystem.getInstance().getTradeManager().makeAmountFancy(current);
+
+        Number number = current;
+        if (!decimal) number = number.intValue();
+        return TradeSystem.man().makeAmountFancy(number);
     }
 
     @Override

@@ -115,7 +115,10 @@ public class LayoutManager {
     }
 
     public boolean addPattern(Pattern pattern) {
-        return this.patterns.put(new Name(pattern.getName()), pattern) == null;
+        boolean created = this.patterns.put(new Name(pattern.getName()), pattern) == null;
+        save();
+
+        return created;
     }
 
     public boolean remove(@NotNull Pattern pattern) {

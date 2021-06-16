@@ -102,17 +102,15 @@ public class IconPage extends Page {
                         }
 
                         //something that needs another item
-                        if (!editor.needsMoreDecorationItems()) {
-                            if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo.getTransitionTarget() != null) {
-                                //did we configure the transition target?
+                        if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo.getTransitionTarget() != null) {
+                            //did we configure the transition target?
 
-                                boolean transitionTargetNotSet = !editor.getIcons().containsValue(editorInfo.getTransitionTarget());
-                                if (transitionTargetNotSet) {
-                                    addMarker = true;
-                                }
-
-                                done = !transitionTargetNotSet;
+                            boolean transitionTargetNotSet = !editor.getIcons().containsValue(editorInfo.getTransitionTarget());
+                            if (transitionTargetNotSet && !editor.needsMoreDecorationItems()) {
+                                addMarker = true;
                             }
+
+                            done = !transitionTargetNotSet;
                         }
                     }
                 }
@@ -140,16 +138,12 @@ public class IconPage extends Page {
 
                     builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Leftclick") + ": " + (alreadySet ? "§7" : "§a") + Lang.get("Edit"));
                 } else {
-                    builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Leftclick") + ": " + (alreadySet ? "§7" : "§a") + Lang.get("Select"));
+                    builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Leftclick") + ": " + (alreadySet || editor.hasNoUsableItems() ? "§7" : "§a") + Lang.get("Select"));
                 }
 
                 if (alreadySet) {
-                    //icon cannot be a transition AND a multi trade icon
-                    if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) {
-                        boolean hasTarget = editor.getIcons().containsValue(editorInfo.getTransitionTarget());
-
-                        builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Rightclick") + ": " + (hasTarget ? "§7" : "§a") + Lang.get("Select_Foreign_Preview"));
-                    } else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
+                    //icon cannot be a transition AND a multi trade icon at the same time
+                    if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
                         MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
                         ItemStack[] variants = editor.getVariants(editorInfo.getTradeIcon(), null);
 
@@ -167,6 +161,17 @@ public class IconPage extends Page {
                         builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Rightclick") + ": §7" + Lang.get("Edit_Variant"));
                         builder.addLore("§8" + Lang.get("Shift_Leftclick") + ": §8←");
                         builder.addLore("§8" + Lang.get("Shift_Rightclick") + ": §8→");
+                    } else {
+                        if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) {
+                            boolean hasTarget = editor.getIcons().containsValue(editorInfo.getTransitionTarget());
+
+                            builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Rightclick") + ": " + (hasTarget || editor.hasNoUsableItems() ? "§7" : "§a") + Lang.get("Select_Foreign_Preview"));
+                        }
+
+                        if (!TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
+                            //trade slots should not be able to reset
+                            builder.addLore("§8" + Lang.get("Shift_Rightclick") + ": §8" + Lang.get("Reset"));
+                        }
                     }
                 }
 
@@ -177,27 +182,43 @@ public class IconPage extends Page {
             public boolean canClick(ClickType clickType) {
                 boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
-                if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return true;
-                else if (editorInfo.getTradeIcon().equals(TradeSlot.class) || editorInfo.getTradeIcon().equals(TradeSlotOther.class)) return true;
-                else if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) return true;
-                else if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) return true;
-                else return clickType == ClickType.LEFT;
+                if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return clickType == ClickType.LEFT;
+                else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) return clickType == ClickType.LEFT;
+                else if (alreadySet) {
+                    if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) return true;
+                    else if (clickType == ClickType.SHIFT_RIGHT) return true;
+                    else if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) {
+                        boolean hasTarget = editor.getIcons().containsValue(editorInfo.getTransitionTarget());
+
+                        if (clickType == ClickType.RIGHT) {
+                            return !hasTarget && !editor.hasNoUsableItems();
+                        }
+                    }
+                }
+
+                return clickType == ClickType.LEFT && !editor.hasNoUsableItems();
             }
 
             @Override
             public void onClick(GUI gui, InventoryClickEvent e) {
                 boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
-                if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
-                    MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
+                if (alreadySet) {
+                    if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
+                        MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
 
-                    if (e.getClick() == ClickType.SHIFT_LEFT) {
-                        id--;
-                        if (id < 0) id = multiEditorInfo.getIconName().length - 1;
-                        updateItem(slot);
+                        if (e.getClick() == ClickType.SHIFT_LEFT) {
+                            id--;
+                            if (id < 0) id = multiEditorInfo.getIconName().length - 1;
+                            updateItem(slot);
+                        } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
+                            id++;
+                            if (id == multiEditorInfo.getIconName().length) id = 0;
+                            updateItem(slot);
+                        }
                     } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
-                        id++;
-                        if (id == multiEditorInfo.getIconName().length) id = 0;
+                        //reset
+                        editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()));
                         updateItem(slot);
                     }
                 }
@@ -207,12 +228,16 @@ public class IconPage extends Page {
             public boolean canSwitch(ClickType clickType) {
                 boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
 
-                if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
-                    if (clickType == ClickType.SHIFT_LEFT) return false;
-                    else return clickType != ClickType.SHIFT_RIGHT;
-                }
+                if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return clickType == ClickType.LEFT;
+                else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) return clickType == ClickType.LEFT;
+                else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
+                    if (alreadySet) {
+                        if (clickType == ClickType.SHIFT_LEFT) return false;
+                        else return clickType != ClickType.SHIFT_RIGHT;
+                    }
+                } else if (clickType == ClickType.SHIFT_RIGHT) return false;
 
-                return true;
+                return !editor.hasNoUsableItems();
             }
 
             @Override
@@ -223,7 +248,7 @@ public class IconPage extends Page {
                     //special cases
                     editor.openLayoutInventory(null, null);
 
-                else if (editorInfo.getTradeIcon().equals(TradeSlot.class) || editorInfo.getTradeIcon().equals(TradeSlotOther.class))
+                else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon()))
                     editor.openLayoutInventory(editorInfo.getTradeIcon(), null);
 
                 else if (clickType == ClickType.LEFT)
