@@ -137,7 +137,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         printConsoleInfo(() -> {
             log("  > Cancelling all active trades");
             this.tradeHandler.cancelAll();
-            this.layoutManager.save();
 
             this.tradeCMD.unregister();
             this.tradeSystemCMD.unregister();

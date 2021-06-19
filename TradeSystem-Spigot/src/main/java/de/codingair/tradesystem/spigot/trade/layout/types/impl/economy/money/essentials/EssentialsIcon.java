@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money;
+package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.essentials;
 
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;

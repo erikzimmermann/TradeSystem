@@ -215,10 +215,7 @@ public class Editor extends GUI {
 
                 if (TradeSlot.class.isAssignableFrom(icon)) {
                     layoutInventory.setItem(i, buildSlotCursor(icon, 1));
-                } else {
-                    //item won't be null since we already linked it to a TradeIcon
-                    assert item != null;
-
+                } else if (item != null) {
                     //add marker
                     item.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
 
