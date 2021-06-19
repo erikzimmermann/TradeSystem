@@ -281,6 +281,10 @@ public class TradeHandler {
             //just use any value
             this.disconnectedOffline.put(player.getName(), true);
         }
+
+        //cancel active trade
+        Trade activeTrade = getTrade(player);
+        if (activeTrade != null) activeTrade.cancel();
     }
 
     public void join(Player player) {
