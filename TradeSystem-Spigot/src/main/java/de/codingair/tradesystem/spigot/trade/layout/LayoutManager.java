@@ -151,10 +151,6 @@ public class LayoutManager {
         return getPattern(name) == null && !incompletePatterns.containsKey(new Name(name)) && !crashedPatterns.containsKey(new Name(name));
     }
 
-    public Map<Name, Pattern> getIncompletePatterns() {
-        return incompletePatterns;
-    }
-
     public Map<Name, Map<?, ?>> getCrashedPatterns() {
         return crashedPatterns;
     }

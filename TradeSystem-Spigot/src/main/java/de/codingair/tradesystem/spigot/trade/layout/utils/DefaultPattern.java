@@ -5,7 +5,9 @@ import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpPointIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpPointIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,9 +26,9 @@ public class DefaultPattern extends Pattern {
         /*0*/   new IconData(DecorationIcon.class, BLACK_STAINED),
                 new IconData(DecorationIcon.class, BLACK_STAINED),
                 new IconData(DecorationIcon.class, BLACK_STAINED),
-                new IconData(ExpLevelIcon.class, NUGGET),
+                new IconData(ExpPointIcon.class, NUGGET),
                 new IconData(DecorationIcon.class, GRAY_STAINED),
-        /*5*/   new IconData(ShowExpLevelIcon.class, NUGGET),
+        /*5*/   new IconData(ShowExpPointIcon.class, NUGGET),
                 new IconData(DecorationIcon.class, BLACK_STAINED),
                 new IconData(DecorationIcon.class, BLACK_STAINED),
                 new IconData(DecorationIcon.class, BLACK_STAINED),
