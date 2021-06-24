@@ -5,8 +5,8 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpLevelIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ExpPointIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpPointIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -82,11 +82,11 @@ public class ImportHelper {
                 else return DecorationIcon.class;
 
             case "PICK_MONEY":
-                if (usingMoney) return ExpLevelIcon.class;
+                if (usingMoney) return ExpPointIcon.class;
                 else return null;
 
             case "SHOW_MONEY":
-                if (usingMoney) return ShowExpLevelIcon.class;
+                if (usingMoney) return ShowExpPointIcon.class;
                 else return null;
 
             case "PICK_STATUS_NONE":
