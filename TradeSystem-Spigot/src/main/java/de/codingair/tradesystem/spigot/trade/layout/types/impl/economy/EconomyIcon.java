@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
+    public static final int FRACTION_DIGITS = 4;
     private final String nameSingular;
     private final String namePlural;
     private final TradeLogMessages give;
@@ -75,6 +76,15 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
             }
 
             moneyIn = moneyIn.replaceAll("[\\D&&[^.]]", "");
+
+            //limit decimal places
+            if (moneyIn.contains(".")) {
+                comma = moneyIn.indexOf(".");
+
+                int out = comma + FRACTION_DIGITS + 1;
+                boolean tooManyDecimals = moneyIn.length() > out;
+                if (tooManyDecimals) moneyIn = moneyIn.substring(0, out);
+            }
 
             if (factor != null) {
                 //allow comma

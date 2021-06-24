@@ -145,7 +145,6 @@ public class Editor extends GUI {
 
                     icon = new IconData(iconClass, item);
                 }
-
             } else {
                 ItemStack item = layoutInventory.getItem(slot);
                 if (item != null) icon = new IconData(DecorationIcon.class, item);
@@ -208,11 +207,11 @@ public class Editor extends GUI {
         ItemStack[] items = this.layoutInventory.getContents();
 
         for (int i = 0; i < items.length; i++) {
+            ItemStack item = items[i];
+            copy[i] = item == null ? null : item.clone();
+
             Class<? extends TradeIcon> icon = this.icons.get(i);
             if (icon != null) {
-                ItemStack item = items[i];
-                copy[i] = item == null ? null : item.clone();
-
                 if (TradeSlot.class.isAssignableFrom(icon)) {
                     layoutInventory.setItem(i, buildSlotCursor(icon, 1));
                 } else if (item != null) {
@@ -354,7 +353,7 @@ public class Editor extends GUI {
                 if (isSlotIcon()) {
                     assert setting != null;
                     int amount = 26 - countIcon(setting);
-                    e.getView().setCursor(buildSlotCursor(setting, amount));
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> e.getView().setCursor(buildSlotCursor(setting, amount)), 1);
                 }
 
                 open = true;
@@ -405,7 +404,7 @@ public class Editor extends GUI {
                                 MultiEditorInfo info = (MultiEditorInfo) IconHandler.getInfo(setting);
 
                                 cleanItem(e.getSlot(), null);
-                                getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem();
+                                getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem().clone();
                             }
 
                             Sound.UI_BUTTON_CLICK.playSound(player, 0.7F, 1);
