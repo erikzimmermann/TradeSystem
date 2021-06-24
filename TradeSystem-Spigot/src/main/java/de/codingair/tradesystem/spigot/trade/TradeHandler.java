@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.EconomyIcon;
 import de.codingair.tradesystem.spigot.trade.listeners.AntiGUIDupeListener;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
@@ -425,7 +426,7 @@ public class TradeHandler {
 
     private DecimalFormat getDefaultDecimalFormat() {
         DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(2);
+        df.setMaximumFractionDigits(EconomyIcon.FRACTION_DIGITS);
         df.setMinimumIntegerDigits(1);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
