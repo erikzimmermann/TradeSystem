@@ -74,8 +74,7 @@ public class LayoutManager {
         TradeSystem.log("    ...got " + (this.patterns.size() - standardLayouts) + " layout(s)");
     }
 
-    public void save() {
-        TradeSystem.log("  > Saving layouts");
+    public void saveLayouts() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
 
@@ -86,10 +85,19 @@ public class LayoutManager {
         data.addAll(crashedPatterns.values());
 
         config.set("Layouts", data);
+        file.saveConfig();
+
+        TradeSystem.getInstance().getLogger().log(Level.INFO, "Saved " + data.size() + " layout(s).");
+    }
+
+    public void saveActiveLayout() {
+        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
+        FileConfiguration config = file.getConfig();
+
         config.set("Active", this.active);
         file.saveConfig();
 
-        TradeSystem.log("    ...saved " + data.size() + " layout(s)");
+        TradeSystem.getInstance().getLogger().log(Level.INFO, "Saved '" + this.active + "' as active layout.");
     }
 
     private void serializePatterns(List<Map<?, ?>> data, Collection<Pattern> patterns) {
@@ -115,11 +123,16 @@ public class LayoutManager {
     }
 
     public boolean addPattern(Pattern pattern) {
-        return this.patterns.put(new Name(pattern.getName()), pattern) == null;
+        boolean created = this.patterns.put(new Name(pattern.getName()), pattern) == null;
+        saveLayouts();
+
+        return created;
     }
 
-    public boolean remove(@NotNull Pattern pattern) {
-        return this.patterns.remove(new Name(pattern.getName())) != null;
+    public void delete(@NotNull Pattern pattern) {
+        if (this.patterns.remove(new Name(pattern.getName())) != null) {
+            saveLayouts();
+        }
     }
 
     @NotNull
@@ -129,6 +142,7 @@ public class LayoutManager {
 
     public void setActive(@NotNull String name) {
         this.active = name;
+        saveActiveLayout();
     }
 
     public Collection<Pattern> getPatterns() {
@@ -146,10 +160,6 @@ public class LayoutManager {
     public boolean isAvailable(@Nullable String name) {
         if (name == null) return true;
         return getPattern(name) == null && !incompletePatterns.containsKey(new Name(name)) && !crashedPatterns.containsKey(new Name(name));
-    }
-
-    public Map<Name, Pattern> getIncompletePatterns() {
-        return incompletePatterns;
     }
 
     public Map<Name, Map<?, ?>> getCrashedPatterns() {

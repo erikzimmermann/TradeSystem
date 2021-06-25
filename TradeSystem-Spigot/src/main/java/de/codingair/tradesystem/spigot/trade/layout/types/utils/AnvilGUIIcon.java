@@ -31,6 +31,8 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
                 if (!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
 
                 String origin = e.getInput(false);
+                if (origin == null) origin = "";
+
                 G in = convertInput(origin);
                 IconResult result = processInput(trade, player, in, origin);
 

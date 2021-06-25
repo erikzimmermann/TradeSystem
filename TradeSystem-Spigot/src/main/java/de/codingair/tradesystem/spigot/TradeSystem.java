@@ -137,7 +137,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         printConsoleInfo(() -> {
             log("  > Cancelling all active trades");
             this.tradeHandler.cancelAll();
-            this.layoutManager.save();
 
             this.tradeCMD.unregister();
             this.tradeSystemCMD.unregister();
@@ -322,5 +321,9 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             default:
                 throw new RuntimeException("Invalid database type provided: " + type);
         }
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }

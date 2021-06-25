@@ -5,7 +5,7 @@
     <parent>
         <artifactId>TradeSystem</artifactId>
         <groupId>de.codingair</groupId>
-        <version>2.0.1</version>
+        <version>2.0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -89,6 +89,18 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Realizedd</groupId>
+            <artifactId>TokenManager</artifactId>
+            <version>3.2.4</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>

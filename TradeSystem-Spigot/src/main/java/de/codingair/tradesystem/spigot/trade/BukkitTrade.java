@@ -164,6 +164,9 @@ public class BukkitTrade extends Trade {
         this.players[0].closeInventory();
         this.players[1].closeInventory();
 
+        if (this.guis[0] != null) this.guis[0].destroy();
+        if (this.guis[1] != null) this.guis[1].destroy();
+
         this.players[0].updateInventory();
         this.players[1].updateInventory();
     }

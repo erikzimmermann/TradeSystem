@@ -145,7 +145,6 @@ public class Editor extends GUI {
 
                     icon = new IconData(iconClass, item);
                 }
-
             } else {
                 ItemStack item = layoutInventory.getItem(slot);
                 if (item != null) icon = new IconData(DecorationIcon.class, item);
@@ -208,17 +207,14 @@ public class Editor extends GUI {
         ItemStack[] items = this.layoutInventory.getContents();
 
         for (int i = 0; i < items.length; i++) {
+            ItemStack item = items[i];
+            copy[i] = item == null ? null : item.clone();
+
             Class<? extends TradeIcon> icon = this.icons.get(i);
             if (icon != null) {
-                ItemStack item = items[i];
-                copy[i] = item == null ? null : item.clone();
-
                 if (TradeSlot.class.isAssignableFrom(icon)) {
                     layoutInventory.setItem(i, buildSlotCursor(icon, 1));
-                } else {
-                    //item won't be null since we already linked it to a TradeIcon
-                    assert item != null;
-
+                } else if (item != null) {
                     //add marker
                     item.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
 
@@ -294,6 +290,18 @@ public class Editor extends GUI {
         return true;
     }
 
+    public boolean hasNoUsableItems() {
+        ItemStack[] items = this.layoutInventory.getContents();
+        for (int i = 0; i < items.length; i++) {
+            Class<? extends TradeIcon> current = this.icons.get(i);
+            if (current != null && TradeSlot.class.isAssignableFrom(current)) continue;
+
+            if (items[i] != null && items[i].getType() != Material.AIR) return false;
+        }
+
+        return true;
+    }
+
     private int countIcon(@NotNull Class<? extends TradeIcon> setting) {
         int count = 0;
 
@@ -345,7 +353,7 @@ public class Editor extends GUI {
                 if (isSlotIcon()) {
                     assert setting != null;
                     int amount = 26 - countIcon(setting);
-                    e.getView().setCursor(buildSlotCursor(setting, amount));
+                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> e.getView().setCursor(buildSlotCursor(setting, amount)), 1);
                 }
 
                 open = true;
@@ -396,7 +404,7 @@ public class Editor extends GUI {
                                 MultiEditorInfo info = (MultiEditorInfo) IconHandler.getInfo(setting);
 
                                 cleanItem(e.getSlot(), null);
-                                getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem();
+                                getVariants(setting, info.getIconName().length)[0] = e.getCurrentItem().clone();
                             }
 
                             Sound.UI_BUTTON_CLICK.playSound(player, 0.7F, 1);

@@ -32,6 +32,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
             @Override
             public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
+                sender.sendMessage(Lang.getPrefix() + "§cOnly for players!");
             }
 
             @Override
@@ -47,7 +48,7 @@ public class TradeSystemCMD extends CommandBuilder {
         }, true, "ts");
 
         LayoutManager l = TradeSystem.getInstance().getLayoutManager();
-        
+
         getBaseComponent().addChild(new CommandComponent("reload") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
@@ -87,7 +88,7 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 if (!l.isAvailable(argument)) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Name_Already_Exists"));
+                    sender.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Name_Already_Exists"));
                     return true;
                 }
 
@@ -207,7 +208,7 @@ public class TradeSystemCMD extends CommandBuilder {
                         sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted").replace("%name%", Pattern.deserializeName(new JSON(data))));
                         return true;
                     }
-                    
+
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
                     return true;
                 }
@@ -217,7 +218,7 @@ public class TradeSystemCMD extends CommandBuilder {
                     return true;
                 }
 
-                l.remove(pattern);
+                l.delete(pattern);
                 if (l.getActive().equals(pattern)) l.setActive(DefaultPattern.NAME);
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted").replace("%name%", pattern.getName()));
                 return true;

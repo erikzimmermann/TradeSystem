@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money;
+package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.vault;
 
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.ShowEconomyIcon;
 import org.bukkit.inventory.ItemStack;
