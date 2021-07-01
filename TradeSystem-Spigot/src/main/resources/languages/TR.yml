@@ -82,8 +82,6 @@ Layout_Deleted: '&7&b%name%&7 arayüzü &csilindi&7.'
 Enter_Correct_Name_Space: '&cLütfen boşluk kullanmayın.'
 Sure_That_You_Want_To_Loose_Your_Data: '&7Değişiklikleri kaydetmek &cistemediğinden&f emin misin?'
 Close: Kapat
-Cannot_Delete_Standard: '&7Standart arayüzü silemezsin!'
-Cannot_Edit_Standard: '&7Standart arayüzü değiştiremezsin!'
 Layout_Already_Activated: '&7Bu arayüz zaten aktif!'
 Layout_Set_Replacement_For_Money: '&eHiçbir ekonomi plugini tespit edilemediğinde para işareti ile yer değişterecek ikon.'
 Layout_Hint_Same_Slot_Amount: '&7İki tarafın da eşit miktarda takas slotu olmalı&7!'

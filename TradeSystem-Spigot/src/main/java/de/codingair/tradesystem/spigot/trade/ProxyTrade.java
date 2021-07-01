@@ -249,7 +249,7 @@ public class ProxyTrade extends Trade {
     @Override
     protected void closeInventories() {
         this.player.closeInventory();
-        this.guis[0].destroy();
+        if (this.guis[0] != null) this.guis[0].destroy();
         this.player.updateInventory();
     }
 

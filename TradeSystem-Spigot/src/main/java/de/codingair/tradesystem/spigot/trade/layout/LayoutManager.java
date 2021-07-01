@@ -3,10 +3,19 @@ package de.codingair.tradesystem.spigot.trade.layout;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.trade.layout.patterns.DefaultEssentialsPattern;
+import de.codingair.tradesystem.spigot.trade.layout.patterns.DefaultExpPattern;
+import de.codingair.tradesystem.spigot.trade.layout.patterns.DefaultPattern;
+import de.codingair.tradesystem.spigot.trade.layout.patterns.DefaultVaultPattern;
 import de.codingair.tradesystem.spigot.trade.layout.registration.exceptions.TradeIconException;
-import de.codingair.tradesystem.spigot.trade.layout.utils.DefaultPattern;
 import de.codingair.tradesystem.spigot.trade.layout.utils.ImportHelper;
 import de.codingair.tradesystem.spigot.trade.layout.utils.Name;
+import de.codingair.tradesystem.spigot.trade.listeners.JoinNoteListener;
+import de.codingair.tradesystem.spigot.utils.Lang;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +34,6 @@ public class LayoutManager {
         this.patterns.clear();
 
         TradeSystem.log("  > Loading layouts");
-
-        Pattern def = new DefaultPattern();
-        this.patterns.put(new Name(def.getName()), def);
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Layouts");
         FileConfiguration config = file.getConfig();
@@ -63,15 +69,71 @@ public class LayoutManager {
                     }
                 }
             }
+        } else stickDefaultPatterNote();
+
+        if (this.patterns.isEmpty()) {
+            addDefaultPatterns();
+            saveLayouts();
         }
 
-        this.active = config.getString("Active", DefaultPattern.NAME);
+        this.active = config.getString("Active");
         if (this.active == null || !patterns.containsKey(new Name(this.active))) {
-            TradeSystem.getInstance().getLogger().log(Level.SEVERE, "The active layout could not be found. Switching to the default layout.");
-            this.active = DefaultPattern.NAME;
+            Pattern pattern = getBackupPattern();
+
+            TradeSystem.getInstance().getLogger().log(Level.WARNING, "The active layout " + (active == null ? "null" : "'" + active + "'") + " could not be found. Switching to the default layout: '" + pattern.getName() + "'");
+            this.active = pattern.getName();
+            saveActiveLayout();
         }
 
         TradeSystem.log("    ...got " + (this.patterns.size() - standardLayouts) + " layout(s)");
+    }
+
+    private void stickDefaultPatterNote() {
+        if (!DefaultVaultPattern.valid() && !DefaultEssentialsPattern.valid()) return;
+
+        TextComponent message = new TextComponent(Lang.getPrefix() + "§7You haven't setup a trade layout. Activate one now:");
+
+        message.addExtra("\n§8- §eNon-economy layout §8[");
+
+        TextComponent activateDef = new TextComponent("§7default");
+        activateDef.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the non-economy layout §8«")}));
+        activateDef.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultPattern.NAME));
+
+        message.addExtra(activateDef);
+        message.addExtra("§8]");
+
+        message.addExtra("\n§8- §eExp layout §8[");
+
+        TextComponent activateExp = new TextComponent("§aactivate");
+        activateExp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Exp layout §8«")}));
+        activateExp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultExpPattern.NAME));
+
+        message.addExtra(activateExp);
+        message.addExtra("§8]");
+
+        if (DefaultVaultPattern.valid()) {
+            message.addExtra("\n§8- §eVault layout §8[");
+
+            TextComponent activateVault = new TextComponent("§aactivate");
+            activateVault.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Vault layout §8«")}));
+            activateVault.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultVaultPattern.NAME));
+
+            message.addExtra(activateVault);
+            message.addExtra("§8]");
+        }
+
+        if (DefaultEssentialsPattern.valid()) {
+            message.addExtra("\n§8- §eEssentials layout §8[§a");
+
+            TextComponent activateEssentials = new TextComponent("§aactivate");
+            activateEssentials.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Essentials layout §8«")}));
+            activateEssentials.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultEssentialsPattern.NAME));
+
+            message.addExtra(activateEssentials);
+            message.addExtra("§8]");
+        }
+
+        JoinNoteListener.applyNote(message);
     }
 
     public void saveLayouts() {
@@ -100,10 +162,40 @@ public class LayoutManager {
         TradeSystem.getInstance().getLogger().log(Level.INFO, "Saved '" + this.active + "' as active layout.");
     }
 
+    private void addDefaultPatterns() {
+        TradeSystem.getInstance().getLogger().log(Level.WARNING, "No trade pattern found -> create default patterns");
+
+        Pattern def = new DefaultPattern();
+        this.patterns.put(new Name(def.getName()), def);
+
+        def = new DefaultExpPattern();
+        this.patterns.put(new Name(def.getName()), def);
+
+        if (DefaultVaultPattern.valid()) {
+            def = new DefaultVaultPattern();
+            this.patterns.put(new Name(def.getName()), def);
+        }
+
+        if (DefaultEssentialsPattern.valid()) {
+            def = new DefaultEssentialsPattern();
+            this.patterns.put(new Name(def.getName()), def);
+        }
+    }
+
+    private Pattern getBackupPattern() {
+        return patterns.getOrDefault(new Name(DefaultPattern.NAME),
+                patterns.getOrDefault(new Name(DefaultExpPattern.NAME),
+                        patterns.getOrDefault(new Name(DefaultVaultPattern.NAME),
+                                patterns.getOrDefault(new Name(DefaultEssentialsPattern.NAME),
+                                        patterns.values().stream().findAny().orElse(null)
+                                )
+                        )
+                )
+        );
+    }
+
     private void serializePatterns(List<Map<?, ?>> data, Collection<Pattern> patterns) {
         for (Pattern pattern : patterns) {
-            if (pattern.getClass().equals(DefaultPattern.class)) continue;
-
             JSON json = new JSON();
             pattern.write(json);
             data.add(json);
@@ -131,6 +223,8 @@ public class LayoutManager {
 
     public void delete(@NotNull Pattern pattern) {
         if (this.patterns.remove(new Name(pattern.getName())) != null) {
+            if (this.patterns.isEmpty()) addDefaultPatterns();
+
             saveLayouts();
         }
     }

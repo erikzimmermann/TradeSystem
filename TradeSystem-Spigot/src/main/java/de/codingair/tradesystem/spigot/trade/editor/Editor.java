@@ -324,6 +324,10 @@ public class Editor extends GUI {
         return icons;
     }
 
+    public int getAmountOf(@NotNull Class<? extends TradeIcon> icon) {
+        return (int) icons.values().stream().filter(i -> i.equals(icon)).count();
+    }
+
     public Inventory getLayoutInventory() {
         return layoutInventory;
     }

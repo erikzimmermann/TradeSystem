@@ -82,8 +82,6 @@ Layout_Deleted: '&7界面 ''&b%name%&7'' 已&c删除&7.'
 Enter_Correct_Name_Space: '&c请勿输入空格.'
 Sure_That_You_Want_To_Loose_Your_Data: '&7你确定要&c放弃&7你的更改?'
 Close: 确定
-Cannot_Delete_Standard: '&7你无法&c删除&7默认模板!'
-Cannot_Edit_Standard: '&7你无法&c编辑&7默认模板!'
 Layout_Already_Activated: '&7这个界面&c已激活&7!'
 Layout_Set_Replacement_For_Money: '&7当&e未安装经济插件时&7所选图标将会被此&e替换&7.'
 Layout_Hint_Same_Slot_Amount: '&7双方的交易栏&c数量&7需要&c相同&7!'
