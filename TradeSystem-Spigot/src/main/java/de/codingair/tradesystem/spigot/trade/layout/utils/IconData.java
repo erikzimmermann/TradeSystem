@@ -20,7 +20,7 @@ public class IconData implements Serializable {
     private Class<? extends TradeIcon> tradeIcon;
     private ItemStack[] items;
 
-    public IconData(@NotNull Class<? extends TradeIcon> tradeIcon, @Nullable ItemStack... items) {
+    public IconData(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull ItemStack... items) {
         this.tradeIcon = tradeIcon;
         this.items = items;
     }
@@ -34,7 +34,7 @@ public class IconData implements Serializable {
         String name = mask.getString("icon");
         this.tradeIcon = IconHandler.getIcon(name);
         JSONArray items = mask.getList("items");
-        this.items = (ItemStack[]) items.toArray(new ItemStack[0]);
+        if (items != null) this.items = (ItemStack[]) items.toArray(new ItemStack[0]);
 
         return true;
     }
@@ -42,7 +42,7 @@ public class IconData implements Serializable {
     @Override
     public void write(DataMask mask) {
         mask.put("icon", tradeIcon.getSimpleName());
-        mask.put("items", Arrays.asList(items));
+        if (items != null) mask.put("items", Arrays.asList(items));
     }
 
     public TradeIcon build() {

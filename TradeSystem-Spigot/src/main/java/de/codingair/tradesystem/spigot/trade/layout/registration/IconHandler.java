@@ -34,6 +34,14 @@ public class IconHandler {
     }
 
     /**
+     * @param tradeIcon The trade icon class which should be checked.
+     * @return true if the given trade icon is registered.
+     */
+    public static boolean isRegistered(@NotNull Class<? extends TradeIcon> tradeIcon) {
+        return TRADE_ICONS.containsValue(tradeIcon);
+    }
+
+    /**
      * @param tradeIcon The trade icon class to register.
      * @param info      The icon info of the registering icon.
      * @throws TradeIconException If the icon is not valid or 'transitionOrigin' is not registered.
