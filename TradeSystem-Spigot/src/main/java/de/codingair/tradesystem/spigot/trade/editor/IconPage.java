@@ -9,6 +9,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException
 import de.codingair.codingapi.tools.Call;
 import de.codingair.codingapi.tools.Callback;
 import de.codingair.codingapi.tools.items.ItemBuilder;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.editor.utils.InventoryEditorButton;
 import de.codingair.tradesystem.spigot.trade.editor.utils.ItemStackEnterGUI;
 import de.codingair.tradesystem.spigot.trade.layout.registration.EditorInfo;
@@ -21,6 +22,7 @@ import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.DecorationI
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
@@ -53,8 +55,8 @@ public class IconPage extends Page {
 
     private Button buildButton(int slot, EditorInfo editorInfo) {
         return new InventoryEditorButton() {
-            //start at 1 since the first ItemStack will be set when we select this item
-            int id = 1;
+            int variantId = 0; //id of 0 allows to open the select inventory GUI
+            boolean resetting = false; //confirm flag
 
             @Override
             public @Nullable ItemStack buildItem() {
@@ -62,9 +64,12 @@ public class IconPage extends Page {
 
                 ItemBuilder builder = editorInfo.getEditorIcon(editor);
 
-                //add marker
-                boolean addMarker = false;
+                boolean addMarker = false; //add enchanting effect
                 boolean done = alreadySet;
+
+                if (done && TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
+                    done = editor.getAmountOf(TradeSlot.class) == editor.getAmountOf(TradeSlotOther.class);
+                }
 
                 //do we need more decoration items?
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) {
@@ -127,8 +132,8 @@ public class IconPage extends Page {
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) {
                     builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Leftclick") + ": " + (alreadySet ? "§7" : "§a") + Lang.get("Edit"));
                 } else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
-                    int tradeSlots = (int) editor.getIcons().values().stream().filter(i -> i.equals(TradeSlot.class)).count();
-                    int otherTradeSlots = (int) editor.getIcons().values().stream().filter(i -> i.equals(TradeSlotOther.class)).count();
+                    int tradeSlots = editor.getAmountOf(TradeSlot.class);
+                    int otherTradeSlots = editor.getAmountOf(TradeSlotOther.class);
 
                     if (tradeSlots != otherTradeSlots) {
                         builder.removeLore();
@@ -147,7 +152,7 @@ public class IconPage extends Page {
                         MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
                         ItemStack[] variants = editor.getVariants(editorInfo.getTradeIcon(), null);
 
-                        boolean variantSet = variants != null && variants[id] != null;
+                        boolean variantSet = variants != null && variants[variantId] != null;
                         int configured = 0;
                         if (variants != null) {
                             for (ItemStack i : variants) {
@@ -156,22 +161,22 @@ public class IconPage extends Page {
                         }
                         String statusColor = configured == multiEditorInfo.getIconName().length ? "§a" : "§c";
 
-                        builder.addLore("§8§m                    ");
-                        builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Variant") + ": " + (variantSet ? "§a" : "§c") + (id + 1) + ". " + multiEditorInfo.getIconName()[id] + " §8(" + statusColor + configured + "§8/" + statusColor + multiEditorInfo.getIconName().length + "§8)");
-                        builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Rightclick") + ": §7" + Lang.get("Edit_Variant"));
-                        builder.addLore("§8" + Lang.get("Shift_Leftclick") + ": §8←");
-                        builder.addLore("§8" + Lang.get("Shift_Rightclick") + ": §8→");
+                        builder.removeLore();
+                        builder.addLore("");
+                        builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Variant") + ": " + (variantSet ? "§a" : "§c") + (variantId + 1) + ". " + multiEditorInfo.getIconName()[variantId] + " §8(" + statusColor + configured + "§8/" + statusColor + multiEditorInfo.getIconName().length + "§8)");
+                        builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Leftclick") + ": §7" + (variantId == 0 ? Lang.get("Select") : Lang.get("Edit_Variant")));
+                        builder.addLore("§8" + Lang.get("Shift_Leftclick") + ": §8→");
                     } else {
                         if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) {
                             boolean hasTarget = editor.getIcons().containsValue(editorInfo.getTransitionTarget());
 
                             builder.addLore(Editor.ITEM_SUB_TITLE_COLOR + Lang.get("Rightclick") + ": " + (hasTarget || editor.hasNoUsableItems() ? "§7" : "§a") + Lang.get("Select_Foreign_Preview"));
                         }
+                    }
 
-                        if (!TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
-                            //trade slots should not be able to reset
-                            builder.addLore("§8" + Lang.get("Shift_Rightclick") + ": §8" + Lang.get("Reset"));
-                        }
+                    if (!TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
+                        //trade slots should not be able to be reset
+                        builder.addLore("§8" + Lang.get("Shift_Rightclick") + ": " + (resetting ? "§c" : "§8") + Lang.get("Reset") + (resetting ? "?" : ""));
                     }
                 }
 
@@ -185,8 +190,8 @@ public class IconPage extends Page {
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return clickType == ClickType.LEFT;
                 else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) return clickType == ClickType.LEFT;
                 else if (alreadySet) {
-                    if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) return true;
-                    else if (clickType == ClickType.SHIFT_RIGHT) return true;
+                    if (clickType == ClickType.SHIFT_RIGHT) return true; //reset
+                    else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) return clickType != ClickType.RIGHT;
                     else if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon())) {
                         boolean hasTarget = editor.getIcons().containsValue(editorInfo.getTransitionTarget());
 
@@ -205,45 +210,50 @@ public class IconPage extends Page {
 
                 if (alreadySet) {
                     if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
-                        MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
-
                         if (e.getClick() == ClickType.SHIFT_LEFT) {
-                            id--;
-                            if (id < 0) id = multiEditorInfo.getIconName().length - 1;
-                            updateItem(slot);
-                        } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
-                            id++;
-                            if (id == multiEditorInfo.getIconName().length) id = 0;
+                            variantId++;
+                            MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
+                            if (variantId == multiEditorInfo.getIconName().length) variantId = 0;
                             updateItem(slot);
                         }
-                    } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
+                    }
+
+                    if (e.getClick() == ClickType.SHIFT_RIGHT && !TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
                         //reset
-                        editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()));
-                        updateItem(slot);
+                        if (resetting) {
+                            editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()));
+
+                            //keep variants (as backup) & set id back to 0
+                            variantId = 0;
+
+                            resetting = false;
+                            updateItem(slot);
+                        } else {
+                            resetting = true;
+                            updateItem(slot);
+
+                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                                resetting = false;
+                                updateItem(slot);
+                            }, 10L);
+                        }
                     }
                 }
             }
 
             @Override
             public boolean canSwitch(ClickType clickType) {
-                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
-
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class)) return clickType == ClickType.LEFT;
                 else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) return clickType == ClickType.LEFT;
-                else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
-                    if (alreadySet) {
-                        if (clickType == ClickType.SHIFT_LEFT) return false;
-                        else return clickType != ClickType.SHIFT_RIGHT;
-                    }
-                } else if (clickType == ClickType.SHIFT_RIGHT) return false;
+                else if (clickType == ClickType.SHIFT_RIGHT) return false;
+                else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo)
+                    return clickType == ClickType.LEFT;
 
                 return !editor.hasNoUsableItems();
             }
 
             @Override
             public boolean open(ClickType clickType, GUI gui, Call call) {
-                boolean alreadySet = isLayoutInventoryNotEmpty() && editor.getIcons().containsValue(editorInfo.getTradeIcon());
-
                 if (editorInfo.getTradeIcon().equals(DecorationIcon.class))
                     //special cases
                     editor.openLayoutInventory(null, null);
@@ -251,48 +261,55 @@ public class IconPage extends Page {
                 else if (TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon()))
                     editor.openLayoutInventory(editorInfo.getTradeIcon(), null);
 
-                else if (clickType == ClickType.LEFT)
+                else if (clickType == ClickType.LEFT && variantId == 0 || !editor.getIcons().containsValue(editorInfo.getTradeIcon())) //variantId == 0 means we're going to select the main item
                     //default behavior
-                    editor.openLayoutInventory(editorInfo.getTradeIcon(), call);
+                    editor.openLayoutInventory(editorInfo.getTradeIcon(), () -> {
+                        boolean multi = MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon());
+                        if (multi) {
+                            //start at 1 since the first ItemStack will be set when we select this item
+                            variantId = 1;
+                            updateItem(slot);
+                        }
+
+                        call.proceed();
+                    });
 
                 else if (Transition.class.isAssignableFrom(editorInfo.getTradeIcon()))
                     //transition icon
                     editor.openLayoutInventory(IconHandler.getTransitionTarget(editorInfo.getTradeIcon()), call);
 
-                else if (alreadySet && MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
+                else if (MultiTradeIcon.class.isAssignableFrom(editorInfo.getTradeIcon()) && editorInfo instanceof MultiEditorInfo) {
                     //multi icon
                     MultiEditorInfo multiEditorInfo = (MultiEditorInfo) editorInfo;
 
-                    if (clickType == ClickType.RIGHT) {
-                        try {
-                            ItemStack[] variants = editor.getVariants(editorInfo.getTradeIcon(), null);
-                            ItemStack previous = variants == null ? null : variants[id];
+                    try {
+                        ItemStack[] variants = editor.getVariants(editorInfo.getTradeIcon(), null);
+                        ItemStack previous = variants == null ? null : variants[variantId];
 
-                            new ItemStackEnterGUI(gui.getPlayer(), "§8" + editorInfo.getName() + ": §9" + multiEditorInfo.getIconName()[id], previous, new Callback<ItemStack>() {
-                                @Override
-                                public void accept(ItemStack itemStack) {
-                                    editor.getVariants(editorInfo.getTradeIcon(), multiEditorInfo.getIconName().length)[id] = itemStack;
-                                    if (itemStack != null) {
-                                        if (id == 0) {
-                                            //update item in layout
-                                            editor.getLayoutInventory().setItem(editor.getSlotOf(editorInfo.getTradeIcon()), itemStack);
-                                        }
-
-                                        id++;
-                                        if (multiEditorInfo.getIconName().length == id) id = 0;
+                        new ItemStackEnterGUI(gui.getPlayer(), "§8" + editorInfo.getName() + ": §9" + multiEditorInfo.getIconName()[variantId], previous, new Callback<ItemStack>() {
+                            @Override
+                            public void accept(ItemStack itemStack) {
+                                editor.getVariants(editorInfo.getTradeIcon(), multiEditorInfo.getIconName().length)[variantId] = itemStack;
+                                if (itemStack != null) {
+                                    if (variantId == 0) {
+                                        //update item in layout
+                                        editor.getLayoutInventory().setItem(editor.getSlotOf(editorInfo.getTradeIcon()), itemStack);
                                     }
 
-                                    updateItem(slot);
-                                    getBasic().updateItems();
+                                    variantId++;
+                                    if (multiEditorInfo.getIconName().length == variantId) variantId = 0;
                                 }
-                            }).open();
-                        } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
-                            e.printStackTrace();
-                        }
 
-                        //ignore close listener in API
-                        return false;
+                                updateItem(slot);
+                                getBasic().updateItems();
+                            }
+                        }).open();
+                    } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
+                        e.printStackTrace();
                     }
+
+                    //ignore close listener in API
+                    return false;
                 }
 
                 //reopen when closed
