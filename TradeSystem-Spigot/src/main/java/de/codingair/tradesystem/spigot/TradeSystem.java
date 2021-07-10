@@ -207,7 +207,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getPluginManager().registerEvents(new ExpirationListener(), this);
         Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
-        Bukkit.getPluginManager().registerEvents(new AntiGUIDupeListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinNoteListener(), this);
     }
 
