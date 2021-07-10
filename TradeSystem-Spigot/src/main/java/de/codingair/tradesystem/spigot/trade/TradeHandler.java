@@ -252,13 +252,21 @@ public class TradeHandler {
         player.closeInventory();
         if (other != null) other.closeInventory();
 
-            Trade trade = createTrade(player, other, othersName, initiationServer);
+        Trade trade = createTrade(player, other, othersName, initiationServer);
 
-            //register
-            this.trades.put(player.getName().toLowerCase(), trade);
-            this.trades.put(othersName.toLowerCase(), trade);
+        //register
+        registerTrade(trade, player.getName());
+        registerTrade(trade, othersName);
 
-            trade.start();
+        trade.start();
+    }
+
+    private void registerTrade(@NotNull Trade trade, @NotNull String player) {
+        this.trades.put(player.toLowerCase(), trade);
+    }
+
+    public void unregisterTrade(@NotNull String player) {
+        this.trades.remove(player.toLowerCase());
     }
 
     @NotNull
@@ -298,16 +306,8 @@ public class TradeHandler {
         TradeSystem.invitations().clear();
     }
 
-    public Collection<Trade> getTradesList() {
-        return trades.values();
-    }
-
-    public HashMap<String, Trade> getTrades() {
-        return trades;
-    }
-
     public Trade getTrade(Player player) {
-        return getTrade(player.getName().toLowerCase());
+        return getTrade(player.getName());
     }
 
     public Trade getTrade(String player) {
@@ -425,7 +425,7 @@ public class TradeHandler {
         symbols.setGroupingSeparator(',');
         df.setDecimalFormatSymbols(symbols);
 
-       return df;
+        return df;
     }
 
     public int getCountdownRepetitions() {
