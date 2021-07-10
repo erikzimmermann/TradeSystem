@@ -1,4 +1,5 @@
 No_Permissions: "&cDu hast keine Berechtigungen für diese Aktion!"
+Only_for_Player: '&cNur für Spieler!'
 No_Money: "&cDu hast kein Geld!"
 Enter_Correct_Amount: "&cBitte gib einen gültigen Betrag ein."
 Only_X_Amount: '&7Du hast nur &c%amount% %type%&7!'
@@ -82,8 +83,6 @@ Layout_Deleted: "&7Das Layout '&b%name%&7' wurde &cgelöscht&7."
 Enter_Correct_Name_Space: "&cBitte benutze keine Leerzeichen."
 Sure_That_You_Want_To_Loose_Your_Data: "&7Bist du sicher, dass du deine Änderungen &cnicht Speichern &7möchtest?"
 Close: "Schließen"
-Cannot_Delete_Standard: "&7Du kannst kein &cstandart &7Layout &clöschen&7!"
-Cannot_Edit_Standard: "&7Du kannst kein &cstandart &7Layout &ceditieren&7!"
 Layout_Already_Activated: "&7Das Layout &cwurde bereits aktiviert&7!"
 Layout_Set_Replacement_For_Money: "&7Symbol, welches das &eGeld-Symbol ersetzt&7, falls &ekein Economy Plugin &7erkannt wird."
 Layout_Hint_Same_Slot_Amount: "&7Beide Händler &cmüssen gleich viele Slots haben&7!"

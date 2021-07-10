@@ -21,11 +21,8 @@ import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.Mysql
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
-import de.codingair.tradesystem.spigot.trade.listeners.AntiGUIDupeListener;
-import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
-import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
+import de.codingair.tradesystem.spigot.trade.listeners.*;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
-import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.transfer.ProxyDataManager;
@@ -210,7 +207,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getPluginManager().registerEvents(new ExpirationListener(), this);
         Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
-        Bukkit.getPluginManager().registerEvents(new AntiGUIDupeListener(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinNoteListener(), this);
     }
 
     private void registerCommands() {

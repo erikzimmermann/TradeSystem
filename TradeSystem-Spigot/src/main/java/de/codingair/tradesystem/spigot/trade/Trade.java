@@ -193,7 +193,13 @@ public abstract class Trade {
         cancel(null);
     }
 
-    protected abstract boolean[] closeGUI();
+    /**
+     * This method moves all for trade placed items back to the item owner.
+     * Useful when cancelling a trade.
+     *
+     * @return A tuple of booleans whether the players dropped items or not.
+     */
+    protected abstract boolean[] cancelGUIs();
 
     protected abstract void cancelling(String message);
 
@@ -212,8 +218,10 @@ public abstract class Trade {
 
     public void cancel(String message, boolean alreadyCalled) {
         this.cancelling = true;
-        boolean[] droppedItems = closeGUI();
-        if (droppedItems == null) return;
+        boolean[] droppedItems = cancelGUIs();
+
+        boolean alreadyClosed = droppedItems == null;
+        if (alreadyClosed) return;
 
         stopListeners();
         clearOpenAnvils();
@@ -221,8 +229,9 @@ public abstract class Trade {
         playCancelSound();
         closeInventories();
 
-        TradeSystem.man().getTrades().remove(players[0].toLowerCase());
-        TradeSystem.man().getTrades().remove(players[1].toLowerCase());
+        TradeSystem.man().unregisterTrade(players[0]);
+        TradeSystem.man().unregisterTrade(players[1]);
+
         if (!alreadyCalled) cancelling(message);
 
         if (message != null) {

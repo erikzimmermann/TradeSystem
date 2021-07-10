@@ -12,7 +12,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.editor.Editor;
 import de.codingair.tradesystem.spigot.trade.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.layout.utils.DefaultPattern;
+import de.codingair.tradesystem.spigot.trade.layout.patterns.DefaultPattern;
 import de.codingair.tradesystem.spigot.trade.layout.utils.Name;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
@@ -32,7 +32,7 @@ public class TradeSystemCMD extends CommandBuilder {
 
             @Override
             public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + "§cOnly for players!");
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Only_for_Player"));
             }
 
             @Override
@@ -113,7 +113,6 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for (Pattern layout : l.getPatterns(true)) {
-                    if (layout.getClass().equals(DefaultPattern.class)) continue;
                     suggestions.add(layout.getName());
                 }
             }
@@ -124,11 +123,6 @@ public class TradeSystemCMD extends CommandBuilder {
 
                 if (pattern == null) {
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
-                    return true;
-                }
-
-                if (pattern.getClass().equals(DefaultPattern.class)) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Edit_Standard"));
                     return true;
                 }
 
@@ -189,7 +183,6 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
                 for (Pattern layout : l.getPatterns(true)) {
-                    if (layout.getClass().equals(DefaultPattern.class)) continue;
                     suggestions.add(layout.getName());
                 }
 
@@ -210,11 +203,6 @@ public class TradeSystemCMD extends CommandBuilder {
                     }
 
                     sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
-                    return true;
-                }
-
-                if (pattern.getClass().equals(DefaultPattern.class)) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Delete_Standard"));
                     return true;
                 }
 

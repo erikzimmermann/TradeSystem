@@ -12,11 +12,9 @@ import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.EconomyIcon;
-import de.codingair.tradesystem.spigot.trade.listeners.AntiGUIDupeListener;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -249,25 +247,26 @@ public class TradeHandler {
         //log only one start (proxy trades have a start on each server)
         if (initiationServer) getTradeLog().log(player.getName(), othersName, TradeLogMessages.STARTED.get());
 
+        MetricsManager.TRADES++;
+
         player.closeInventory();
         if (other != null) other.closeInventory();
 
-        MetricsManager.TRADES++;
+        Trade trade = createTrade(player, other, othersName, initiationServer);
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
-            Trade trade = createTrade(player, other, othersName, initiationServer);
+        //register
+        registerTrade(trade, player.getName());
+        registerTrade(trade, othersName);
 
-            //register
-            this.trades.put(player.getName().toLowerCase(), trade);
-            this.trades.put(othersName.toLowerCase(), trade);
+        trade.start();
+    }
 
-            if (AntiGUIDupeListener.isNotAllowed(player) || other != null && AntiGUIDupeListener.isNotAllowed(other)) {
-                trade.cancelDueToGUIError();
-                return;
-            }
+    private void registerTrade(@NotNull Trade trade, @NotNull String player) {
+        this.trades.put(player.toLowerCase(), trade);
+    }
 
-            trade.start();
-        }, 5L);
+    public void unregisterTrade(@NotNull String player) {
+        this.trades.remove(player.toLowerCase());
     }
 
     @NotNull
@@ -307,16 +306,8 @@ public class TradeHandler {
         TradeSystem.invitations().clear();
     }
 
-    public Collection<Trade> getTradesList() {
-        return trades.values();
-    }
-
-    public HashMap<String, Trade> getTrades() {
-        return trades;
-    }
-
     public Trade getTrade(Player player) {
-        return getTrade(player.getName().toLowerCase());
+        return getTrade(player.getName());
     }
 
     public Trade getTrade(String player) {
@@ -434,7 +425,7 @@ public class TradeHandler {
         symbols.setGroupingSeparator(',');
         df.setDecimalFormatSymbols(symbols);
 
-       return df;
+        return df;
     }
 
     public int getCountdownRepetitions() {

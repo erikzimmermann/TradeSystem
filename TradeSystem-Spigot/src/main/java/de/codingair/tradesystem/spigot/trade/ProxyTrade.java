@@ -200,7 +200,7 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected boolean[] closeGUI() {
+    protected boolean[] cancelGUIs() {
         if (this.guis[0] == null) return null;
 
         boolean[] droppedItems = new boolean[] {false, false};
@@ -310,8 +310,8 @@ public class ProxyTrade extends Trade {
 
             this.player.closeInventory();
 
-            TradeSystem.man().getTrades().remove(this.player.getName().toLowerCase());
-            TradeSystem.man().getTrades().remove(this.other.toLowerCase());
+            TradeSystem.man().unregisterTrade(this.player.getName());
+            TradeSystem.man().unregisterTrade(this.other);
 
             boolean[] droppedItems = new boolean[] {false, false};
             for (int i = 0; i < slots.size(); i++) {

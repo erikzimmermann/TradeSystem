@@ -1,4 +1,5 @@
 No_Permissions: '&6Nemáte &7dostatek pravomocí!'
+Only_for_Player: '&cOnly for players!'
 No_Money: '&6Nemáte &7žádné &6peníze&7!'
 Enter_Correct_Amount: '&7Zadej prosím &6platnou &7částku!'
 Only_X_Amount: '&7You only have &c%amount% %type%&7!'
@@ -82,9 +83,7 @@ Layout_Deleted: '&7Předvolba ''&6%name%&7'' byla &codstraněna&7.'
 Enter_Correct_Name_Space: '&cNepoužívejte prosím mezery.' 
 Sure_That_You_Want_To_Loose_Your_Data: '&7Jste si jisty, že &cnechcete uložit &7Vaše změny?' 
 Close: Zavřít
-Cannot_Delete_Standard: '&7Nemůžete &codstranit &7výchozí předvolbu!' 
-Cannot_Edit_Standard: '&7Nemůžete &cupravit &7výchozí předvolbu!' 
-Layout_Already_Activated: '&7Tato předvobla je &cjiž aktivní&7!' 
+Layout_Already_Activated: '&7Tato předvobla je &cjiž aktivní&7!'
 Layout_Set_Replacement_For_Money: '&7Ikona, která &enahrazuje finance&7.' 
 Layout_Hint_Same_Slot_Amount: '&7Oba účastníci &cmusí &7mít &cstejný počet polí&7!' 
 Current_Amount: Aktuální množství
