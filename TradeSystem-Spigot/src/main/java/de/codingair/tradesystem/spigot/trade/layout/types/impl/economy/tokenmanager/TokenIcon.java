@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.tokenmanager;
+package de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.tokenmanager;
 
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.EconomyIcon;
