@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Called when a player trades items with another player.
+ * Called when a player trades an item with another player.
  *
  * @author CodingAir
  */
