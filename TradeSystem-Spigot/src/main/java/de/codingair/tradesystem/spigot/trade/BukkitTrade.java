@@ -103,40 +103,47 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected boolean[] closeGUI() {
-        if (this.guis[0] == null || this.guis[1] == null) return null;
+    protected boolean[] cancelGUIs() {
+        if (this.guis[0] == null && this.guis[1] == null) return null;
 
         boolean[] droppedItems = new boolean[] {false, false};
         for (Integer slot : this.slots) {
-            if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
-                ItemStack item = this.guis[0].getItem(slot);
-                int i = fit(this.players[0], item);
+            if (this.guis[0] != null) {
+                if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
+                    ItemStack item = this.guis[0].getItem(slot);
+                    int i = fit(this.players[0], item);
 
-                if (item.getAmount() > i) {
-                    item.setAmount(item.getAmount() - i);
-                    this.players[0].getInventory().addItem(item);
-                }
-                if (i > 0) {
-                    item.setAmount(i);
-                    droppedItems[0] |= dropItem(players[0], item);
+                    if (item.getAmount() > i) {
+                        item.setAmount(item.getAmount() - i);
+                        this.players[0].getInventory().addItem(item);
+                    }
+                    if (i > 0) {
+                        item.setAmount(i);
+                        droppedItems[0] |= dropItem(players[0], item);
+                    }
                 }
             }
-            if (this.guis[1].getItem(slot) != null && this.guis[1].getItem(slot).getType() != Material.AIR) {
-                ItemStack item = this.guis[1].getItem(slot);
-                int i = fit(this.players[1], item);
 
-                if (item.getAmount() > i) {
-                    item.setAmount(item.getAmount() - i);
-                    this.players[1].getInventory().addItem(item);
-                }
-                if (i > 0) {
-                    item.setAmount(i);
-                    droppedItems[1] |= dropItem(players[1], item);
+            if (this.guis[1] != null) {
+                if (this.guis[1].getItem(slot) != null && this.guis[1].getItem(slot).getType() != Material.AIR) {
+                    ItemStack item = this.guis[1].getItem(slot);
+                    int i = fit(this.players[1], item);
+
+                    if (item.getAmount() > i) {
+                        item.setAmount(item.getAmount() - i);
+                        this.players[1].getInventory().addItem(item);
+                    }
+                    if (i > 0) {
+                        item.setAmount(i);
+                        droppedItems[1] |= dropItem(players[1], item);
+                    }
                 }
             }
         }
 
         for (int i = 0; i < 2; i++) {
+            if (this.guis[i] == null) continue;
+
             ItemStack item = this.players[i].getOpenInventory().getCursor();
             if (item != null && item.getType() != Material.AIR) {
                 int fit = fit(this.players[i], item.clone());
@@ -257,8 +264,8 @@ public class BukkitTrade extends Trade {
                 player.closeInventory();
             }
 
-            TradeSystem.man().getTrades().remove(super.players[0].toLowerCase());
-            TradeSystem.man().getTrades().remove(super.players[1].toLowerCase());
+            TradeSystem.man().unregisterTrade(super.players[0]);
+            TradeSystem.man().unregisterTrade(super.players[1]);
 
             boolean[] droppedItems = new boolean[] {false, false};
             for (Integer slot : slots) {

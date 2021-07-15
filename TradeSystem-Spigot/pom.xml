@@ -5,7 +5,7 @@
     <parent>
         <artifactId>TradeSystem</artifactId>
         <groupId>de.codingair</groupId>
-        <version>2.0.2_Hotfix-1</version>
+        <version>2.0.4_Hotfix-1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsX</artifactId>
-            <version>2.17.2</version>
+            <version>2.18.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

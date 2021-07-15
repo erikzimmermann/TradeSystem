@@ -13,8 +13,8 @@ import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowE
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.exp.ShowExpPointIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.essentials.EssentialsIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.essentials.ShowEssentialsIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.tokenmanager.ShowTokenIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.tokenmanager.TokenIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.tokenmanager.ShowTokenIcon;
+import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.tokenmanager.TokenIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.vault.ShowVaultIcon;
 import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.money.vault.VaultIcon;
 import org.bukkit.Material;

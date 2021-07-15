@@ -5,6 +5,7 @@ import de.codingair.packetmanagement.packets.Packet;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 
 public class TradeIconUpdatePacket implements Packet {
     private String sender, recipient;
@@ -26,7 +27,10 @@ public class TradeIconUpdatePacket implements Packet {
         out.writeUTF(this.sender);
         out.writeUTF(this.recipient);
         out.writeByte(this.slot);
-        out.writeUTF(new String(this.data));
+
+        //fix end of stream by empty bytes
+        String encoded = new String(Base64.getEncoder().encode(data));
+        out.writeUTF(encoded);
     }
 
     @Override
@@ -34,7 +38,8 @@ public class TradeIconUpdatePacket implements Packet {
         this.sender = in.readUTF();
         this.recipient = in.readUTF();
         this.slot = in.readUnsignedByte();
-        this.data = in.readUTF().getBytes();
+
+        this.data = Base64.getDecoder().decode(in.readUTF());
     }
 
     public String getSender() {

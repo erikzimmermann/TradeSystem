@@ -56,6 +56,6 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     private void check(Player player) {
-        if (!com.earth2me.essentials.api.Economy.playerExists(player.getUniqueId())) com.earth2me.essentials.api.Economy.createNPC(player.getName());
+        if (!Economy.playerExists(player.getUniqueId())) Economy.createNPC(player.getName());
     }
 }
