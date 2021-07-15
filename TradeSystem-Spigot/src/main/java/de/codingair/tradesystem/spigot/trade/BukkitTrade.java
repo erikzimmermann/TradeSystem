@@ -270,6 +270,7 @@ public class BukkitTrade extends Trade {
             }
         }
         TradeCompleteEvent tradeCompleteEvent = new TradeCompleteEvent(player1, player2, player1Items, player2Items);
+        Bukkit.getPluginManager().callEvent(tradeCompleteEvent);
         if (tradeCompleteEvent.isCancelled()) {
             cancel();
             return;
