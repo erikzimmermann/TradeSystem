@@ -269,18 +269,22 @@ public class BukkitTrade extends Trade {
                 player2Items.add(i1);
             }
         }
-        TradeCompleteEvent tradeCompleteEvent = new TradeCompleteEvent(player1, player2, player1Items, player2Items);
-        Bukkit.getPluginManager().callEvent(tradeCompleteEvent);
-        if (tradeCompleteEvent.isCancelled()) {
-            cancel();
-            return;
-        }
-        List<ItemStack> player1TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
-        List<ItemStack> player2TradeItems = tradeCompleteEvent.getPlayer2TradeItems();
-        
+
         Runnable runnable = () -> {
             if (!tryFinish(player1)) return;
             if (!tryFinish(player2)) return;
+
+            TradeCompleteEvent tradeCompleteEvent = new TradeCompleteEvent(player1, player2, player1Items, player2Items);
+            Bukkit.getPluginManager().callEvent(tradeCompleteEvent);
+
+            List<ItemStack> player1TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
+            List<ItemStack> player2TradeItems = tradeCompleteEvent.getPlayer2TradeItems();
+
+            if (tradeCompleteEvent.isCancelled()) {
+                cancel();
+                this.cancel();
+                return;
+            }
 
             pause[0] = true;
             pause[1] = true;
