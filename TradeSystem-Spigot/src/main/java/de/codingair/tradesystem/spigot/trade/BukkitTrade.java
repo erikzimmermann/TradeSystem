@@ -8,6 +8,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedEx
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.api.TradeCompleteEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -21,6 +22,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -253,6 +256,28 @@ public class BukkitTrade extends Trade {
         final Player player1 = players[0];
         final Player player2 = players[1];
 
+
+        List<ItemStack> player1Items = new ArrayList<>();
+        List<ItemStack> player2Items = new ArrayList<>();
+        for (Integer slot : slots) {
+            ItemStack i0 = guis[0].getItem(slot);
+            if (i0 != null && i0.getType() != Material.AIR) {
+                player1Items.add(i0);
+            }
+
+            ItemStack i1 = guis[1].getItem(slot);
+            if (i1 != null && i1.getType() != Material.AIR) {
+                player2Items.add(i1);
+            }
+        }
+        TradeCompleteEvent tradeCompleteEvent = new TradeCompleteEvent(player1, player2, player1Items, player2Items);
+        if (tradeCompleteEvent.isCancelled()) {
+            cancel();
+            return;
+        }
+        player1Items = tradeCompleteEvent.getPlayer1TradeItems();
+        player2Items = tradeCompleteEvent.getPlayer2TradeItems();
+
         Runnable runnable = () -> {
             if (!tryFinish(player1)) return;
             if (!tryFinish(player2)) return;
@@ -267,15 +292,13 @@ public class BukkitTrade extends Trade {
             TradeSystem.man().unregisterTrade(super.players[0]);
             TradeSystem.man().unregisterTrade(super.players[1]);
 
-            boolean[] droppedItems = new boolean[] {false, false};
             for (Integer slot : slots) {
-                //using original one to prevent dupe glitches!!!
-                ItemStack i0 = guis[1].getItem(slot);
-                ItemStack i1 = guis[0].getItem(slot);
-
                 guis[1].setItem(slot, null);
                 guis[0].setItem(slot, null);
+            }
 
+            boolean[] droppedItems = new boolean[] {false, false};
+            for (ItemStack i0 : player2Items) {
                 if (i0 != null && i0.getType() != Material.AIR) {
                     int rest = fit(player1, i0);
 
@@ -293,7 +316,8 @@ public class BukkitTrade extends Trade {
                     }
                     getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i0.getAmount() + "x " + i0.getType()));
                 }
-
+            }
+            for (ItemStack i1 : player1Items) {
                 if (i1 != null && i1.getType() != Material.AIR) {
                     int rest = fit(player2, i1);
 
