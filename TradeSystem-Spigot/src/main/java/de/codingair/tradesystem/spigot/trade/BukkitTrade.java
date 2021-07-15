@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot.trade;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -275,8 +274,8 @@ public class BukkitTrade extends Trade {
             cancel();
             return;
         }
-        player1Items = tradeCompleteEvent.getPlayer1TradeItems();
-        player2Items = tradeCompleteEvent.getPlayer2TradeItems();
+        List<ItemStack> player1TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
+        List<ItemStack> player2TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
 
         Runnable runnable = () -> {
             if (!tryFinish(player1)) return;
@@ -298,7 +297,7 @@ public class BukkitTrade extends Trade {
             }
 
             boolean[] droppedItems = new boolean[] {false, false};
-            for (ItemStack i0 : player2Items) {
+            for (ItemStack i0 : player2TradeItems) {
                 if (i0 != null && i0.getType() != Material.AIR) {
                     int rest = fit(player1, i0);
 
@@ -317,12 +316,12 @@ public class BukkitTrade extends Trade {
                     getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i0.getAmount() + "x " + i0.getType()));
                 }
             }
-            for (ItemStack i1 : player1Items) {
+            for (ItemStack i1 : player1TradeItems) {
                 if (i1 != null && i1.getType() != Material.AIR) {
                     int rest = fit(player2, i1);
 
                     if (rest <= 0) {
-                        callTradeEvent(player2, player1, i0);
+                        callTradeEvent(player2, player1, i1);
                         player2.getInventory().addItem(i1);
                     } else {
                         ItemStack toDrop = i1.clone();
