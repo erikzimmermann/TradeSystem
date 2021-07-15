@@ -275,8 +275,8 @@ public class BukkitTrade extends Trade {
             return;
         }
         List<ItemStack> player1TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
-        List<ItemStack> player2TradeItems = tradeCompleteEvent.getPlayer1TradeItems();
-
+        List<ItemStack> player2TradeItems = tradeCompleteEvent.getPlayer2TradeItems();
+        
         Runnable runnable = () -> {
             if (!tryFinish(player1)) return;
             if (!tryFinish(player2)) return;
