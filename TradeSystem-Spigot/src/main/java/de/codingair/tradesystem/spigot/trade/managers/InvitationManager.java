@@ -6,7 +6,6 @@ import de.codingair.tradesystem.proxy.packets.InviteResponsePacket;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.proxy.packets.TradeStateUpdatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.trade.Invite;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -14,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class InvitationManager {
@@ -234,5 +234,46 @@ public class InvitationManager {
         Set<Invite> l = getInvites(receiver);
         if (l == null) return false;
         return l.contains(new Invite(inviter.getName()));
+    }
+
+    public static class Invite {
+        private final String name;
+        private final boolean proxyInvite;
+
+        public Invite(String name) {
+            this(name, false);
+        }
+
+        public Invite(String name, boolean proxyInvite) {
+            this.name = name;
+            this.proxyInvite = proxyInvite;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isProxyInvite() {
+            return proxyInvite;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || (!(o instanceof String) && getClass() != o.getClass())) return false;
+
+            if (o instanceof String) {
+                String invite = (String) o;
+                return this.name.equalsIgnoreCase(invite);
+            }
+
+            Invite invite = (Invite) o;
+            return this.name.equalsIgnoreCase(invite.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name.toLowerCase());
+        }
     }
 }

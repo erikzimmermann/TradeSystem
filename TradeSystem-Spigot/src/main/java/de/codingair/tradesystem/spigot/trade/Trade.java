@@ -8,21 +8,20 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.events.ProxyTradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
-import de.codingair.tradesystem.spigot.trade.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.layout.TradeLayout;
-import de.codingair.tradesystem.spigot.trade.layout.registration.IconHandler;
-import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.Transition;
-import de.codingair.tradesystem.spigot.trade.layout.types.feedback.FinishResult;
-import de.codingair.tradesystem.spigot.trade.layout.types.feedback.IconResult;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.ShowStatusIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.StatusIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlotOther;
+import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.ShowStatusIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.StatusIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,9 +29,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.lang.reflect.InvocationTargetException;
@@ -64,6 +63,26 @@ public abstract class Trade {
         this.initiationServer = initiationServer;
         this.players[0] = player0;
         this.players[1] = player1;
+    }
+
+    /**
+     * Returns the amount, which doesn't fit
+     */
+    public static int fit(Player player, ItemStack item) {
+        int amount = item.getAmount();
+
+        for (int i = 0; i < 36; i++) {
+            ItemStack itemStack = player.getInventory().getContents()[i];
+
+            if (itemStack == null || itemStack.getType().equals(Material.AIR)) return 0;
+            if (itemStack.isSimilar(item) && itemStack.getAmount() < itemStack.getMaxStackSize()) {
+                amount -= itemStack.getMaxStackSize() - itemStack.getAmount();
+            }
+
+            if (amount <= 0) return 0;
+        }
+
+        return amount;
     }
 
     public boolean[] getReady() {
@@ -298,40 +317,22 @@ public abstract class Trade {
         if (this.listener != null) HandlerList.unregisterAll(this.listener);
     }
 
-    /**
-     * Returns the amount, which doesn't fit
-     */
-    public int fit(Player player, ItemStack item) {
-        int amount = item.getAmount();
-
-        for (int i = 0; i < 36; i++) {
-            ItemStack itemStack = player.getInventory().getContents()[i];
-
-            if (itemStack == null || itemStack.getType().equals(Material.AIR)) return 0;
-            if (itemStack.isSimilar(item) && itemStack.getAmount() < itemStack.getMaxStackSize()) {
-                amount -= itemStack.getMaxStackSize() - itemStack.getAmount();
-            }
-
-            if (amount <= 0) return 0;
-        }
-
-        return amount;
-    }
-
     protected abstract void finish();
 
-    protected void callTradeEvent(@NotNull Player receiver, @NotNull Player sender, ItemStack item) {
-        if (item == null) return;
+    protected @Nullable ItemStack callTradeEvent(@NotNull Player receiver, @NotNull Player sender, @Nullable ItemStack item) {
+        if (item == null) return null;
+
         TradeItemEvent event = new TradeItemEvent(receiver, sender, item);
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
+        return event.getItem();
     }
 
-    protected void callTradeEvent(@NotNull Player receiver, @NotNull String sender, ItemStack item) {
-        if (item == null) return;
-        ProxyTradeItemEvent event = new ProxyTradeItemEvent(receiver, sender, item);
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.callEvent(event);
+    protected @Nullable ItemStack callTradeEvent(@NotNull Player receiver, @NotNull String sender, @Nullable ItemStack item) {
+        if (item == null) return null;
+
+        TradeItemEvent event = new TradeItemEvent(receiver, sender, item);
+        Bukkit.getPluginManager().callEvent(event);
+        return event.getItem();
     }
 
     public int getOtherId(@Range (from = 0, to = 1) int id) {

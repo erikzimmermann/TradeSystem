@@ -6,7 +6,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

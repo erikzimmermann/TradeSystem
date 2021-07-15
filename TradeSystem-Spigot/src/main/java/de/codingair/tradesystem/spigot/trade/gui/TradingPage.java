@@ -2,8 +2,8 @@ package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.codingapi.player.gui.inventory.v2.Page;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import org.bukkit.entity.Player;
 
 public class TradingPage extends Page {
