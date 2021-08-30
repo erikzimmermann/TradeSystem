@@ -44,4 +44,8 @@ public class TradeLogService {
         return tradeLogRepository.getLogMessages(playerName);
     }
 
+    public boolean isConnected() {
+        return tradeLogRepository != null && tradeLogRepository.isConnected();
+    }
+
 }

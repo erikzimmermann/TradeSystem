@@ -18,4 +18,9 @@ public class LoggingTradeLogRepository implements TradeLogRepository {
     public List<TradeLog> getLogMessages(String player) {
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
 }
