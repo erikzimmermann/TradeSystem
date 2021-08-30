@@ -278,13 +278,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     private void copyConfig() {
         ConfigFile file = this.fileManager.loadFile("Config", "/", false);
-
-        IReflection.FieldAccessor<Map<String, Object>> map = IReflection.getField(MemorySection.class, "map");
-        Map<String, Object> copy = new HashMap<>(map.get(file.getConfig()));
-
-        this.oldConfig = (UTFConfig) IReflection.getConstructor(UTFConfig.class).newInstance();
-        map.set(oldConfig, copy);
-
+        this.oldConfig = file.getConfig().copy();
         this.fileManager.unloadFile(file);
     }
 
