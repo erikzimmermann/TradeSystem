@@ -97,7 +97,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onEnable() {
         instance = this;
-        Version.load();
         API.getInstance().onEnable(this);
 
         printConsoleInfo(() -> {
