@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.managers;
 import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeRequestEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -10,14 +11,26 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RequestManager {
 
-    public static void request(Player sender, String receiver) {
+    public static void request(@NotNull Player sender, @NotNull String receiver) {
         Player other = Bukkit.getPlayer(receiver);
 
-        if (other == null && TradeSystem.proxy().isOnline(receiver)) {
+        boolean proxy = other == null && TradeSystem.proxy().isOnline(receiver);
+
+        TradeRequestEvent event = null;
+        if (proxy) event = new TradeRequestEvent(sender, receiver, TradeSystem.man().getRequestExpirationTime());
+        else if (other != null) event = new TradeRequestEvent(sender, other, TradeSystem.man().getRequestExpirationTime());
+
+        if (event != null) {
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) return;
+        }
+
+        if (proxy) {
             //proxy!
             if (RuleManager.isViolatingRules(sender)) return;
 

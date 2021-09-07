@@ -1,6 +1,5 @@
 package de.codingair.tradesystem.spigot.events;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -28,7 +27,7 @@ public class TradeOfferItemEvent extends Event implements Cancellable {
      * @param player    The {@link Player} who places the item.
      * @param receiver  The name of the player who would receive the item.
      * @param itemStack The traded {@link ItemStack}. Cannot be modified.
-     * @param cancelled {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, String, ItemStack)}).
+     * @param cancelled {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, Player, String, ItemStack)}).
      */
     public TradeOfferItemEvent(@NotNull Player player, @NotNull String receiver, @NotNull ItemStack itemStack, boolean cancelled) {
         this.player = player;
@@ -44,7 +43,7 @@ public class TradeOfferItemEvent extends Event implements Cancellable {
      * @param player          The {@link Player} who places the item.
      * @param receivingPlayer The {@link Player} who would receive the item.
      * @param itemStack       The traded {@link ItemStack}. Cannot be modified.
-     * @param cancelled       {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, String, ItemStack)}).
+     * @param cancelled       {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, Player, String, ItemStack)}).
      */
     public TradeOfferItemEvent(@NotNull Player player, @NotNull Player receivingPlayer, @NotNull ItemStack itemStack, boolean cancelled) {
         this.player = player;
@@ -105,7 +104,7 @@ public class TradeOfferItemEvent extends Event implements Cancellable {
     }
 
     /**
-     * @param cancelled If this event should be cancelled. If {@link Boolean#TRUE}, the item will be marked as blocked. See usage of {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, String, ItemStack)}.
+     * @param cancelled If this event should be cancelled. If {@link Boolean#TRUE}, the item will be marked as blocked. See usage of {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Player, Player, String, ItemStack)}.
      */
     @Override
     public void setCancelled(boolean cancelled) {
