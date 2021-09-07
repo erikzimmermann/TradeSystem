@@ -2,8 +2,8 @@ package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.layout.TradeLayout;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class TradeGUIListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler (priority = EventPriority.HIGH)
     public void onDrag(InventoryDragEvent e) {
         if (e.getWhoClicked() instanceof Player) {
             Player player = (Player) e.getWhoClicked();
@@ -32,7 +32,7 @@ public class TradeGUIListener implements Listener {
                 if (e.getNewItems().isEmpty()) return;
 
                 //check if it's blocked
-                if (TradeSystem.getInstance().getTradeManager().isBlocked(e.getNewItems().values().iterator().next())) {
+                if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), e.getNewItems().values().iterator().next())) {
                     e.setCancelled(true);
                     player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 } else if (!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values().toArray(new ItemStack[0]))) {
@@ -106,50 +106,49 @@ public class TradeGUIListener implements Listener {
         }
 
         ItemStack item = e.getCurrentItem();
-        if (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+        if (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
+                item != null && item.getType() != Material.AIR) {
             //check if it's blocked
 
-            if (TradeSystem.getInstance().getTradeManager().isBlocked(item)) {
+            if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
             } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
             } else {
-                if (item != null && item.getType() != Material.AIR) {
-                    //move to own slots
-                    List<Integer> slots = trade.getSlots();
-                    Inventory top = e.getView().getTopInventory();
+                //move to own slots
+                List<Integer> slots = trade.getSlots();
+                Inventory top = e.getView().getTopInventory();
 
-                    Integer empty = null;
-                    for (Integer slot : slots) {
-                        ItemStack i = top.getItem(slot);
-                        if (i == null || i.getType() == Material.AIR) {
-                            if (empty == null) empty = slot;
-                            continue;
-                        }
-
-                        int allowed = i.getMaxStackSize() - i.getAmount();
-                        if (allowed > 0 && item.isSimilar(i)) {
-                            if (allowed >= item.getAmount()) {
-                                i.setAmount(i.getAmount() + item.getAmount());
-                                item.setAmount(0);
-                                e.getView().getBottomInventory().setItem(e.getSlot(), null);
-                                break;
-                            } else {
-                                i.setAmount(i.getMaxStackSize());
-                                item.setAmount(item.getAmount() - allowed);
-                            }
-                        }
+                Integer empty = null;
+                for (Integer slot : slots) {
+                    ItemStack i = top.getItem(slot);
+                    if (i == null || i.getType() == Material.AIR) {
+                        if (empty == null) empty = slot;
+                        continue;
                     }
 
-                    if (empty != null && item.getAmount() > 0) {
-                        top.setItem(empty, item);
-                        e.getView().getBottomInventory().setItem(e.getSlot(), null);
+                    int allowed = i.getMaxStackSize() - i.getAmount();
+                    if (allowed > 0 && item.isSimilar(i)) {
+                        if (allowed >= item.getAmount()) {
+                            i.setAmount(i.getAmount() + item.getAmount());
+                            item.setAmount(0);
+                            e.getView().getBottomInventory().setItem(e.getSlot(), null);
+                            break;
+                        } else {
+                            i.setAmount(i.getMaxStackSize());
+                            item.setAmount(item.getAmount() - allowed);
+                        }
                     }
-
-                    trade.updateLater(1);
                 }
+
+                if (empty != null && item.getAmount() > 0) {
+                    top.setItem(empty, item);
+                    e.getView().getBottomInventory().setItem(e.getSlot(), null);
+                }
+
+                trade.updateLater(1);
             }
         } else e.setCancelled(false);
     }
@@ -257,7 +256,7 @@ public class TradeGUIListener implements Listener {
             }
         }
 
-        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(blockedItem)) {
+        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), blockedItem)) {
             e.setCancelled(true);
             player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
             TradeSystem.getInstance().getTradeManager().playBlockSound(player);

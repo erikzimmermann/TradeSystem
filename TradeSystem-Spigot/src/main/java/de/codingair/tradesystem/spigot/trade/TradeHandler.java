@@ -8,13 +8,15 @@ import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.layout.types.impl.economy.EconomyIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -365,12 +367,28 @@ public class TradeHandler {
         return blacklist;
     }
 
-    public boolean isBlocked(ItemStack item) {
+    /**
+     * @param item The {@link ItemStack} which will be traded.
+     * @return {@link Boolean#TRUE} if this item should be marked as blocked.
+     */
+    public boolean isBlocked(@NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
+        boolean blacklisted = false;
+
         for (BlockedItem blocked : this.blacklist) {
-            if (blocked.matches(item)) return true;
+            if (blocked.matches(item)) {
+                blacklisted = true;
+                break;
+            }
         }
 
-        return false;
+        TradeOfferItemEvent event;
+        if (receivingPlayer == null) event = new TradeOfferItemEvent(placer, receiver, item, blacklisted);
+        else event = new TradeOfferItemEvent(placer, receivingPlayer, item, blacklisted);
+
+        Bukkit.getPluginManager().callEvent(event);
+        blacklisted = event.isCancelled();
+
+        return blacklisted;
     }
 
     public List<String> getBlockedWorlds() {

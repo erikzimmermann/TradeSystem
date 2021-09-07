@@ -58,4 +58,13 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
         }
         return null;
     }
+
+    @Override
+    public boolean isConnected() {
+        try {
+            return SqlLiteConnection.connect() != null;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }

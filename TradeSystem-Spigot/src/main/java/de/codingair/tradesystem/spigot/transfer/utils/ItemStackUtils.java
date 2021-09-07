@@ -8,10 +8,8 @@ import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiFunction;
 
 public class ItemStackUtils {
 
@@ -71,13 +69,16 @@ public class ItemStackUtils {
     }
 
     private static void convertCustomColor(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("custom-color", (s, o) -> {
+        BiFunction<String, Object, Object> f = (s, o) -> {
             if (o instanceof Color) {
                 return serializeCustomColor((Color) o);
             }
 
             return o;
-        });
+        };
+
+        data.computeIfPresent("custom-color", f);
+        data.computeIfPresent("color", f);
     }
 
     @NotNull
@@ -123,6 +124,8 @@ public class ItemStackUtils {
 
     private static void deserializeCustomColors(@NotNull Map<String, Object> data) {
         //noinspection unchecked
-        data.computeIfPresent("custom-color", ($, serialised) -> ConfigurationSerialization.deserializeObject((Map<String, Object>) serialised));
+        BiFunction<String, Object, Object> f = ($, serialised) -> ConfigurationSerialization.deserializeObject((Map<String, Object>) serialised);
+        data.computeIfPresent("custom-color", f);
+        data.computeIfPresent("color", f);
     }
 }
