@@ -3,10 +3,13 @@ package de.codingair.tradesystem.spigot.trade.gui.layout;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeIconInitializeEvent;
 import de.codingair.tradesystem.spigot.trade.gui.layout.patterns.DefaultEssentialsPattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.patterns.DefaultExpPattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.patterns.DefaultPattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.patterns.DefaultVaultPattern;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.TransitionTargetEditorInfo;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.exceptions.TradeIconException;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.ImportHelper;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Name;
@@ -16,6 +19,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +36,18 @@ public class LayoutManager {
 
     public void load() {
         this.patterns.clear();
+
+        //call registration event before loading layouts
+        TradeIconInitializeEvent event = new TradeIconInitializeEvent((icon, info) -> {
+            try {
+                if (info instanceof TransitionTargetEditorInfo) IconHandler.register(icon, (TransitionTargetEditorInfo) info);
+                else IconHandler.register(icon, info);
+            } catch (TradeIconException e) {
+                //forward to event-instance
+                throw new RuntimeException(e);
+            }
+        });
+        Bukkit.getPluginManager().callEvent(event);
 
         TradeSystem.log("  > Loading layouts");
 
@@ -96,6 +112,7 @@ public class LayoutManager {
         message.addExtra("\n§8- §eNon-economy layout §8[");
 
         TextComponent activateDef = new TextComponent("§7default");
+        //noinspection deprecation
         activateDef.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the non-economy layout §8«")}));
         activateDef.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultPattern.NAME));
 
@@ -105,6 +122,7 @@ public class LayoutManager {
         message.addExtra("\n§8- §eExp layout §8[");
 
         TextComponent activateExp = new TextComponent("§aactivate");
+        //noinspection deprecation
         activateExp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Exp layout §8«")}));
         activateExp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultExpPattern.NAME));
 
@@ -115,6 +133,7 @@ public class LayoutManager {
             message.addExtra("\n§8- §eVault layout §8[");
 
             TextComponent activateVault = new TextComponent("§aactivate");
+            //noinspection deprecation
             activateVault.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Vault layout §8«")}));
             activateVault.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultVaultPattern.NAME));
 
@@ -126,6 +145,7 @@ public class LayoutManager {
             message.addExtra("\n§8- §eEssentials layout §8[§a");
 
             TextComponent activateEssentials = new TextComponent("§aactivate");
+            //noinspection deprecation
             activateEssentials.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent("§8» §aActivate the Essentials layout §8«")}));
             activateEssentials.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tradesystem layout activate " + DefaultEssentialsPattern.NAME));
 

@@ -81,6 +81,8 @@ public interface TradeIcon {
     /**
      * Refreshes the {@link ItemStack} of this {@link TradeIcon}.
      *
+     * <p><strong>Overriding this method may break the trade functionality.</strong></p>
+     *
      * @param trade    The trade instance.
      * @param playerId The id of the trading player.
      */
@@ -94,6 +96,8 @@ public interface TradeIcon {
 
     /**
      * Refreshes the {@link Button} and its {@link ItemStack} of this {@link TradeIcon}.
+     *
+     * <p><strong>Overriding this method may break the trade functionality.</strong></p>
      *
      * @param trade  The trade instance.
      * @param player The trading player.
@@ -109,6 +113,8 @@ public interface TradeIcon {
     }
 
     /**
+     * <p><strong>Overriding this method may break the log functionality.</strong></p>
+     *
      * @param trade   The current trade instance.
      * @param message The message to log.
      * @param vars    Data to fill 'message'.
