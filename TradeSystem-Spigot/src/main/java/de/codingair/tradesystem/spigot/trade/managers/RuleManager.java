@@ -4,10 +4,13 @@ import de.codingair.codingapi.player.chat.ChatButton;
 import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeRequestEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
@@ -51,7 +54,7 @@ public class RuleManager {
         message(player, other, result.getResult(), result.getServer());
     }
 
-    public static TradeInvitePacket.Result isOtherViolatingRules(Player other) {
+    public static TradeInvitePacket.Result isOtherViolatingRules(@NotNull Player other) {
         if (Permissions.PERMISSION != null && !other.hasPermission(Permissions.PERMISSION)) {
             return TradeInvitePacket.Result.NO_PERMISSION;
         }

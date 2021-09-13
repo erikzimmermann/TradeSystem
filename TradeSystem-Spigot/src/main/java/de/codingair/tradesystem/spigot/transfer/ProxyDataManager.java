@@ -63,15 +63,18 @@ public class ProxyDataManager {
         else return players.values().stream().filter(n -> !n.equals(sender.getName()));
     }
 
-    public String getCaseSensitive(String player) {
-        return getPlayer(player);
+    @NotNull
+    public String getCaseSensitive(@NotNull String player) {
+        String name = getPlayer(player);
+        return name == null ? player : name;
     }
 
     public boolean isOnline(String player) {
         return getPlayer(player) != null;
     }
 
-    private String getPlayer(String name) {
+    @Nullable
+    private String getPlayer(@NotNull String name) {
         String lowerName = name.toLowerCase(Locale.ENGLISH);
 
         String found = this.players.get(lowerName);

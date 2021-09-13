@@ -14,21 +14,38 @@ import org.jetbrains.annotations.Nullable;
  */
 public class TradeRequestEvent extends Event implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
-    private final Player sender;
+    private final String sender;
+    private final Player sendingPlayer;
     private final String receiver;
     private final Player receivingPlayer;
     private final int expiresIn;
     private boolean cancelled = false;
 
     /**
-     * Indicates a proxy trade.
+     * Indicates a proxy trade. Only called on the server of the receiving player.
+     *
+     * @param sender    The name of the player who sends the request.
+     * @param receiver  The {@link Player} who receives the request.
+     * @param expiresIn The expiration time of the request in seconds.
+     */
+    public TradeRequestEvent(@NotNull String sender, @NotNull Player receiver, int expiresIn) {
+        this.sender = sender;
+        this.sendingPlayer = null;
+        this.receiver = receiver.getName();
+        this.receivingPlayer = receiver;
+        this.expiresIn = expiresIn;
+    }
+
+    /**
+     * Indicates a proxy trade. Only called on the server of the sending player.
      *
      * @param sender    The {@link Player} who sends the request.
      * @param receiver  The name of the player who receives the request.
      * @param expiresIn The expiration time of the request in seconds.
      */
     public TradeRequestEvent(@NotNull Player sender, @NotNull String receiver, int expiresIn) {
-        this.sender = sender;
+        this.sender = sender.getName();
+        this.sendingPlayer = sender;
         this.receiver = receiver;
         this.expiresIn = expiresIn;
         this.receivingPlayer = null;
@@ -37,14 +54,15 @@ public class TradeRequestEvent extends Event implements Cancellable {
     /**
      * Indicates a bukkit trade.
      *
-     * @param sender          The {@link Player} who sends the request.
-     * @param receivingPlayer The {@link Player} who receives the request.
-     * @param expiresIn       The expiration time of the request in seconds.
+     * @param sender    The {@link Player} who sends the request.
+     * @param receiver  The {@link Player} who receives the request.
+     * @param expiresIn The expiration time of the request in seconds.
      */
-    public TradeRequestEvent(@NotNull Player sender, @NotNull Player receivingPlayer, int expiresIn) {
-        this.sender = sender;
-        this.receiver = receivingPlayer.getName();
-        this.receivingPlayer = receivingPlayer;
+    public TradeRequestEvent(@NotNull Player sender, @NotNull Player receiver, int expiresIn) {
+        this.sender = sender.getName();
+        this.sendingPlayer = sender;
+        this.receiver = receiver.getName();
+        this.receivingPlayer = receiver;
         this.expiresIn = expiresIn;
     }
 
@@ -62,7 +80,14 @@ public class TradeRequestEvent extends Event implements Cancellable {
     /**
      * @return The {@link Player} who sends the request.
      */
-    public @NotNull Player getSender() {
+    public @Nullable Player getSendingPlayer() {
+        return this.sendingPlayer;
+    }
+
+    /**
+     * @return The name of the player who sends the request.
+     */
+    public @NotNull String getSender() {
         return this.sender;
     }
 
@@ -74,10 +99,10 @@ public class TradeRequestEvent extends Event implements Cancellable {
     }
 
     /**
-     * @return {@link Boolean#TRUE} if the receiver is on another server.
+     * @return {@link Boolean#TRUE} if the sender or receiver is on another server.
      */
     public boolean isProxyTrade() {
-        return getReceivingPlayer() == null;
+        return getSendingPlayer() == null || getReceivingPlayer() == null;
     }
 
     /**
