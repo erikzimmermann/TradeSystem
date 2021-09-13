@@ -113,6 +113,7 @@ public class ProxyTrade extends Trade {
     }
 
     public void synchronizeInventory() {
+        @SuppressWarnings ("unchecked")
         Map<String, Object>[] items = new Map[36];
         ItemStack[] contents = player.getInventory().getContents();
 
@@ -199,39 +200,20 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected boolean[] cancelGUIs() {
+    protected synchronized boolean[] cancelGUIs() {
         if (this.guis[0] == null) return null;
 
         boolean[] droppedItems = new boolean[] {false, false};
         for (Integer slot : this.slots) {
             if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
                 ItemStack item = this.guis[0].getItem(slot);
-                int i = fit(this.player, item);
-
-                if (item.getAmount() > i) {
-                    item.setAmount(item.getAmount() - i);
-                    this.player.getInventory().addItem(item);
-                }
-                if (i > 0) {
-                    item.setAmount(i);
-                    droppedItems[0] |= dropItem(this.player, item);
-                }
+                droppedItems[0] |= addOrDrop(this.player, item);
             }
         }
 
         ItemStack item = this.player.getOpenInventory().getCursor();
         if (item != null && item.getType() != Material.AIR) {
-            int fit = fit(this.player, item.clone());
-
-            if (item.getAmount() > fit) {
-                item.setAmount(item.getAmount() - fit);
-                this.player.getInventory().addItem(item);
-            }
-            if (fit > 0) {
-                item.setAmount(fit);
-                droppedItems[0] |= dropItem(player, item);
-            }
-
+            droppedItems[0] |= addOrDrop(this.player, item);
             this.player.getOpenInventory().setCursor(null);
         }
 

@@ -66,7 +66,9 @@ public abstract class Trade {
     }
 
     /**
-     * Returns the amount, which doesn't fit
+     * @param player The player that should be analyzed.
+     * @param item   The item that should be checked.
+     * @return The amount which doesn't fit.
      */
     public static int fit(Player player, ItemStack item) {
         int amount = item.getAmount();
@@ -83,6 +85,27 @@ public abstract class Trade {
         }
 
         return amount;
+    }
+
+    /**
+     * @param player The player that should pick up the provided item
+     * @param item   The item that should be added.
+     * @return True if this item was dropped. False if this item was added to the inventory.
+     */
+    protected boolean addOrDrop(@NotNull Player player, @NotNull ItemStack item) {
+        int fit = fit(player, item);
+
+        if (item.getAmount() > fit) {
+            //move remaining items into inventory
+            item.setAmount(item.getAmount() - fit);
+            player.getInventory().addItem(item);
+        }
+
+        if (fit > 0) {
+            //drop not fitting items
+            item.setAmount(fit);
+            return dropItem(player, item);
+        } else return false;
     }
 
     public boolean[] getReady() {
@@ -290,10 +313,11 @@ public abstract class Trade {
 
     public boolean dropItem(Player player, ItemStack itemStack) {
         if (player == null || itemStack == null || itemStack.getType() == Material.AIR) return false;
-        player.getWorld().dropItem(player.getLocation(), itemStack);
+        player.getWorld().dropItem(player.getLocation().add(0, 0.1, 0), itemStack);
         return true;
     }
 
+    @SuppressWarnings ("BooleanMethodIsAlwaysInverted")
     protected boolean canPickup(Player player, ItemStack item) {
         PlayerInventory inv = new PlayerInventory(player);
 
@@ -430,6 +454,7 @@ public abstract class Trade {
         update();
     }
 
+    @SuppressWarnings ("BooleanMethodIsAlwaysInverted")
     public boolean fitsTrade(Player from, ItemStack... add) {
         return fitsTrade(from, new ArrayList<>(), add);
     }
