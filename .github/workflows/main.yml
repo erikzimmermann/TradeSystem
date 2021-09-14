@@ -19,3 +19,8 @@ jobs:
     - name: Build with Maven
       run: |
         mvn clean package
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: TrMenu Artifact
+        path: target/*.jar
