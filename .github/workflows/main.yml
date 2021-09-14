@@ -23,4 +23,4 @@ jobs:
       uses: actions/upload-artifact@v2.2.4
       with:
         name: TradeSystem
-        path: TradeSystem-Spigot/target/*.jar
+        path: TradeSystem-Bundle/target/*.jar
