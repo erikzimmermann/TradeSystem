@@ -23,7 +23,7 @@ jobs:
     - name: Deploy
       run: |
         rank="<@&793495434235609138>"
-        milestone=25
+        milestone=26
         
         upload() {
             file=$(find "./TradeSystem-Bundle/target" -type f -name "TradeSystem_v*.jar" | head -n 1)
