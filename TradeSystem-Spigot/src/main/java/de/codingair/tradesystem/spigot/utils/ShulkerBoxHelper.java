@@ -17,6 +17,7 @@ public class ShulkerBoxHelper {
     public static ItemStack[] getItems(@NotNull ItemStack item) {
         if (item.getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
+
             if (im.getBlockState() instanceof ShulkerBox) {
                 ShulkerBox shulker = (ShulkerBox) im.getBlockState();
 
