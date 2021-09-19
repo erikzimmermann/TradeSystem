@@ -5,7 +5,6 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
-import de.codingair.codingapi.server.reflections.IReflection;
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.codingapi.utils.Value;
@@ -20,9 +19,12 @@ import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogReposi
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
-import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
-import de.codingair.tradesystem.spigot.trade.listeners.*;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
+import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
+import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
+import de.codingair.tradesystem.spigot.trade.listeners.JoinNoteListener;
+import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
+import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.transfer.ProxyDataManager;
@@ -37,7 +39,6 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConn
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -46,8 +47,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TradeSystem extends JavaPlugin implements Proxy {
     private static TradeSystem instance;
