@@ -63,7 +63,8 @@ public class BlockedItem {
         }
 
         if (name != null && item.hasItemMeta() && item.getItemMeta() != null) {
-            if (item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', name))) matches = true;
+            String displayName = item.getItemMeta().getDisplayName();
+            if (displayName.equals(getStrippedName())) matches = true;
         }
 
         if (Version.atLeast(11) && !matches) {
@@ -75,6 +76,13 @@ public class BlockedItem {
         return matches;
     }
 
+    @Nullable
+    private String getStrippedName() {
+        if (name == null) return null;
+        return ChatColor.translateAlternateColorCodes('&', name);
+    }
+
+    @Nullable
     public Material getMaterial() {
         return material;
     }
@@ -83,6 +91,7 @@ public class BlockedItem {
         return data;
     }
 
+    @Nullable
     public String getName() {
         return name;
     }
