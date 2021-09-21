@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot.trade;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -103,39 +102,16 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected boolean[] cancelGUIs() {
+    protected synchronized boolean[] cancelGUIs() {
         if (this.guis[0] == null && this.guis[1] == null) return null;
 
         boolean[] droppedItems = new boolean[] {false, false};
         for (Integer slot : this.slots) {
-            if (this.guis[0] != null) {
-                if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
-                    ItemStack item = this.guis[0].getItem(slot);
-                    int i = fit(this.players[0], item);
-
-                    if (item.getAmount() > i) {
-                        item.setAmount(item.getAmount() - i);
-                        this.players[0].getInventory().addItem(item);
-                    }
-                    if (i > 0) {
-                        item.setAmount(i);
-                        droppedItems[0] |= dropItem(players[0], item);
-                    }
-                }
-            }
-
-            if (this.guis[1] != null) {
-                if (this.guis[1].getItem(slot) != null && this.guis[1].getItem(slot).getType() != Material.AIR) {
-                    ItemStack item = this.guis[1].getItem(slot);
-                    int i = fit(this.players[1], item);
-
-                    if (item.getAmount() > i) {
-                        item.setAmount(item.getAmount() - i);
-                        this.players[1].getInventory().addItem(item);
-                    }
-                    if (i > 0) {
-                        item.setAmount(i);
-                        droppedItems[1] |= dropItem(players[1], item);
+            for (int i = 0; i < 2; i++) {
+                if (this.guis[i] != null) {
+                    if (this.guis[i].getItem(slot) != null && this.guis[i].getItem(slot).getType() != Material.AIR) {
+                        ItemStack item = this.guis[i].getItem(slot);
+                        droppedItems[i] |= addOrDrop(this.players[i], item);
                     }
                 }
             }
@@ -146,17 +122,7 @@ public class BukkitTrade extends Trade {
 
             ItemStack item = this.players[i].getOpenInventory().getCursor();
             if (item != null && item.getType() != Material.AIR) {
-                int fit = fit(this.players[i], item.clone());
-
-                if (item.getAmount() > fit) {
-                    item.setAmount(item.getAmount() - fit);
-                    this.players[i].getInventory().addItem(item);
-                }
-                if (fit > 0) {
-                    item.setAmount(fit);
-                    droppedItems[i] |= dropItem(players[i], item);
-                }
-
+                droppedItems[i] |= addOrDrop(this.players[i], item);
                 this.players[i].getOpenInventory().setCursor(null);
             }
         }
@@ -250,12 +216,12 @@ public class BukkitTrade extends Trade {
         if (pause[0] && pause[1]) return;
 
         // code to avoid some weird money dupe
-        final Player player1 = players[0];
-        final Player player2 = players[1];
+        final Player player0 = players[0];
+        final Player player1 = players[1];
 
         Runnable runnable = () -> {
+            if (!tryFinish(player0)) return;
             if (!tryFinish(player1)) return;
-            if (!tryFinish(player2)) return;
 
             pause[0] = true;
             pause[1] = true;
@@ -276,61 +242,65 @@ public class BukkitTrade extends Trade {
                 guis[1].setItem(slot, null);
                 guis[0].setItem(slot, null);
 
-                if (i0 != null && i0.getType() != Material.AIR) {
-                    int rest = fit(player1, i0);
+                //Log before calling the events. The events could remove this item and we would still lose it.
+                if (i0 != null && i0.getType() != Material.AIR)
+                    getTradeLog().log(player0.getName(), player1.getName(), TradeLogMessages.RECEIVE_ITEM.get(player0.getName(), i0.getAmount() + "x " + i0.getType()));
+                if (i1 != null && i1.getType() != Material.AIR)
+                    getTradeLog().log(player0.getName(), player1.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i1.getAmount() + "x " + i1.getType()));
 
-                    if (rest <= 0) {
-                        callTradeEvent(player1, player2, i0);
-                        player1.getInventory().addItem(i0);
-                    } else {
+                //call events
+                i0 = callTradeEvent(player0, player1, i0);
+                i1 = callTradeEvent(player1, player0, i1);
+
+                if (i0 != null && i0.getType() != Material.AIR) {
+                    int rest = fit(player0, i0);
+
+                    if (rest <= 0) player0.getInventory().addItem(i0);
+                    else {
                         ItemStack toDrop = i0.clone();
                         toDrop.setAmount(rest);
 
                         i0.setAmount(i0.getAmount() - rest);
-                        if (i0.getAmount() > 0) player1.getInventory().addItem(i0);
+                        if (i0.getAmount() > 0) player0.getInventory().addItem(i0);
 
-                        droppedItems[0] |= dropItem(player1, toDrop);
+                        droppedItems[0] |= dropItem(player0, toDrop);
                     }
-                    getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i0.getAmount() + "x " + i0.getType()));
                 }
 
                 if (i1 != null && i1.getType() != Material.AIR) {
-                    int rest = fit(player2, i1);
+                    int rest = fit(player1, i1);
 
-                    if (rest <= 0) {
-                        callTradeEvent(player2, player1, i0);
-                        player2.getInventory().addItem(i1);
-                    } else {
+                    if (rest <= 0) player1.getInventory().addItem(i1);
+                    else {
                         ItemStack toDrop = i1.clone();
                         toDrop.setAmount(rest);
 
                         i1.setAmount(i1.getAmount() - rest);
-                        if (i1.getAmount() > 0) player2.getInventory().addItem(i1);
+                        if (i1.getAmount() > 0) player1.getInventory().addItem(i1);
 
-                        droppedItems[1] |= dropItem(player2, toDrop);
+                        droppedItems[1] |= dropItem(player1, toDrop);
                     }
-                    getTradeLog().log(player1.getName(), player2.getName(), TradeLogMessages.RECEIVE_ITEM.get(player2.getName(), i1.getAmount() + "x " + i1.getType()));
                 }
             }
 
             guis[0].clear();
             guis[1].clear();
 
+            finishPlayer(player0);
             finishPlayer(player1);
-            finishPlayer(player2);
 
+            player0.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player0));
             player1.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player1));
-            player2.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player2));
 
             for (int i = 0; i < droppedItems.length; i++) {
                 if (droppedItems[i]) {
                     this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
                 }
             }
-            getTradeLog().logLater(player1.getName(), player2.getName(), TradeLogMessages.FINISHED.get(), 10);
+            getTradeLog().logLater(player0.getName(), player1.getName(), TradeLogMessages.FINISHED.get(), 10);
 
+            TradeSystem.man().playFinishSound(player0);
             TradeSystem.man().playFinishSound(player1);
-            TradeSystem.man().playFinishSound(player2);
         };
 
         int interval = TradeSystem.man().getCountdownInterval();
@@ -350,8 +320,8 @@ public class BukkitTrade extends Trade {
 
                     if (!ready[0] || !ready[1]) {
                         this.cancel();
+                        TradeSystem.man().playCountdownStopSound(player0);
                         TradeSystem.man().playCountdownStopSound(player1);
-                        TradeSystem.man().playCountdownStopSound(player2);
                         countdownTicks = 0;
                         countdown = null;
                         guis[0].synchronizeTitle();
@@ -368,8 +338,8 @@ public class BukkitTrade extends Trade {
                     } else {
                         guis[0].synchronizeTitle();
                         guis[1].synchronizeTitle();
+                        TradeSystem.man().playCountdownTickSound(player0);
                         TradeSystem.man().playCountdownTickSound(player1);
-                        TradeSystem.man().playCountdownTickSound(player2);
                     }
 
                     countdownTicks++;

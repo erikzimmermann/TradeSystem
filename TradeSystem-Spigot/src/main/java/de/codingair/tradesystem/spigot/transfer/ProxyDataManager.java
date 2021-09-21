@@ -6,7 +6,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -63,15 +63,18 @@ public class ProxyDataManager {
         else return players.values().stream().filter(n -> !n.equals(sender.getName()));
     }
 
-    public String getCaseSensitive(String player) {
-        return getPlayer(player);
+    @NotNull
+    public String getCaseSensitive(@NotNull String player) {
+        String name = getPlayer(player);
+        return name == null ? player : name;
     }
 
     public boolean isOnline(String player) {
         return getPlayer(player) != null;
     }
 
-    private String getPlayer(String name) {
+    @Nullable
+    private String getPlayer(@NotNull String name) {
         String lowerName = name.toLowerCase(Locale.ENGLISH);
 
         String found = this.players.get(lowerName);

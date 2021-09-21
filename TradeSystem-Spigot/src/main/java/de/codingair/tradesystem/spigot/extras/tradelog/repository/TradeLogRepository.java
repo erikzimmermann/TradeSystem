@@ -9,4 +9,6 @@ public interface TradeLogRepository {
     void log(String player1, String playerTo2, String message);
 
     List<TradeLog> getLogMessages(String playerName);
+
+    boolean isConnected();
 }

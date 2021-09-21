@@ -1,9 +1,12 @@
 package de.codingair.tradesystem.spigot.extras.blacklist;
 
 import de.codingair.codingapi.server.specification.Version;
+import de.codingair.codingapi.tools.items.XMaterial;
+import de.codingair.tradesystem.spigot.utils.ShulkerBoxHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -47,24 +50,39 @@ public class BlockedItem {
         }
     }
 
-    public boolean matches(ItemStack item) {
+    public boolean matches(@NotNull ItemStack item) {
         boolean matches = false;
 
         if (material != null) {
             if (Version.get().isBiggerThan(Version.v1_12)) {
                 if (item.getType() == this.material) matches = true;
             } else {
+                //noinspection deprecation, ConstantConditions
                 if (item.getType() == this.material && data == item.getData().getData()) matches = true;
             }
         }
 
-        if (name != null && item.hasItemMeta() && item.getItemMeta().getDisplayName() != null) {
-            if (item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', name))) matches = true;
+        if (name != null && item.hasItemMeta() && item.getItemMeta() != null) {
+            String displayName = item.getItemMeta().getDisplayName();
+            if (displayName.equals(getStrippedName())) matches = true;
+        }
+
+        if (Version.atLeast(11) && !matches) {
+            for (ItemStack itemStack : ShulkerBoxHelper.getItems(item)) {
+                if (matches(itemStack)) return true;
+            }
         }
 
         return matches;
     }
 
+    @Nullable
+    private String getStrippedName() {
+        if (name == null) return null;
+        return ChatColor.translateAlternateColorCodes('&', name);
+    }
+
+    @Nullable
     public Material getMaterial() {
         return material;
     }
@@ -73,6 +91,7 @@ public class BlockedItem {
         return data;
     }
 
+    @Nullable
     public String getName() {
         return name;
     }

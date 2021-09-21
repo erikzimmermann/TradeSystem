@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.managers;
 import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeRequestEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -10,18 +11,26 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RequestManager {
 
-    public static void request(Player sender, String receiver) {
+    public static void request(@NotNull Player sender, @NotNull String receiver) {
         Player other = Bukkit.getPlayer(receiver);
 
-        if (other == null && TradeSystem.proxy().isOnline(receiver)) {
+        boolean proxy = other == null && TradeSystem.proxy().isOnline(receiver);
+
+        if (proxy) {
             //proxy!
             if (RuleManager.isViolatingRules(sender)) return;
 
             String invited = TradeSystem.proxy().getCaseSensitive(receiver);
+
+            //call request event
+            TradeRequestEvent event = new TradeRequestEvent(sender, receiver, TradeSystem.man().getRequestExpirationTime());
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) return;
 
             if (InvitationManager.registerInvitation(sender, null, invited)) return;
             sendRequest(sender, invited);
@@ -38,14 +47,21 @@ public class RequestManager {
                 });
     }
 
-    public static void request(Player p, @Nullable Player other) {
+    public static void request(@NotNull Player sender, @Nullable Player other) {
         if (other != null && !other.isOnline()) return; //npc
 
-        if (RuleManager.isViolatingRules(p, other)) return;
-        requestFinalTrade(p, other);
+        if (RuleManager.isViolatingRules(sender, other)) return;
+        assert other != null; //already sent a message if other == null
+
+        //call event
+        TradeRequestEvent event = new TradeRequestEvent(sender, other, TradeSystem.man().getRequestExpirationTime());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+
+        requestFinalTrade(sender, other);
     }
 
-    private static void requestFinalTrade(Player player, Player recipient) {
+    private static void requestFinalTrade(@NotNull Player player, @NotNull Player recipient) {
         if (InvitationManager.registerInvitation(player, recipient, recipient.getName())) return;
         sendRequest(player.getName(), recipient);
     }

@@ -60,4 +60,13 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
         }
         return null;
     }
+
+    @Override
+    public boolean isConnected() {
+        try {
+            return connection != null && !connection.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }

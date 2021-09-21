@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot.trade;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
-import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -11,7 +10,7 @@ import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
-import de.codingair.tradesystem.spigot.trade.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -114,6 +113,7 @@ public class ProxyTrade extends Trade {
     }
 
     public void synchronizeInventory() {
+        @SuppressWarnings ("unchecked")
         Map<String, Object>[] items = new Map[36];
         ItemStack[] contents = player.getInventory().getContents();
 
@@ -200,39 +200,20 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected boolean[] cancelGUIs() {
+    protected synchronized boolean[] cancelGUIs() {
         if (this.guis[0] == null) return null;
 
         boolean[] droppedItems = new boolean[] {false, false};
         for (Integer slot : this.slots) {
             if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
                 ItemStack item = this.guis[0].getItem(slot);
-                int i = fit(this.player, item);
-
-                if (item.getAmount() > i) {
-                    item.setAmount(item.getAmount() - i);
-                    this.player.getInventory().addItem(item);
-                }
-                if (i > 0) {
-                    item.setAmount(i);
-                    droppedItems[0] |= dropItem(this.player, item);
-                }
+                droppedItems[0] |= addOrDrop(this.player, item);
             }
         }
 
         ItemStack item = this.player.getOpenInventory().getCursor();
         if (item != null && item.getType() != Material.AIR) {
-            int fit = fit(this.player, item.clone());
-
-            if (item.getAmount() > fit) {
-                item.setAmount(item.getAmount() - fit);
-                this.player.getInventory().addItem(item);
-            }
-            if (fit > 0) {
-                item.setAmount(fit);
-                droppedItems[0] |= dropItem(player, item);
-            }
-
+            droppedItems[0] |= addOrDrop(this.player, item);
             this.player.getOpenInventory().setCursor(null);
         }
 
@@ -317,17 +298,28 @@ public class ProxyTrade extends Trade {
             for (int i = 0; i < slots.size(); i++) {
                 int slot = slots.get(i);
 
+                guis[0].setItem(slot, null);
+
                 //using original one to prevent dupe glitches!!!
                 ItemStack i0 = getReceived(i);
-                guis[0].setItem(slot, null);
+
+                //Log before calling the event. The event could remove this item and we would still lose it.
+                if (i0 != null && i0.getType() != Material.AIR) {
+                    if (initiationServer) getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
+                    else {
+                        //exception -> proxy trade -> handle item on one server -> switch players
+                        getTradeLog().log(this.other, this.player.getName(), TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
+                    }
+                }
+
+                //call event
+                i0 = callTradeEvent(this.player, this.other, i0);
 
                 if (i0 != null && i0.getType() != Material.AIR) {
                     int rest = fit(this.player, i0);
 
-                    if (rest <= 0) {
-                        callTradeEvent(this.player, this.other, i0);
-                        this.player.getInventory().addItem(i0);
-                    } else {
+                    if (rest <= 0) this.player.getInventory().addItem(i0);
+                    else {
                         ItemStack toDrop = i0.clone();
                         toDrop.setAmount(rest);
 
@@ -335,12 +327,6 @@ public class ProxyTrade extends Trade {
                         if (i0.getAmount() > 0) this.player.getInventory().addItem(i0);
 
                         droppedItems[0] |= dropItem(this.player, toDrop);
-                    }
-
-                    if (initiationServer) getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
-                    else {
-                        //exception -> proxy trade -> handle item on one server -> switch players
-                        getTradeLog().log(this.other, this.player.getName(), TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
                     }
                 }
             }
