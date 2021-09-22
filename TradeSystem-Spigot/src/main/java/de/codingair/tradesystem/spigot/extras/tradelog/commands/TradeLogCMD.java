@@ -9,7 +9,6 @@ import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import org.bukkit.Bukkit;
@@ -62,7 +61,7 @@ public class TradeLogCMD extends CommandBuilder {
                 try {
                     if (TradeLogOptions.isEnabled()) {
                         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
-                            if (!TradeLogService.getTradeLog().isConnected()) {
+                            if (TradeLogService.getTradeLog().notConnected()) {
                                 sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled").replace("%label%", label));
                                 return;
                             }
