@@ -2,6 +2,9 @@ package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
+import de.codingair.tradesystem.spigot.utils.Supplier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MysqlTradeLogRepository implements TradeLogRepository {
-    private final Connection connection;
+    private final Supplier<Connection, SQLException> connection;
 
-    public MysqlTradeLogRepository(Connection connection) {
+    public MysqlTradeLogRepository(@NotNull Supplier<Connection, SQLException> connection) {
         this.connection = connection;
     }
 
@@ -23,7 +26,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     public void log(String player1, String player2, String message) {
         String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?);";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, player1);
             pstmt.setString(2, player2);
             pstmt.setString(3, message);
@@ -36,11 +39,11 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     }
 
     @Override
-    public List<TradeLog> getLogMessages(String playerName) {
+    public @Nullable List<TradeLog> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, playerName);
             pstmt.setString(2, playerName);
             ResultSet rs = pstmt.executeQuery();
@@ -57,16 +60,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
             return result;
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isConnected() {
-        try {
-            return connection != null && !connection.isClosed();
-        } catch (SQLException e) {
-            return false;
+            return null;
         }
     }
 }

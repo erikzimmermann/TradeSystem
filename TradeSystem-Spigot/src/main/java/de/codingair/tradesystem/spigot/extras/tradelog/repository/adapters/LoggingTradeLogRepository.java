@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,12 +16,7 @@ public class LoggingTradeLogRepository implements TradeLogRepository {
     }
 
     @Override
-    public List<TradeLog> getLogMessages(String player) {
+    public @Nullable List<TradeLog> getLogMessages(String player) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public boolean isConnected() {
-        return true;
     }
 }

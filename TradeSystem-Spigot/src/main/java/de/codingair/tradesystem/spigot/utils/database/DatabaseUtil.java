@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.utils.database;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
+import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DatabaseUtil {
@@ -31,11 +32,11 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public void init() throws Exception {
+    public void check() throws Exception {
         if (databaseType == DatabaseType.MYSQL) {
-            MySQLConnection.getInstance().initDataSource();
+            MySQLConnection.checkDataSource();
         } else if (databaseType == DatabaseType.SQLITE) {
-            //No initialization needed
+            SqlLiteConnection.connect().close();
         } else {
             throw new IllegalStateException("No database configured");
         }
