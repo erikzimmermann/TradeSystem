@@ -20,7 +20,7 @@ public class TradeLogService {
     }
 
     public void log(String player1, String player2, String message) {
-        if (tradeLogRepository == null) return;
+        if (notConnected()) return;
 
         Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
 
@@ -30,7 +30,7 @@ public class TradeLogService {
     }
 
     public void logLater(String player1, String player2, String message, long delay) {
-        if (tradeLogRepository == null) return;
+        if (notConnected()) return;
 
         Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
 
@@ -40,12 +40,12 @@ public class TradeLogService {
     }
 
     public List<TradeLog> getLogMessages(String playerName) {
-        if (tradeLogRepository == null) return new ArrayList<>();
+        if (notConnected()) return new ArrayList<>();
         return tradeLogRepository.getLogMessages(playerName);
     }
 
-    public boolean isConnected() {
-        return tradeLogRepository != null && tradeLogRepository.isConnected();
+    public boolean notConnected() {
+        return tradeLogRepository == null || !TradeSystem.getInstance().getDatabaseInitializer().isRunning();
     }
 
 }

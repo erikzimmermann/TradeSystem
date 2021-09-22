@@ -4,6 +4,7 @@ import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
     }
 
     @Override
-    public List<TradeLog> getLogMessages(String playerName) {
+    public @Nullable List<TradeLog> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";
 
@@ -55,16 +56,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
             return result;
         } catch (SQLException e) {
             Bukkit.getLogger().severe(e.getMessage());
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isConnected() {
-        try {
-            return SqlLiteConnection.connect() != null;
-        } catch (SQLException e) {
-            return false;
+            return null;
         }
     }
 }

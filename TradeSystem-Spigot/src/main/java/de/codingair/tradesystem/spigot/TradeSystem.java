@@ -312,6 +312,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         }
     }
 
+    public DatabaseInitializer getDatabaseInitializer() {
+        return databaseInitializer;
+    }
+
     public CommandManager getCommandManager() {
         return commandManager;
     }

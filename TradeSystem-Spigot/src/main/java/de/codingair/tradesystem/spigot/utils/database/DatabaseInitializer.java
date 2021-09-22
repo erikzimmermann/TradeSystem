@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import java.util.logging.Level;
 
 public class DatabaseInitializer {
+    private boolean running = false;
 
     public void initialize() {
         if (TradeLogOptions.isEnabled()) {
@@ -17,14 +18,17 @@ public class DatabaseInitializer {
             Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
                 try {
                     DatabaseType type = DatabaseUtil.database().getType();
-                    DatabaseUtil.database().init();
+                    DatabaseUtil.database().check();
 
                     SqlMigrations sqlMigrations = getMigrationHandler(type);
                     sqlMigrations.createMigrationTable();
                     sqlMigrations.runMigrations();
+
                     TradeSystem.getInstance().getLogger().log(Level.INFO, "Database logging was started successfully.");
+                    running = true;
                 } catch (Exception ex) {
                     TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Database logging could not be started. For more information see error below: " + ex.getMessage());
+                    running = false;
                 }
             });
         } else TradeSystem.log("  > Database logging is disabled");
@@ -39,5 +43,9 @@ public class DatabaseInitializer {
             default:
                 throw new IllegalStateException("Invalid database type provided: " + type);
         }
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }
