@@ -13,7 +13,6 @@ public class ShulkerBoxHelper {
      * @param item The ItemStack that will be analyzed.
      * @return The array of ItemStacks that is contained in this shulker box or an empty array if this is not a shulker box.
      */
-    @NotNull
     public static ItemStack[] getItems(@NotNull ItemStack item) {
         if (item.getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta im = (BlockStateMeta) item.getItemMeta();

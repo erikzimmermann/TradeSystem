@@ -31,11 +31,19 @@ public class TradeGUIListener implements Listener {
             if (trade != null) {
                 if (e.getNewItems().isEmpty()) return;
 
-                //check if it's blocked
-                if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), e.getNewItems().values().iterator().next())) {
-                    e.setCancelled(true);
-                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
-                } else if (!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values().toArray(new ItemStack[0]))) {
+                Player other = trade.getOther(player).orElse(null);
+                String othersName = trade.getOther(player.getName());
+
+                for (ItemStack item : e.getNewItems().values()) {
+                    //check if it's blocked#
+                    if (TradeSystem.getInstance().getTradeManager().isBlocked(player, other, othersName, item)) {
+                        e.setCancelled(true);
+                        player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
+                        return;
+                    }
+                }
+
+                if (!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values().toArray(new ItemStack[0]))) {
                     player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(player);
                     e.setCancelled(true);
@@ -350,10 +358,6 @@ public class TradeGUIListener implements Listener {
                     case "DROP_ONE_SLOT":
                         assert e.getCurrentItem() != null;
                         if (!trade.fitsTrade(player, e.getCurrentItem().clone())) fits = false;
-                        break;
-
-                    default:
-                        fits = true;
                         break;
                 }
             }

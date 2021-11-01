@@ -364,6 +364,6 @@ public class BukkitTrade extends Trade {
 
     @Override
     protected @NotNull PlayerInventory getPlayerInventory(int playerId) {
-        return new PlayerInventory(players[playerId]);
+        return new PlayerInventory(players[playerId], false);
     }
 }

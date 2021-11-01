@@ -32,7 +32,6 @@ public class Lang {
         List<String> languages = new ArrayList<>();
         languages.add("CHI.yml");
         languages.add("CS.yml");
-        languages.add("CZE.yml");
         languages.add("ENG.yml");
         languages.add("ES.yml");
         languages.add("FR.yml");

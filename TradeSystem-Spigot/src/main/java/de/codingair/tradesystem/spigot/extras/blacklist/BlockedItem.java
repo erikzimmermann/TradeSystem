@@ -69,6 +69,7 @@ public class BlockedItem {
 
         if (Version.atLeast(11) && !matches) {
             for (ItemStack itemStack : ShulkerBoxHelper.getItems(item)) {
+                if (itemStack == null) continue;
                 if (matches(itemStack)) return true;
             }
         }

@@ -319,7 +319,7 @@ public abstract class Trade {
 
     @SuppressWarnings ("BooleanMethodIsAlwaysInverted")
     protected boolean canPickup(Player player, ItemStack item) {
-        PlayerInventory inv = new PlayerInventory(player);
+        PlayerInventory inv = new PlayerInventory(player, false);
 
         for (Integer slot : this.slots) {
             ItemStack back = guis[getId(player)].getItem(slot);
