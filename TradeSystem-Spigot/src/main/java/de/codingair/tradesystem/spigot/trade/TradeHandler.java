@@ -368,7 +368,10 @@ public class TradeHandler {
     }
 
     /**
-     * @param item The {@link ItemStack} which will be traded.
+     * @param placer          The player that placed the item.
+     * @param receivingPlayer The player that should receive the item.
+     * @param receiver        The name of the receivingPlayer.
+     * @param item            The {@link ItemStack} which will be traded.
      * @return {@link Boolean#TRUE} if this item should be marked as blocked.
      */
     public boolean isBlocked(@NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {

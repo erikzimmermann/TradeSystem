@@ -416,7 +416,7 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected @NotNull PlayerInventory getPlayerInventory(int playerId) {
-        if (playerId == 0) return new PlayerInventory(this.player);
+        if (playerId == 0) return new PlayerInventory(this.player, false);
         return new PlayerInventory(this.otherInventory);
     }
 
