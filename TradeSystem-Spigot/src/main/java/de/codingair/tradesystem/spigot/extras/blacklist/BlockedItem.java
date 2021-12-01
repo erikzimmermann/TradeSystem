@@ -64,7 +64,9 @@ public class BlockedItem {
 
         if (name != null && item.hasItemMeta() && item.getItemMeta() != null) {
             String displayName = item.getItemMeta().getDisplayName();
-            if (displayName.equals(getStrippedName())) matches = true;
+            String name = getStrippedName();
+
+            if (name != null && name.equals(displayName)) matches = true;
         }
 
         if (Version.atLeast(11) && !matches) {
