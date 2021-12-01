@@ -1,6 +1,6 @@
 package de.codingair.tradesystem.spigot.transfer;
 
-import de.codingair.packetmanagement.variants.OneWayDataHandler;
+import de.codingair.packetmanagement.variants.bytestream.OneWayStreamDataHandler;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.transfer.handlers.*;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class SpigotHandler extends OneWayDataHandler<Player> implements PluginMessageListener {
+public class SpigotHandler extends OneWayStreamDataHandler<Player> implements PluginMessageListener {
     public SpigotHandler(TradeSystem plugin) {
         super("tradesystem", plugin);
     }
