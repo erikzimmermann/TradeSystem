@@ -21,9 +21,9 @@ public class MetricsManager {
 
     private static boolean isStandardBlacklist(List<BlockedItem> l) {
         if (l.size() == 3) {
-            return new BlockedItem(Material.AIR, (byte) 0).equals(l.get(0))
-                    && new BlockedItem(Material.AIR, (byte) 0, "&cExample").equals(l.get(1))
-                    && new BlockedItem("&cExample, which blocks all items with this strange name!").equals(l.get(2));
+            return BlockedItem.create().material(Material.AIR).equals(l.get(0))
+                    && BlockedItem.create().material(Material.AIR).displayName("&cExample").equals(l.get(1))
+                    && BlockedItem.create().displayName("&cExample, which blocks all items with this strange name!").equals(l.get(2));
         } else return false;
     }
 

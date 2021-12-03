@@ -2,6 +2,8 @@ package de.codingair.tradesystem.spigot.trade;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
@@ -161,21 +163,32 @@ public class TradeHandler {
 
         //load blacklisted items and add example items if there are no items.
         TradeSystem.log("  > Loading blacklist");
-        List<String> l = config.getStringList("TradeSystem.Blacklist");
-        if (!l.isEmpty()) {
-            for (String s : l) {
-                BlockedItem item = BlockedItem.fromString(s);
-                if (item != null) this.blacklist.add(item);
-                else {
-                    TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + s + "\"). Skipping...");
-                }
+        List<?> l = config.getList("TradeSystem.Blacklist");
+
+        if (l != null) {
+            for (Object o : l) {
+                if (o instanceof Map) {
+                    try {
+                        BlockedItem item = BlockedItem.create((Map<?, ?>) o);
+                        this.blacklist.add(item);
+                    } catch (Exception ex) {
+                        TradeSystem.log("    ...could not deserialize blocked item: " + o + ". Skipping...");
+                        ex.printStackTrace();
+                    }
+                } else if (o instanceof String) {
+                    //LEGACY SUPPORT: 2.0.6 and lower
+                    @SuppressWarnings ("deprecation")
+                    BlockedItem item = BlockedItem.fromString((String) o);
+                    if (item != null) this.blacklist.add(item);
+                    else TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + o + "\"). Skipping...");
+                } else TradeSystem.log("    ...could not deserialize blocked item: " + o + ". Skipping...");
             }
         }
 
         if (this.blacklist.isEmpty()) {
-            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0));
-            this.blacklist.add(new BlockedItem(Material.AIR, (byte) 0, "&cExample"));
-            this.blacklist.add(new BlockedItem("&cExample, which blocks all items with this strange name!"));
+            this.blacklist.add(BlockedItem.create().material(Material.AIR));
+            this.blacklist.add(BlockedItem.create().material(Material.AIR).displayName("&cExample"));
+            this.blacklist.add(BlockedItem.create().displayName("&cExample, which blocks all items with this strange name!"));
             saveBlackList();
         }
 
@@ -230,10 +243,12 @@ public class TradeHandler {
     public void saveBlackList() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
-        List<String> l = new ArrayList<>();
+        List<JSON> l = new ArrayList<>();
 
         for (BlockedItem block : this.blacklist) {
-            l.add(block.toString());
+            JSON json = new JSON();
+            block.write(json);
+            l.add(json);
         }
 
         config.set("TradeSystem.Blacklist", l);
