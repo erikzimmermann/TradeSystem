@@ -1,47 +1,100 @@
 package de.codingair.tradesystem.spigot.extras.blacklist;
 
 import de.codingair.codingapi.server.specification.Version;
-import de.codingair.codingapi.tools.items.XMaterial;
+import de.codingair.codingapi.tools.io.JSON.JSON;
+import de.codingair.codingapi.tools.io.utils.DataMask;
+import de.codingair.codingapi.tools.io.utils.Serializable;
+import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.utils.ShulkerBoxHelper;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class BlockedItem {
-    private final @Nullable Material material;
-    private final byte data;
-    private final @Nullable String name;
+public class BlockedItem implements Serializable {
 
-    public BlockedItem(@Nullable Material material, byte data, @Nullable String name) {
-        this.material = material;
-        this.data = data;
-        this.name = name;
+    public @Nullable Material material;
+    public @Nullable Byte data;
+    public @Nullable String originalDisplayName;
+    public @Nullable String displayName;
+    public @Nullable String originalLore;
+    public @Nullable String lore;
+    public @Nullable Integer customModelData;
+    public @NotNull StringCompare compare = StringCompare.IGNORE_CASE;
+
+    private BlockedItem() {
     }
 
-    public BlockedItem(@Nullable Material material, byte data) {
-        this(material, data, null);
+    @NotNull
+    public static BlockedItem create() {
+        return new BlockedItem();
     }
 
-    public BlockedItem(@Nullable String name) {
-        this(null, (byte) 0, name);
+    @NotNull
+    public static BlockedItem create(@NotNull Map<?, ?> yml) {
+        JSON data = new JSON(yml);
+        BlockedItem item = create();
+        item.read(data);
+        return item;
     }
 
+    @Override
+    public boolean read(DataMask mask) {
+        this.material = mask.get("Material", Material.class);
+
+        this.data = mask.getByte("Data");
+        if (this.data == 0) this.data = null;
+
+        this.displayName = mask.getString("DisplayName");
+        if (this.displayName != null) {
+            this.originalDisplayName = displayName;
+            this.displayName = ChatColor.translateAll('&', this.displayName);
+        }
+
+        this.lore = mask.getString("Lore");
+        if (this.lore != null) {
+            this.originalLore = lore;
+            this.lore = ChatColor.translateAll('&', this.lore);
+        }
+
+        StringCompare regex = mask.get("Compare", StringCompare.class);
+        this.compare = regex == null ? StringCompare.IGNORE_CASE : regex;
+
+        this.customModelData = mask.getInteger("CustomModelData", null);
+
+        return true;
+    }
+
+    @Override
+    public void write(DataMask mask) {
+        mask.put("Material", material);
+        mask.put("Data", data);
+        mask.put("DisplayName", originalDisplayName);
+        mask.put("Lore", originalLore);
+        mask.put("Compare", compare);
+        mask.put("CustomModelData", customModelData);
+    }
+
+    @Deprecated
     public static BlockedItem fromString(String s) {
         try {
             JSONObject json = (JSONObject) new JSONParser().parse(s);
 
             Material material = json.get("Material") == null ? null : Material.valueOf((String) json.get("Material"));
-            byte data = material == null ? 0 : Byte.parseByte(json.get("Data") + "");
+            Byte data = json.get("Data") == null ? null : Byte.parseByte(json.get("Data") + "");
             String name = json.get("Displayname") == null ? null : (String) json.get("Displayname");
 
-            return new BlockedItem(material, data, name);
+            return create().material(material).data(data).displayName(name);
         } catch (NoSuchFieldError | IllegalArgumentException ex) {
             return null;
         } catch (ParseException e) {
@@ -51,38 +104,72 @@ public class BlockedItem {
     }
 
     public boolean matches(@NotNull ItemStack item) {
-        boolean matches = false;
+        if (notValid()) return false;
 
-        if (material != null) {
-            if (Version.get().isBiggerThan(Version.v1_12)) {
-                if (item.getType() == this.material) matches = true;
-            } else {
-                //noinspection deprecation, ConstantConditions
-                if (item.getType() == this.material && data == item.getData().getData()) matches = true;
-            }
-        }
+        if (matchShulkerBoxContent(item)) return true;
 
-        if (name != null && item.hasItemMeta() && item.getItemMeta() != null) {
-            String displayName = item.getItemMeta().getDisplayName();
-            String name = getStrippedName();
+        if (missMaterial(item)) return false;
+        if (missDisplayName(item)) return false;
+        if (missLore(item)) return false;
+        return !missCustomModelData(item);
+    }
 
-            if (name != null && name.equals(displayName)) matches = true;
-        }
+    private boolean notValid() {
+        return material == null && displayName == null && lore == null && customModelData == null;
+    }
 
-        if (Version.atLeast(11) && !matches) {
+    private boolean matchShulkerBoxContent(@NotNull ItemStack item) {
+        if (Version.atLeast(11)) {
             for (ItemStack itemStack : ShulkerBoxHelper.getItems(item)) {
                 if (itemStack == null) continue;
                 if (matches(itemStack)) return true;
             }
         }
 
-        return matches;
+        return false;
     }
 
-    @Nullable
-    private String getStrippedName() {
-        if (name == null) return null;
-        return ChatColor.translateAlternateColorCodes('&', name);
+    private boolean missMaterial(@NotNull ItemStack item) {
+        if (this.material == null) return false;
+
+        if (Version.get().isBiggerThan(Version.v1_12) || data == null) {
+            return item.getType() != this.material;
+        } else {
+            //noinspection deprecation, ConstantConditions
+            return item.getType() != this.material || data != item.getData().getData();
+        }
+    }
+
+    private boolean missDisplayName(@NotNull ItemStack item) {
+        if (this.displayName == null) return false;
+
+        if (item.hasItemMeta() && item.getItemMeta() != null) {
+            String displayName = item.getItemMeta().getDisplayName();
+
+            return !this.compare.check(displayName, this.displayName);
+        } else return true;
+    }
+
+    private boolean missLore(@NotNull ItemStack item) {
+        if (lore == null) return false;
+
+        if (item.hasItemMeta()) {
+            ItemMeta meta = item.getItemMeta();
+
+            if (meta != null && meta.getLore() != null) {
+                return meta.getLore().stream().noneMatch(s -> compare.check(s, lore));
+            }
+        }
+
+        return true;
+    }
+
+    private boolean missCustomModelData(@NotNull ItemStack item) {
+        if (customModelData == null) return false;
+
+        if (item.hasItemMeta() && item.getItemMeta() != null) {
+            return customModelData != item.getItemMeta().getCustomModelData();
+        } else return true;
     }
 
     @Nullable
@@ -90,44 +177,134 @@ public class BlockedItem {
         return material;
     }
 
-    public byte getData() {
-        return data;
+    @NotNull
+    public BlockedItem material(@Nullable Material material) {
+        this.material = material;
+        return this;
     }
 
     @Nullable
-    public String getName() {
-        return name;
+    public Byte getData() {
+        return data;
     }
 
-    @Override
-    public String toString() {
-        JSONObject json = new JSONObject();
+    @NotNull
+    public BlockedItem data(@Nullable Byte data) {
+        this.data = data;
+        return this;
+    }
 
-        if (this.material != null) {
-            json.put("Material", this.material.name());
-            json.put("Data", this.data);
-        }
+    @Nullable
+    public String getDisplayName() {
+        return originalDisplayName;
+    }
 
-        if (this.name != null) {
-            json.put("Displayname", this.name);
-        }
+    @NotNull
+    public BlockedItem displayName(@Nullable String displayName) {
+        this.originalDisplayName = displayName;
 
-        return json.toJSONString();
+        if (displayName != null) this.displayName = ChatColor.translateAll('&', displayName);
+        else this.displayName = null;
+        return this;
+    }
+
+    @Nullable
+    public String getLore() {
+        return originalLore;
+    }
+
+    @NotNull
+    public BlockedItem lore(@Nullable String lore) {
+        this.originalLore = lore;
+
+        if (lore != null) this.lore = ChatColor.translateAll('&', lore);
+        else this.lore = null;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem strict() {
+        this.compare = StringCompare.STRICT;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem ignoreCase() {
+        this.compare = StringCompare.IGNORE_CASE;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem contains() {
+        this.compare = StringCompare.CONTAINS;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem containsIgnoreCase() {
+        this.compare = StringCompare.CONTAINS_IGNORE_CASE;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem regexAny() {
+        this.compare = StringCompare.REGEX_ANY;
+        return this;
+    }
+
+    @NotNull
+    public BlockedItem regexAll() {
+        this.compare = StringCompare.REGEX_ALL;
+        return this;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BlockedItem)) return false;
         BlockedItem that = (BlockedItem) o;
-        return data == that.data &&
-                material == that.material &&
-                Objects.equals(name, that.name);
+        return getMaterial() == that.getMaterial() && Objects.equals(getData(), that.getData()) && Objects.equals(originalDisplayName, that.originalDisplayName) && Objects.equals(originalLore, that.originalLore) && compare == that.compare && Objects.equals(customModelData, that.customModelData);
     }
 
     @Override
     public int hashCode() {
-        int material = this.material == null ? 0 : this.material.ordinal();
-        return Objects.hash(material, data, name + "");
+        return Objects.hash(getMaterial(), getData(), originalDisplayName, originalLore, compare, customModelData);
+    }
+
+    @Override
+    public String toString() {
+        return "BlockedItem{" +
+                "material=" + material +
+                ", data=" + data +
+                ", displayName='" + originalDisplayName + '\'' +
+                ", lore='" + originalLore + '\'' +
+                ", regex=" + compare +
+                ", customModelData=" + customModelData +
+                '}';
+    }
+
+    public enum StringCompare {
+        STRICT(String::equals),
+        CONTAINS(String::contains),
+        CONTAINS_IGNORE_CASE((s0, s1) -> s0.toLowerCase().contains(s1.toLowerCase())),
+        IGNORE_CASE(String::equalsIgnoreCase),
+        REGEX_ANY((s, regex) -> {
+            Matcher m = Pattern.compile(regex).matcher(s);
+            return m.find();
+        }),
+        REGEX_ALL((s, regex) -> {
+            Matcher m = Pattern.compile(regex).matcher(s);
+            return m.matches();
+        });
+
+        private final BiFunction<String, String, Boolean> compare;
+
+        StringCompare(BiFunction<String, String, Boolean> compare) {
+            this.compare = compare;
+        }
+
+        public boolean check(@NotNull String s, @NotNull String with) {
+            return compare.apply(s, with);
+        }
     }
 }

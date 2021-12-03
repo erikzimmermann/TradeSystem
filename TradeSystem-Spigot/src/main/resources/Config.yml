@@ -19,6 +19,22 @@ TradeSystem:
   Blocked_Worlds:
   - "ExampleWorld-1"
   - "ExampleWorld-2"
+
+  # Example:            (all variables are optional)
+  # - Material: STONE
+  #   Data: 0
+  #   DisplayName: 0
+  #   Lore: "Some text that will be searched in every line."
+  #   CustomModelData: 0
+  #   Compare: IGNORE_CASE      (Default=IGNORE_CASE; STRICT, IGNORE_CASE, CONTAINS, CONTAINS_IGNORE_CASE, REGEX_ANY, REGEX_ALL)
+  #
+  # Compare examples
+  #   STRICT: "FOO" = "FOO"
+  #   IGNORE_CASE: "FOO" = "foo"
+  #   CONTAINS: "F" is in "Foo"
+  #   CONTAINS_IGNORE_CASE: "f" is in "Foo"
+  #   REGEX_ANY: "." matches "Foo"
+  #   REGEX_ALL: ".*" matches "Foo"
   Blacklist: []
 
   Trade_Countdown:
