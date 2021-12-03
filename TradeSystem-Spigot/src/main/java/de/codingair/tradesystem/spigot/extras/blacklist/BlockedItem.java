@@ -165,7 +165,7 @@ public class BlockedItem implements Serializable {
     }
 
     private boolean missCustomModelData(@NotNull ItemStack item) {
-        if (customModelData == null) return false;
+        if (customModelData == null || Version.less(14)) return false;
 
         if (item.hasItemMeta() && item.getItemMeta() != null) {
             return customModelData != item.getItemMeta().getCustomModelData();
