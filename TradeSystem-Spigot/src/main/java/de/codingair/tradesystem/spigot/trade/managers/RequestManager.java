@@ -68,7 +68,7 @@ public class RequestManager {
 
     @SuppressWarnings ("deprecation")
     public static void sendRequest(String player, Player recipient) {
-        TextComponent base = new TextComponent(TextComponent.fromLegacyText(Lang.getPrefix() + Lang.get("Want_To_Trade", recipient).replace("%player%", player)));
+        TextComponent base = new TextComponent(TextComponent.fromLegacyText(Lang.getPrefix() + Lang.get("Want_To_Trade", recipient, new Lang.P("player", player))));
         base.setColor(ChatColor.GRAY);
 
         String commandTrade = TradeSystem.getInstance().getCommandManager().getTradeAliases()[0];
