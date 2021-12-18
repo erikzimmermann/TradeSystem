@@ -50,7 +50,7 @@ public class InvitationManager {
         boolean proxyTrade = other == null;
         if (!proxyTrade) {
             registerExpiration(player, player.getName(), other, name);
-            player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player).replace("%player%", name));
+            player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player, new Lang.P("player", name)));
         }
         return false;
     }
@@ -67,8 +67,8 @@ public class InvitationManager {
                     Bukkit.getPluginManager().callEvent(event);
                 });
 
-                if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter).replace("%player%", nameReceiver));
-                if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver).replace("%player%", nameInviter));
+                if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter, new Lang.P("player", nameReceiver)));
+                if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver, new Lang.P("player", nameInviter)));
             }
         };
 
@@ -87,7 +87,7 @@ public class InvitationManager {
         if (other != null) {
             Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, other, player.getName(), player, true));
 
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", player.getName()));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player, new Lang.P("player", player.getName())));
             TradeSystem.getInstance().getTradeManager().startTrade(other, player, player.getName(), true);
         } else {
             //START PROXY
@@ -172,7 +172,7 @@ public class InvitationManager {
                     Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), (Player) sender, TradeSystem.proxy().getCaseSensitive(argument), null, false));
 
                     TradeSystem.proxyHandler().send(new InviteResponsePacket(argument, sender.getName(), false, false).noFuture(), (Player) sender);
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%player%", argument));
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender, new Lang.P("player", argument)));
                 } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
                 return true;
             }
@@ -180,8 +180,8 @@ public class InvitationManager {
             //call event
             Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), (Player) sender, other.getName(), other, false));
 
-            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender).replace("%player%", other.getName()));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender).replace("%player%", sender.getName()));
+            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender, new Lang.P("player", other.getName())));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender, new Lang.P("player", sender.getName())));
         } else {
             sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", (Player) sender));
         }
@@ -234,7 +234,7 @@ public class InvitationManager {
             if (l.isEmpty()) invites.remove(sender.getName());
 
             sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender).replace("%player%", sender.getName()));
+            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender, new Lang.P("player", sender.getName())));
 
             TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), true);
         } else {

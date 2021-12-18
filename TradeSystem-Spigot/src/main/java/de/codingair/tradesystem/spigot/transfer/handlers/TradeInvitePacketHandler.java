@@ -52,7 +52,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
                             Bukkit.getPluginManager().callEvent(responseEvent);
 
                             TradeSystem.invitations().invalidate(player, packet.getInviter());
-                            player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player).replace("%player%", packet.getInviter()));
+                            player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player, new Lang.P("player", packet.getInviter())));
                             TradeSystem.man().startTrade(player, null, packet.getInviter(), true);
 
                             future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.START_TRADING));

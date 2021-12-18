@@ -19,9 +19,14 @@ public class Lang {
         File folder = new File(plugin.getDataFolder(), "/Languages/");
 
         if (folder.exists()) {
-            for (File file : folder.listFiles()) {
-                if (file.length() == 0) //noinspection ResultOfMethodCallIgnored
+            File[] children = folder.listFiles();
+            if (children == null) throw new NullPointerException("Could not create language files!");
+
+            for (File file : children) {
+                if (file.length() == 0) {
+                    //noinspection ResultOfMethodCallIgnored
                     file.delete();
+                }
             }
         }
     }
@@ -83,13 +88,18 @@ public class Lang {
         return file.getConfig();
     }
 
-    public static @NotNull String get(String key) {
-        return get(key, null);
+    public static @NotNull String get(@NotNull String key, @NotNull P... placeholders) {
+        return get(key, null, placeholders);
     }
 
-    public static @NotNull String get(@NotNull String key, @Nullable Player p) {
+    public static @NotNull String get(@NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
         String s = getLanguageFile(getLanguageKey()).getString(key, null);
         if (s == null) throw new NullPointerException("Message \"" + key + "\" cannot be found in " + getLanguageKey());
+
+        for (P placeholder : placeholders) {
+            s = placeholder.apply(s);
+        }
+
         return prepare(p, s);
     }
 
@@ -128,6 +138,32 @@ public class Lang {
             }
 
             to.write(buf, 0, r);
+        }
+    }
+
+    /**
+     * Short for placeholder.
+     */
+    public static class P {
+        private final String placeholder;
+        private final String replacement;
+
+        public P(@NotNull String placeholder, @NotNull String replacement) {
+            this.placeholder = placeholder;
+            this.replacement = replacement;
+        }
+
+        @NotNull
+        public String apply(@NotNull String s) {
+            return s.replace("%" + placeholder + "%", replacement);
+        }
+
+        public String getPlaceholder() {
+            return placeholder;
+        }
+
+        public String getReplacement() {
+            return replacement;
         }
     }
 }

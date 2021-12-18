@@ -36,12 +36,12 @@ public class TradeLogCMD extends CommandBuilder {
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeLog").replace("%label%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeLog", new Lang.P("label", label)));
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeLog").replace("%label%", label));
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeLog", new Lang.P("label", label)));
                 return false;
             }
         }, true, "tl");
@@ -62,7 +62,7 @@ public class TradeLogCMD extends CommandBuilder {
                     if (TradeLogOptions.isEnabled()) {
                         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
                             if (TradeLogService.getTradeLog().notConnected()) {
-                                sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled").replace("%label%", label));
+                                sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled", new Lang.P("label", label)));
                                 return;
                             }
 
@@ -110,7 +110,7 @@ public class TradeLogCMD extends CommandBuilder {
                             sender.sendMessage(messages.toArray(new String[0]));
                         });
                     } else {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled").replace("%label%", label));
+                        sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled", new Lang.P("label", label)));
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

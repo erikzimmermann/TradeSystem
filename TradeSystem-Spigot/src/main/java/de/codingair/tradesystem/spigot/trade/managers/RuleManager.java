@@ -135,7 +135,7 @@ public class RuleManager {
 
         if (TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
             if (!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
-                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p).replace("%player%", other.getName()));
+                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p, new Lang.P("player", other.getName())));
                 return true;
             }
         }
@@ -176,7 +176,7 @@ public class RuleManager {
                 break;
 
             case INVITED:
-                player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player).replace("%player%", other));
+                player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player, new Lang.P("player", other)));
                 break;
 
             case IS_ALREADY_TRADING:

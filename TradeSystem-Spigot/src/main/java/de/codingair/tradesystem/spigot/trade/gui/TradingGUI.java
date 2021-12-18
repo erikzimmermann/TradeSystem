@@ -12,14 +12,14 @@ public class TradingGUI extends GUI {
     private final int id;
 
     public TradingGUI(Player player, Trade trade, int id) {
-        super(player, TradeSystem.getInstance(), 54, Lang.get("GUI_Title", player).replace("%player%", trade.getOther(player.getName())));
+        super(player, TradeSystem.getInstance(), 54, Lang.get("GUI_Title", player, new Lang.P("player", trade.getOther(player.getName()))));
 
         this.trade = trade;
         this.id = id;
     }
 
     public void synchronizeTitle() {
-        updateTitle(Lang.get("GUI_Title", getPlayer()).replace("%player%", trade.getOther(getPlayer().getName())));
+        updateTitle(Lang.get("GUI_Title", getPlayer(), new Lang.P("player", trade.getOther(getPlayer().getName()))));
     }
 
     public void prepareStart() {

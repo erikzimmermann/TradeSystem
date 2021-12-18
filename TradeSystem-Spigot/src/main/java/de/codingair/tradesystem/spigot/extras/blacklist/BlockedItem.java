@@ -48,6 +48,24 @@ public class BlockedItem implements Serializable {
         return item;
     }
 
+    @Deprecated
+    public static BlockedItem fromString(String s) {
+        try {
+            JSONObject json = (JSONObject) new JSONParser().parse(s);
+
+            Material material = json.get("Material") == null ? null : Material.valueOf((String) json.get("Material"));
+            Byte data = json.get("Data") == null ? null : Byte.parseByte(json.get("Data") + "");
+            String name = json.get("Displayname") == null ? null : (String) json.get("Displayname");
+
+            return create().material(material).data(data).displayName(name);
+        } catch (NoSuchFieldError | IllegalArgumentException ex) {
+            return null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public boolean read(DataMask mask) {
         this.material = mask.get("Material", Material.class);
@@ -85,24 +103,6 @@ public class BlockedItem implements Serializable {
         mask.put("CustomModelData", customModelData);
     }
 
-    @Deprecated
-    public static BlockedItem fromString(String s) {
-        try {
-            JSONObject json = (JSONObject) new JSONParser().parse(s);
-
-            Material material = json.get("Material") == null ? null : Material.valueOf((String) json.get("Material"));
-            Byte data = json.get("Data") == null ? null : Byte.parseByte(json.get("Data") + "");
-            String name = json.get("Displayname") == null ? null : (String) json.get("Displayname");
-
-            return create().material(material).data(data).displayName(name);
-        } catch (NoSuchFieldError | IllegalArgumentException ex) {
-            return null;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public boolean matches(@NotNull ItemStack item) {
         if (notValid()) return false;
 
@@ -135,8 +135,8 @@ public class BlockedItem implements Serializable {
         if (Version.get().isBiggerThan(Version.v1_12) || data == null) {
             return item.getType() != this.material;
         } else {
-            //noinspection deprecation, ConstantConditions
-            return item.getType() != this.material || data != item.getData().getData();
+            //noinspection deprecation
+            return item.getType() != this.material || item.getData() == null || data != item.getData().getData();
         }
     }
 
@@ -268,7 +268,9 @@ public class BlockedItem implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMaterial(), getData(), originalDisplayName, originalLore, compare, customModelData);
+        //The hashCode is different in every server instance for enums. Use specific values instead!
+        String material = getMaterial() == null ? null : getMaterial().name();
+        return Objects.hash(material, getData(), originalDisplayName, originalLore, compare.ordinal(), customModelData);
     }
 
     @Override
@@ -283,6 +285,9 @@ public class BlockedItem implements Serializable {
                 '}';
     }
 
+    /**
+     * This order is important for proxy trading.
+     */
     public enum StringCompare {
         STRICT(String::equals),
         CONTAINS(String::contains),
