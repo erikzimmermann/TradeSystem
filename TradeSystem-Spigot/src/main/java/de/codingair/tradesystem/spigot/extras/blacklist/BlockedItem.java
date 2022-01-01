@@ -304,7 +304,7 @@ public class BlockedItem implements Serializable {
 
         private final BiFunction<String, String, Boolean> compare;
 
-        StringCompare(BiFunction<String, String, Boolean> compare) {
+        StringCompare(@NotNull BiFunction<String, String, Boolean> compare) {
             this.compare = compare;
         }
 
