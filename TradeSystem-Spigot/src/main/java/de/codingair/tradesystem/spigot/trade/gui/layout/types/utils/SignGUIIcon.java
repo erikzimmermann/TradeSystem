@@ -25,17 +25,15 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
     public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
         int id = trade.getId(player);
 
-        String[] built = buildSignLines(trade, player);
+        String[] test = buildSignLines(trade, player);
+        if (test != null && test.length > 4)
+            throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(test));
 
-        String[] text;
-        if (built == null) text = new String[0];
-        else if (built.length > 4) {
-            throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(built));
-        } else {
-            text = built;
-        }
-
-        return new SignButton(text) {
+        return new SignButton(() -> {
+            String[] text = buildSignLines(trade, player);
+            if (text == null || text.length < 4) return new String[0];
+            else return text;
+        }) {
             @Override
             public boolean onSignChangeEvent(GUI gui, String[] input) {
                 //executed on InventoryCloseEvent too
@@ -46,8 +44,7 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
                 IconResult result = processInput(trade, player, in, origin);
 
                 if (result == IconResult.GUI) {
-                    //update first line before reopening
-                    super.lines[0] = input[0];
+                    //first line will be updated before reopening
                     return false;
                 }
 
