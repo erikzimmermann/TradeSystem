@@ -76,7 +76,7 @@ public class TradeListener implements Listener, ChatButtonListener {
         if (t != null) {
             if (!TradeSystem.man().isDropItems()) {
                 //does it fit?
-                if (!t.fitsTrade(p, e.getItem().getItemStack())) e.setCancelled(true);
+                if (t.doesNotFit(p, e.getItem().getItemStack())) e.setCancelled(true);
             }
         }
     }

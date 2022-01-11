@@ -31,11 +31,14 @@ public class TradeGUIListener implements Listener {
             if (trade != null) {
                 if (e.getNewItems().isEmpty()) return;
 
+                boolean onlyLowerInventory = e.getRawSlots().stream().allMatch(i -> i >= 54);
+                if (onlyLowerInventory) return;
+
                 Player other = trade.getOther(player).orElse(null);
                 String othersName = trade.getOther(player.getName());
 
                 for (ItemStack item : e.getNewItems().values()) {
-                    //check if it's blocked#
+                    //check if it's blocked
                     if (TradeSystem.getInstance().getTradeManager().isBlocked(player, other, othersName, item)) {
                         e.setCancelled(true);
                         player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
@@ -43,7 +46,7 @@ public class TradeGUIListener implements Listener {
                     }
                 }
 
-                if (!e.isCancelled() && !TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values().toArray(new ItemStack[0]))) {
+                if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values())) {
                     player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(player);
                     e.setCancelled(true);
@@ -121,7 +124,7 @@ public class TradeGUIListener implements Listener {
             if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
-            } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, item)) {
+            } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && trade.doesNotFit(player, item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
             } else {
@@ -293,7 +296,7 @@ public class TradeGUIListener implements Listener {
                             item.setAmount(1);
                         }
 
-                        if (!trade.fitsTrade(player, remove, item)) fits = false;
+                        if (trade.doesNotFit(player, remove, item)) fits = false;
                         break;
                     }
 
@@ -305,18 +308,18 @@ public class TradeGUIListener implements Listener {
                         List<Integer> remove = new ArrayList<>();
                         remove.add(e.getSlot());
 
-                        if (!trade.fitsTrade(player, remove, item)) fits = false;
+                        if (trade.doesNotFit(player, remove, item)) fits = false;
                         break;
                     }
 
                     case "PLACE_ALL":
                         assert e.getCursor() != null;
-                        if (!trade.fitsTrade(player, e.getCursor().clone())) fits = false;
+                        if (trade.doesNotFit(player, e.getCursor().clone())) fits = false;
                         break;
 
                     case "HOTBAR_SWAP": {
                         ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
-                        if (item != null && !trade.fitsTrade(player, item.clone())) fits = false;
+                        if (item != null && trade.doesNotFit(player, item.clone())) fits = false;
                         break;
                     }
 
@@ -325,7 +328,7 @@ public class TradeGUIListener implements Listener {
                         List<Integer> remove = new ArrayList<>();
                         remove.add(e.getSlot());
 
-                        if (item != null && !trade.fitsTrade(player, remove, item.clone())) fits = false;
+                        if (item != null && trade.doesNotFit(player, remove, item.clone())) fits = false;
                         else {
                             e.setCancelled(true);
 
@@ -348,7 +351,7 @@ public class TradeGUIListener implements Listener {
                         remove.add(e.getSlot());
 
                         assert e.getCursor() != null;
-                        if (!trade.fitsTrade(player, remove, e.getCursor().clone())) fits = false;
+                        if (trade.doesNotFit(player, remove, e.getCursor().clone())) fits = false;
                         break;
                     }
 
@@ -357,7 +360,7 @@ public class TradeGUIListener implements Listener {
                     case "DROP_ONE_CURSOR":
                     case "DROP_ONE_SLOT":
                         assert e.getCurrentItem() != null;
-                        if (!trade.fitsTrade(player, e.getCurrentItem().clone())) fits = false;
+                        if (trade.doesNotFit(player, e.getCurrentItem().clone())) fits = false;
                         break;
                 }
             }
