@@ -1,15 +1,15 @@
 TradeSystem:
   Prefix: "&8[&cTrade&8] &r"
   Language: ENG
-  #Permissions:
+  # Permissions:
   #   "tradesystem.trade": Can accept/deny/toggle trade requests
   #   "tradesystem.trade.initiate": Can invite players for trades
-  #If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
+  # If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
   Permissions: true
 
-  #Both traders have to add an item/money to finish the trade
+  # Both traders have to add an item/money to finish the trade
   Trade_Both: true
-  #The GUI type which will be used to enter the money amount. Available options: SIGN, ANVIL
+  # The GUI type which will be used to enter the money amount. Available options: SIGN, ANVIL
   Input_GUI: ANVIL
   Trade_Distance:
     enabled: true
@@ -27,7 +27,7 @@ TradeSystem:
   #   Lore: "Some text that will be searched in every line."
   #   CustomModelData: 0
   #   Compare: IGNORE_CASE      (Default=IGNORE_CASE; STRICT, IGNORE_CASE, CONTAINS, CONTAINS_IGNORE_CASE, REGEX_ANY, REGEX_ALL)
-  #
+  # 
   # Compare examples
   #   STRICT: "FOO" = "FOO"
   #   IGNORE_CASE: "FOO" = "foo"
@@ -39,15 +39,15 @@ TradeSystem:
 
   Trade_Countdown:
     Enabled: true
-    #in ticks (20 ticks = 1 second)
+    # in ticks (20 ticks = 1 second)
     Interval: 20
     Repetitions: 3
 
-  #true: After finishing a trade all overflowing items will be dropped, if the inventory is full
-  #false: Prevent the trade partner to put too much items into the gui
+  # true: After finishing a trade all overflowing items will be dropped, if the inventory is full
+  # false: Prevent the trade partner to put too much items into the gui
   Trade_Drop_Items: true
 
-  #In seconds (e.g. after <60> seconds the request will be expired)
+  # In seconds (e.g. after <60> seconds the request will be expired)
   Trade_Request_Expiration_Time: 60
 
   Action_To_Cancel:
@@ -58,8 +58,8 @@ TradeSystem:
 
   Easy_Money_Selection:
     Enabled: true
-    #Do NOT use special symbols (e.g. '$') here.
-    #Use characters only!
+    # Do NOT use special symbols (e.g. '$') here.
+    # Use characters only!
     Shortcuts:
     - Keys:
         - "k"
@@ -69,7 +69,7 @@ TradeSystem:
         - "mio"
       Value: 1000000
 
-  #Warning: The aliases will not be validated. Make sure they are correct.
+  # Warning: The aliases will not be validated. Make sure they are correct.
   Commands:
     Trade:
     - trade
@@ -80,12 +80,12 @@ TradeSystem:
     Toggle:
     - toggle
 
-  #BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
-  #WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
+  # BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
+  # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
   Tradelog:
     Enabled: false
     Database:
-      #Values: SQLITE, MYSQL
+      # Values: SQLITE, MYSQL
       Type: MYSQL
       Db_host: localhost
       Db_port: 3306
@@ -93,7 +93,7 @@ TradeSystem:
       Db_user: root
       Db_password: password
 
-  #Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
+  # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:
     Trade_Started:
       Name: LEVEL_UP
