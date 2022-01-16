@@ -2,8 +2,6 @@ package de.codingair.tradesystem.spigot.trade;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;

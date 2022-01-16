@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.events;
 
 import de.codingair.tradesystem.spigot.trade.Trade;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

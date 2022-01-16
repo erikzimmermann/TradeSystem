@@ -454,32 +454,75 @@ public abstract class Trade {
         update();
     }
 
-    @SuppressWarnings ("BooleanMethodIsAlwaysInverted")
-    public boolean fitsTrade(Player from, ItemStack... add) {
-        return fitsTrade(from, new ArrayList<>(), add);
+    /**
+     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     *
+     * @param from The trading player.
+     * @param item The item that should be checked if it does not fit into the inventory of the trade partner.
+     * @return True if the given item does not fit into the inventory of the trade partner.
+     */
+    public boolean doesNotFit(@NotNull Player from, @NotNull ItemStack item) {
+        return doesNotFit(from, new ArrayList<>(), item);
     }
 
-    public boolean fitsTrade(Player from, List<Integer> remove, ItemStack... add) {
-        List<ItemStack> items = new ArrayList<>(Arrays.asList(add));
-        for (Integer slot : this.slots) {
-            if (remove.contains(slot)) continue;
+    /**
+     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     *
+     * @param from  The trading player.
+     * @param avoid The slots to ignore.
+     * @param item  The item that should be checked if it does not fit into the inventory of the trade partner.
+     * @return True if the given item does not fit into the inventory of the trade partner.
+     */
+    public boolean doesNotFit(@NotNull Player from, @NotNull List<Integer> avoid, @NotNull ItemStack item) {
+        return !fitsTrade(from, avoid, new ArrayList<ItemStack>() {{
+            add(item);
+        }});
+    }
 
-            ItemStack item = this.guis[getId(from)].getItem(slot);
-            if (item != null && item.getType() != Material.AIR) items.add(item);
+    /**
+     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     *
+     * @param from  The trading player.
+     * @param items The collection of items that should be checked if they fit into the inventory of the trade partner.
+     * @return True if the given items fit into the inventory of the trade partner.
+     */
+    public boolean fitsTrade(@NotNull Player from, @NotNull Collection<ItemStack> items) {
+        return fitsTrade(from, new ArrayList<>(), items);
+    }
+
+    /**
+     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     *
+     * @param from  The trading player.
+     * @param avoid The slots to ignore.
+     * @param items The collection of items that should be checked if they fit into the inventory of the trade partner.
+     * @return True if the given items fit into the inventory of the trade partner.
+     */
+    public boolean fitsTrade(@NotNull Player from, @NotNull List<Integer> avoid, @NotNull Collection<ItemStack> items) {
+        List<ItemStack> currentlyAddingItems = new ArrayList<>(items);
+        TradingGUI gui = this.guis[getId(from)];
+
+        for (Integer slot : this.slots) {
+            if (avoid.contains(slot)) continue;
+
+            ItemStack item = gui.getItem(slot);
+            if (item != null && item.getType() != Material.AIR) {
+                currentlyAddingItems.add(item);
+            }
         }
 
         PlayerInventory inv = getPlayerInventory(getOtherId(from));
         boolean fits = true;
 
-        for (ItemStack item : items) {
+        for (ItemStack item : currentlyAddingItems) {
             if (!inv.addItem(item)) {
                 fits = false;
                 break;
             }
         }
 
-        items.clear();
-        remove.clear();
+        currentlyAddingItems.clear();
+        avoid.clear();
         return fits;
     }
 
