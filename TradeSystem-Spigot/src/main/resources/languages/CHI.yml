@@ -109,26 +109,26 @@ Online: 正在交易所
 Offline: 已离开交易所
 Your_request_expired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
 Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
-Fancy_Countdown: '&7正在处理-&e%seconds%s'
+Fancy_Countdown: '&7正在处理-&e%秒%s'
 Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
-Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
-TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
+Items_Dropped: '&7你的背包&c没有&7足够的空间, 一些物品&c掉落在地上了&7!'
+TradeLog_Disabled: "&7交易注册已&c禁用&7!"
 Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
-Leftclick: 'Leftclick'
-Rightclick: 'Rightclick'
-Shift_Leftclick: 'Shift-Leftclick'
-Shift_Rightclick: 'Shift-Rightclick'
-Select: 'Select'
-Select_Foreign_Preview: 'Select foreign preview'
-Edit: 'Edit'
-Edit_Variant: 'Edit variant'
-Variant: 'Variant'
-Cancel: 'Cancel'
-Finish: 'Finish'
-Levels: 'Levels'
-Level: 'Level'
-Too_Little_Exp: '&cYou have &cno exp to trade&7.'
-Exp_Points: "Exp points"
-Exp_Point: "Exp point"
-Open_GUI_Error: '&7The trade was &ccancelled &7due to an &copen inventory&7.'
-Reset: "Reset"
+Leftclick: '鼠标左键'
+Rightclick: '鼠标右键'
+Shift_Leftclick: 'Shift-鼠标左键'
+Shift_Rightclick: 'Shift-鼠标右键'
+Select: '选择'
+Select_Foreign_Preview: '选择另一种预览'
+Edit: '编辑'
+Edit_Variant: '编辑变量'
+Variant: '变量'
+Cancel: '取消'
+Finish: '完成'
+Levels: '等级'
+Level: '等级'
+Too_Little_Exp: '&c你&c没有足够的经验&7.'
+Exp_Points: "经验值"
+Exp_Point: "经验值"
+Open_GUI_Error: '&7这个交易 &c取消了 &7因为一个 &c未结清的交易&7.'
+Reset: "重置"
