@@ -22,16 +22,11 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
         ProxyTrade t = TradeSystem.proxy().getTrade(p, packet.getRecipient(), packet.getSender());
         if (t == null) return;
 
-        ItemStack[] items = new ItemStack[36];
+        ItemStack item;
+        if (packet.getItem() == null) item = null;
+        else item = ItemStackUtils.deserializeItemStack(packet.getItem());
 
-        for (int i = 0; i < packet.getItems().length; i++) {
-            if (packet.getItems()[i] == null) continue;
-
-            Map<String, Object> data = (Map<String, Object>) packet.getItems()[i];
-            items[i] = ItemStackUtils.deserializeItemStack(data);
-        }
-
-        t.setOtherInventory(items);
+        t.applyOtherInventoryItem(packet.getSlot(), item);
         t.cancelOverflow(0);
     }
 }

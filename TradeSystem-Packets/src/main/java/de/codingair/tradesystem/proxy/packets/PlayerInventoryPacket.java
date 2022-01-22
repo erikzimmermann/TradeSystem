@@ -2,7 +2,7 @@ package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
 import de.codingair.packetmanagement.utils.SerializedGeneric;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -11,15 +11,17 @@ import java.util.Map;
 
 public class PlayerInventoryPacket implements Packet {
     private String sender, recipient;
-    private Map<?, ?>[] items;
+    private Map<String, Object> item;
+    private int slot;
 
     public PlayerInventoryPacket() {
     }
 
-    public PlayerInventoryPacket(String sender, String recipient, @NotNull Map<String, Object>[] items) {
+    public PlayerInventoryPacket(String sender, String recipient, @Nullable Map<String, Object> item, int slot) {
         this.sender = sender;
         this.recipient = recipient;
-        this.items = items;
+        this.item = item;
+        this.slot = slot;
     }
 
     @Override
@@ -27,14 +29,11 @@ public class PlayerInventoryPacket implements Packet {
         out.writeUTF(this.sender);
         out.writeUTF(this.recipient);
 
-        out.writeShort(items.length);
-        for (Map<?, ?> item : this.items) {
-            out.writeBoolean(item != null);
-
-            if (item != null) {
-                SerializedGeneric generic = new SerializedGeneric(item);
-                generic.write(out);
-            }
+        out.writeByte(this.slot);
+        out.writeBoolean(item != null);
+        if (item != null) {
+            SerializedGeneric generic = new SerializedGeneric(item);
+            generic.write(out);
         }
     }
 
@@ -43,16 +42,14 @@ public class PlayerInventoryPacket implements Packet {
         this.sender = in.readUTF();
         this.recipient = in.readUTF();
 
-        int size = in.readUnsignedShort();
-        this.items = new Map[size];
-        for (int i = 0; i < size; i++) {
-            boolean notNull = in.readBoolean();
+        this.slot = in.readUnsignedByte();
+        boolean notNull = in.readBoolean();
 
-            if (notNull) {
-                SerializedGeneric item = new SerializedGeneric();
-                item.read(in);
-                this.items[i] = (Map<?, ?>) item.getObject();
-            }
+        if (notNull) {
+            SerializedGeneric item = new SerializedGeneric();
+            item.read(in);
+            //noinspection unchecked
+            this.item = (Map<String, Object>) item.getObject();
         }
     }
 
@@ -64,7 +61,12 @@ public class PlayerInventoryPacket implements Packet {
         return recipient;
     }
 
-    public Map<?, ?>[] getItems() {
-        return items;
+    @Nullable
+    public Map<String, Object> getItem() {
+        return item;
+    }
+
+    public int getSlot() {
+        return slot;
     }
 }

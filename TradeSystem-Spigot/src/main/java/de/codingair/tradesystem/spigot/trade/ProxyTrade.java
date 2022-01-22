@@ -38,7 +38,7 @@ public class ProxyTrade extends Trade {
     private final String other;
     private ItemStack[] sent;
     private ItemStack[] received;
-    private ItemStack[] otherInventory = null;
+    private final ItemStack[] otherInventory = new ItemStack[36];
     private boolean finishing = false;
 
     public ProxyTrade(Player player, String other, boolean initiationServer) {
@@ -113,16 +113,13 @@ public class ProxyTrade extends Trade {
     }
 
     public void synchronizeInventory() {
-        @SuppressWarnings ("unchecked")
-        Map<String, Object>[] items = new Map[36];
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
-            if (contents[i] != null) items[i] = ItemStackUtils.serializeItemStack(contents[i]);
+            Map<String, Object> data = contents[i] == null ? null : ItemStackUtils.serializeItemStack(contents[i]);
+            PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
+            TradeSystem.proxyHandler().send(packet, this.player);
         }
-
-        PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, items);
-        TradeSystem.proxyHandler().send(packet, this.player);
     }
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
@@ -425,8 +422,8 @@ public class ProxyTrade extends Trade {
         return Optional.empty();
     }
 
-    public void setOtherInventory(ItemStack[] otherInventory) {
-        this.otherInventory = otherInventory;
+    public void applyOtherInventoryItem(int slot, ItemStack item) {
+        this.otherInventory[slot] = item;
     }
 
     @Override
