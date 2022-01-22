@@ -11,7 +11,7 @@ Want_To_Trade: '&7玩家&c%player%&7想要和你交易. &8[%accept% &8| %deny%&8
 Want_To_Trade_Accept: '&a接受'
 Want_To_Trade_Deny: '&c拒绝'
 Want_To_Trade_Hover: '&8» 点击 «'
-Player_Is_Invited: '&7已邀请玩家&c%Player%&7.'
+Player_Is_Invited: '&7已邀请玩家&c%player%&7.'
 Command_How_To: '&7使用: /trade <玩家名, accept, deny, toggle>进行交易'
 Command_How_To_Accept: '&7使用: /trade accept <玩家名>接受交易请求'
 Command_How_To_Deny: '&7使用: /trade deny <玩家名>拒绝交易请求'
@@ -109,7 +109,7 @@ Online: 正在交易所
 Offline: 已离开交易所
 Your_request_expired: '&7你发给&e%player%&7的交易请求&c已过期&7.'
 Request_expired: '&7来自&e%player%&7的交易请求&c已过期&7.'
-Fancy_Countdown: '&7正在处理-&e%秒%s'
+Fancy_Countdown: '&7正在处理-&e%seconds%s'
 Economy_Error: '&7此交易因&c金额错误&7而&c取消&7.'
 Items_Dropped: '&7你的背包&c没有&7足够的空间, 一些物品&c掉落在地上了&7!'
 TradeLog_Disabled: "&7交易注册已&c禁用&7!"
