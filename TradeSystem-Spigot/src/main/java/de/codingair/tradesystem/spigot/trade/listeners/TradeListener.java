@@ -22,10 +22,13 @@ public class TradeListener implements Listener, ChatButtonListener {
     private final TimeList<Player> players = new TimeList<>();
 
     @Override
-    public void onForeignClick(Player player, UUID id, String type) {
+    public boolean onAsyncClick(Player player, UUID id, String type) {
         if (type != null && type.equals("TRADE_TOGGLE")) {
             player.performCommand("trade toggle");
+            return true;
         }
+
+        return false;
     }
 
     @EventHandler
