@@ -23,10 +23,19 @@ public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transitio
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + Lang.get(namePlural, player) + ": §7" + TradeSystem.getInstance().getTradeManager().makeAmountFancy(value));
+        layout.setName("§e" + getName(player) + ": §7" + TradeSystem.getInstance().getTradeManager().makeAmountFancy(value));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
+    }
+
+    @NotNull
+    private String getName(@NotNull Player player) {
+        try {
+            return Lang.get(namePlural, player);
+        } catch (NullPointerException ex) {
+            return namePlural;
+        }
     }
 
     @Override
