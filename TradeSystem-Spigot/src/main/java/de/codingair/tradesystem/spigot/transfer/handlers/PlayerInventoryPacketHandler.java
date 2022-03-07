@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInventoryPacket> {
@@ -22,11 +23,15 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
         ProxyTrade t = TradeSystem.proxy().getTrade(p, packet.getRecipient(), packet.getSender());
         if (t == null) return;
 
-        ItemStack item;
-        if (packet.getItem() == null) item = null;
-        else item = ItemStackUtils.deserializeItemStack(packet.getItem());
+        try {
+            ItemStack item;
+            if (packet.getItem() == null) item = null;
+            else item = ItemStackUtils.deserializeItemStack(packet.getItem());
 
-        t.applyOtherInventoryItem(packet.getSlot(), item);
-        t.cancelOverflow(0);
+            t.applyOtherInventoryItem(packet.getSlot(), item);
+            t.cancelOverflow(0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

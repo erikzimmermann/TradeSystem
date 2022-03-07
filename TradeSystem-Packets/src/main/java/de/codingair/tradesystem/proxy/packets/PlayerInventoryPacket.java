@@ -11,16 +11,16 @@ import java.util.Map;
 
 public class PlayerInventoryPacket implements Packet {
     private String sender, recipient;
-    private Map<String, Object> item;
+    private SerializedGeneric item;
     private int slot;
 
     public PlayerInventoryPacket() {
     }
 
-    public PlayerInventoryPacket(String sender, String recipient, @Nullable Map<String, Object> item, int slot) {
+    public PlayerInventoryPacket(String sender, String recipient, @Nullable Map<String, Object> item, int slot) throws IOException {
         this.sender = sender;
         this.recipient = recipient;
-        this.item = item;
+        this.item = item == null ? null : new SerializedGeneric(item);
         this.slot = slot;
     }
 
@@ -31,10 +31,7 @@ public class PlayerInventoryPacket implements Packet {
 
         out.writeByte(this.slot);
         out.writeBoolean(item != null);
-        if (item != null) {
-            SerializedGeneric generic = new SerializedGeneric(item);
-            generic.write(out);
-        }
+        if (item != null) item.write(out);
     }
 
     @Override
@@ -46,10 +43,8 @@ public class PlayerInventoryPacket implements Packet {
         boolean notNull = in.readBoolean();
 
         if (notNull) {
-            SerializedGeneric item = new SerializedGeneric();
+            this.item = new SerializedGeneric();
             item.read(in);
-            //noinspection unchecked
-            this.item = (Map<String, Object>) item.getObject();
         }
     }
 
@@ -62,8 +57,9 @@ public class PlayerInventoryPacket implements Packet {
     }
 
     @Nullable
-    public Map<String, Object> getItem() {
-        return item;
+    public Map<String, Object> getItem() throws IOException {
+        //noinspection unchecked
+        return (Map<String, Object>) item.getObject();
     }
 
     public int getSlot() {

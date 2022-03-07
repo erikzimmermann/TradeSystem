@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.omg.SendingContext.RunTime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -117,15 +118,23 @@ public class ProxyTrade extends Trade {
 
         for (int i = 0; i < 36; i++) {
             Map<String, Object> data = contents[i] == null ? null : ItemStackUtils.serializeItemStack(contents[i]);
-            PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
-            TradeSystem.proxyHandler().send(packet, this.player);
+            try {
+                PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
+                TradeSystem.proxyHandler().send(packet, this.player);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
-        TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
-        TradeSystem.proxyHandler().send(packet, this.player);
-        sent[slotId] = item == null ? null : item.clone();
+        try {
+            TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
+            TradeSystem.proxyHandler().send(packet, this.player);
+            sent[slotId] = item == null ? null : item.clone();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ItemStack getSent(int slot) {
@@ -187,7 +196,7 @@ public class ProxyTrade extends Trade {
         try {
             this.guis[0].open();
         } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
