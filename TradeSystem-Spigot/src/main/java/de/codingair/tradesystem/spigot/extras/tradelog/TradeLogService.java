@@ -3,6 +3,8 @@ package de.codingair.tradesystem.spigot.extras.tradelog;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +21,8 @@ public class TradeLogService {
         return instance;
     }
 
-    public void log(String player1, String player2, String message) {
-        if (notConnected()) return;
+    public void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
+        if (message == null || notConnected()) return;
 
         Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
 
@@ -29,8 +31,8 @@ public class TradeLogService {
         else runnable.run();
     }
 
-    public void logLater(String player1, String player2, String message, long delay) {
-        if (notConnected()) return;
+    public void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
+        if (message == null || notConnected()) return;
 
         Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
 

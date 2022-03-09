@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.extras.tradelog;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum TradeLogMessages {
     NONE(null, null, "§8"),
@@ -27,7 +28,7 @@ public enum TradeLogMessages {
     private final String message;
     private final String color;
 
-    TradeLogMessages(String tag, String message, String colorIndicator) {
+    TradeLogMessages(@Nullable String tag, @Nullable String message, @NotNull String colorIndicator) {
         this.tag = tag;
         this.message = message;
         this.color = colorIndicator;
@@ -44,10 +45,13 @@ public enum TradeLogMessages {
         return NONE;
     }
 
+    @Nullable
     public String get(Object... o) {
+        if (this.message == null) return null;
         return String.format(this.message, o);
     }
 
+    @NotNull
     public String getColor() {
         return color;
     }

@@ -31,12 +31,20 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     private final boolean decimal;
     private double value = 0;
 
-    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @NotNull TradeLogMessages give, @NotNull TradeLogMessages receive, boolean decimal) {
+    /**
+     * @param itemStack    The item that will be used to show this icon.
+     * @param nameSingular The name (singular) - The plugin checks the language file first if a language tag can be found by the given name. Otherwise, the pure name will be used.
+     * @param namePlural   The name (plural) - The plugin checks the language file first if a language tag can be found by the given name. Otherwise, the pure name will be used.
+     * @param giveLog      The log type for trading. Can be null or {@link TradeLogMessages#NONE}.
+     * @param receiveLog   The log type for receiving. Can be null or {@link TradeLogMessages#NONE}.
+     * @param decimal      Whether decimals are allowed or not.
+     */
+    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @Nullable TradeLogMessages giveLog, @Nullable TradeLogMessages receiveLog, boolean decimal) {
         super(itemStack);
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
-        this.give = give;
-        this.receive = receive;
+        this.give = giveLog;
+        this.receive = receiveLog;
         this.decimal = decimal;
     }
 
@@ -158,7 +166,11 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @NotNull
     private String getName(@NotNull Player player, boolean singular) {
-        return Lang.get(singular ? nameSingular : namePlural, player);
+        try {
+            return Lang.get(singular ? nameSingular : namePlural, player);
+        } catch (NullPointerException ex) {
+            return singular ? nameSingular : namePlural;
+        }
     }
 
     @Override

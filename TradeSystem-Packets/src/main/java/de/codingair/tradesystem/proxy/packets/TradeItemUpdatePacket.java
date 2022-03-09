@@ -2,6 +2,7 @@ package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
 import de.codingair.packetmanagement.utils.SerializedGeneric;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
@@ -11,16 +12,16 @@ import java.util.Map;
 
 public class TradeItemUpdatePacket implements Packet {
     private String sender, recipient;
-    private Map<String, Object> item;
+    private SerializedGeneric item;
     private int slotId; //own slotId
 
     public TradeItemUpdatePacket() {
     }
 
-    public TradeItemUpdatePacket(String sender, String recipient, @Nullable Map<String, Object> item, byte slotId) {
+    public TradeItemUpdatePacket(@NotNull String sender, @NotNull String recipient, @Nullable Map<String, Object> item, byte slotId) throws IOException {
         this.sender = sender;
         this.recipient = recipient;
-        this.item = item;
+        this.item = item == null ? null : new SerializedGeneric(item);
         this.slotId = slotId;
     }
 
@@ -30,10 +31,7 @@ public class TradeItemUpdatePacket implements Packet {
         out.writeUTF(this.recipient);
 
         out.writeBoolean(this.item != null);
-        if (this.item != null) {
-            SerializedGeneric item = new SerializedGeneric(this.item);
-            item.write(out);
-        }
+        if (this.item != null) item.write(out);
 
         out.writeByte(this.slotId);
     }
@@ -45,25 +43,26 @@ public class TradeItemUpdatePacket implements Packet {
 
         boolean notNull = in.readBoolean();
         if (notNull) {
-            SerializedGeneric item = new SerializedGeneric();
+            this.item = new SerializedGeneric();
             item.read(in);
-            //noinspection unchecked
-            this.item = (Map<String, Object>) item.getObject();
         }
 
         this.slotId = in.readUnsignedByte();
     }
 
+    @NotNull
     public String getSender() {
         return sender;
     }
 
+    @NotNull
     public String getRecipient() {
         return recipient;
     }
 
-    public Map<String, Object> getItem() {
-        return item;
+    @Nullable
+    public Map<String, Object> getItem() throws IOException {
+        return item == null ? null : item.getObject();
     }
 
     public int getSlotId() {

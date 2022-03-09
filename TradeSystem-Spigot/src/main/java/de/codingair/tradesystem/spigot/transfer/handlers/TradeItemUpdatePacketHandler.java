@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class TradeItemUpdatePacketHandler implements PacketHandler<TradeItemUpdatePacket> {
@@ -22,7 +23,11 @@ public class TradeItemUpdatePacketHandler implements PacketHandler<TradeItemUpda
         ProxyTrade t = TradeSystem.proxy().getTrade(player, packet.getRecipient(), packet.getSender());
         if (t == null) return;
 
-        Map<String, Object> data = packet.getItem();
-        t.receiveItemData(packet.getSlotId(), ItemStackUtils.deserializeItemStack(data));
+        try {
+            Map<String, Object> data = packet.getItem();
+            t.receiveItemData(packet.getSlotId(), ItemStackUtils.deserializeItemStack(data));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
