@@ -58,8 +58,7 @@ public class PlayerInventoryPacket implements Packet {
 
     @Nullable
     public Map<String, Object> getItem() throws IOException {
-        //noinspection unchecked
-        return (Map<String, Object>) item.getObject();
+        return item == null ? null : item.getObject();
     }
 
     public int getSlot() {

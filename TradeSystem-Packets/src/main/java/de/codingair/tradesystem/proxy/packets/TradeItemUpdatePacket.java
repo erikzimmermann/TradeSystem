@@ -2,6 +2,7 @@ package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
 import de.codingair.packetmanagement.utils.SerializedGeneric;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
@@ -17,7 +18,7 @@ public class TradeItemUpdatePacket implements Packet {
     public TradeItemUpdatePacket() {
     }
 
-    public TradeItemUpdatePacket(String sender, String recipient, @Nullable Map<String, Object> item, byte slotId) throws IOException {
+    public TradeItemUpdatePacket(@NotNull String sender, @NotNull String recipient, @Nullable Map<String, Object> item, byte slotId) throws IOException {
         this.sender = sender;
         this.recipient = recipient;
         this.item = item == null ? null : new SerializedGeneric(item);
@@ -49,17 +50,19 @@ public class TradeItemUpdatePacket implements Packet {
         this.slotId = in.readUnsignedByte();
     }
 
+    @NotNull
     public String getSender() {
         return sender;
     }
 
+    @NotNull
     public String getRecipient() {
         return recipient;
     }
 
+    @Nullable
     public Map<String, Object> getItem() throws IOException {
-        //noinspection unchecked
-        return (Map<String, Object>) item.getObject();
+        return item == null ? null : item.getObject();
     }
 
     public int getSlotId() {

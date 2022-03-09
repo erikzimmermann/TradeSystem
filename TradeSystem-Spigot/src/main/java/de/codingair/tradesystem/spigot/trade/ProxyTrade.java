@@ -431,7 +431,7 @@ public class ProxyTrade extends Trade {
         return Optional.empty();
     }
 
-    public void applyOtherInventoryItem(int slot, ItemStack item) {
+    public void applyOtherInventoryItem(int slot, @Nullable ItemStack item) {
         this.otherInventory[slot] = item;
     }
 
