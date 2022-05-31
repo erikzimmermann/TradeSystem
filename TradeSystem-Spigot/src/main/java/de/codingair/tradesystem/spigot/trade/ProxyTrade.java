@@ -114,6 +114,8 @@ public class ProxyTrade extends Trade {
     }
 
     public void synchronizeInventory() {
+        if (guis[0] == null) return;  // we might have already finished this trade
+
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
@@ -266,6 +268,7 @@ public class ProxyTrade extends Trade {
         return new Listener() {
             @EventHandler
             public void onPickup(PlayerPickupItemEvent e) {
+                if (guis[0] == null) return;
                 if (e.getPlayer() == player) {
                     if (!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[0]) e.setCancelled(true);
                     else {

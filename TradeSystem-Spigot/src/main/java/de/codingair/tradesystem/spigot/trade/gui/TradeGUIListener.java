@@ -11,9 +11,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,6 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradeGUIListener implements Listener {
+
+    @EventHandler
+    public void onPickup(PlayerPickupItemEvent e) {
+        Trade trade = TradeSystem.man().getTrade(e.getPlayer());
+        if (trade != null && !TradeSystem.man().isDropItems()) e.setCancelled(true);
+    }
 
     @EventHandler (priority = EventPriority.HIGH)
     public void onDrag(InventoryDragEvent e) {

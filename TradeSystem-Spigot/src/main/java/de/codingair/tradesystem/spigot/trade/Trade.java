@@ -54,7 +54,7 @@ public abstract class Trade {
     protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
 
     protected Pattern pattern;
-    protected Listener listener;
+    protected Listener pickupListener;
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
     protected boolean cancelling = false;
@@ -308,7 +308,7 @@ public abstract class Trade {
     protected abstract Listener getPickUpListener();
 
     private void startListeners() {
-        Bukkit.getPluginManager().registerEvents(this.listener = getPickUpListener(), TradeSystem.getInstance());
+        Bukkit.getPluginManager().registerEvents(this.pickupListener = getPickUpListener(), TradeSystem.getInstance());
     }
 
     public boolean dropItem(Player player, ItemStack itemStack) {
@@ -338,7 +338,10 @@ public abstract class Trade {
     }
 
     private void stopListeners() {
-        if (this.listener != null) HandlerList.unregisterAll(this.listener);
+        if (this.pickupListener != null) {
+            HandlerList.unregisterAll(this.pickupListener);
+            this.pickupListener = null;
+        }
     }
 
     protected abstract void finish();
@@ -393,6 +396,8 @@ public abstract class Trade {
      * @param player The trader whose items will be balanced.
      */
     protected void cancelOverflow(Player player) {
+        if (guis[0] == null || guis[1] == null) return;
+
         HashMap<Integer, ItemStack> items = new HashMap<>();
         for (Integer slot : this.slots) {
             ItemStack item = this.guis[getId(player)].getItem(slot);
