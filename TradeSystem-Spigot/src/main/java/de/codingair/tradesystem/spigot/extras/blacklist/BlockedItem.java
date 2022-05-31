@@ -286,7 +286,7 @@ public class BlockedItem implements Serializable {
     }
 
     /**
-     * This order is important for proxy trading.
+     * This order is important for proxy trading. Changing the ordinal codes would break trading.
      */
     public enum StringCompare {
         STRICT(String::equals),
@@ -308,7 +308,8 @@ public class BlockedItem implements Serializable {
             this.compare = compare;
         }
 
-        public boolean check(@NotNull String s, @NotNull String with) {
+        public boolean check(@Nullable String s, @NotNull String with) {
+            if (s == null) return false;
             return compare.apply(s, with);
         }
     }
