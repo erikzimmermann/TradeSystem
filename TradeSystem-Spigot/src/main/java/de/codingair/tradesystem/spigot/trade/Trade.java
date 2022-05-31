@@ -616,11 +616,14 @@ public abstract class Trade {
             case UPDATE:
                 //calls an update
                 updateReady(playerId, false);
+                updateReady(getOtherId(playerId), false);
+
                 synchronizeTradeIcon(playerId, tradeIcon, true);
                 break;
 
             case UPDATE_LATER:
                 updateReady(playerId, false);
+                updateReady(getOtherId(playerId), false);
 
                 //calls update() another time - not important
                 updateLater(updateLaterDelay);

@@ -85,6 +85,7 @@ public class ProxyTrade extends Trade {
     }
 
     public void receiveTradeIconUpdate(TradeIcon icon) {
+        updateReady(0, false);
         super.synchronizeTradeIcon(1, icon, false);
     }
 
@@ -231,6 +232,7 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected void callReadyUpdate(int id, boolean ready) {
+        if (id == 1) return;  // We cannot update the state of the other player remotely.
         if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
         else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
     }
