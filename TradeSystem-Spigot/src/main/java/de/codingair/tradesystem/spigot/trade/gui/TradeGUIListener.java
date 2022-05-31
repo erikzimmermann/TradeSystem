@@ -76,22 +76,26 @@ public class TradeGUIListener implements Listener {
 
             if (trade != null) {
                 TradeLayout layout = trade.getLayout()[trade.getId(player)];
-                e.setCancelled(true);
 
                 if (e.getClickedInventory() == null && e.getCursor() != null) {
                     e.setCancelled(false);
                     onDrop(player, trade, e);
                 } else if (e.getAction() == InventoryAction.COLLECT_TO_CURSOR) {
+                    e.setCancelled(true);
                     //do not allow
                     onCursorCollect(trade, layout, e);
-                } else if (e.getClickedInventory() == e.getView().getBottomInventory()) {
-                    onClickBottomInventory(player, trade, e);
                 } else {
-                    //top inventory
-                    if (trade.getSlots().contains(e.getSlot())) {
-                        //own slots
-                        e.setCancelled(false);
-                        onTopInventoryClick(player, trade, e);
+                    if (e.isCancelled()) return;  // prevent trading items that are blocked by other plugins
+
+                    if (e.getClickedInventory() == e.getView().getBottomInventory()) {
+                        onClickBottomInventory(player, trade, e);
+                    } else {
+                        //top inventory
+                        if (trade.getSlots().contains(e.getSlot())) {
+                            //own slots
+                            e.setCancelled(false);
+                            onTopInventoryClick(player, trade, e);
+                        } else e.setCancelled(true);
                     }
                 }
             }
@@ -119,8 +123,9 @@ public class TradeGUIListener implements Listener {
         ItemStack item = e.getCurrentItem();
         if (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY &&
                 item != null && item.getType() != Material.AIR) {
-            //check if it's blocked
+            e.setCancelled(true);
 
+            //check if it's blocked
             if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
@@ -161,7 +166,7 @@ public class TradeGUIListener implements Listener {
 
                 trade.updateLater(1);
             }
-        } else e.setCancelled(false);
+        }
     }
 
     private void onCursorCollect(Trade trade, TradeLayout layout, InventoryClickEvent e) {
