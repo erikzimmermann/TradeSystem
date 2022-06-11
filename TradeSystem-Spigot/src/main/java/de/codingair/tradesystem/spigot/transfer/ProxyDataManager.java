@@ -83,9 +83,13 @@ public class ProxyDataManager {
         found = cache.getIfPresent(lowerName);
         if (found != null) return found;
 
-        int delta = 2147483647;
+        //int delta = 2147483647;
         for (String player : this.players.values()) {
-            if (player.toLowerCase().startsWith(lowerName)) {
+            if (player.toLowerCase().equalsIgnoreCase(lowerName)) {
+                found = player;
+                break;
+            }
+            /*if (player.toLowerCase().startsWith(lowerName)) {
                 int curDelta = Math.abs(player.length() - lowerName.length());
                 if (curDelta < delta) {
                     found = player;
@@ -95,7 +99,7 @@ public class ProxyDataManager {
                 if (curDelta == 0) {
                     break;
                 }
-            }
+            }*/
         }
 
 
