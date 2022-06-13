@@ -194,7 +194,7 @@ public class InvitationManager {
         Invite dummy = new Invite(argument);
 
         if (l != null && l.contains(dummy)) {
-            Player other = Bukkit.getPlayer(argument);
+            Player other = Bukkit.getPlayerExact(argument);
 
             if (other == null) {
                 String name = TradeSystem.proxy().getCaseSensitive(argument);
