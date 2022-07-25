@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.utils;
+package de.codingair.tradesystem.spigot.trade.gui.layout.types.gui;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;

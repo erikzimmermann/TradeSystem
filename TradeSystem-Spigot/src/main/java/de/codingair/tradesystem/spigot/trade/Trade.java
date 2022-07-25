@@ -608,6 +608,11 @@ public abstract class Trade {
         return guis;
     }
 
+    public void acknowledgeGuiSwitch(@NotNull Player player) {
+        // Fixes a dupe glitch which allowed the player to remain in the trade GUI during the countdown and then duplicate items.
+        updateReady(getId(player), false);
+    }
+
     public void handleClickResult(@NotNull TradeIcon tradeIcon, int playerId, @NotNull GUI gui, @NotNull IconResult result, long updateLaterDelay) {
         switch (result) {
             case PASS:

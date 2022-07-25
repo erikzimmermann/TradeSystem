@@ -1,10 +1,8 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.utils;
+package de.codingair.tradesystem.spigot.trade.gui.layout.types.gui;
 
-import de.codingair.codingapi.player.gui.anvil.AnvilClickEvent;
-import de.codingair.codingapi.player.gui.anvil.AnvilSlot;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
-import de.codingair.codingapi.player.gui.inventory.v2.buttons.AnvilButton;
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
+import de.codingair.codingapi.player.gui.inventory.v2.buttons.SignButton;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.*;
@@ -16,8 +14,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, Clickable, Input<G>, ItemPrepareIcon {
-    public AnvilGUIIcon(@NotNull ItemStack itemStack) {
+import java.util.Arrays;
+
+public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Clickable, Input<G>, ItemPrepareIcon {
+    public SignGUIIcon(@NotNull ItemStack itemStack) {
         super(itemStack);
     }
 
@@ -25,28 +25,31 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
     public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
         int id = trade.getId(player);
 
-        return new AnvilButton() {
+        String[] test = buildSignLines(trade, player);
+        if (test != null && test.length > 4)
+            throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(test));
+
+        return new SignButton(() -> {
+            String[] text = buildSignLines(trade, player);
+            if (text == null || text.length < 4) return new String[0];
+            else return text;
+        }) {
             @Override
-            public void onAnvil(GUI fallback, AnvilClickEvent e) {
-                if (!e.getSlot().equals(AnvilSlot.OUTPUT)) return;
+            public boolean onSignChangeEvent(GUI gui, String[] input) {
+                //executed on InventoryCloseEvent too
+                if (trade.isCancelling()) return true;
 
-                String origin = e.getInput(false);
-                if (origin == null) origin = "";
-
+                String origin = input[0];
                 G in = convertInput(origin);
                 IconResult result = processInput(trade, player, in, origin);
 
-                getClickSound().play(player);
-                if (result != IconResult.GUI) {
-                    //won't be closed until we say it.
-                    e.setClose(true);
-                    handleResult(AnvilGUIIcon.this, fallback, result, trade, id);
+                if (result == IconResult.GUI) {
+                    //first line will be updated before reopening
+                    return false;
                 }
-            }
 
-            @Override
-            public ItemStack buildAnvilItem() {
-                return AnvilGUIIcon.this.buildAnvilItem(trade, player);
+                handleResult(SignGUIIcon.this, gui, result, trade, id);
+                return true;
             }
 
             @Override
@@ -61,7 +64,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
 
             @Override
             public void onClick(GUI gui, InventoryClickEvent inventoryClickEvent) {
-                //ignore and just make the click sound
+                trade.acknowledgeGuiSwitch(player);  // fixes dupe glitch
             }
 
             @Override
@@ -78,7 +81,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
     /**
      * @param trade  The trade instance.
      * @param player The trading player.
-     * @return The AnvilGUI item which will be used for the rename function.
+     * @return The sign GUI lines. Must have a maximum length of 3 (the very first line of the SignGUI will be used for the input). Will be ignored if returning null.
      */
-    public abstract @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player player);
+    public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player player);
 }

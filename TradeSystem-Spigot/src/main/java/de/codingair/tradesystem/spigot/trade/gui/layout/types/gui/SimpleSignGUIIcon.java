@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.utils;
+package de.codingair.tradesystem.spigot.trade.gui.layout.types.gui;
 
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
