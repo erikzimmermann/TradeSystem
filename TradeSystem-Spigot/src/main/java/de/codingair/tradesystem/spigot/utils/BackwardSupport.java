@@ -16,6 +16,7 @@ public class BackwardSupport {
         moveShiftRightClick();
         moveRequestCooldownInSek();
         moveCommandAliases();
+        moveEasyMoneySelection();
 
         if (changed) current.saveConfig();
     }
@@ -42,6 +43,14 @@ public class BackwardSupport {
         if (old.get("TradeSystem.Trade_Aliases", null) != null) {
             //old
             current.getConfig().set("TradeSystem.Commands.Trade", old.getList("TradeSystem.Trade_Aliases"));
+            changed = true;
+        }
+    }
+
+    private void moveEasyMoneySelection() {
+        if (old.get("TradeSystem.Easy_Money_Selection", null) != null) {
+            //old
+            current.getConfig().set("TradeSystem.Money.Easy_Selection", old.get("TradeSystem.Easy_Money_Selection"));
             changed = true;
         }
     }

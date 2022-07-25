@@ -56,18 +56,24 @@ TradeSystem:
   Action_To_Request:
     Shift_Rightclick: false
 
-  Easy_Money_Selection:
-    Enabled: true
-    # Do NOT use special symbols (e.g. '$') here.
-    # Use characters only!
-    Shortcuts:
-    - Keys:
-        - "k"
-      Value: 1000
-    - Keys:
-        - "m"
-        - "mio"
-      Value: 1000000
+  Money:
+    # This pattern will be used to enter money in the trade GUI and to display the current amount. More information about pattern can be found here: https://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html
+    Pattern: "###,###.####"
+    Grouping_Separator: ','
+    Decimal_Separator: '.'
+
+    Easy_Selection:
+      Enabled: true
+      # Do NOT use special symbols (e.g. '$') here.
+      # Use characters only!
+      Shortcuts:
+      - Keys:
+          - "k"
+        Value: 1000
+      - Keys:
+          - "m"
+          - "mio"
+        Value: 1000000
 
   # Warning: The aliases will not be validated. Make sure they are correct.
   Commands:
