@@ -84,7 +84,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
                 double max = getPlayerValue(player);
                 if (input > max) {
                     String s = Lang.get("Only_X_Amount")
-                            .replace("%amount%", makeFancyString(max))
+                            .replace("%amount%", makeString(max))
                             .replace("%type%", getName(player, max == 1));
 
                     player.sendMessage(Lang.getPrefix() + s);
@@ -103,15 +103,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
         Number number = current;
         if (!decimal) number = number.intValue();
-        return TradeSystem.man().buildString(number, decimal);
-    }
-
-    public @NotNull String makeFancyString(@Nullable Double current) {
-        if (current == null) return "";
-
-        Number number = current;
-        if (!decimal) number = number.intValue();
-        return TradeSystem.man().makeAmountFancy(number);
+        return TradeSystem.man().getMoneyPattern().format(number);
     }
 
     @Override
@@ -121,7 +113,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + makeFancyString(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);

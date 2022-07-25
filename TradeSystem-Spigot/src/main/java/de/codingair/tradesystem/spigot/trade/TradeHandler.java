@@ -455,28 +455,6 @@ public class TradeHandler {
         return moneyShortcuts.get(key);
     }
 
-    @NotNull
-    public String buildString(@NotNull Number value, boolean forceDecimal) {
-        DecimalFormat df = getDefaultDecimalFormat();
-
-        if (forceDecimal) {
-            df.setDecimalSeparatorAlwaysShown(true);
-            df.setMinimumFractionDigits(1);
-        }
-
-        return df.format(value);
-    }
-
-    @NotNull
-    public String makeAmountFancy(@NotNull Number value) {
-        DecimalFormat df = getDefaultDecimalFormat();
-
-        df.setGroupingUsed(true);
-        df.setGroupingSize(3);
-
-        return df.format(value);
-    }
-
     private DecimalFormat getDefaultDecimalFormat() {
         DecimalFormat df = new DecimalFormat("#");
         df.setMaximumFractionDigits(EconomyIcon.FRACTION_DIGITS);
