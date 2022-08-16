@@ -117,7 +117,7 @@ Sign_Enter_Amount: "^^^^^^^^\nWypisz ilość\npowyżej"
 Leftclick: 'Lewy'
 Rightclick: 'Prawy'
 Shift_Leftclick: 'Shift-Lewy'
-Shift_Rightclick: 'Shift-Rrawy'
+Shift_Rightclick: 'Shift-Prawy'
 Select: 'Wybierz'
 Select_Foreign_Preview: 'Wybierz podgląd'
 Edit: 'Edytuj'
