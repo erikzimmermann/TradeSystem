@@ -1,8 +1,8 @@
 No_Permissions: "&cNie masz uprawnień aby to wykonać!"
-Only_for_Player: '&cOnly for players!'
+Only_for_Player: '&cTylko dla graczy!'
 No_Money: "&cNie masz pieniędzy!"
 Enter_Correct_Amount: "&cProszę wpisać właściwą ilość."
-Only_X_Amount: '&7You only have &c%amount% %type%&7!'
+Only_X_Amount: '&7Posiadasz tylko &c%amount% %type%&7!'
 Trade_Was_Cancelled: "&cWymiana została anulowana."
 Trade_Was_Finished: "&7Wymiana została &azakończona&7."
 Cannot_Trade_With_Yourself: "&cNie możesz się wymieniać ze sobą."
@@ -52,8 +52,8 @@ Not_Ready_For_Saving: "&cUkład nie może jeszcze zostać zapisany"
 Items: "Itemy"
 Set: "Ustawione"
 Not_Set: "Nie ustawione"
-Functions: "Functions"
-Name: "Name"
+Functions: "Funkcje"
+Name: "Nazwa"
 Ambiguous_Functions: "Niejednoznaczne funkcje"
 Layout_Set_Items: "Wypełnij standardowe GUI wymiany"
 Layout_Set_Functions: "Ustaw funkcje"
@@ -85,7 +85,7 @@ Sure_That_You_Want_To_Loose_Your_Data: "&7czy jestes pewien, że &cnie &7chcesz 
 Close: "Zamknij"
 Layout_Already_Activated: "&7Ten układ &czostał już aktywowany&7!"
 Layout_Set_Replacement_For_Money: "&7Ikona, która &ezamienia ikonę pieniędzy&7, kiedy &enie wykryto &7pluginu od ekonomii."
-Layout_Hint_Same_Slot_Amount: "&7Both traders &cmust have &7the &csame amount of slots&7!"
+Layout_Hint_Same_Slot_Amount: "&7Obaj wymieniający &cmuszą mieć &7tę samą &cliczbę slotów&7!"
 Current_Amount: "Obecna ilość"
 Trade_Spam: "&7Ten gracz &cjuż otrzymał prośbę o wymianę&7!"
 Plugin_Reloading: "&cPlugin teraz zostanie przeładowany..."
@@ -101,34 +101,34 @@ Trade_Partner_is_Offline: "&7Ten gracz &cnie ma dostępu &7do zleceń wymiany!"
 Trade_You_are_Offline: '&7Użycie "%command%&e/trade toggle%command%&7" to trade again.'
 Trade_Placed_Blocked_Item: "&7Ten przedmiot &cnie może &7być wymieniany!"
 Cannot_trade_in_bed: "&cNie możesz uczestniczyć w wymianie&7, w trakcie gdy leżysz w łóżku."
-Cannot_trade_in_world: "&7You &ccannot trade &7in this world!"
-Other_cannot_trade_in_world: "&7This player §ccannot trade &7in his world!"
-Cannot_trade_while_invisible: '&7You &ccannot trade &7while you''re &cinvisible&7!'
-Other_is_already_trading: '&cTen gracz już handluje w tej chwili!'
+Cannot_trade_in_world: "&7Nie możesz się &cwymieniać &7w tym świecie!"
+Other_cannot_trade_in_world: "&7Gracz nie może się §cwymieniać &7w jego świecie!"
+Cannot_trade_while_invisible: '&7Nie możesz się &cwymieniać &7jeśli jesteś &cniewidoczny/a&7!'
+Other_is_already_trading: '&cTen gracz handluje w tej chwili!'
 Online: Online
 Offline: Offline
-Your_request_expired: '&7Your trade request to &e%player% &7has &cexpired&7.'
-Request_expired: '&7The trade request from &e%player% &7has &cexpired&7.'
+Your_request_expired: '&7Twoja prośba wymiany z &e%player% &cwygasła&7.'
+Request_expired: '&7Prośba wymiany od &e%player% &cwygasła&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
-Economy_Error: '&7The trade was &ccancelled &7due to an &ceconomy error&7.'
-Items_Dropped: '&7Your inventory was &cfull&7, some items were &cdropped on the ground&7!'
-TradeLog_Disabled: "&7Trade logging is &cdisabled&7!"
-Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
-Leftclick: 'Leftclick'
-Rightclick: 'Rightclick'
-Shift_Leftclick: 'Shift-Leftclick'
-Shift_Rightclick: 'Shift-Rightclick'
-Select: 'Select'
-Select_Foreign_Preview: 'Select foreign preview'
-Edit: 'Edit'
-Edit_Variant: 'Edit variant'
-Variant: 'Variant'
-Cancel: 'Cancel'
-Finish: 'Finish'
-Levels: 'Levels'
-Level: 'Level'
-Too_Little_Exp: '&cYou have &cno exp to trade&7.'
-Exp_Points: "Exp points"
-Exp_Point: "Exp point"
-Open_GUI_Error: '&7The trade was &ccancelled &7due to an &copen inventory&7.'
-Reset: "Reset"
+Economy_Error: '&7Wymiana została &canulowana &7przez &cbłąd ekonomii&7.'
+Items_Dropped: '&7Twój ekwipunek jest &cpełny&7, niektóre przedmioty &cspadły na ziemię&7!'
+TradeLog_Disabled: "&7Logi wymian zostały &cwyłączone&7!"
+Sign_Enter_Amount: "^^^^^^^^\nWypisz ilość\npowyżej"
+Leftclick: 'Lewy'
+Rightclick: 'Prawy'
+Shift_Leftclick: 'Shift-Lewy'
+Shift_Rightclick: 'Shift-Rrawy'
+Select: 'Wybierz'
+Select_Foreign_Preview: 'Wybierz podgląd'
+Edit: 'Edytuj'
+Edit_Variant: 'Edytuj wariant'
+Variant: 'Wariant'
+Cancel: 'Anuluj'
+Finish: 'Zakończ'
+Levels: 'Poziomy'
+Level: 'Poziom'
+Too_Little_Exp: '&7Masz za mało &cXP &7aby się wymienić.'
+Exp_Points: "Punkty XP"
+Exp_Point: "Punkt XP"
+Open_GUI_Error: '&7Wymiana została &canulowana &7przez &cotwarcie ekwipunku&7.'
+Reset: "Resetuj"
