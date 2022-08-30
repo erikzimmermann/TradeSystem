@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Range;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
@@ -117,7 +118,10 @@ public abstract class Trade {
     public void update() {
         updateGUI();
 
-        if (this.ready[0] && this.ready[1]) finish();
+        if (this.ready[0] && this.ready[1]) finish().whenComplete((suc, err) -> {
+            if (err != null) err.printStackTrace();
+            else if (suc) cleanUp();
+        });
         else if (countdown != null) {
             playCountDownStopSound();
             countdown.cancel();
@@ -125,6 +129,10 @@ public abstract class Trade {
             countdown = null;
             synchronizeTitle();
         }
+    }
+
+    private void cleanUp() {
+        stopListeners();
     }
 
     protected void updateStatusIcon(Player player, int id) {
@@ -265,7 +273,7 @@ public abstract class Trade {
         boolean alreadyClosed = droppedItems == null;
         if (alreadyClosed) return;
 
-        stopListeners();
+        cleanUp();
         clearOpenAnvils();
 
         playCancelSound();
@@ -344,7 +352,7 @@ public abstract class Trade {
         }
     }
 
-    protected abstract void finish();
+    protected abstract @NotNull CompletableFuture<Boolean> finish();
 
     protected @Nullable ItemStack callTradeEvent(@NotNull Player receiver, @NotNull Player sender, @Nullable ItemStack item) {
         if (item == null) return null;
