@@ -6,6 +6,7 @@ import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
+import net.ess3.api.MaxMoneyException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +66,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     protected @NotNull Optional<Double> getLimitOf(@NotNull Player player) {
         Essentials ess = (Essentials) Essentials.getProvidingPlugin(Essentials.class);
         BigDecimal max = ess.getSettings().getMaxMoney();
-        return max == null ? Optional.empty() : Optional.of(max.doubleValue());
+        return max == null ? Optional.empty() : Optional.of(max.doubleValue() - 1);  // -1 because of the rounding error
     }
 
     @Override
