@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.essentials;
 
+import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     public EssentialsIcon(@NotNull ItemStack itemStack) {
@@ -57,5 +59,22 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
 
     private void check(Player player) {
         if (!Economy.playerExists(player.getUniqueId())) Economy.createNPC(player.getName());
+    }
+
+    @Override
+    protected @NotNull Optional<Double> getLimitOf(@NotNull Player player) {
+        Essentials ess = (Essentials) Essentials.getProvidingPlugin(Essentials.class);
+        BigDecimal max = ess.getSettings().getMaxMoney();
+        return max == null ? Optional.empty() : Optional.of(max.doubleValue());
+    }
+
+    @Override
+    protected @NotNull Optional<Double> getBalanceOf(@NotNull Player player) {
+        try {
+            BigDecimal balance = Economy.getMoneyExact(player.getUniqueId());
+            return balance == null ? Optional.empty() : Optional.of(balance.doubleValue());
+        } catch (UserDoesNotExistException e) {
+            return Optional.empty();
+        }
     }
 }

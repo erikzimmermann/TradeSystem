@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.text.html.Option;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Optional;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
     public static final int FRACTION_DIGITS = 4;
@@ -93,7 +95,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
             }
         }
 
-        this.value = input;
+        this.value = checkLimit(trade, player, input);
         return IconResult.UPDATE;
     }
 
@@ -155,6 +157,29 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
             deposit(player, diff);
             log(trade, receive, player.getName(), fancyDiff);
         }
+    }
+
+    private double checkLimit(@NotNull Trade trade, @NotNull Player player, double value) {
+        Player other = trade.getOther(player).orElse(null);
+        if (other == null) return value;
+
+        return getLimitOf(other).map(limit -> {
+            Optional<Double> balance = getBalanceOf(other);
+            if (!balance.isPresent()) return value;
+
+            if (value + balance.get() > limit) return Math.max(limit - balance.get(), 0);
+            else return value;
+        }).orElse(value);
+    }
+
+    @NotNull
+    protected Optional<Double> getLimitOf(@NotNull Player player) {
+        return Optional.empty();
+    }
+
+    @NotNull
+    protected Optional<Double> getBalanceOf(@NotNull Player player) {
+        return Optional.empty();
     }
 
     public abstract double getPlayerValue(Player player);
