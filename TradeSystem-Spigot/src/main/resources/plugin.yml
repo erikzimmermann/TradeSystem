@@ -9,7 +9,7 @@ api-version: "1.13"
 permissions:
   tradesystem.notify:
     default: op
-  tradesystem.motify:
+  tradesystem.modify:
     default: op
   tradesystem.log:
     default: op
@@ -20,7 +20,7 @@ permissions:
   tradesystem.*:
     children:
       tradesystem.notify: true
-      tradesystem.motify: true
+      tradesystem.modify: true
       tradesystem.log: true
       tradesystem.trade: true
       tradesystem.trade.initiate: true
