@@ -42,7 +42,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
 
         try {
             Economy.subtract(player.getUniqueId(), new BigDecimal(value));
-        } catch (UserDoesNotExistException | NoLoanPermittedException e) {
+        } catch (UserDoesNotExistException | NoLoanPermittedException | MaxMoneyException e) {
             e.printStackTrace();
         }
     }
@@ -53,7 +53,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
 
         try {
             Economy.add(player.getUniqueId(), new BigDecimal(value));
-        } catch (UserDoesNotExistException | NoLoanPermittedException e) {
+        } catch (UserDoesNotExistException | NoLoanPermittedException | MaxMoneyException e) {
             e.printStackTrace();
         }
     }
