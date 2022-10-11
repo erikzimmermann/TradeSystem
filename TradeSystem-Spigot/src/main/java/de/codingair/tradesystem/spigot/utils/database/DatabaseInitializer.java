@@ -27,7 +27,7 @@ public class DatabaseInitializer {
                     TradeSystem.getInstance().getLogger().log(Level.INFO, "Database logging was started successfully.");
                     running = true;
                 } catch (Exception ex) {
-                    TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Database logging could not be started. For more information see error below: " + ex.getMessage());
+                    TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Database logging could not be started: " + ex.getMessage());
                     running = false;
                 }
             });

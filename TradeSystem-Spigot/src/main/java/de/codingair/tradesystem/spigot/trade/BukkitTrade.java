@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
@@ -209,15 +210,17 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void finish() {
-        if (this.countdown != null) return;
+    protected @NotNull CompletableFuture<Boolean> finish() {
+        if (this.countdown != null) return CompletableFuture.completedFuture(false);
 
-        if (this.guis[0] == null || this.guis[1] == null) return;
-        if (pause[0] && pause[1]) return;
+        if (this.guis[0] == null || this.guis[1] == null) return CompletableFuture.completedFuture(false);
+        if (pause[0] && pause[1]) return CompletableFuture.completedFuture(false);
 
         // code to avoid some weird money dupe
         final Player player0 = players[0];
         final Player player1 = players[1];
+
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
 
         Runnable runnable = () -> {
             if (!tryFinish(player0)) return;
@@ -301,6 +304,7 @@ public class BukkitTrade extends Trade {
 
             TradeSystem.man().playFinishSound(player0);
             TradeSystem.man().playFinishSound(player1);
+            future.complete(true);
         };
 
         int interval = TradeSystem.man().getCountdownInterval();
@@ -348,6 +352,8 @@ public class BukkitTrade extends Trade {
 
             this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
         }
+
+        return future;
     }
 
     @Override

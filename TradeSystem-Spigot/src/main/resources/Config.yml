@@ -44,7 +44,7 @@ TradeSystem:
     Repetitions: 3
 
   # true: After finishing a trade all overflowing items will be dropped, if the inventory is full
-  # false: Prevent the trade partner to put too much items into the gui
+  # false: Prevent the trade partner to put too many items into the gui. Also prevents a trading player from picking up items.
   Trade_Drop_Items: true
 
   # In seconds (e.g. after <60> seconds the request will be expired)
@@ -56,18 +56,24 @@ TradeSystem:
   Action_To_Request:
     Shift_Rightclick: false
 
-  Easy_Money_Selection:
-    Enabled: true
-    # Do NOT use special symbols (e.g. '$') here.
-    # Use characters only!
-    Shortcuts:
-    - Keys:
-        - "k"
-      Value: 1000
-    - Keys:
-        - "m"
-        - "mio"
-      Value: 1000000
+  Money:
+    # This pattern will be used to enter money in the trade GUI and to display the current amount. More information about pattern can be found here: https://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html
+    Pattern: "###,###.####"
+    Grouping_Separator: ','
+    Decimal_Separator: '.'
+
+    Easy_Selection:
+      Enabled: true
+      # Do NOT use special symbols (e.g. '$') here.
+      # Use characters only!
+      Shortcuts:
+      - Keys:
+          - "k"
+        Value: 1000
+      - Keys:
+          - "m"
+          - "mio"
+        Value: 1000000
 
   # Warning: The aliases will not be validated. Make sure they are correct.
   Commands:

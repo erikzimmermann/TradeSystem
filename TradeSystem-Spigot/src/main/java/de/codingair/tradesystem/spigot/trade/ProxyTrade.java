@@ -23,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.omg.SendingContext.RunTime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -31,6 +30,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
@@ -85,6 +85,7 @@ public class ProxyTrade extends Trade {
     }
 
     public void receiveTradeIconUpdate(TradeIcon icon) {
+        updateReady(0, false);
         super.synchronizeTradeIcon(1, icon, false);
     }
 
@@ -114,6 +115,8 @@ public class ProxyTrade extends Trade {
     }
 
     public void synchronizeInventory() {
+        if (guis[0] == null) return;  // we might have already finished this trade
+
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
@@ -229,6 +232,7 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected void callReadyUpdate(int id, boolean ready) {
+        if (id == 1) return;  // We cannot update the state of the other player remotely.
         if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
         else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
     }
@@ -266,6 +270,7 @@ public class ProxyTrade extends Trade {
         return new Listener() {
             @EventHandler
             public void onPickup(PlayerPickupItemEvent e) {
+                if (guis[0] == null) return;
                 if (e.getPlayer() == player) {
                     if (!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[0]) e.setCancelled(true);
                     else {
@@ -289,9 +294,11 @@ public class ProxyTrade extends Trade {
         }
     }
 
-    public synchronized void confirmFinish() {
-        if (!finishing) finishing = true;
-        else {
+    public synchronized boolean confirmFinish() {
+        if (!finishing) {
+            finishing = true;
+            return false;
+        } else {
             //finish
             pause[0] = true;
 
@@ -347,16 +354,25 @@ public class ProxyTrade extends Trade {
             if (initiationServer) getTradeLog().logLater(this.player.getName(), this.other, TradeLogMessages.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(this.player);
+            return true;
         }
     }
 
-    private void checkFinish() {
-        tryFinish(this.player);
+    private void checkFinish(@NotNull CompletableFuture<Boolean> future) {
+        if (!tryFinish(this.player)) {
+            future.complete(false);
+            return;
+        }
 
         TradeSystem.proxyHandler().send(new TradeCheckFinishPacket(this.player.getName(), this.other), this.player).whenComplete((suc, t) -> {
-            if (t != null) t.printStackTrace();
-            else if (suc.getBoolean()) confirmFinish();
-            else callEconomyError();
+            if (t != null) {
+                t.printStackTrace();
+                future.complete(false);
+            } else if (suc.getBoolean()) future.complete(confirmFinish());
+            else {
+                callEconomyError();
+                future.complete(false);
+            }
         });
     }
 
@@ -365,16 +381,18 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void finish() {
-        if (this.countdown != null) return;
+    protected @NotNull CompletableFuture<Boolean> finish() {
+        if (this.countdown != null) return CompletableFuture.completedFuture(false);
 
-        if (this.guis[0] == null) return;
-        if (pause[0]) return;
+        if (this.guis[0] == null) return CompletableFuture.completedFuture(false);
+        if (pause[0]) return CompletableFuture.completedFuture(false);
 
         int interval = TradeSystem.man().getCountdownInterval();
         int repetitions = TradeSystem.man().getCountdownRepetitions();
 
-        if (interval == 0 || repetitions == 0) checkFinish();
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        if (interval == 0 || repetitions == 0) checkFinish(future);
         else {
             this.countdown = new BukkitRunnable() {
                 @Override
@@ -396,7 +414,7 @@ public class ProxyTrade extends Trade {
                     }
 
                     if (countdownTicks == repetitions) {
-                        checkFinish();
+                        checkFinish(future);
                         this.cancel();
                         countdownTicks = 0;
                         countdown = null;
@@ -412,6 +430,8 @@ public class ProxyTrade extends Trade {
 
             this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
         }
+
+        return future;
     }
 
     @Override

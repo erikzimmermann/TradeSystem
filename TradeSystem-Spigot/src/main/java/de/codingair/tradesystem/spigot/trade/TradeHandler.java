@@ -42,10 +42,12 @@ public class TradeHandler {
 
     private final HashMap<String, Trade> trades = new HashMap<>();
     private final List<BlockedItem> blacklist = new ArrayList<>();
-    private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
     private final InvitationManager invitationManager = new InvitationManager();
     private int requestExpirationTime = 60;
     private int distance = 50;
+
+    private DecimalFormat moneyPattern;
+    private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
 
     private int countdownRepetitions = 0;
     private int countdownInterval = 0;
@@ -101,10 +103,36 @@ public class TradeHandler {
             countdownRepetitions = (countdownInterval = 0);
         }
 
+        String pattern = config.getString("TradeSystem.Money.Pattern", "###,###.####");
+        try {
+            this.moneyPattern = new DecimalFormat(pattern);
+        } catch (IllegalArgumentException ex) {
+            TradeSystem.getInstance().getLogger().warning("The money pattern '%s' is invalid. Please check your syntax. The pattern '###,###.####' will be used instead.");
+            this.moneyPattern = new DecimalFormat("###,###.####");
+        }
+
+        String groupingSeparator = config.getString("TradeSystem.Money.Grouping_Separator", ",");
+        String decimalSeparator = config.getString("TradeSystem.Money.Decimal_Separator", ".");
+
+        if (groupingSeparator.length() != 1) {
+            TradeSystem.getInstance().getLogger().warning("The grouping separator must be a single character. Please check your syntax. The separator ',' will be used instead.");
+            groupingSeparator = ",";
+        }
+
+        if (decimalSeparator.length() != 1) {
+            TradeSystem.getInstance().getLogger().warning("The decimal separator must be a single character. Please check your syntax. The separator '.' will be used instead.");
+            decimalSeparator = ".";
+        }
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator(decimalSeparator.charAt(0));
+        symbols.setGroupingSeparator(groupingSeparator.charAt(0));
+        moneyPattern.setDecimalFormatSymbols(symbols);
+
         //load money abbreviations like 1k = 1,000
         moneyShortcuts.clear();
-        if (config.getBoolean("TradeSystem.Easy_Money_Selection.Enabled", true)) {
-            List<?> data = config.getList("TradeSystem.Easy_Money_Selection.Shortcuts");
+        if (config.getBoolean("TradeSystem.Money.Easy_Selection.Enabled", true)) {
+            List<?> data = config.getList("TradeSystem.Money.Easy_Selection.Shortcuts");
             if (data != null) {
                 for (Object s : data) {
                     if (s instanceof Map) {
@@ -427,28 +455,6 @@ public class TradeHandler {
         return moneyShortcuts.get(key);
     }
 
-    @NotNull
-    public String buildString(@NotNull Number value, boolean forceDecimal) {
-        DecimalFormat df = getDefaultDecimalFormat();
-
-        if (forceDecimal) {
-            df.setDecimalSeparatorAlwaysShown(true);
-            df.setMinimumFractionDigits(1);
-        }
-
-        return df.format(value);
-    }
-
-    @NotNull
-    public String makeAmountFancy(@NotNull Number value) {
-        DecimalFormat df = getDefaultDecimalFormat();
-
-        df.setGroupingUsed(true);
-        df.setGroupingSize(3);
-
-        return df.format(value);
-    }
-
     private DecimalFormat getDefaultDecimalFormat() {
         DecimalFormat df = new DecimalFormat("#");
         df.setMaximumFractionDigits(EconomyIcon.FRACTION_DIGITS);
@@ -476,5 +482,9 @@ public class TradeHandler {
 
     public InputGUI getInputGUI() {
         return inputGUI;
+    }
+
+    public DecimalFormat getMoneyPattern() {
+        return moneyPattern;
     }
 }

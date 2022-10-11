@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class RequestManager {
 
     public static void request(@NotNull Player sender, @NotNull String receiver) {
-        Player other = Bukkit.getPlayer(receiver);
+        Player other = Bukkit.getPlayerExact(receiver);
 
         boolean proxy = other == null && TradeSystem.proxy().isOnline(receiver);
 

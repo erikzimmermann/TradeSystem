@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Range;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
@@ -54,7 +55,7 @@ public abstract class Trade {
     protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
 
     protected Pattern pattern;
-    protected Listener listener;
+    protected Listener pickupListener;
     protected BukkitRunnable countdown = null;
     protected int countdownTicks = 0;
     protected boolean cancelling = false;
@@ -117,7 +118,10 @@ public abstract class Trade {
     public void update() {
         updateGUI();
 
-        if (this.ready[0] && this.ready[1]) finish();
+        if (this.ready[0] && this.ready[1]) finish().whenComplete((suc, err) -> {
+            if (err != null) err.printStackTrace();
+            else if (suc) cleanUp();
+        });
         else if (countdown != null) {
             playCountDownStopSound();
             countdown.cancel();
@@ -125,6 +129,10 @@ public abstract class Trade {
             countdown = null;
             synchronizeTitle();
         }
+    }
+
+    private void cleanUp() {
+        stopListeners();
     }
 
     protected void updateStatusIcon(Player player, int id) {
@@ -265,7 +273,7 @@ public abstract class Trade {
         boolean alreadyClosed = droppedItems == null;
         if (alreadyClosed) return;
 
-        stopListeners();
+        cleanUp();
         clearOpenAnvils();
 
         playCancelSound();
@@ -308,7 +316,7 @@ public abstract class Trade {
     protected abstract Listener getPickUpListener();
 
     private void startListeners() {
-        Bukkit.getPluginManager().registerEvents(this.listener = getPickUpListener(), TradeSystem.getInstance());
+        Bukkit.getPluginManager().registerEvents(this.pickupListener = getPickUpListener(), TradeSystem.getInstance());
     }
 
     public boolean dropItem(Player player, ItemStack itemStack) {
@@ -338,10 +346,13 @@ public abstract class Trade {
     }
 
     private void stopListeners() {
-        if (this.listener != null) HandlerList.unregisterAll(this.listener);
+        if (this.pickupListener != null) {
+            HandlerList.unregisterAll(this.pickupListener);
+            this.pickupListener = null;
+        }
     }
 
-    protected abstract void finish();
+    protected abstract @NotNull CompletableFuture<Boolean> finish();
 
     protected @Nullable ItemStack callTradeEvent(@NotNull Player receiver, @NotNull Player sender, @Nullable ItemStack item) {
         if (item == null) return null;
@@ -393,6 +404,8 @@ public abstract class Trade {
      * @param player The trader whose items will be balanced.
      */
     protected void cancelOverflow(Player player) {
+        if (guis[0] == null || guis[1] == null) return;
+
         HashMap<Integer, ItemStack> items = new HashMap<>();
         for (Integer slot : this.slots) {
             ItemStack item = this.guis[getId(player)].getItem(slot);
@@ -603,6 +616,11 @@ public abstract class Trade {
         return guis;
     }
 
+    public void acknowledgeGuiSwitch(@NotNull Player player) {
+        // Fixes a dupe glitch which allowed the player to remain in the trade GUI during the countdown and then duplicate items.
+        updateReady(getId(player), false);
+    }
+
     public void handleClickResult(@NotNull TradeIcon tradeIcon, int playerId, @NotNull GUI gui, @NotNull IconResult result, long updateLaterDelay) {
         switch (result) {
             case PASS:
@@ -611,11 +629,14 @@ public abstract class Trade {
             case UPDATE:
                 //calls an update
                 updateReady(playerId, false);
+                updateReady(getOtherId(playerId), false);
+
                 synchronizeTradeIcon(playerId, tradeIcon, true);
                 break;
 
             case UPDATE_LATER:
                 updateReady(playerId, false);
+                updateReady(getOtherId(playerId), false);
 
                 //calls update() another time - not important
                 updateLater(updateLaterDelay);

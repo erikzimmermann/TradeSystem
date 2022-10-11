@@ -84,7 +84,7 @@ public class RuleManager {
         if (isViolatingRules(p)) return true;
 
         //pre rules
-        if (other == null) {
+        if (other == null || !p.canSee(other)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return true;
         }
@@ -123,11 +123,6 @@ public class RuleManager {
         //post rules
         if (!other.canSee(p)) {
             p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible", p));
-            return true;
-        }
-
-        if (!p.canSee(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
             return true;
         }
 

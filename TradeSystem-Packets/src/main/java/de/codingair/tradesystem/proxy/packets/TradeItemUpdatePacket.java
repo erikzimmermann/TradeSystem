@@ -62,7 +62,11 @@ public class TradeItemUpdatePacket implements Packet {
 
     @Nullable
     public Map<String, Object> getItem() throws IOException {
-        return item == null ? null : item.getObject();
+        try {
+            return item == null ? null : item.getObject();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Error while reading item in slotId %d (the id of the slot; only counts the trading slots). Please forward this error including the information about the traded item of %s to %s.", slotId, sender, recipient), e);
+        }
     }
 
     public int getSlotId() {

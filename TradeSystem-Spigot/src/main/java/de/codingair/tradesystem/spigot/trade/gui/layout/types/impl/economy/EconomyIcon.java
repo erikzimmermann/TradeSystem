@@ -4,6 +4,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.Trade;
+import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.InputIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
@@ -16,11 +17,15 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.text.html.Option;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Optional;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
     public static final int FRACTION_DIGITS = 4;
@@ -62,47 +67,9 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     public @Nullable Double convertInput(@NotNull String input) {
         if (input.isEmpty()) return 0D;
 
-        Integer factor = TradeSystem.man().getMoneyShortcutFactor(input);
-
-        try {
-            int comma = input.indexOf(",");
-            boolean multiComma = comma != input.lastIndexOf(",");
-            boolean commaAndDot = comma != -1 && input.contains(".");
-
-            //1,500 -> 1.5 OR 1500 | Use 1.5 to avoid scam
-            String moneyIn = input;
-            if (multiComma || commaAndDot) {
-                //1,500,000.5
-                //1,500,000
-                //1,000.5
-                moneyIn = moneyIn.replace(",", "");
-            } else {
-                //1,500 -> 1.5
-                //1,5 -> 1.5
-                //1.5
-                moneyIn = moneyIn.replace(',', '.');
-            }
-
-            moneyIn = moneyIn.replaceAll("[\\D&&[^.]]", "");
-
-            //limit decimal places
-            if (moneyIn.contains(".")) {
-                comma = moneyIn.indexOf(".");
-
-                int out = comma + FRACTION_DIGITS + 1;
-                boolean tooManyDecimals = moneyIn.length() > out;
-                if (tooManyDecimals) moneyIn = moneyIn.substring(0, out);
-            }
-
-            if (factor != null) {
-                //allow comma
-                return Double.parseDouble(moneyIn) * factor;
-            } else {
-                return Double.parseDouble(moneyIn);
-            }
-        } catch (NumberFormatException ex) {
-            return null;
-        }
+        Number n = TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
+        if (n == null) return 0D;
+        return n.doubleValue();
     }
 
     @Override
@@ -119,7 +86,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
                 double max = getPlayerValue(player);
                 if (input > max) {
                     String s = Lang.get("Only_X_Amount")
-                            .replace("%amount%", makeFancyString(max))
+                            .replace("%amount%", makeString(max))
                             .replace("%type%", getName(player, max == 1));
 
                     player.sendMessage(Lang.getPrefix() + s);
@@ -128,7 +95,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
             }
         }
 
-        this.value = input;
+        this.value = checkLimit(trade, player, input);
         return IconResult.UPDATE;
     }
 
@@ -138,15 +105,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
         Number number = current;
         if (!decimal) number = number.intValue();
-        return TradeSystem.man().buildString(number, decimal);
-    }
-
-    public @NotNull String makeFancyString(@Nullable Double current) {
-        if (current == null) return "";
-
-        Number number = current;
-        if (!decimal) number = number.intValue();
-        return TradeSystem.man().makeAmountFancy(number);
+        return TradeSystem.man().getMoneyPattern().format(number);
     }
 
     @Override
@@ -156,7 +115,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + makeFancyString(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
@@ -198,6 +157,29 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
             deposit(player, diff);
             log(trade, receive, player.getName(), fancyDiff);
         }
+    }
+
+    private double checkLimit(@NotNull Trade trade, @NotNull Player player, double value) {
+        Player other = trade.getOther(player).orElse(null);
+        if (other == null) return value;
+
+        return getLimitOf(other).map(limit -> {
+            Optional<Double> balance = getBalanceOf(other);
+            if (!balance.isPresent()) return value;
+
+            if (value + balance.get() > limit) return Math.max(limit - balance.get(), 0);
+            else return value;
+        }).orElse(value);
+    }
+
+    @NotNull
+    protected Optional<Double> getLimitOf(@NotNull Player player) {
+        return Optional.empty();
+    }
+
+    @NotNull
+    protected Optional<Double> getBalanceOf(@NotNull Player player) {
+        return Optional.empty();
     }
 
     public abstract double getPlayerValue(Player player);

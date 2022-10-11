@@ -58,7 +58,11 @@ public class PlayerInventoryPacket implements Packet {
 
     @Nullable
     public Map<String, Object> getItem() throws IOException {
-        return item == null ? null : item.getObject();
+        try {
+            return item == null ? null : item.getObject();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Error while reading item in slot %d. Please forward this error including the information about the traded item of %s to %s.", slot, sender, recipient), e);
+        }
     }
 
     public int getSlot() {
