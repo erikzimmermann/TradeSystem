@@ -206,8 +206,10 @@ public class TradeSystemCMD extends CommandBuilder {
                     return true;
                 }
 
+                // set active layout to default if the active layout is the layout that should be deleted
+                if (pattern.equals(l.getActive())) l.setActive(DefaultPattern.NAME);
                 l.delete(pattern);
-                if (l.getActive().equals(pattern)) l.setActive(DefaultPattern.NAME);
+
                 sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted", new Lang.P("name", pattern.getName())));
                 return true;
             }

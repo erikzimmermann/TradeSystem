@@ -179,7 +179,13 @@ public class RuleManager {
     }
 
     private static void notifyOfflinePlayer(Player p) {
-        String[] a = Lang.get("Trade_You_are_Offline", p).split("%command%", -1);
+        String text = Lang.get("Trade_You_are_Offline", p);
+        String[] a = text.split("%command%", -1);
+
+        if (a.length != 3) {
+            p.sendMessage(Lang.getPrefix() + text);
+            return;
+        }
 
         String s0 = a[0];
         String s = a[1];
