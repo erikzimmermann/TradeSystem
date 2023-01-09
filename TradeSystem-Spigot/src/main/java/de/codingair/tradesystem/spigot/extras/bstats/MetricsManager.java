@@ -1,10 +1,10 @@
 package de.codingair.tradesystem.spigot.extras.bstats;
 
 import de.codingair.codingapi.files.ConfigFile;
-import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +31,7 @@ public class MetricsManager {
         Metrics metrics = new Metrics(TradeSystem.getInstance(), 6959);
 
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
-        UTFConfig config = file.getConfig();
+        YamlConfiguration config = file.getConfig();
 
         metrics.addCustomChart(new Metrics.AdvancedPie("configuration", () -> {
             Map<String, Integer> map = new HashMap<>();

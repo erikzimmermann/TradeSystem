@@ -1,11 +1,11 @@
 package de.codingair.tradesystem.spigot.utils;
 
 import de.codingair.codingapi.files.ConfigFile;
-import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BackwardSupport {
-    private final UTFConfig old;
+    private final YamlConfiguration old;
     private final ConfigFile current;
     private boolean changed = false;
 
