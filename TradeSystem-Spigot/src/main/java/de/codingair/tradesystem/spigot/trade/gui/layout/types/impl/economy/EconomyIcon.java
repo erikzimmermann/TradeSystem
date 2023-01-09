@@ -134,7 +134,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        if (getPlayerValue(player) < value) {
+        if (value > 0 && getPlayerValue(player) < value) {
             return FinishResult.ERROR_ECONOMY;
         }
 
