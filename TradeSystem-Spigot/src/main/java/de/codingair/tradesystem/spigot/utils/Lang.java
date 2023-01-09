@@ -35,6 +35,7 @@ public class Lang {
         deleteEmptyFiles(plugin);
 
         List<String> languages = new ArrayList<>();
+        languages.add("BR.yml");
         languages.add("CHI.yml");
         languages.add("CS.yml");
         languages.add("ENG.yml");
