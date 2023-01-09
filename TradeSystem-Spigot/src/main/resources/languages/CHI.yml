@@ -72,7 +72,7 @@ Layout_Set_Money: 己方金额图标
 Layout_Set_Other_Money: 对方金额图标
 Help_TradeSystem: '&7使用 &e/%label% <layout, reload>设置交易所'
 Help_TradeSystem_Layout: '&7使用 &e/%label% layout <create, edit, delete, activate>设置交易所界面'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7使用 &e/%label% layout activate <名称>激活界面'
 Help_TradeSystem_Layout_Delete: '&7使用 &e/%label% layout delete <名称>删除界面'
 Help_TradeSystem_Layout_Edit: '&7使用 &e/%label% layout edit <名称>编辑界面'

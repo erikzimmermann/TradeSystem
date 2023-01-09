@@ -12,7 +12,7 @@ public class TradingGUI extends GUI {
     private final int id;
 
     public TradingGUI(Player player, Trade trade, int id) {
-        super(player, TradeSystem.getInstance(), 54, Lang.get("GUI_Title", player, new Lang.P("player", trade.getOther(player.getName()))),
+        super(player, TradeSystem.getInstance(), trade.getLayout()[id].getPattern().getSize(), Lang.get("GUI_Title", player, new Lang.P("player", trade.getOther(player.getName()))),
                 false  // check for plugins that already block items
         );
 

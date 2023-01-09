@@ -72,7 +72,7 @@ Layout_Set_Money: Kendi para tuşunu ayarla
 Layout_Set_Other_Money: Partnerinin para tuşunu ayarla
 Help_TradeSystem: '&7Komut: &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Komut: &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7Komut: &e/%label% layout activate <name>'
 Help_TradeSystem_Layout_Delete: '&7Komut: &e/%label% layout delete <name>'
 Help_TradeSystem_Layout_Edit: '&7Komut: &e/%label% layout edit <name>'

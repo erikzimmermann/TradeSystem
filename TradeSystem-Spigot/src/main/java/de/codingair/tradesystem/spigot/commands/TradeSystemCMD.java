@@ -101,6 +101,40 @@ public class TradeSystemCMD extends CommandBuilder {
             }
         }.setOnlyPlayers(true));
 
+        getComponent("layout", "create", null).addChild(new MultiCommandComponent() {
+            @Override
+            public void addArguments(CommandSender commandSender, String[] strings, List<String> list) {
+            }
+
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
+                if (!l.isAvailable(args[2])) {
+                    sender.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Name_Already_Exists"));
+                    return true;
+                }
+
+                int size;
+                try {
+                    size = Integer.parseInt(argument);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Create", new Lang.P("label", label)));
+                    return true;
+                }
+
+                if (size % 9 != 0 || size < 9 || size > 54) {
+                    sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Create", new Lang.P("label", label)));
+                    return true;
+                }
+
+                try {
+                    new Editor(args[2], size, (Player) sender).open();
+                } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        }.setOnlyPlayers(true));
+
         getComponent("layout").addChild(new CommandComponent("edit") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {

@@ -72,7 +72,7 @@ Layout_Set_Money: Nastav vlastní ikonu peněz
 Layout_Set_Other_Money: Nastav ikonu peněz pro partnera
 Help_TradeSystem: '&7Zadej &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Zadej &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <jméno>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <jméno> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7Zadej &e/%label% layout activate <jméno>'
 Help_TradeSystem_Layout_Delete: '&7Zadej &e/%label% layout delete <jméno>'
 Help_TradeSystem_Layout_Edit: '&7Zadej &e/%label% layout edit <jméno>'

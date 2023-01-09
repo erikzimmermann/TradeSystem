@@ -17,7 +17,7 @@ public class TradeLayout {
     }
 
     public TradeLayout(@NotNull Pattern pattern) {
-        this(pattern, 54);
+        this(pattern, pattern.getSize());
     }
 
     /**

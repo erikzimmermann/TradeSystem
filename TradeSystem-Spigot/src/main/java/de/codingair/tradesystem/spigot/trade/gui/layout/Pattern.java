@@ -14,10 +14,16 @@ import java.util.*;
 public class Pattern implements Serializable, Iterable<IconData> {
     private String name;
     private IconData[] icons;
+    private int size;
 
-    public Pattern(@NotNull String name, @NotNull IconData[] icons) {
+    public Pattern(@NotNull String name, int size, @NotNull IconData[] icons) {
         this.name = name;
         this.icons = icons;
+        this.size = size;
+    }
+
+    public Pattern(@NotNull String name, @NotNull IconData[] icons) {
+        this(name, 54, icons);
     }
 
     public Pattern() {
@@ -27,8 +33,12 @@ public class Pattern implements Serializable, Iterable<IconData> {
     public boolean read(DataMask mask) throws IconNotFoundException {
         this.name = deserializeName(mask);
 
+        size = mask.getInteger("size", 54);
+        if (size % 9 != 0) throw new IllegalArgumentException("Size must be a multiple of 9!");
+        if (size < 9 || size > 54) throw new IllegalArgumentException("Size must be between 9 and 54!");
+
         Map<?, ?> icons = mask.get("icons");
-        this.icons = new IconData[54];
+        this.icons = new IconData[size];
 
         IconNotFoundException exception = null;
         for (Map.Entry<?, ?> e : icons.entrySet()) {
@@ -68,6 +78,7 @@ public class Pattern implements Serializable, Iterable<IconData> {
         }
 
         mask.put("name", name);
+        mask.put("size", size);
         mask.put("icons", icons);
     }
 
@@ -140,8 +151,12 @@ public class Pattern implements Serializable, Iterable<IconData> {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name);
-        result = 31 * result + Arrays.hashCode(icons);
+        int result = Objects.hash(name, size);
+        result = 31 * result + Arrays.hashCode(getIcons());
         return result;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

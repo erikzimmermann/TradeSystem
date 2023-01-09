@@ -72,7 +72,7 @@ Layout_Set_Money: "Eigenes 'Geld'-Symbol setzen"
 Layout_Set_Other_Money: "'Geld'-Symbol vom Partner setzen"
 Help_TradeSystem: "&7Benutze &e/%label% <layout, reload>"
 Help_TradeSystem_Layout: "&7Benutze &e/%label% layout <create, edit, delete, activate>"
-Help_TradeSystem_Layout_Create: '&7Benutze &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Benutze &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: "&7Benutze &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Benutze &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Benutze &e/%label% layout edit <name>"

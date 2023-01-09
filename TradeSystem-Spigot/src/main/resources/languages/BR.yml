@@ -72,7 +72,7 @@ Layout_Set_Money: Definir o próprio ícone de dinheiro
 Layout_Set_Other_Money: Definir ícone de dinheiro do parceiro
 Help_TradeSystem: '&7Use &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Use &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <nome>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <nome> [9..54] '
 Help_TradeSystem_Layout_Activate: '&7Use &e/%label% layout activate <nome>'
 Help_TradeSystem_Layout_Delete: '&7Use &e/%label% layout delete <nome>'
 Help_TradeSystem_Layout_Edit: '&7Use &e/%label% layout edit <nome>'

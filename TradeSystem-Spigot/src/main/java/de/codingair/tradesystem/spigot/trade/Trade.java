@@ -207,8 +207,8 @@ public abstract class Trade {
     protected abstract void playStartSound();
 
     void start() {
-        initializeGUIs();
-        buildPattern();
+        buildPattern();     // Build pattern first to
+        initializeGUIs();   // use it here for the inventory size.
         startListeners();
         startGUI();
         playStartSound();

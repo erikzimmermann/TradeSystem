@@ -7,8 +7,7 @@ Trade_Was_Cancelled: '&cIl trade è stato cancellato.'
 Trade_Was_Finished: '&7Il trade ha avuto &asuccesso&7.'
 Cannot_Trade_With_Yourself: '&cNon puoi fare un trade con te stesso.'
 Player_Not_Online: '&cQuesto giocatore non è online.'
-Want_To_Trade: '&7Il giocatore &c%player% &7vuole fare un scambiare con te. &8[%accept% &8|
-  %deny%&8]'
+Want_To_Trade: '&7Il giocatore &c%player% &7vuole fare un scambiare con te. &8[%accept% &8| %deny%&8]'
 Want_To_Trade_Accept: '&aAccetta'
 Want_To_Trade_Deny: '&cRifiuta'
 Want_To_Trade_Hover: '&8» Clicca «'
@@ -73,7 +72,7 @@ Layout_Set_Money: Set own money icon
 Layout_Set_Other_Money: Set money icon from partner
 Help_TradeSystem: '&7Usa &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Usa &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Usa &e/%label% layout create <nome>'
+Help_TradeSystem_Layout_Create: '&7Usa &e/%label% layout create <nome> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7Usa &e/%label% layout activate <nome>'
 Help_TradeSystem_Layout_Delete: '&7Usa &e/%label% layout delete <nome>'
 Help_TradeSystem_Layout_Edit: '&7Usa &e/%label% layout edit <nome>'
@@ -85,8 +84,7 @@ Enter_Correct_Name_Space: '&cPer favore non usare spazi.'
 Sure_That_You_Want_To_Loose_Your_Data: '&7Sei sicuro che &cnon &7vuoi salvare &7le tue modifiche?'
 Close: Close
 Layout_Already_Activated: '&7Questo layout &cè stato gia attivato&7!'
-Layout_Set_Replacement_For_Money: '&7L'icona, che &esostituisce l'icona dei soldi&7, di quando
-  &enon ci sono plugin dell'economia &7è stata abilitata.'
+Layout_Set_Replacement_For_Money: "&7L'icona, che &esostituisce l'icona dei soldi&7, di quando &enon ci sono plugin dell'economia &7è stata abilitata."
 Layout_Hint_Same_Slot_Amount: '&7Entrambi i trader &cdevono avere &7la stessa &cquantità di slot&7!'
 Current_Amount: Current amount
 Trade_Spam: '&7Questo giocatore &cha gia ricevuto una richiesta di trade&7!'
@@ -115,10 +113,7 @@ Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Il trade è stato &ccancellato &7a causa di &cun errore dell'economia&7.'
 Items_Dropped: '&7Il tuo inventario &cè pieno&7, qualche oggetto &cè caduto a terra&7!'
 TradeLog_Disabled: '&7I log dei trade sono &cdisabilitati&7!'
-Sign_Enter_Amount: |-
-  ^^^^^^^^
-  Enter amount
-  above
+Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
 Leftclick: Leftclick
 Rightclick: Rightclick
 Shift_Leftclick: Shift-Leftclick

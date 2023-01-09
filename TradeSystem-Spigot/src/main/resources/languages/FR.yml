@@ -72,7 +72,7 @@ Layout_Set_Money: "Définir son icône d'argent"
 Layout_Set_Other_Money: "Définir l'icône d'argent du partenaire"
 Help_TradeSystem: "&7Utilisation &e/%label% <layout, reload>"
 Help_TradeSystem_Layout: "&7Utilisation &e/%label% layout <create, edit, delete, activate>"
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: "&7Utilisation &e/%label% layout activate <name>"
 Help_TradeSystem_Layout_Delete: "&7Utilisation &e/%label% layout delete <name>"
 Help_TradeSystem_Layout_Edit: "&7Utilisation &e/%label% layout edit <name>"
