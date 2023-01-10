@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
-    public static final int FRACTION_DIGITS = 4;
     private final String nameSingular;
     private final String namePlural;
     private final TradeLogMessages give;
@@ -54,7 +53,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     @Override
     public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
         if (getPlayerValue(player) <= 0) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Too_Little_Exp", player));
+            player.sendMessage(Lang.getPrefix() + Lang.get("Balance_limit_reached", player));
             return false;
         }
 

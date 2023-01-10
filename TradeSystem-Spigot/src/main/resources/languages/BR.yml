@@ -132,3 +132,4 @@ Exp_Points: Pontos de EXP
 Exp_Point: Ponto de EXP
 Open_GUI_Error: '&7O comércio foi &cancelado &7devido a um &cinventário aberto&7.'
 Reset: Resetar
+Balance_limit_reached: '&7Seu saldo é &cinsuficiente&7.'
