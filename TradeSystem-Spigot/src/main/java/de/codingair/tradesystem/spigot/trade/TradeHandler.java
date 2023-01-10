@@ -38,7 +38,7 @@ public class TradeHandler {
     /**
      * Allow disconnected players to reconnect with same options so they don't have to disable trade requests again.
      */
-    private final Cache<String, Boolean> disconnectedOffline = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+    private final Cache<String, Boolean> disconnectedOffline = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MILLISECONDS).build();
     private final Set<String> offline = new HashSet<>();
 
     private final HashMap<String, Trade> trades = new HashMap<>();

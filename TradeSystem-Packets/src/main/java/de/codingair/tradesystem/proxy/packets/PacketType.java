@@ -16,6 +16,7 @@ public enum PacketType {
     TradeCheckFinishPacket(TradeCheckFinishPacket.class),
     SynchronizePlayersPacket(SynchronizePlayersPacket.class),
     TradeIconUpdatePacket(TradeIconUpdatePacket.class),
+    PlayerStatePacket(PlayerStatePacket.class),
     ;
 
     private final Class<? extends Packet> packetClass;
