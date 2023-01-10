@@ -104,7 +104,7 @@ public class Lang {
         return prepare(p, s);
     }
 
-    private static String prepare(Player player, String s) {
+    private static String prepare(@Nullable Player player, @NotNull String s) {
         s = s.replace("\\n", "\n");
         s = ChatColor.translateAll('&', s);
         if (player != null) s = PAPI.convert(s, player);
