@@ -7,6 +7,7 @@ import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
+import de.codingair.tradesystem.proxy.packets.PlayerStatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
@@ -399,9 +400,21 @@ public class TradeHandler {
     }
 
     public boolean toggle(Player player) {
-        if (offline.remove(player.getName())) return false;
+        if (offline.remove(player.getName())) {
+            // removed
+            TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), false), player);
+            return false;
+        }
+
+        // not contained -> will be added now
         this.offline.add(player.getName());
+        TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), true), player);
         return true;
+    }
+
+    public void setState(@NotNull String player, boolean state) {
+        if (state) this.offline.add(player);
+        else this.offline.remove(player);
     }
 
     public List<BlockedItem> getBlacklist() {
