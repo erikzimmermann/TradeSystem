@@ -4,7 +4,6 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.InputIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
@@ -17,14 +16,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.text.html.Option;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
@@ -67,9 +65,15 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     public @Nullable Double convertInput(@NotNull String input) {
         if (input.isEmpty()) return 0D;
 
+        Integer factor = TradeSystem.man().getMoneyShortcutFactor(input);
+
         Number n = TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
         if (n == null) return 0D;
-        return n.doubleValue();
+
+        double value = n.doubleValue();
+        if (factor != null) value *= factor;
+
+        return value;
     }
 
     @Override
@@ -101,11 +105,22 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull String makeString(@Nullable Double current) {
+        return makeFancyString(current, decimal);
+    }
+
+    public static @NotNull String makeFancyString(@Nullable Double current, boolean decimal) {
         if (current == null) return "";
+
+        Map.Entry<String, Integer> shortcut = TradeSystem.man().getApplicableMoneyShortcut(current);
+        String appendix = "";
+        if (shortcut != null) {
+            current /= shortcut.getValue();
+            appendix = shortcut.getKey().toUpperCase();
+        }
 
         Number number = current;
         if (!decimal) number = number.intValue();
-        return TradeSystem.man().getMoneyPattern().format(number);
+        return TradeSystem.man().getMoneyPattern().format(number) + appendix;
     }
 
     @Override

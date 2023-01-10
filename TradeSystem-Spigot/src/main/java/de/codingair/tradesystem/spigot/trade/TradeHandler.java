@@ -13,7 +13,6 @@ import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -468,17 +467,23 @@ public class TradeHandler {
         return moneyShortcuts.get(key);
     }
 
-    private DecimalFormat getDefaultDecimalFormat() {
-        DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(EconomyIcon.FRACTION_DIGITS);
-        df.setMinimumIntegerDigits(1);
+    @Nullable
+    public Map.Entry<String, Integer> getApplicableMoneyShortcut(double d) {
+        Map.Entry<String, Integer> highest = null;
 
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setDecimalSeparator('.');
-        symbols.setGroupingSeparator(',');
-        df.setDecimalFormatSymbols(symbols);
+        for (Map.Entry<String, Integer> e : moneyShortcuts.entrySet()) {
+            if (d >= e.getValue()) {
+                if (highest == null || highest.getValue() < e.getValue()) {
+                    highest = e;
+                }
+            }
+        }
 
-        return df;
+        return highest;
+    }
+
+    public HashMap<String, Integer> getMoneyShortcuts() {
+        return moneyShortcuts;
     }
 
     public int getCountdownRepetitions() {

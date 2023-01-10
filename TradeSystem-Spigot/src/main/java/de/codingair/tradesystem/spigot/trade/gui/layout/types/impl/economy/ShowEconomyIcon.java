@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transition.Consumer<Double> {
     private final String namePlural;
     private Double value = 0D;
@@ -23,7 +25,7 @@ public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transitio
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player) + ": §7" + TradeSystem.man().getMoneyPattern().format(value));
+        layout.setName("§e" + getName(player) + ": §7" + EconomyIcon.makeFancyString(value, true));
         if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
