@@ -133,3 +133,4 @@ Exp_Point: "Очко опыта"
 Open_GUI_Error: '&7Сделка &cотменена &7из-за открытого инвентаря&7.'
 Reset: "Сбросить"
 Balance_limit_reached: '&7Ваш баланс &cнедостаточный&7.'
+AnvilGUI_Title: 'Repair & Name'
