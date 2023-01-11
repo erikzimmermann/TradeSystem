@@ -16,6 +16,9 @@ public enum TradeLogMessages {
     PAYED_TOKENS("payed token(s)", "%s payed token(s): %s", "§8"),
     RECEIVED_TOKENS("received token(s)", "%s received token(s): %s", "§8"),
 
+    PAYED_PLAYER_POINTS("payed player point(s)", "%s payed player point(s): %s", "§8"),
+    RECEIVED_PLAYER_POINTS("received player point(s)", "%s received player point(s): %s", "§8"),
+
     PAYED_EXP_LEVELS("traded exp levels", "%s traded exp levels: %s", "§8"),
     RECEIVED_EXP_LEVELS("received exp levels", "%s received exp levels: %s", "§8"),
     PAYED_EXP_POINTS("traded exp points", "%s traded exp points: %s", "§8"),

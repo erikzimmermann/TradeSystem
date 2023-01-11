@@ -1,10 +1,9 @@
-package de.codingair.tradesystem.spigot.extras.external.essentials;
+package de.codingair.tradesystem.spigot.extras.external.playerpoints;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeIconInitializeEvent;
-import de.codingair.tradesystem.spigot.events.TradePatternRegistrationEvent;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependency;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.EditorInfo;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.TransitionTargetEditorInfo;
@@ -14,25 +13,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
-public class EssentialsDependency implements PluginDependency, Listener {
+public class PlayerPointsDependency implements PluginDependency, Listener {
 
     @EventHandler
     public void onIconInitialize(TradeIconInitializeEvent e) {
         try {
-            e.registerIcon(TradeSystem.getInstance(), EssentialsIcon.class, new EditorInfo("Essentials icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, getPluginName()));
-            e.registerIcon(TradeSystem.getInstance(), ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
+            e.registerIcon(TradeSystem.getInstance(), PlayerPointsIcon.class, new EditorInfo("PlayerPoints icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.IRON_NUGGET), false, getPluginName()));
+            e.registerIcon(TradeSystem.getInstance(), ShowPlayerPointsIcon.class, new TransitionTargetEditorInfo("PlayerPoints preview icon", PlayerPointsIcon.class));
         } catch (TradeIconException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    @EventHandler
-    public void onPatternRegistration(TradePatternRegistrationEvent e) {
-        e.addPattern(new DefaultEssentialsPattern());
-    }
-
     @Override
     public @NotNull String getPluginName() {
-        return "Essentials";
+        return "PlayerPoints";
     }
 }

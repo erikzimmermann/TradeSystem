@@ -19,7 +19,7 @@ public class VaultDependency implements PluginDependency, Listener {
     @EventHandler
     public void onIconInitialize(TradeIconInitializeEvent e) {
         try {
-            e.registerIcon(TradeSystem.getInstance(), VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
+            e.registerIcon(TradeSystem.getInstance(), VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, getPluginName()));
             e.registerIcon(TradeSystem.getInstance(), ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
         } catch (TradeIconException ex) {
             throw new RuntimeException(ex);

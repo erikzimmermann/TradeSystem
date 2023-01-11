@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.extras.external;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.external.essentials.EssentialsDependency;
 import de.codingair.tradesystem.spigot.extras.external.placeholderapi.PlaceholderDependency;
+import de.codingair.tradesystem.spigot.extras.external.playerpoints.PlayerPointsDependency;
 import de.codingair.tradesystem.spigot.extras.external.tokenmanager.TokenManagerDependency;
 import de.codingair.tradesystem.spigot.extras.external.vault.VaultDependency;
 import org.bukkit.Bukkit;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class PluginDependencies {
     private static final PluginDependency[] EXTERNALS = {
-            new PlaceholderDependency(), new EssentialsDependency(), new TokenManagerDependency(), new VaultDependency()
+            new PlaceholderDependency(), new EssentialsDependency(), new TokenManagerDependency(), new VaultDependency(), new PlayerPointsDependency()
     };
 
     public static boolean isEnabled(@NotNull Class<? extends PluginDependency> clazz) {

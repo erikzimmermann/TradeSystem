@@ -18,7 +18,7 @@ public class TokenManagerDependency implements PluginDependency, Listener {
     @EventHandler
     public void onIconInitialize(TradeIconInitializeEvent e) {
         try {
-            e.registerIcon(TradeSystem.getInstance(), TokenIcon.class, new EditorInfo("TokenManager icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.TRIPWIRE_HOOK), false, "TokenManager"));
+            e.registerIcon(TradeSystem.getInstance(), TokenIcon.class, new EditorInfo("TokenManager icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.TRIPWIRE_HOOK), false, getPluginName()));
             e.registerIcon(TradeSystem.getInstance(), ShowTokenIcon.class, new TransitionTargetEditorInfo("TokenManager preview icon", TokenIcon.class));
         } catch (TradeIconException ex) {
             throw new RuntimeException(ex);
