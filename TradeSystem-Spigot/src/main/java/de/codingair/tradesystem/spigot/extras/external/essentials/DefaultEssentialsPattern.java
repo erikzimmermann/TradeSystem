@@ -1,18 +1,15 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.patterns;
+package de.codingair.tradesystem.spigot.extras.external.essentials;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
-import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault.ShowVaultIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault.VaultIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.IconData;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class DefaultVaultPattern extends Pattern {
-    public static final String NAME = "Standard-Vault";
+public class DefaultEssentialsPattern extends Pattern {
+    public static final String NAME = "Standard-Essentials";
     private static final ItemStack BLACK_STAINED = new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).getItem();
     private static final ItemStack GRAY_STAINED = new ItemBuilder(XMaterial.GRAY_STAINED_GLASS_PANE).getItem();
     private static final ItemStack NUGGET = new ItemBuilder(XMaterial.GOLD_NUGGET).getItem();
@@ -31,18 +28,14 @@ public class DefaultVaultPattern extends Pattern {
         STATUS_NOT_READY.setItemMeta(null);
     }
 
-    public static boolean valid() {
-        return IconHandler.isRegistered(VaultIcon.class);
-    }
-
-    public DefaultVaultPattern() {
+    public DefaultEssentialsPattern() {
         super(NAME, new IconData[] {
                 /*0*/   new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
-                new IconData(VaultIcon.class, NUGGET.clone()),
+                new IconData(EssentialsIcon.class, NUGGET.clone()),
                 new IconData(DecorationIcon.class, GRAY_STAINED.clone()),
-                /*5*/   new IconData(ShowVaultIcon.class, NUGGET.clone()),
+                /*5*/   new IconData(ShowEssentialsIcon.class, NUGGET.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),

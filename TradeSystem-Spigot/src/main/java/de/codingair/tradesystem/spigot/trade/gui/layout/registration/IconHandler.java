@@ -11,12 +11,6 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.E
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ExpPointIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ShowExpLevelIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ShowExpPointIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.essentials.EssentialsIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.essentials.ShowEssentialsIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault.ShowVaultIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault.VaultIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.tokenmanager.ShowTokenIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.tokenmanager.TokenIcon;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -128,9 +122,6 @@ public class IconHandler {
         try {
             //economy
             registerExp();
-            registerVault();
-            registerEssentials();
-            registerTokenManager();
         } catch (TradeIconException e) {
             e.printStackTrace();
         }
@@ -141,30 +132,6 @@ public class IconHandler {
         register(ShowExpLevelIcon.class, new TransitionTargetEditorInfo("Exp level preview icon", ExpLevelIcon.class));
         register(ExpPointIcon.class, new EditorInfo("Exp point icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.EXPERIENCE_BOTTLE), false));
         register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
-    }
-
-    private static void registerVault() throws TradeIconException {
-        try {
-            register(VaultIcon.class, new EditorInfo("Vault icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Vault"));
-            register(ShowVaultIcon.class, new TransitionTargetEditorInfo("Vault preview icon", VaultIcon.class));
-        } catch (RequirementNotFulfilledException ignored) {
-        }
-    }
-
-    private static void registerEssentials() throws TradeIconException {
-        try {
-            register(EssentialsIcon.class, new EditorInfo("Essentials icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.GOLD_NUGGET), false, "Essentials"));
-            register(ShowEssentialsIcon.class, new TransitionTargetEditorInfo("Essentials preview icon", EssentialsIcon.class));
-        } catch (RequirementNotFulfilledException ignored) {
-        }
-    }
-
-    private static void registerTokenManager() throws TradeIconException {
-        try {
-            register(TokenIcon.class, new EditorInfo("TokenManager icon", Type.ECONOMY, (editor) -> new ItemBuilder(XMaterial.TRIPWIRE_HOOK), false, "TokenManager"));
-            register(ShowTokenIcon.class, new TransitionTargetEditorInfo("TokenManager preview icon", TokenIcon.class));
-        } catch (RequirementNotFulfilledException ignored) {
-        }
     }
 
     @NotNull

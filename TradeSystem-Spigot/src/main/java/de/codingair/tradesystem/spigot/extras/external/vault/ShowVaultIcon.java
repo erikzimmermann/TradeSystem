@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault;
+package de.codingair.tradesystem.spigot.extras.external.vault;
 
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.ShowEconomyIcon;
 import org.bukkit.inventory.ItemStack;

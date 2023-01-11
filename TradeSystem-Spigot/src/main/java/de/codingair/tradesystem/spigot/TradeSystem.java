@@ -11,7 +11,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
-import de.codingair.tradesystem.spigot.extras.placeholderapi.PAPI;
+import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
@@ -97,6 +97,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     public void onEnable() {
         instance = this;
         API.getInstance().onEnable(this);
+        PluginDependencies.enable();
 
         printConsoleInfo(() -> {
             loadConfigFiles();
@@ -120,7 +121,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             Lang.initializeFile();
         });
 
-        PAPI.register();
         notifyPlayers(null);
     }
 
@@ -143,6 +143,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             HandlerList.unregisterAll(this);
             this.fileManager.destroy();
+
+            PluginDependencies.disable();
         });
     }
 

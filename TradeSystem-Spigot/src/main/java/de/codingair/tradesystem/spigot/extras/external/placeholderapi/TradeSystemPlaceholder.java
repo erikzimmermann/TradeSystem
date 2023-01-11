@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.extras.placeholderapi;
+package de.codingair.tradesystem.spigot.extras.external.placeholderapi;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 public class TradeSystemPlaceholder extends PlaceholderExpansion {
     @Override
     public @NotNull String getIdentifier() {
-        return PAPI.IDENTIFIER;
+        return PlaceholderDependency.IDENTIFIER;
     }
 
     @Override
@@ -22,6 +22,6 @@ public class TradeSystemPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player p, @NotNull String id) {
-        return PAPI.apply(p, id);
+        return PlaceholderDependency.apply(p, id);
     }
 }

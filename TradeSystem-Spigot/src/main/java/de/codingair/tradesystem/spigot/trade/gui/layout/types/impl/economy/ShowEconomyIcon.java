@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
-import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.SimpleShowIcon;
@@ -11,8 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transition.Consumer<Double> {
     private final String namePlural;

@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.essentials;
+package de.codingair.tradesystem.spigot.extras.external.essentials;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;

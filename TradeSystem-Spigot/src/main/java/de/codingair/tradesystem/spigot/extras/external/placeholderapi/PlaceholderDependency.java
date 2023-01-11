@@ -1,10 +1,10 @@
-package de.codingair.tradesystem.spigot.extras.placeholderapi;
+package de.codingair.tradesystem.spigot.extras.external.placeholderapi;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.extras.external.PluginDependency;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,19 +12,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PAPI {
-    private static Boolean enabled = null;
+public class PlaceholderDependency implements PluginDependency {
+    private static PlaceholderDependency instance;
     static final String IDENTIFIER = "tradesystem";
     static final Pattern PATTERN = Pattern.compile("%" + IDENTIFIER + "_[a-z_]+%", Pattern.CASE_INSENSITIVE);
 
-    public static boolean isEnabled() {
-        if (enabled == null) enabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-        return enabled;
+    public PlaceholderDependency() {
+        instance = this;
     }
 
     @NotNull
     public static String convert(@NotNull String s, @NotNull Player player) {
-        if (isEnabled()) return PlaceholderAPI.setPlaceholders(player, s);
+        if (instance.isAvailable()) return PlaceholderAPI.setPlaceholders(player, s);
         else {
             Matcher m = PATTERN.matcher(s);
             while (m.find()) {
@@ -41,8 +40,9 @@ public class PAPI {
         }
     }
 
-    public static void register() {
-        if (isEnabled()) new TradeSystemPlaceholder().register();
+    @Override
+    public void onEnable() {
+        new TradeSystemPlaceholder().register();
     }
 
     @Nullable
@@ -74,5 +74,10 @@ public class PAPI {
         }
 
         return null;
+    }
+
+    @Override
+    public @NotNull String getPluginName() {
+        return "PlaceholderAPI";
     }
 }
