@@ -27,6 +27,10 @@ GUI_Title: '&cTrade con %player%%tradesystem_countdown_fancy%'
 Money_Amount: Amount of money
 Coin: Coin
 Coins: Coins
+PlayerPoint: "PlayerPoint"
+PlayerPoints: "PlayerPoints"
+Token: "Token"
+Tokens: "Tokens"
 Status: Status
 Ready: Ready
 Not_Ready: Not ready

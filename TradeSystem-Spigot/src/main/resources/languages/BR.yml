@@ -27,6 +27,10 @@ GUI_Title: '&cTroque com %player%%tradesystem_countdown_fancy%'
 Money_Amount: Quantia de Dinheiro
 Coin: Moeda
 Coins: Moedas
+PlayerPoint: PlayerPoint
+PlayerPoints: PlayerPoints
+Token: "Token"
+Tokens: "Tokens"
 Status: Estado
 Ready: Disponível
 Not_Ready: Indisponível

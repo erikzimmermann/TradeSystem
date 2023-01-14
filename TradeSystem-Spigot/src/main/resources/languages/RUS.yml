@@ -27,6 +27,10 @@ GUI_Title: '&cСделка с %player%'
 Money_Amount: 'Количество денег'
 Coin: 'Монета'
 Coins: 'Монет(-ы/-а)'
+PlayerPoint: "PlayerPoint"
+PlayerPoints: "PlayerPoints"
+Token: "Token"
+Tokens: "Tokens"
 Status: 'Статус'
 Ready: 'Готов'
 Not_Ready: 'Не готов'

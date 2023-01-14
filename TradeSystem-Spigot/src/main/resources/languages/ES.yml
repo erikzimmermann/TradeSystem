@@ -27,6 +27,10 @@ GUI_Title: '&cIntercambio con %player%'
 Money_Amount: 'Cantidad de dinero'
 Coin: 'Euro'
 Coins: 'Euros'
+PlayerPoint: PlayerPoint
+PlayerPoints: PlayerPoints
+Token: "Token"
+Tokens: "Tokens"
 Status: 'Estado'
 Ready: 'Listo'
 Not_Ready: 'Aún no listo'

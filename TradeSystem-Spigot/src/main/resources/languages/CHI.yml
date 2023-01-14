@@ -27,6 +27,10 @@ GUI_Title: '&c正在与&e%player%&c进行交易.%tradesystem_countdown_fancy%'
 Money_Amount: 金额
 Coin: 金币
 Coins: 金币
+PlayerPoint: PlayerPoint
+PlayerPoints: PlayerPoints
+Token: "Token"
+Tokens: "Tokens"
 Status: 目前状态
 Ready: 已准备
 Not_Ready: 未准备
