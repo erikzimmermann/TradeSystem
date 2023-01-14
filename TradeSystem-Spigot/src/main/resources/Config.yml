@@ -88,7 +88,7 @@ TradeSystem:
 
   # BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
   # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
-  Tradelog:
+  TradeLog:
     Enabled: false
     Database:
       # Values: SQLITE, MYSQL
