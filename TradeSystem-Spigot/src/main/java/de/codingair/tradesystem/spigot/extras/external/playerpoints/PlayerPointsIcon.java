@@ -23,17 +23,17 @@ public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         return api().look(player.getUniqueId());
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         api().take(player.getUniqueId(), (int) value);
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         api().give(player.getUniqueId(), (int) value);
     }
 }

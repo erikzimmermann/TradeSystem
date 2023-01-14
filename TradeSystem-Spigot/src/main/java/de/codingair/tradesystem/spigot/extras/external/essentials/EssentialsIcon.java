@@ -25,7 +25,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         check(player);
 
         try {
@@ -37,7 +37,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         check(player);
 
         try {
@@ -48,7 +48,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         check(player);
 
         try {
@@ -63,7 +63,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    protected @NotNull Optional<Double> getLimitOf(@NotNull Player player) {
+    protected @NotNull Optional<Double> getBalanceLimit(@NotNull Player player) {
         Essentials ess = (Essentials) Essentials.getProvidingPlugin(Essentials.class);
         BigDecimal max = ess.getSettings().getMaxMoney();
         return max == null ? Optional.empty() : Optional.of(max.doubleValue() - 1);  // -1 because of the rounding error

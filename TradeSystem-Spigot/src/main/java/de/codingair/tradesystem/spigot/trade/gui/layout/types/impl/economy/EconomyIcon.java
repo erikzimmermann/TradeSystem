@@ -52,7 +52,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        if (getPlayerValue(player) <= 0) {
+        if (getBalance(player) <= 0) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Balance_limit_reached", player));
             return false;
         }
@@ -86,7 +86,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
                 player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
                 return IconResult.GUI;
             } else {
-                double max = getPlayerValue(player);
+                double max = getBalance(player);
                 if (input > max) {
                     String s = Lang.get("Only_X_Amount")
                             .replace("%amount%", makeString(max))
@@ -148,7 +148,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        if (value > 0 && getPlayerValue(player) < value) {
+        if (value > 0 && getBalance(player) < value) {
             return FinishResult.ERROR_ECONOMY;
         }
 
@@ -177,23 +177,23 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
         Player other = trade.getOther(player).orElse(null);
         if (other == null) return value;
 
-        return getLimitOf(other).map(limit -> {
-            double balance = getPlayerValue(other);
+        return getBalanceLimit(other).map(limit -> {
+            double balance = getBalance(other);
             if (value + balance > limit) return Math.max(limit - balance, 0);
             else return value;
         }).orElse(value);
     }
 
     @NotNull
-    protected Optional<Double> getLimitOf(@NotNull Player player) {
+    protected Optional<Double> getBalanceLimit(@NotNull Player player) {
         return Optional.empty();
     }
 
-    public abstract double getPlayerValue(Player player);
+    protected abstract double getBalance(Player player);
 
-    public abstract void withdraw(Player player, double value);
+    protected abstract void withdraw(Player player, double value);
 
-    public abstract void deposit(Player player, double value);
+    protected abstract void deposit(Player player, double value);
 
     @Override
     public boolean isEmpty() {

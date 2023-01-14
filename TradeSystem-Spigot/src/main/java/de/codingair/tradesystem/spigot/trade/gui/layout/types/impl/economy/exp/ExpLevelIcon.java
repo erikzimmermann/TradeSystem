@@ -17,17 +17,17 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         return player.getLevel();
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         player.setLevel((int) (player.getLevel() - value));
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         player.setLevel((int) (player.getLevel() + value));
     }
 }

@@ -20,17 +20,17 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         return getEconomy().getBalance(player);
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         getEconomy().withdrawPlayer(player, value);
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         getEconomy().depositPlayer(player, value);
     }
 

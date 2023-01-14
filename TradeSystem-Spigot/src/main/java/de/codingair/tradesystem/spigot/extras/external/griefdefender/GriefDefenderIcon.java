@@ -4,13 +4,10 @@ import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
-import me.realized.tokenmanager.api.TokenManager;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
@@ -24,7 +21,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return 0;
 
@@ -32,7 +29,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return;
 
@@ -40,7 +37,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return;
 
@@ -48,7 +45,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    protected @NotNull Optional<Double> getLimitOf(@NotNull Player player) {
+    protected @NotNull Optional<Double> getBalanceLimit(@NotNull Player player) {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return Optional.empty();
 

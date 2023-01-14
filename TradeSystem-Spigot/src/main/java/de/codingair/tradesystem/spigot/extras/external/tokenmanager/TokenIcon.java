@@ -25,17 +25,17 @@ public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         return getTokenManager().getTokens(player).orElse(0);
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         getTokenManager().removeTokens(player, (long) value);
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         getTokenManager().addTokens(player, (long) value);
     }
 }

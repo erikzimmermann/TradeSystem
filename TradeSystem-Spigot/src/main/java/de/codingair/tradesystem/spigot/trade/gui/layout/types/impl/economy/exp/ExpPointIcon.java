@@ -17,19 +17,19 @@ public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected double getBalance(Player player) {
         //This causes issues when directly setting the level before.
         //Unfortunately, there is no other easy way to get the total experience points.
         return player.getTotalExperience();
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, double value) {
         player.giveExp((int) -value);
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, double value) {
         player.giveExp((int) value);
     }
 }
