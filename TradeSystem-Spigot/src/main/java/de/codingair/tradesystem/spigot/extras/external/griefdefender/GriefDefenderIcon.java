@@ -2,7 +2,10 @@ package de.codingair.tradesystem.spigot.extras.external.griefdefender;
 
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
+import com.griefdefender.api.permission.option.Options;
+import com.griefdefender.lib.geantyref.TypeToken;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.Type;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +28,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return 0;
 
-        return user.getPlayerData().getBonusClaimBlocks();
+        return user.getPlayerData().getRemainingClaimBlocks();
     }
 
     @Override
@@ -49,7 +52,9 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return Optional.empty();
 
-        Number n = user.getPlayerData().getMaxBonusClaimBlocks();
-        return Optional.of(n.doubleValue());
+        // use the permission manager directly to check if a value is set
+        Integer max = GriefDefender.getPermissionManager().getOptionValue(TypeToken.get(Integer.class), user, Options.MAX_BONUS_BLOCKS);
+        if (max == null) return Optional.empty();
+        return Optional.of(max.doubleValue());
     }
 }

@@ -31,6 +31,8 @@ PlayerPoint: PlayerPoint
 PlayerPoints: PlayerPoints
 Token: "Token"
 Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: 目前状态
 Ready: 已准备
 Not_Ready: 未准备

@@ -31,6 +31,8 @@ PlayerPoint: PlayerPoint
 PlayerPoints: PlayerPoints
 Token: "Token"
 Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: 'Status'
 Ready: 'Ready'
 Not_Ready: 'Not ready'
