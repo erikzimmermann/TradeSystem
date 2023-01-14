@@ -28,7 +28,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return 0;
 
-        return user.getPlayerData().getAccruedClaimBlocks();
+        return user.getPlayerData().getBonusClaimBlocks();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return;
 
-        user.getPlayerData().setAccruedClaimBlocks((int) Math.max(user.getPlayerData().getAccruedClaimBlocks() - value, 0));
+        user.getPlayerData().setBonusClaimBlocks(user.getPlayerData().getBonusClaimBlocks() - (int) value);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return;
 
-        user.getPlayerData().setAccruedClaimBlocks((int) Math.min(user.getPlayerData().getAccruedClaimBlocks() + value, user.getPlayerData().getMaxAccruedClaimBlocks()));
+        user.getPlayerData().setBonusClaimBlocks(user.getPlayerData().getBonusClaimBlocks() + (int) value);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return Optional.empty();
 
-        Number n = user.getPlayerData().getMaxAccruedClaimBlocks();
+        Number n = user.getPlayerData().getMaxBonusClaimBlocks();
         return Optional.of(n.doubleValue());
     }
 }
