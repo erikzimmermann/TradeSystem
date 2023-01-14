@@ -68,14 +68,4 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
         BigDecimal max = ess.getSettings().getMaxMoney();
         return max == null ? Optional.empty() : Optional.of(max.doubleValue() - 1);  // -1 because of the rounding error
     }
-
-    @Override
-    protected @NotNull Optional<Double> getBalanceOf(@NotNull Player player) {
-        try {
-            BigDecimal balance = Economy.getMoneyExact(player.getUniqueId());
-            return balance == null ? Optional.empty() : Optional.of(balance.doubleValue());
-        } catch (UserDoesNotExistException e) {
-            return Optional.empty();
-        }
-    }
 }

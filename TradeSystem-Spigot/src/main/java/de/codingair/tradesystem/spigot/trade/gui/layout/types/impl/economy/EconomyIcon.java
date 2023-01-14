@@ -178,21 +178,14 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
         if (other == null) return value;
 
         return getLimitOf(other).map(limit -> {
-            Optional<Double> balance = getBalanceOf(other);
-            if (!balance.isPresent()) return value;
-
-            if (value + balance.get() > limit) return Math.max(limit - balance.get(), 0);
+            double balance = getPlayerValue(other);
+            if (value + balance > limit) return Math.max(limit - balance, 0);
             else return value;
         }).orElse(value);
     }
 
     @NotNull
     protected Optional<Double> getLimitOf(@NotNull Player player) {
-        return Optional.empty();
-    }
-
-    @NotNull
-    protected Optional<Double> getBalanceOf(@NotNull Player player) {
         return Optional.empty();
     }
 
