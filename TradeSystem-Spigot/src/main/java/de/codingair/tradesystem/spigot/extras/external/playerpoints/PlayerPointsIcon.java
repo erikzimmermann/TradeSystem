@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.external.playerpoints;
 
+import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.black_ixx.playerpoints.PlayerPoints;
@@ -7,6 +8,9 @@ import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigDecimal;
+import java.util.function.Function;
 
 public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     public PlayerPointsIcon(@NotNull ItemStack itemStack) {
@@ -23,17 +27,22 @@ public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     }
 
     @Override
-    protected double getBalance(Player player) {
-        return api().look(player.getUniqueId());
+    protected @NotNull BigDecimal getBalance(Player player) {
+        return BigDecimal.valueOf(api().look(player.getUniqueId()));
     }
 
     @Override
-    protected void withdraw(Player player, double value) {
-        api().take(player.getUniqueId(), (int) value);
+    protected void withdraw(Player player, @NotNull BigDecimal value) {
+        api().take(player.getUniqueId(), value.intValue());
     }
 
     @Override
-    protected void deposit(Player player, double value) {
-        api().give(player.getUniqueId(), (int) value);
+    protected void deposit(Player player, @NotNull BigDecimal value) {
+        api().give(player.getUniqueId(), value.intValue());
+    }
+
+    @Override
+    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+        return EconomySupportType.INTEGER;
     }
 }

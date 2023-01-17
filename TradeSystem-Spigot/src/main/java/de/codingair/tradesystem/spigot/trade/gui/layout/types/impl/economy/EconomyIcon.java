@@ -19,19 +19,20 @@ import org.jetbrains.annotations.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.text.NumberFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParsePosition;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
-public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeIcon> extends InputIcon<Double> implements Transition<T, Double> {
+public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & TradeIcon> extends InputIcon<BigDecimal> implements Transition<T, BigDecimal> {
     private final String nameSingular;
     private final String namePlural;
     private final TradeLogMessages give;
     private final TradeLogMessages receive;
     private final boolean decimal;
-    private double value = 0;
+    private BigDecimal value = BigDecimal.ZERO;
 
     /**
      * @param itemStack    The item that will be used to show this icon.
@@ -52,7 +53,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        if (getBalance(player) <= 0) {
+        if (getBalance(player).signum() <= 0) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Balance_limit_reached", player));
             return false;
         }
@@ -61,41 +62,43 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     }
 
     @Override
-    public @Nullable Double convertInput(@NotNull String input) {
-        if (input.isEmpty()) return 0D;
+    public @Nullable BigDecimal convertInput(@NotNull String input) {
+        if (input.isEmpty()) return BigDecimal.ZERO;
 
-        Integer factor = TradeSystem.man().getMoneyShortcutFactor(input);
+        BigDecimal value = (BigDecimal) TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
+        if (value == null) return BigDecimal.ZERO;
 
-        Number n = TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
-        if (n == null) return 0D;
-
-        double value = n.doubleValue();
-        if (factor != null) value *= factor;
+        BigDecimal factor = TradeSystem.man().getMoneyShortcutFactor(input);
+        if (factor != null) value = value.multiply(factor);
 
         return value;
     }
 
     @Override
-    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable Double input, @NotNull String origin) {
-        if (input == null || input < 0) {
+    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable BigDecimal input, @NotNull String origin) {
+        if (input == null || input.signum() == -1) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
             return IconResult.GUI;
-        } else {
-            boolean isDecimal = input.intValue() != input;
-            if (!decimal && isDecimal) {
-                player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
-                return IconResult.GUI;
-            } else {
-                double max = getBalance(player);
-                if (input > max) {
-                    String s = Lang.get("Only_X_Amount")
-                            .replace("%amount%", makeString(max))
-                            .replace("%type%", getName(player, max == 1));
+        }
 
-                    player.sendMessage(Lang.getPrefix() + s);
-                    return IconResult.GUI;
-                }
-            }
+        // make sure that we're only in a supported range of values
+        input = getMaxSupportedValue().apply(input);
+
+        // this might already be caught by converting the input to the max allowed value
+        boolean isDecimal = input.remainder(BigDecimal.ONE).signum() != 0;
+        if (!decimal && isDecimal) {
+            player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
+            return IconResult.GUI;
+        }
+
+        BigDecimal max = getBalance(player);
+        if (input.compareTo(max) > 0) {
+            String s = Lang.get("Only_X_Amount")
+                    .replace("%amount%", makeString(max))
+                    .replace("%type%", getName(player, max.equals(BigDecimal.ONE)));
+
+            player.sendMessage(Lang.getPrefix() + s);
+            return IconResult.GUI;
         }
 
         this.value = checkLimit(trade, player, input);
@@ -103,17 +106,17 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     }
 
     @Override
-    public @NotNull String makeString(@Nullable Double current) {
+    public @NotNull String makeString(@Nullable BigDecimal current) {
         return makeFancyString(current, decimal);
     }
 
-    public static @NotNull String makeFancyString(@Nullable Double current, boolean decimal) {
+    public static @NotNull String makeFancyString(@Nullable BigDecimal current, boolean decimal) {
         if (current == null) return "";
 
-        Map.Entry<String, Integer> shortcut = TradeSystem.man().getApplicableMoneyShortcut(current);
+        Map.Entry<String, BigDecimal> shortcut = TradeSystem.man().getApplicableMoneyShortcut(current);
         String appendix = "";
         if (shortcut != null) {
-            current /= shortcut.getValue();
+            current = current.divide(shortcut.getValue(), current.precision(), RoundingMode.FLOOR);
             appendix = shortcut.getKey().toUpperCase();
         }
 
@@ -123,7 +126,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     }
 
     @Override
-    public @Nullable Double getValue() {
+    public @Nullable BigDecimal getValue() {
         return value;
     }
 
@@ -132,7 +135,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
         layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
-        if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+        if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
     }
@@ -148,7 +151,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
 
     @Override
     public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        if (value > 0 && getBalance(player) < value) {
+        if (value.signum() > 0 && getBalance(player).compareTo(value) < 0) {
             return FinishResult.ERROR_ECONOMY;
         }
 
@@ -159,55 +162,59 @@ public abstract class EconomyIcon<T extends Transition.Consumer<Double> & TradeI
     public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
         int id = trade.getId(player);
         T show = trade.getLayout()[id].getIcon(getTargetClass());
-        double diff = show.getValue() - value;
+        BigDecimal diff = show.getValue().subtract(value);
 
-        NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
-        String fancyDiff = format.format(decimal ? diff : (int) diff);
+        String fancyDiff = TradeSystem.man().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
 
-        if (diff < 0) {
-            withdraw(player, -diff);
+        int sign = diff.signum();
+        if (sign < 0) {
+            withdraw(player, diff.negate());
             log(trade, give, player.getName(), fancyDiff);
-        } else if (diff > 0) {
+        } else if (sign > 0) {
             deposit(player, diff);
             log(trade, receive, player.getName(), fancyDiff);
         }
     }
 
-    private double checkLimit(@NotNull Trade trade, @NotNull Player player, double value) {
+    @NotNull
+    private BigDecimal checkLimit(@NotNull Trade trade, @NotNull Player player, @NotNull BigDecimal value) {
         Player other = trade.getOther(player).orElse(null);
         if (other == null) return value;
 
         return getBalanceLimit(other).map(limit -> {
-            double balance = getBalance(other);
-            if (value + balance > limit) return Math.max(limit - balance, 0);
-            else return value;
+            BigDecimal balance = getBalance(other);
+            if (balance.add(value).compareTo(limit) > 0) {
+                return limit.subtract(balance).max(BigDecimal.ZERO);
+            } else return value;
         }).orElse(value);
     }
 
     @NotNull
-    protected Optional<Double> getBalanceLimit(@NotNull Player player) {
+    protected Optional<BigDecimal> getBalanceLimit(@NotNull Player player) {
         return Optional.empty();
     }
 
-    protected abstract double getBalance(Player player);
+    protected abstract @NotNull BigDecimal getBalance(Player player);
 
-    protected abstract void withdraw(Player player, double value);
+    protected abstract void withdraw(Player player, @NotNull BigDecimal value);
 
-    protected abstract void deposit(Player player, double value);
+    protected abstract void deposit(Player player, @NotNull BigDecimal value);
+
+    protected abstract @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue();
 
     @Override
     public boolean isEmpty() {
-        return this.value == 0;
+        return this.value.signum() == 0;
     }
 
     @Override
     public void serialize(@NotNull DataOutputStream out) throws IOException {
-        out.writeDouble(this.value);
+        out.writeUTF(this.value.toString());
     }
 
     @Override
     public void deserialize(@NotNull DataInputStream in) throws IOException {
-        this.value = in.readDouble();
+        this.value = new BigDecimal(in.readUTF());
     }
 
     @Override

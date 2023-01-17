@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.MalformedParametersException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
@@ -47,7 +49,7 @@ public class TradeHandler {
     private int distance = 50;
 
     private DecimalFormat moneyPattern;
-    private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
+    private final HashMap<String, BigDecimal> moneyShortcuts = new HashMap<>();
 
     private int countdownRepetitions = 0;
     private int countdownInterval = 0;
@@ -110,6 +112,8 @@ public class TradeHandler {
             TradeSystem.getInstance().getLogger().warning("The money pattern '%s' is invalid. Please check your syntax. The pattern '###,###.####' will be used instead.");
             this.moneyPattern = new DecimalFormat("###,###.####");
         }
+        this.moneyPattern.setParseBigDecimal(true);
+        this.moneyPattern.setRoundingMode(RoundingMode.FLOOR);
 
         String groupingSeparator = config.getString("TradeSystem.Money.Grouping_Separator", ",");
         String decimalSeparator = config.getString("TradeSystem.Money.Decimal_Separator", ".");
@@ -139,8 +143,11 @@ public class TradeHandler {
                         try {
                             JSON json = new JSON((Map<?, ?>) s);
 
-                            int value = json.getInteger("Value", -1);
-                            if (value < 0) continue;
+                            Object number = json.getRaw("Value");
+                            if (number == null) continue;
+
+                            BigDecimal value = new BigDecimal(number.toString());
+                            if (value.signum() <= 0) continue;
 
                             JSONArray a = json.getList("Keys");
 
@@ -462,28 +469,24 @@ public class TradeHandler {
     }
 
     @Nullable
-    public Integer getMoneyShortcutFactor(String s) {
+    public BigDecimal getMoneyShortcutFactor(@NotNull String s) {
         String key = s.toLowerCase().replaceAll("[^a-z]", "");
         return moneyShortcuts.get(key);
     }
 
     @Nullable
-    public Map.Entry<String, Integer> getApplicableMoneyShortcut(double d) {
-        Map.Entry<String, Integer> highest = null;
+    public Map.Entry<String, BigDecimal> getApplicableMoneyShortcut(@NotNull BigDecimal d) {
+        Map.Entry<String, BigDecimal> highest = null;
 
-        for (Map.Entry<String, Integer> e : moneyShortcuts.entrySet()) {
-            if (d >= e.getValue()) {
-                if (highest == null || highest.getValue() < e.getValue()) {
+        for (Map.Entry<String, BigDecimal> e : moneyShortcuts.entrySet()) {
+            if (d.compareTo(e.getValue()) >= 0) {
+                if (highest == null || highest.getValue().compareTo(e.getValue()) < 0) {
                     highest = e;
                 }
             }
         }
 
         return highest;
-    }
-
-    public HashMap<String, Integer> getMoneyShortcuts() {
-        return moneyShortcuts;
     }
 
     public int getCountdownRepetitions() {
