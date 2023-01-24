@@ -22,12 +22,12 @@ public class MySQLConnection {
     private final String password;
 
     private MySQLConnection() {
-        host = config.getString("TradeSystem.Tradelog.Database.Db_host");
-        port = config.getInt("TradeSystem.Tradelog.Database.Db_port");
-        db = config.getString("TradeSystem.Tradelog.Database.Db_name");
-        user = config.getString("TradeSystem.Tradelog.Database.Db_user");
+        host = config.getString("TradeSystem.TradeLog.Database.Db_host");
+        port = config.getInt("TradeSystem.TradeLog.Database.Db_port");
+        db = config.getString("TradeSystem.TradeLog.Database.Db_name");
+        user = config.getString("TradeSystem.TradeLog.Database.Db_user");
 
-        String password = config.getString("TradeSystem.Tradelog.Database.Db_password");
+        String password = config.getString("TradeSystem.TradeLog.Database.Db_password");
         if (password != null && password.equalsIgnoreCase("null")) password = null;
         this.password = password;
     }
