@@ -80,8 +80,9 @@ public class TradeHandler {
 
         //load options
         requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
-        if (requestExpirationTime <= 10) {
-            config.set("TradeSystem.Trade_Request_Expiration_Time", 10);
+        if (requestExpirationTime < 5) {
+            requestExpirationTime = 5;
+            config.set("TradeSystem.Trade_Request_Expiration_Time", 5);
             save = true;
         }
 
@@ -232,6 +233,13 @@ public class TradeHandler {
         TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
 
         if (save) file.saveConfig();
+
+        invitationManager.startExpirationHandler();
+    }
+
+    public void disable() {
+        cancelAll();
+        invitationManager.stopExpirationHandler();
     }
 
     private SoundData getSound(String name, FileConfiguration config, String def) {
@@ -353,7 +361,8 @@ public class TradeHandler {
         }
     }
 
-    public void cancelAll() {
+    private void cancelAll() {
+        TradeSystem.log("  > Cancelling all active trades");
         List<Trade> tradeList = new ArrayList<>(this.trades.values());
 
         for (Trade trade : tradeList) {

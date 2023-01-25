@@ -57,7 +57,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
 
                             future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.START_TRADING));
                         } else {
-                            InvitationManager.registerExpiration(null, packet.getInviter(), player, player.getName());
+                            InvitationManager.registerInvitation(null, packet.getInviter(), player, player.getName());
                             RequestManager.sendRequest(packet.getInviter(), player);
                             future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.INVITED));
                         }

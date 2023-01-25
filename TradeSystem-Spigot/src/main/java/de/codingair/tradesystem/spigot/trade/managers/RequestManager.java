@@ -32,7 +32,7 @@ public class RequestManager {
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) return;
 
-            if (InvitationManager.registerInvitation(sender, null, invited)) return;
+            if (InvitationManager.processInvitation(sender, null, invited)) return;
             sendRequest(sender, invited);
         } else {
             request(sender, other);
@@ -62,7 +62,7 @@ public class RequestManager {
     }
 
     private static void requestFinalTrade(@NotNull Player player, @NotNull Player recipient) {
-        if (InvitationManager.registerInvitation(player, recipient, recipient.getName())) return;
+        if (InvitationManager.processInvitation(player, recipient, recipient.getName())) return;
         sendRequest(player.getName(), recipient);
     }
 

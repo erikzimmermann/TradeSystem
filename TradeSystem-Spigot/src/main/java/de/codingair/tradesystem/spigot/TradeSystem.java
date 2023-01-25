@@ -130,8 +130,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getScheduler().cancelTasks(this);
 
         printConsoleInfo(() -> {
-            log("  > Cancelling all active trades");
-            this.tradeHandler.cancelAll();
+            this.tradeHandler.disable();
 
             this.tradeCMD.unregister();
             this.tradeSystemCMD.unregister();
