@@ -2,6 +2,12 @@ package de.codingair.tradesystem.spigot.extras.tradelog;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.BukkitTradeLogRepository;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
+import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
+import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
+import de.codingair.tradesystem.spigot.utils.database.DatabaseUtil;
+import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,43 +17,61 @@ import java.util.List;
 
 public class TradeLogService {
     private static TradeLogService instance;
-    private final TradeLogRepository tradeLogRepository = TradeSystem.getInstance().getTradeLogRepository();
+    private final TradeLogRepository tradeLogRepository = getTradeLogRepository();
 
     private TradeLogService() {
     }
 
-    public static TradeLogService getTradeLog() {
+    private static TradeLogService getTradeLog() {
         if (instance == null) instance = new TradeLogService();
         return instance;
     }
 
-    public void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
+    public static void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
         if (message == null || notConnected()) return;
 
-        Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
+        Runnable runnable = () -> getTradeLog().tradeLogRepository.log(player1, player2, message);
 
         //it will throw an error if the plugin is not enabled
         if (TradeSystem.getInstance().isEnabled()) Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), runnable);
         else runnable.run();
     }
 
-    public void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
+    public static void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
         if (message == null || notConnected()) return;
 
-        Runnable runnable = () -> tradeLogRepository.log(player1, player2, message);
+        Runnable runnable = () -> getTradeLog().tradeLogRepository.log(player1, player2, message);
 
         //it will throw an error if the plugin is not enabled
         if (TradeSystem.getInstance().isEnabled()) Bukkit.getScheduler().runTaskLaterAsynchronously(TradeSystem.getInstance(), runnable, delay);
         else runnable.run();
     }
 
-    public List<TradeLog> getLogMessages(String playerName) {
+    public static List<TradeLog.Entry> getLogMessages(String playerName) {
         if (notConnected()) return new ArrayList<>();
-        return tradeLogRepository.getLogMessages(playerName);
+        return getTradeLog().tradeLogRepository.getLogMessages(playerName);
     }
 
-    public boolean notConnected() {
-        return tradeLogRepository == null || !TradeSystem.getInstance().getDatabaseInitializer().isRunning();
+    public static boolean notConnected() {
+        return getTradeLog().tradeLogRepository == null || !TradeSystem.getInstance().getDatabaseInitializer().isRunning();
+    }
+
+    public TradeLogRepository getTradeLogRepository() {
+        if (!TradeLog.isEnabled()) {
+            return null;
+        }
+
+        DatabaseType type = DatabaseUtil.database().getType();
+        switch (type) {
+            case MYSQL:
+                return new MysqlTradeLogRepository(MySQLConnection.getConnection());
+            case SQLITE:
+                return new SqlLiteTradeLogRepository();
+            case BUKKIT:
+                return new BukkitTradeLogRepository();
+            default:
+                throw new RuntimeException("Invalid database type provided: " + type);
+        }
     }
 
 }

@@ -12,11 +12,7 @@ import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
@@ -32,9 +28,6 @@ import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseInitializer;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseUtil;
-import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
@@ -295,22 +288,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public YamlConfiguration getOldConfig() {
         return oldConfig;
-    }
-
-    public TradeLogRepository getTradeLogRepository() {
-        if (!TradeLogOptions.isEnabled()) {
-            return null;
-        }
-
-        DatabaseType type = DatabaseUtil.database().getType();
-        switch (type) {
-            case MYSQL:
-                return new MysqlTradeLogRepository(MySQLConnection.getConnection());
-            case SQLITE:
-                return new SqlLiteTradeLogRepository();
-            default:
-                throw new RuntimeException("Invalid database type provided: " + type);
-        }
     }
 
     public DatabaseInitializer getDatabaseInitializer() {

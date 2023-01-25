@@ -8,7 +8,8 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
@@ -31,8 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class ProxyTrade extends Trade {
     private final Player player;
@@ -321,13 +320,10 @@ public class ProxyTrade extends Trade {
                 //using original one to prevent dupe glitches!!!
                 ItemStack i0 = getReceived(i);
 
-                //Log before calling the event. The event could remove this item and we would still lose it.
+                //Log before calling the event. The event could remove this item, and we would still lose it.
                 if (i0 != null && i0.getType() != Material.AIR) {
-                    if (initiationServer) getTradeLog().log(this.player.getName(), this.other, TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
-                    else {
-                        //exception -> proxy trade -> handle item on one server -> switch players
-                        getTradeLog().log(this.other, this.player.getName(), TradeLogMessages.RECEIVE_ITEM.get(this.player.getName(), i0.getAmount() + "x " + i0.getType()));
-                    }
+                    //exception -> proxy trade -> handle item on one server -> switch players
+                    TradeLog.logItemReceive(this.player, initiationServer, this.other, i0);
                 }
 
                 //call event
@@ -356,7 +352,7 @@ public class ProxyTrade extends Trade {
             this.player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.player));
             if (droppedItems[0]) this.player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.player));
 
-            if (initiationServer) getTradeLog().logLater(this.player.getName(), this.other, TradeLogMessages.FINISHED.get(), 10);
+            if (initiationServer) TradeLogService.logLater(this.player.getName(), this.other, TradeLog.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(this.player);
             return true;

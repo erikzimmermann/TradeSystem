@@ -5,7 +5,6 @@ import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.ess3.api.MaxMoneyException;
 import org.bukkit.entity.Player;
@@ -18,7 +17,7 @@ import java.util.function.Function;
 
 public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     public EssentialsIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Coin", "Coins", TradeLogMessages.PAYED_MONEY, TradeLogMessages.RECEIVED_MONEY, true);
+        super(itemStack, "Coin", "Coins", true);
     }
 
     @Override

@@ -10,5 +10,5 @@ public interface TradeLogRepository {
     void log(String player1, String playerTo2, String message);
 
     @Nullable
-    List<TradeLog> getLogMessages(String playerName);
+    List<TradeLog.Entry> getLogMessages(String playerName);
 }

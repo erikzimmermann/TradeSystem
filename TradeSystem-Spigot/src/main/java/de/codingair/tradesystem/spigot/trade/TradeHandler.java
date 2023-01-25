@@ -12,7 +12,8 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -32,8 +33,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class TradeHandler {
     /**
@@ -311,7 +310,7 @@ public class TradeHandler {
         }
 
         //log only one start (proxy trades have a start on each server)
-        if (initiationServer) getTradeLog().log(player.getName(), othersName, TradeLogMessages.STARTED.get());
+        if (initiationServer) TradeLogService.log(player.getName(), othersName, TradeLog.STARTED.get());
 
         MetricsManager.TRADES++;
 

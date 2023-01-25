@@ -136,7 +136,6 @@ Level: Level
 Too_Little_Exp: '&cNon hai &7exp per il trade&7.'
 Exp_Points: Exp points
 Exp_Point: Exp point
-Open_GUI_Error: '&7Il trade è stato &ccancellato &7a causa &cdi un'apertura dell'inventario&7.'
 Reset: Reset
 Balance_limit_reached: '&7Il tuo saldo è &cnon sufficiente&7.'
 AnvilGUI_Title: 'Repair & Name'

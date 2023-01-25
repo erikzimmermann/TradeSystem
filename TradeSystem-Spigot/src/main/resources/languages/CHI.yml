@@ -136,7 +136,6 @@ Level: '等级'
 Too_Little_Exp: '&c你&c没有足够的经验&7.'
 Exp_Points: "经验值"
 Exp_Point: "经验值"
-Open_GUI_Error: '&7这个交易 &c取消了 &7因为一个 &c未结清的交易&7.'
 Reset: "重置"
 Balance_limit_reached: '&7您的余额是&c不足&7.'
 AnvilGUI_Title: 'Repair & Name'

@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +11,7 @@ import java.util.function.Function;
 
 public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     public ExpLevelIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Level", "Levels", TradeLogMessages.PAYED_EXP_LEVELS, TradeLogMessages.RECEIVED_EXP_LEVELS, false);
+        super(itemStack, "Level", "Levels", false);
     }
 
     @Override

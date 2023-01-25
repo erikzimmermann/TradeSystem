@@ -86,13 +86,13 @@ TradeSystem:
     Toggle:
     - toggle
 
-  # BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
-  # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
+  # WARNING - This log is very basic and does not remove files automatically after some time, so you have to do it yourself.
   TradeLog:
     Enabled: false
     Database:
-      # Values: SQLITE, MYSQL
+      # Values: BUKKIT (does not support in-game access to the log), SQLITE, MYSQL
       Type: MYSQL
+      # Only required for MYSQL
       Db_host: localhost
       Db_port: 3306
       Db_name: tradelog

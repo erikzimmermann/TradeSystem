@@ -136,7 +136,6 @@ Level: Nível
 Too_Little_Exp: '&7Você &cnão tem exp para Trocar 7.'
 Exp_Points: Pontos de EXP
 Exp_Point: Ponto de EXP
-Open_GUI_Error: '&7O comércio foi &cancelado &7devido a um &cinventário aberto&7.'
 Reset: Resetar
 Balance_limit_reached: '&7Seu saldo é &cinsuficiente&7.'
 AnvilGUI_Title: 'Repair & Name'

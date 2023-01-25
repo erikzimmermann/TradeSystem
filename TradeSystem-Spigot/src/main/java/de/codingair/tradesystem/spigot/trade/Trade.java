@@ -11,7 +11,8 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
@@ -41,8 +42,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public abstract class Trade {
     protected final String[] players = new String[2];
@@ -283,10 +282,6 @@ public abstract class Trade {
         cancel(message, false);
     }
 
-    public void cancelDueToGUIError() {
-        cancel(Lang.getPrefix() + Lang.get("Open_GUI_Error"));
-    }
-
     /**
      * Avoid moving the item which will be renamed into the players inventory.
      */
@@ -311,10 +306,10 @@ public abstract class Trade {
         if (!alreadyCalled) cancelling(message);
 
         if (message != null) {
-            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED_REASON.get(message));
+            if (initiationServer) TradeLogService.log(players[0], players[1], TradeLog.CANCELLED_WITH_REASON.get(message));
             sendMessage(message);
         } else {
-            if (initiationServer) getTradeLog().log(players[0], players[1], TradeLogMessages.CANCELLED.get());
+            if (initiationServer) TradeLogService.log(players[0], players[1], TradeLog.CANCELLED.get());
 
             for (int i = 0; i < 2; i++) {
                 String m = Lang.getPrefix() + getPlaceholderMessage(i, "Trade_Was_Cancelled");

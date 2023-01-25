@@ -136,7 +136,6 @@ Level: 'Poziom'
 Too_Little_Exp: '&7Masz za mało &cXP &7aby się wymienić.'
 Exp_Points: "Punkty XP"
 Exp_Point: "Punkt XP"
-Open_GUI_Error: '&7Wymiana została &canulowana &7przez &cotwarcie ekwipunku&7.'
 Reset: "Resetuj"
 Balance_limit_reached: '&7Twój bilans jest &cnie wystarczający&7.'
 AnvilGUI_Title: 'Repair & Name'

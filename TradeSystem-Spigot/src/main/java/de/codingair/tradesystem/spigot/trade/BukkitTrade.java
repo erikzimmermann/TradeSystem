@@ -7,7 +7,8 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedEx
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -23,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class BukkitTrade extends Trade {
     private final Player[] players = new Player[2];
@@ -251,11 +250,11 @@ public class BukkitTrade extends Trade {
                 guis[1].setItem(slot, null);
                 guis[0].setItem(slot, null);
 
-                //Log before calling the events. The events could remove this item and we would still lose it.
+                //Log before calling the events. These events could remove this item, and we would still lose it.
                 if (i0 != null && i0.getType() != Material.AIR)
-                    getTradeLog().log(player0.getName(), player1.getName(), TradeLogMessages.RECEIVE_ITEM.get(player0.getName(), i0.getAmount() + "x " + i0.getType()));
+                    TradeLog.logItemReceive(player0, true, player1.getName(), i0);
                 if (i1 != null && i1.getType() != Material.AIR)
-                    getTradeLog().log(player0.getName(), player1.getName(), TradeLogMessages.RECEIVE_ITEM.get(player1.getName(), i1.getAmount() + "x " + i1.getType()));
+                    TradeLog.logItemReceive(player1, false, player0.getName(), i1);
 
                 //call events
                 i0 = callTradeEvent(player0, player1, i0);
@@ -306,7 +305,7 @@ public class BukkitTrade extends Trade {
                     this.players[i].sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.players[i]));
                 }
             }
-            getTradeLog().logLater(player0.getName(), player1.getName(), TradeLogMessages.FINISHED.get(), 10);
+            TradeLogService.logLater(player0.getName(), player1.getName(), TradeLog.FINISHED.get(), 10);
 
             TradeSystem.man().playFinishSound(player0);
             TradeSystem.man().playFinishSound(player1);
