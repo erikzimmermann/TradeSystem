@@ -61,7 +61,10 @@ public class InvitationManager {
         if (l == null) l = new TimeSet<Invite>() {
             @Override
             public void timeout(Invite i) {
-                //send event only if inviter is present.
+                String nameInviter = i.getName();
+                Player inviter = Bukkit.getPlayer(nameInviter);
+                Player receiver = Bukkit.getPlayer(nameReceiver);
+
                 Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
                     TradeRequestExpireEvent event = new TradeRequestExpireEvent(nameInviter, inviter, nameReceiver, receiver);
                     Bukkit.getPluginManager().callEvent(event);
@@ -110,8 +113,19 @@ public class InvitationManager {
         return this.invites.get(name);
     }
 
+    @Nullable
     public TimeSet<Invite> clear(String name) {
-        return this.invites.remove(name);
+        TimeSet<Invite> set = this.invites.remove(name);
+        if (set != null) set.unregister();
+        return set;
+    }
+
+    private boolean invalidateIfEmpty(@NotNull String name, @Nullable TimeSet<Invite> set) {
+        if (set == null) set = this.invites.get(name);
+        if (set != null && set.isEmpty()) {
+            this.clear(name);
+            return true;
+        } else return false;
     }
 
     public void cancelAll(@Nullable Player player, @NotNull String name) {
@@ -134,11 +148,11 @@ public class InvitationManager {
                 //cancel on proxy level
                 if (original.isProxyInvite()) cancel(player, name, receiver);
 
-                //remove it when an invite is available
+                //remove it when an invitation is available
                 invites.remove(invite);
             });
 
-            return invites.isEmpty();
+            return invalidateIfEmpty(receiver, invites);
         });
     }
 
@@ -152,19 +166,19 @@ public class InvitationManager {
     }
 
     public void invalidate(Player inviter, String other) {
-        Set<Invite> l = invites.get(other);
+        TimeSet<Invite> l = invites.get(other);
         if (l != null) {
             l.remove(new Invite(inviter.getName()));
-            if (l.isEmpty()) invites.remove(inviter.getName());
+            invalidateIfEmpty(other, l);
         }
     }
 
     public boolean deny(CommandSender sender, String argument) {
-        Set<Invite> l = invites.get(sender.getName());
+        TimeSet<Invite> l = invites.get(sender.getName());
 
         if (l != null && l.remove(new Invite(argument))) {
             Player other = Bukkit.getPlayer(argument);
-            if (l.isEmpty()) invites.remove(sender.getName());
+            invalidateIfEmpty(sender.getName(), l);
 
             if (other == null) {
                 if (TradeSystem.proxy().isOnline(argument)) {
@@ -190,7 +204,7 @@ public class InvitationManager {
     }
 
     public boolean accept(Player sender, String argument) {
-        Set<Invite> l = invites.get(sender.getName());
+        TimeSet<Invite> l = invites.get(sender.getName());
         Invite dummy = new Invite(argument);
 
         if (l != null && l.contains(dummy)) {
@@ -210,7 +224,7 @@ public class InvitationManager {
                                 Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, name, null, true)));
 
                                 l.remove(dummy);
-                                if (l.isEmpty()) invites.remove(sender.getName());
+                                invalidateIfEmpty(sender.getName(), l);
 
                                 sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
                                 TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, false);
@@ -231,7 +245,7 @@ public class InvitationManager {
             Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, other.getName(), other, true)));
 
             l.remove(dummy);
-            if (l.isEmpty()) invites.remove(sender.getName());
+            invalidateIfEmpty(sender.getName(), l);
 
             sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
             other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender, new Lang.P("player", sender.getName())));
