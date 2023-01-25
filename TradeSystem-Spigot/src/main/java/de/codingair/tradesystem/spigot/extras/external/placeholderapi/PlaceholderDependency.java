@@ -51,26 +51,29 @@ public class PlaceholderDependency implements PluginDependency {
 
         switch (id.toLowerCase()) {
             case "partner":
-            case "trade_partner": {
+            case "trade_partner":
                 if (t != null) return t.getOther(player.getName());
                 else return "";
-            }
-            case "countdown": {
+
+            case "countdown":
                 if (t != null && t.getCountdown() != null) {
                     int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
                     return remaining + "";
                 } else return "";
-            }
-            case "countdown_fancy": {
+
+            case "countdown_fancy":
                 if (t != null && t.getCountdown() != null) {
                     int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
                     return Lang.get("Fancy_Countdown").replace("%seconds%", remaining + "");
                 }
                 return "";
-            }
+
             case "status":
                 if (TradeSystem.man().isOffline(player)) return Lang.get("Offline");
                 else return Lang.get("Online");
+
+            case "is_trading":
+                return t != null ? "true" : "false";
         }
 
         return null;
