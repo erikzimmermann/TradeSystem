@@ -129,3 +129,7 @@ TradeSystem:
       Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0
+    Change_during_Shulker_Peek:
+      Name: ITEM_BREAK
+      Volume: 0.6
+      Pitch: 1.0
