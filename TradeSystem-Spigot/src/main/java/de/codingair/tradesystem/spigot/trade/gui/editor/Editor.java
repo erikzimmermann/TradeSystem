@@ -46,23 +46,30 @@ public class Editor extends GUI {
     public static final String ITEM_SUB_TITLE_COLOR = "§3";
 
     private final String name;
-    private final ItemStack[] copy = new ItemStack[54];
+    private final int tradeSize;
+    private final ItemStack[] copy;
     private final Inventory layoutInventory;
     private final HashMap<Integer, Class<? extends TradeIcon>> icons = new HashMap<>();
     private final HashMap<Class<? extends TradeIcon>, ItemStack[]> variants = new HashMap<>();
 
     public Editor(String name, Player player) {
-        this(name, null, player);
+        this(name, 54, player);
+    }
+
+    public Editor(String name, int tradeSize, Player player) {
+        this(name, tradeSize, null, player);
     }
 
     public Editor(Pattern pattern, Player player) {
-        this(pattern.getName(), pattern, player);
+        this(pattern.getName(), 54, pattern, player);
     }
 
-    private Editor(@NotNull String name, @Nullable Pattern pattern, Player player) {
+    private Editor(@NotNull String name, int tradeSize, @Nullable Pattern pattern, Player player) {
         super(player, TradeSystem.getInstance(), 27, Lang.get("Layout_Editor", player));
         this.name = name;
-        this.layoutInventory = Bukkit.createInventory(player, 54, "§c" + Lang.get("Layout_Editor_Set_Items", player));
+        this.tradeSize = tradeSize;
+        this.copy = new ItemStack[tradeSize];
+        this.layoutInventory = Bukkit.createInventory(player, tradeSize, "§c" + Lang.get("Layout_Editor_Set_Items", player));
         if (pattern != null) applyPattern(pattern);
 
         LayoutPage basic = new LayoutPage(this);
@@ -122,9 +129,9 @@ public class Editor extends GUI {
     }
 
     public Pattern buildPattern() {
-        IconData[] data = new IconData[54];
+        IconData[] data = new IconData[tradeSize];
 
-        for (int slot = 0; slot < 54; slot++) {
+        for (int slot = 0; slot < tradeSize; slot++) {
             Class<? extends TradeIcon> iconClass = icons.get(slot);
 
             IconData icon = null;
@@ -153,7 +160,7 @@ public class Editor extends GUI {
             data[slot] = icon;
         }
 
-        return new Pattern(name, data);
+        return new Pattern(name, tradeSize, data);
     }
 
     public boolean canFinish() {

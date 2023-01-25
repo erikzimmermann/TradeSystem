@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
-import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.SimpleShowIcon;
@@ -12,9 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transition.Consumer<Double> {
+import java.math.BigDecimal;
+
+public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Transition.Consumer<BigDecimal> {
     private final String namePlural;
-    private Double value = 0D;
+    private BigDecimal value = BigDecimal.ZERO;
 
     public ShowEconomyIcon(@NotNull ItemStack itemStack, @NotNull String namePlural) {
         super(itemStack);
@@ -23,8 +24,8 @@ public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transitio
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player) + ": §7" + TradeSystem.man().getMoneyPattern().format(value));
-        if (value > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+        layout.setName("§e" + getName(player) + ": §7" + EconomyIcon.makeFancyString(value, true));
+        if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
     }
@@ -39,11 +40,11 @@ public class ShowEconomyIcon extends SimpleShowIcon<Double> implements Transitio
     }
 
     @Override
-    public void applyTransition(Double value) {
+    public void applyTransition(BigDecimal value) {
         this.value = value;
     }
 
-    public Double getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 }

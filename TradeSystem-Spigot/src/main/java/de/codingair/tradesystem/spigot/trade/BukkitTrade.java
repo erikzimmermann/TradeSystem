@@ -36,13 +36,16 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void updateGUI() {
+    protected boolean updateGUI() {
+        boolean change = false;
+
         if (guis[0] != null && guis[1] != null) {
             for (int i = 0; i < slots.size(); i++) {
                 ItemStack item = guis[0].getItem(slots.get(i));
                 ItemStack other = guis[1].getItem(otherSlots.get(i));
 
                 if (!Objects.equals(item, other)) {
+                    change = true;
                     guis[1].setItem(otherSlots.get(i), guis[0].getItem(slots.get(i)));
 
                     ready[0] = false;
@@ -53,6 +56,7 @@ public class BukkitTrade extends Trade {
                 other = guis[0].getItem(otherSlots.get(i));
 
                 if (!Objects.equals(item, other)) {
+                    change = true;
                     guis[0].setItem(otherSlots.get(i), guis[1].getItem(slots.get(i)));
 
                     ready[1] = false;
@@ -63,6 +67,8 @@ public class BukkitTrade extends Trade {
             updateStatusIcon(players[0], 0);
             updateStatusIcon(players[1], 1);
         }
+
+        return change;
     }
 
     @Override

@@ -1,7 +1,10 @@
 package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsNotWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -12,7 +15,7 @@ public class TradingGUI extends GUI {
     private final int id;
 
     public TradingGUI(Player player, Trade trade, int id) {
-        super(player, TradeSystem.getInstance(), 54, Lang.get("GUI_Title", player, new Lang.P("player", trade.getOther(player.getName()))),
+        super(player, TradeSystem.getInstance(), trade.getLayout()[id].getPattern().getSize(), Lang.get("GUI_Title", player, new Lang.P("player", trade.getOther(player.getName()))),
                 false  // check for plugins that already block items
         );
 
@@ -42,5 +45,11 @@ public class TradingGUI extends GUI {
 
     public boolean isWaiting() {
         return waiting;
+    }
+
+    @Override
+    public void openNestedGUI(GUI gui, boolean listenOnClose, boolean clickSound) throws AlreadyOpenedException, NoPageException, IsWaitingException {
+        trade.acknowledgeGuiSwitch(player);
+        super.openNestedGUI(gui, listenOnClose, clickSound);
     }
 }

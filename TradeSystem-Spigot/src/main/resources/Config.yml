@@ -88,7 +88,7 @@ TradeSystem:
 
   # BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
   # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
-  Tradelog:
+  TradeLog:
     Enabled: false
     Database:
       # Values: SQLITE, MYSQL
@@ -126,6 +126,10 @@ TradeSystem:
       Volume: 0.6
       Pitch: 1.0
     Countdown_Stop:
+      Name: ITEM_BREAK
+      Volume: 0.6
+      Pitch: 1.0
+    Change_during_Shulker_Peek:
       Name: ITEM_BREAK
       Volume: 0.6
       Pitch: 1.0

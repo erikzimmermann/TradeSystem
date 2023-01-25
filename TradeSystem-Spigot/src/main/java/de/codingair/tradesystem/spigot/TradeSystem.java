@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
-import de.codingair.codingapi.files.loader.UTFConfig;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.tools.time.Timer;
@@ -12,7 +11,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
-import de.codingair.tradesystem.spigot.extras.placeholderapi.PAPI;
+import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
@@ -39,6 +38,7 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConn
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -67,7 +67,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
 
-    private UTFConfig oldConfig;
+    private YamlConfiguration oldConfig;
 
     public static void log(String message) {
         Bukkit.getLogger().info(message);
@@ -97,6 +97,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     public void onEnable() {
         instance = this;
         API.getInstance().onEnable(this);
+        PluginDependencies.enable();
 
         printConsoleInfo(() -> {
             loadConfigFiles();
@@ -120,7 +121,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             Lang.initializeFile();
         });
 
-        PAPI.register();
         notifyPlayers(null);
     }
 
@@ -143,6 +143,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             HandlerList.unregisterAll(this);
             this.fileManager.destroy();
+
+            PluginDependencies.disable();
         });
     }
 
@@ -276,7 +278,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     private void copyConfig() {
         ConfigFile file = this.fileManager.loadFile("Config", "/", false);
-        this.oldConfig = file.getConfig().copy();
+        this.oldConfig = file.getConfig();
         this.fileManager.unloadFile(file);
     }
 
@@ -292,7 +294,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return fileManager;
     }
 
-    public UTFConfig getOldConfig() {
+    public YamlConfiguration getOldConfig() {
         return oldConfig;
     }
 

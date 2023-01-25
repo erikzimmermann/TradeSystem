@@ -1,5 +1,6 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.tokenmanager;
+package de.codingair.tradesystem.spigot.extras.external.tokenmanager;
 
+import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import me.realized.tokenmanager.api.TokenManager;
@@ -7,6 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigDecimal;
+import java.util.function.Function;
 
 public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     public TokenIcon(@NotNull ItemStack itemStack) {
@@ -25,17 +29,22 @@ public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
-        return getTokenManager().getTokens(player).orElse(0);
+    protected @NotNull BigDecimal getBalance(Player player) {
+        return BigDecimal.valueOf(getTokenManager().getTokens(player).orElse(0));
     }
 
     @Override
-    public void withdraw(Player player, double value) {
-        getTokenManager().removeTokens(player, (long) value);
+    protected void withdraw(Player player, @NotNull BigDecimal value) {
+        getTokenManager().removeTokens(player, value.longValue());
     }
 
     @Override
-    public void deposit(Player player, double value) {
-        getTokenManager().addTokens(player, (long) value);
+    protected void deposit(Player player, @NotNull BigDecimal value) {
+        getTokenManager().addTokens(player, value.longValue());
+    }
+
+    @Override
+    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+        return EconomySupportType.LONG;
     }
 }

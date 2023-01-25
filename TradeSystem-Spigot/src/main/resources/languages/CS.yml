@@ -27,6 +27,12 @@ GUI_Title: '&cObchodování s %player%%tradesystem_countdown_fancy%'
 Money_Amount: Tvůj obnos peněz
 Coin: mince
 Coins: Mince
+PlayerPoint: PlayerPoint
+PlayerPoints: PlayerPoints
+Token: "Token"
+Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: Status
 Ready: Připraven
 Not_Ready: Nepřipraven
@@ -72,7 +78,7 @@ Layout_Set_Money: Nastav vlastní ikonu peněz
 Layout_Set_Other_Money: Nastav ikonu peněz pro partnera
 Help_TradeSystem: '&7Zadej &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Zadej &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <jméno>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <jméno> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7Zadej &e/%label% layout activate <jméno>'
 Help_TradeSystem_Layout_Delete: '&7Zadej &e/%label% layout delete <jméno>'
 Help_TradeSystem_Layout_Edit: '&7Zadej &e/%label% layout edit <jméno>'
@@ -132,3 +138,6 @@ Exp_Points: "Xp body"
 Exp_Point: "Xp bod"
 Open_GUI_Error: '&7Obchod byl &czrušen &7 kvůli &cotevření inventáře&7.'
 Reset: "Reset"
+Balance_limit_reached: '&7Váš zůstatek je &cnedostatečný&7.'
+AnvilGUI_Title: 'Repair & Name'
+Shulker_Box: 'Shulker Box'

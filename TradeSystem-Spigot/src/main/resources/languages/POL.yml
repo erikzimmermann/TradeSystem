@@ -27,6 +27,12 @@ GUI_Title: "&cWymiana z %player%"
 Money_Amount: "Brak pieniędzy"
 Coin: "Moneta"
 Coins: "Monety"
+PlayerPoint: "PlayerPoint"
+PlayerPoints: "PlayerPoints"
+Token: "Token"
+Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: "Status"
 Ready: "Gotowy"
 Not_Ready: "Nie Gotowy"
@@ -72,7 +78,7 @@ Layout_Set_Money: "Ustaw własną ikonę pieniędzy"
 Layout_Set_Other_Money: "Ustaw własną ikonę pieniędzy od partnera"
 Help_TradeSystem: "&7Użycie &e/%label% <układ, reload>"
 Help_TradeSystem_Layout: "&7Użycie &e/%label% layout <create, edit, delete, activate>"
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: "&7Użycie &e/%label% layout activate <nazwa>"
 Help_TradeSystem_Layout_Delete: "&7Użycie &e/%label% layout delete <nazwa>"
 Help_TradeSystem_Layout_Edit: "&7Użycie &e/%label% layout edit <nazwa>"
@@ -132,3 +138,6 @@ Exp_Points: "Punkty XP"
 Exp_Point: "Punkt XP"
 Open_GUI_Error: '&7Wymiana została &canulowana &7przez &cotwarcie ekwipunku&7.'
 Reset: "Resetuj"
+Balance_limit_reached: '&7Twój bilans jest &cnie wystarczający&7.'
+AnvilGUI_Title: 'Repair & Name'
+Shulker_Box: 'Shulker Box'

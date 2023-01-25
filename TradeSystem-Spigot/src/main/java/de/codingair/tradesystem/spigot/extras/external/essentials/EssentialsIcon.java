@@ -1,9 +1,10 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.essentials;
+package de.codingair.tradesystem.spigot.extras.external.essentials;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
+import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.ess3.api.MaxMoneyException;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     public EssentialsIcon(@NotNull ItemStack itemStack) {
@@ -25,34 +27,34 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected @NotNull BigDecimal getBalance(Player player) {
         check(player);
 
         try {
-            return Economy.getMoneyExact(player.getUniqueId()).doubleValue();
+            return Economy.getMoneyExact(player.getUniqueId());
         } catch (UserDoesNotExistException e) {
             e.printStackTrace();
-            return 0;
+            return BigDecimal.ZERO;
         }
     }
 
     @Override
-    public void withdraw(Player player, double value) {
+    protected void withdraw(Player player, @NotNull BigDecimal value) {
         check(player);
 
         try {
-            Economy.subtract(player.getUniqueId(), new BigDecimal(value));
+            Economy.subtract(player.getUniqueId(), value);
         } catch (UserDoesNotExistException | NoLoanPermittedException | MaxMoneyException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void deposit(Player player, double value) {
+    protected void deposit(Player player, @NotNull BigDecimal value) {
         check(player);
 
         try {
-            Economy.add(player.getUniqueId(), new BigDecimal(value));
+            Economy.add(player.getUniqueId(), value);
         } catch (UserDoesNotExistException | NoLoanPermittedException | MaxMoneyException e) {
             e.printStackTrace();
         }
@@ -63,19 +65,14 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    protected @NotNull Optional<Double> getLimitOf(@NotNull Player player) {
+    protected @NotNull Optional<BigDecimal> getBalanceLimit(@NotNull Player player) {
         Essentials ess = (Essentials) Essentials.getProvidingPlugin(Essentials.class);
         BigDecimal max = ess.getSettings().getMaxMoney();
-        return max == null ? Optional.empty() : Optional.of(max.doubleValue() - 1);  // -1 because of the rounding error
+        return max == null ? Optional.empty() : Optional.of(max.subtract(BigDecimal.ONE));  // -1 because of the rounding error
     }
 
     @Override
-    protected @NotNull Optional<Double> getBalanceOf(@NotNull Player player) {
-        try {
-            BigDecimal balance = Economy.getMoneyExact(player.getUniqueId());
-            return balance == null ? Optional.empty() : Optional.of(balance.doubleValue());
-        } catch (UserDoesNotExistException e) {
-            return Optional.empty();
-        }
+    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+        return EconomySupportType.BIG_DECIMAL;
     }
 }

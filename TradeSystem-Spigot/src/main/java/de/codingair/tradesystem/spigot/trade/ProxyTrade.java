@@ -151,13 +151,16 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void updateGUI() {
+    protected boolean updateGUI() {
+        boolean change = false;
+
         if (guis[0] != null) {
             for (int i = 0; i < slots.size(); i++) {
                 int slot = slots.get(i);
 
                 ItemStack item = guis[0].getItem(slot);
                 if (!Objects.equals(item, getSent(i))) {
+                    change = true;
                     synchronizeItem(i, item);
 
                     ready[0] = ready[1] = false;
@@ -174,6 +177,8 @@ public class ProxyTrade extends Trade {
 
             updateStatusIcon(player, 0);
         }
+
+        return change;
     }
 
     @Override

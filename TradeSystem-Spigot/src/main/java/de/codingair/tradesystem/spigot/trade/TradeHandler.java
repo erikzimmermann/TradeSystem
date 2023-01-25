@@ -7,12 +7,12 @@ import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.codingapi.tools.io.lib.JSONArray;
+import de.codingair.tradesystem.proxy.packets.PlayerStatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.MalformedParametersException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
@@ -47,7 +49,7 @@ public class TradeHandler {
     private int distance = 50;
 
     private DecimalFormat moneyPattern;
-    private final HashMap<String, Integer> moneyShortcuts = new HashMap<>();
+    private final HashMap<String, BigDecimal> moneyShortcuts = new HashMap<>();
 
     private int countdownRepetitions = 0;
     private int countdownInterval = 0;
@@ -66,8 +68,9 @@ public class TradeHandler {
     private SoundData soundCancel = null;
     private SoundData soundBlocked = null;
     private SoundData soundRequest = null;
-    private SoundData countdownTick = null;
-    private SoundData countdownStop = null;
+    private SoundData soundCountdownTick = null;
+    private SoundData soundCountdownStop = null;
+    private SoundData soundChangeDuringShulkerPeek = null;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -110,6 +113,8 @@ public class TradeHandler {
             TradeSystem.getInstance().getLogger().warning("The money pattern '%s' is invalid. Please check your syntax. The pattern '###,###.####' will be used instead.");
             this.moneyPattern = new DecimalFormat("###,###.####");
         }
+        this.moneyPattern.setParseBigDecimal(true);
+        this.moneyPattern.setRoundingMode(RoundingMode.FLOOR);
 
         String groupingSeparator = config.getString("TradeSystem.Money.Grouping_Separator", ",");
         String decimalSeparator = config.getString("TradeSystem.Money.Decimal_Separator", ".");
@@ -139,8 +144,11 @@ public class TradeHandler {
                         try {
                             JSON json = new JSON((Map<?, ?>) s);
 
-                            int value = json.getInteger("Value", -1);
-                            if (value < 0) continue;
+                            Object number = json.getRaw("Value");
+                            if (number == null) continue;
+
+                            BigDecimal value = new BigDecimal(number.toString());
+                            if (value.signum() <= 0) continue;
 
                             JSONArray a = json.getList("Keys");
 
@@ -173,11 +181,14 @@ public class TradeHandler {
         this.soundRequest = getSound("Trade_Request", config, "ORB_PICKUP");
         if (this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
-        this.countdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
-        if (this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
+        this.soundCountdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
+        if (this.soundCountdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
 
-        this.countdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
-        if (this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+        this.soundCountdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
+        if (this.soundCountdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+
+        this.soundChangeDuringShulkerPeek = getSound("Change_during_Shulker_Peek", config, "ITEM_BREAK");
+        if (this.soundChangeDuringShulkerPeek == null) TradeSystem.log("    > No change-during-shulker-peek sound detected (maybe a spelling mistake?)");
 
         //load allowed game modes
         if (this.allowedGameModes != null) this.allowedGameModes.clear();
@@ -259,11 +270,15 @@ public class TradeHandler {
     }
 
     public void playCountdownTickSound(Player player) {
-        if (this.countdownTick != null) this.countdownTick.play(player);
+        if (this.soundCountdownTick != null) this.soundCountdownTick.play(player);
     }
 
     public void playCountdownStopSound(Player player) {
-        if (this.countdownStop != null) this.countdownStop.play(player);
+        if (this.soundCountdownStop != null) this.soundCountdownStop.play(player);
+    }
+
+    public void playChangeDuringShulkerPeekSound(Player player) {
+        if (this.soundChangeDuringShulkerPeek != null) this.soundChangeDuringShulkerPeek.play(player);
     }
 
     public void saveBlackList() {
@@ -399,9 +414,21 @@ public class TradeHandler {
     }
 
     public boolean toggle(Player player) {
-        if (offline.remove(player.getName())) return false;
+        if (offline.remove(player.getName())) {
+            // removed
+            TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), false), player);
+            return false;
+        }
+
+        // not contained -> will be added now
         this.offline.add(player.getName());
+        TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), true), player);
         return true;
+    }
+
+    public void setState(@NotNull String player, boolean state) {
+        if (state) this.offline.add(player);
+        else this.offline.remove(player);
     }
 
     public List<BlockedItem> getBlacklist() {
@@ -450,22 +477,24 @@ public class TradeHandler {
     }
 
     @Nullable
-    public Integer getMoneyShortcutFactor(String s) {
+    public BigDecimal getMoneyShortcutFactor(@NotNull String s) {
         String key = s.toLowerCase().replaceAll("[^a-z]", "");
         return moneyShortcuts.get(key);
     }
 
-    private DecimalFormat getDefaultDecimalFormat() {
-        DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(EconomyIcon.FRACTION_DIGITS);
-        df.setMinimumIntegerDigits(1);
+    @Nullable
+    public Map.Entry<String, BigDecimal> getApplicableMoneyShortcut(@NotNull BigDecimal d) {
+        Map.Entry<String, BigDecimal> highest = null;
 
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setDecimalSeparator('.');
-        symbols.setGroupingSeparator(',');
-        df.setDecimalFormatSymbols(symbols);
+        for (Map.Entry<String, BigDecimal> e : moneyShortcuts.entrySet()) {
+            if (d.compareTo(e.getValue()) >= 0) {
+                if (highest == null || highest.getValue().compareTo(e.getValue()) < 0) {
+                    highest = e;
+                }
+            }
+        }
 
-        return df;
+        return highest;
     }
 
     public int getCountdownRepetitions() {

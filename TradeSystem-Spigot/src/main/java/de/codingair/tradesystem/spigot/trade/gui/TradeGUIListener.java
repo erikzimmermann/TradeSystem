@@ -1,8 +1,13 @@
 package de.codingair.tradesystem.spigot.trade.gui;
 
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
+import de.codingair.codingapi.server.specification.Version;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -11,7 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -36,7 +41,7 @@ public class TradeGUIListener implements Listener {
             Player player = (Player) e.getWhoClicked();
             Trade trade = TradeSystem.man().getTrade(player);
 
-            if (trade != null) {
+            if (trade != null && trade.inMainGUI(player)) {
                 if (e.getNewItems().isEmpty()) return;
 
                 boolean onlyLowerInventory = e.getRawSlots().stream().allMatch(i -> i >= 54);
@@ -82,7 +87,7 @@ public class TradeGUIListener implements Listener {
             Player player = (Player) e.getWhoClicked();
             Trade trade = TradeSystem.man().getTrade(player);
 
-            if (trade != null) {
+            if (trade != null && trade.inMainGUI(player)) {
                 TradeLayout layout = trade.getLayout()[trade.getId(player)];
 
                 if (e.getClickedInventory() == null && e.getCursor() != null) {
@@ -101,9 +106,36 @@ public class TradeGUIListener implements Listener {
                         //top inventory
                         if (trade.getSlots().contains(e.getSlot())) {
                             //own slots
+
+                            // shulker peeking
+                            if (e.getClick() == ClickType.RIGHT && Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(e.getCurrentItem())) {
+                                TradingGUI tradingGUI = trade.getGUIs()[trade.getId(player)];
+                                try {
+                                    tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), e.getSlot()), true, true);
+                                } catch (AlreadyOpenedException | NoPageException | IsWaitingException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                                return;
+                            }
+
                             e.setCancelled(false);
                             onTopInventoryClick(player, trade, e);
-                        } else e.setCancelled(true);
+                        } else {
+                            e.setCancelled(true);
+
+                            boolean tradePartner = trade.getOtherSlots().contains(e.getSlot());
+                            if (tradePartner) {
+                                // shulker peeking
+                                if (Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(e.getCurrentItem())) {
+                                    TradingGUI tradingGUI = trade.getGUIs()[trade.getId(player)];
+                                    try {
+                                        tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), e.getSlot()), true, true);
+                                    } catch (AlreadyOpenedException | NoPageException | IsWaitingException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

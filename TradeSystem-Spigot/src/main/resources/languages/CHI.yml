@@ -27,6 +27,12 @@ GUI_Title: '&c正在与&e%player%&c进行交易.%tradesystem_countdown_fancy%'
 Money_Amount: 金额
 Coin: 金币
 Coins: 金币
+PlayerPoint: PlayerPoint
+PlayerPoints: PlayerPoints
+Token: "Token"
+Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: 目前状态
 Ready: 已准备
 Not_Ready: 未准备
@@ -72,7 +78,7 @@ Layout_Set_Money: 己方金额图标
 Layout_Set_Other_Money: 对方金额图标
 Help_TradeSystem: '&7使用 &e/%label% <layout, reload>设置交易所'
 Help_TradeSystem_Layout: '&7使用 &e/%label% layout <create, edit, delete, activate>设置交易所界面'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7使用 &e/%label% layout activate <名称>激活界面'
 Help_TradeSystem_Layout_Delete: '&7使用 &e/%label% layout delete <名称>删除界面'
 Help_TradeSystem_Layout_Edit: '&7使用 &e/%label% layout edit <名称>编辑界面'
@@ -132,3 +138,6 @@ Exp_Points: "经验值"
 Exp_Point: "经验值"
 Open_GUI_Error: '&7这个交易 &c取消了 &7因为一个 &c未结清的交易&7.'
 Reset: "重置"
+Balance_limit_reached: '&7您的余额是&c不足&7.'
+AnvilGUI_Title: 'Repair & Name'
+Shulker_Box: 'Shulker Box'

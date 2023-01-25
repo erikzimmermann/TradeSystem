@@ -3,7 +3,7 @@ package de.codingair.tradesystem.spigot.utils;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.extras.placeholderapi.PAPI;
+import de.codingair.tradesystem.spigot.extras.external.placeholderapi.PlaceholderDependency;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,6 +35,7 @@ public class Lang {
         deleteEmptyFiles(plugin);
 
         List<String> languages = new ArrayList<>();
+        languages.add("BR.yml");
         languages.add("CHI.yml");
         languages.add("CS.yml");
         languages.add("ENG.yml");
@@ -103,10 +104,10 @@ public class Lang {
         return prepare(p, s);
     }
 
-    private static String prepare(Player player, String s) {
+    private static String prepare(@Nullable Player player, @NotNull String s) {
         s = s.replace("\\n", "\n");
         s = ChatColor.translateAll('&', s);
-        if (player != null) s = PAPI.convert(s, player);
+        if (player != null) s = PlaceholderDependency.convert(s, player);
         return s;
     }
 

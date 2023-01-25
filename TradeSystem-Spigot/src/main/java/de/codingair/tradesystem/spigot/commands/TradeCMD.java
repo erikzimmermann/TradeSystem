@@ -58,7 +58,12 @@ public class TradeCMD extends CommandBuilder {
             getBaseComponent().addChild(new CommandComponent(cmd) {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
-                    return TradeSystem.invitations().accept((Player) sender);
+                    try {
+                        return TradeSystem.invitations().accept((Player) sender);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                    return true;
                 }
             });
 
@@ -74,7 +79,12 @@ public class TradeCMD extends CommandBuilder {
 
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                    return TradeSystem.invitations().accept((Player) sender, argument);
+                    try {
+                        return TradeSystem.invitations().accept((Player) sender, argument);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                    return true;
                 }
             });
         }

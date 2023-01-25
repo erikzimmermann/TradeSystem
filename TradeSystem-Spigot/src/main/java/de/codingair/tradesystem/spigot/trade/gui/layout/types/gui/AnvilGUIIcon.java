@@ -9,6 +9,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -68,7 +69,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
             public boolean canSwitch(ClickType clickType) {
                 return true;
             }
-        };
+        }.setTitle(Lang.get("AnvilGUI_Title", player));
     }
 
     protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {

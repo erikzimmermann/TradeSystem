@@ -221,7 +221,9 @@ public class IconPage extends Page {
                     if (e.getClick() == ClickType.SHIFT_RIGHT && !TradeSlot.class.isAssignableFrom(editorInfo.getTradeIcon())) {
                         //reset
                         if (resetting) {
-                            editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()));
+                            if (editorInfo.getTransitionTarget() != null)
+                                editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()) || entry.getValue().equals(editorInfo.getTransitionTarget()));
+                            else editor.getIcons().entrySet().removeIf(entry -> entry.getValue().equals(editorInfo.getTradeIcon()));
 
                             //keep variants (as backup) & set id back to 0
                             variantId = 0;

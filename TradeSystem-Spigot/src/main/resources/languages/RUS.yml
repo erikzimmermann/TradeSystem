@@ -27,6 +27,12 @@ GUI_Title: '&cСделка с %player%'
 Money_Amount: 'Количество денег'
 Coin: 'Монета'
 Coins: 'Монет(-ы/-а)'
+PlayerPoint: "PlayerPoint"
+PlayerPoints: "PlayerPoints"
+Token: "Token"
+Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: 'Статус'
 Ready: 'Готов'
 Not_Ready: 'Не готов'
@@ -72,7 +78,7 @@ Layout_Set_Money: 'Установить иконку денег 1-го игро�
 Layout_Set_Other_Money: 'Установить иконку денег 2-го игрока'
 Help_TradeSystem: '&7Использование: &e/%label% <layout, reload>'
 Help_TradeSystem_Layout: '&7Использование: &e/%label% layout <create, edit, delete, activate>'
-Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name>'
+Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: '&7Use &e/%label% layout activate <название>'
 Help_TradeSystem_Layout_Delete: '&7Use &e/%label% layout delete <название>'
 Help_TradeSystem_Layout_Edit: '&7Use &e/%label% layout edit <название>'
@@ -132,3 +138,6 @@ Exp_Points: "Очки опыта"
 Exp_Point: "Очко опыта"
 Open_GUI_Error: '&7Сделка &cотменена &7из-за открытого инвентаря&7.'
 Reset: "Сбросить"
+Balance_limit_reached: '&7Ваш баланс &cнедостаточный&7.'
+AnvilGUI_Title: 'Repair & Name'
+Shulker_Box: 'Shulker Box'

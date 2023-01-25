@@ -1,10 +1,14 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp;
 
+import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigDecimal;
+import java.util.function.Function;
 
 public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     public ExpPointIcon(@NotNull ItemStack itemStack) {
@@ -17,19 +21,24 @@ public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
+    protected @NotNull BigDecimal getBalance(Player player) {
         //This causes issues when directly setting the level before.
         //Unfortunately, there is no other easy way to get the total experience points.
-        return player.getTotalExperience();
+        return BigDecimal.valueOf(player.getTotalExperience());
     }
 
     @Override
-    public void withdraw(Player player, double value) {
-        player.giveExp((int) -value);
+    protected void withdraw(Player player, @NotNull BigDecimal value) {
+        player.giveExp(-value.intValue());
     }
 
     @Override
-    public void deposit(Player player, double value) {
-        player.giveExp((int) value);
+    protected void deposit(Player player, @NotNull BigDecimal value) {
+        player.giveExp(value.intValue());
+    }
+
+    @Override
+    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+        return EconomySupportType.INTEGER;
     }
 }

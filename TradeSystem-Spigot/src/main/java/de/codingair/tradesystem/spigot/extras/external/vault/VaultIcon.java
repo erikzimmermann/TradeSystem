@@ -1,5 +1,6 @@
-package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.money.vault;
+package de.codingair.tradesystem.spigot.extras.external.vault;
 
+import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.milkbowl.vault.economy.Economy;
@@ -8,6 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigDecimal;
+import java.util.function.Function;
 
 public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     public VaultIcon(@NotNull ItemStack itemStack) {
@@ -20,18 +24,23 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     }
 
     @Override
-    public double getPlayerValue(Player player) {
-        return getEconomy().getBalance(player);
+    protected @NotNull BigDecimal getBalance(Player player) {
+        return BigDecimal.valueOf(getEconomy().getBalance(player));
     }
 
     @Override
-    public void withdraw(Player player, double value) {
-        getEconomy().withdrawPlayer(player, value);
+    protected void withdraw(Player player, @NotNull BigDecimal value) {
+        getEconomy().withdrawPlayer(player, value.doubleValue());
     }
 
     @Override
-    public void deposit(Player player, double value) {
-        getEconomy().depositPlayer(player, value);
+    protected void deposit(Player player, @NotNull BigDecimal value) {
+        getEconomy().depositPlayer(player, value.doubleValue());
+    }
+
+    @Override
+    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+        return EconomySupportType.DOUBLE;
     }
 
     private Economy getEconomy() {
