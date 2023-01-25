@@ -1,7 +1,9 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
+import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -14,6 +16,7 @@ import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
+import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
@@ -113,10 +116,31 @@ public abstract class Trade {
         return ready;
     }
 
-    protected abstract void updateGUI();
+    protected abstract boolean updateGUI();
+
+    private void checkShulkerBoxChanges() {
+        for (String player : getPlayers()) {
+            Player p = Bukkit.getPlayer(player);
+            if (p == null) continue;
+
+            ShulkerPeekGUI shulkerPeek = API.getRemovable(p, ShulkerPeekGUI.class);
+            if (shulkerPeek == null) continue;
+
+            boolean ownShulkerBox = getSlots().contains(shulkerPeek.getOriginalSlot());
+            if (!ownShulkerBox) {
+                try {
+                    TradeSystem.man().playChangeDuringShulkerPeekSound(p);
+                    shulkerPeek.close();
+                } catch (AlreadyClosedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
     public void update() {
-        updateGUI();
+        boolean someChange = updateGUI();
+        if (someChange) checkShulkerBoxChanges();
 
         if (this.ready[0] && this.ready[1]) finish().whenComplete((suc, err) -> {
             if (err != null) err.printStackTrace();
@@ -191,6 +215,8 @@ public abstract class Trade {
     protected abstract void synchronizeTitle();
 
     public void updateReady(int id, boolean ready) {
+        if (this.ready[id] == ready) return;
+
         callReadyUpdate(id, ready);
         this.ready[id] = ready;
         update();
@@ -387,6 +413,10 @@ public abstract class Trade {
 
     public List<Integer> getSlots() {
         return slots;
+    }
+
+    public List<Integer> getOtherSlots() {
+        return otherSlots;
     }
 
     /**
@@ -616,6 +646,14 @@ public abstract class Trade {
         return guis;
     }
 
+    public boolean inMainGUI(Player player) {
+        int id = getId(player);
+        if (id == -999) return false;
+
+        TradingGUI gui = guis[id];
+        return gui.isOpen() && !gui.isWaiting();
+    }
+
     public void acknowledgeGuiSwitch(@NotNull Player player) {
         // Fixes a dupe glitch which allowed the player to remain in the trade GUI during the countdown and then duplicate items.
         updateReady(getId(player), false);
@@ -632,14 +670,9 @@ public abstract class Trade {
                 updateReady(getOtherId(playerId), false);
 
                 synchronizeTradeIcon(playerId, tradeIcon, true);
-                break;
 
-            case UPDATE_LATER:
-                updateReady(playerId, false);
-                updateReady(getOtherId(playerId), false);
-
-                //calls update() another time - not important
-                updateLater(updateLaterDelay);
+                // make sure player get notified when something changed
+                checkShulkerBoxChanges();
                 break;
 
             case GUI:

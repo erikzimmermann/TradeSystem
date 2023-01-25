@@ -68,8 +68,9 @@ public class TradeHandler {
     private SoundData soundCancel = null;
     private SoundData soundBlocked = null;
     private SoundData soundRequest = null;
-    private SoundData countdownTick = null;
-    private SoundData countdownStop = null;
+    private SoundData soundCountdownTick = null;
+    private SoundData soundCountdownStop = null;
+    private SoundData soundChangeDuringShulkerPeek = null;
 
     public void load() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
@@ -180,11 +181,14 @@ public class TradeHandler {
         this.soundRequest = getSound("Trade_Request", config, "ORB_PICKUP");
         if (this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
-        this.countdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
-        if (this.countdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
+        this.soundCountdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
+        if (this.soundCountdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
 
-        this.countdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
-        if (this.countdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+        this.soundCountdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
+        if (this.soundCountdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+
+        this.soundChangeDuringShulkerPeek = getSound("Change_during_Shulker_Peek", config, "ITEM_BREAK");
+        if (this.soundChangeDuringShulkerPeek == null) TradeSystem.log("    > No change-during-shulker-peek sound detected (maybe a spelling mistake?)");
 
         //load allowed game modes
         if (this.allowedGameModes != null) this.allowedGameModes.clear();
@@ -266,11 +270,15 @@ public class TradeHandler {
     }
 
     public void playCountdownTickSound(Player player) {
-        if (this.countdownTick != null) this.countdownTick.play(player);
+        if (this.soundCountdownTick != null) this.soundCountdownTick.play(player);
     }
 
     public void playCountdownStopSound(Player player) {
-        if (this.countdownStop != null) this.countdownStop.play(player);
+        if (this.soundCountdownStop != null) this.soundCountdownStop.play(player);
+    }
+
+    public void playChangeDuringShulkerPeekSound(Player player) {
+        if (this.soundChangeDuringShulkerPeek != null) this.soundChangeDuringShulkerPeek.play(player);
     }
 
     public void saveBlackList() {
