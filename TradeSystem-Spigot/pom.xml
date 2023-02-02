@@ -47,6 +47,10 @@
             <id>griefdefender</id>
             <url>https://repo.glaremasters.me/repository/bloodshot</url>
         </repository>
+        <repository>
+            <id>phoenix</id>
+            <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <build>
@@ -138,6 +142,12 @@
             <groupId>com.griefdefender</groupId>
             <artifactId>api</artifactId>
             <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.Indyuce</groupId>
+            <artifactId>MMOItems-API</artifactId>
+            <version>6.9.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
