@@ -75,7 +75,7 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
     }
 
     protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-        trade.handleClickResult(icon, id, gui, result, 1);
+        trade.handleClickResult(icon, gui.getPlayer(), id, gui, result, 1);
     }
 
     /**

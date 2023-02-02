@@ -36,7 +36,7 @@ public abstract class SimpleTradeIcon extends LayoutIcon implements TradeIcon, C
             @Override
             public void onClick(GUI gui, InventoryClickEvent inventoryClickEvent) {
                 IconResult result = SimpleTradeIcon.this.onClick(trade, player, inventoryClickEvent);
-                trade.handleClickResult(SimpleTradeIcon.this, id, gui, result, 0);
+                trade.handleClickResult(SimpleTradeIcon.this, player, id, gui, result, 0);
             }
         };
     }

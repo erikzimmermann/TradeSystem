@@ -654,7 +654,7 @@ public abstract class Trade {
         updateReady(getId(player), false);
     }
 
-    public void handleClickResult(@NotNull TradeIcon tradeIcon, int playerId, @NotNull GUI gui, @NotNull IconResult result, long updateLaterDelay) {
+    public void handleClickResult(@NotNull TradeIcon tradeIcon, @NotNull Player player, int playerId, @NotNull GUI gui, @NotNull IconResult result, long updateLaterDelay) {
         switch (result) {
             case PASS:
                 return;
@@ -668,6 +668,9 @@ public abstract class Trade {
 
                 // make sure player get notified when something changed
                 checkShulkerBoxChanges();
+
+                // status icon might can be ready now
+                updateStatusIcon(player, playerId);
                 break;
 
             case GUI:
