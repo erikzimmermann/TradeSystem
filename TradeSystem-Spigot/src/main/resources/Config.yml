@@ -90,14 +90,12 @@ TradeSystem:
   TradeLog:
     Enabled: false
     Database:
-      # Values: BUKKIT (does not support in-game access to the log), SQLITE, MYSQL
-      Type: MYSQL
-      # Only required for MYSQL
-      Db_host: localhost
-      Db_port: 3306
-      Db_name: tradelog
-      Db_user: root
-      Db_password: password
+      # Values: BUKKIT (does not support in-game access to the log), SQLite, MySQL
+      Type: MySQL
+      MySQL:
+        Connection_URL: "jdbc:mysql://localhost:3306/tradelog?autoReconnect=true&useSSL=false"
+        User: root
+        Password: password
 
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:
