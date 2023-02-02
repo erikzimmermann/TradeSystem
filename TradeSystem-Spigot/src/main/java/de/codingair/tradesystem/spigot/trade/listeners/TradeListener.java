@@ -1,7 +1,8 @@
 package de.codingair.tradesystem.spigot.trade.listeners;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.player.chat.ChatButtonListener;
-import de.codingair.codingapi.tools.time.TimeList;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
@@ -17,9 +18,10 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class TradeListener implements Listener, ChatButtonListener {
-    private final TimeList<Player> players = new TimeList<>();
+    private final Cache<UUID, Boolean> players = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).build();
 
     @Override
     public boolean onAsyncClick(Player player, UUID id, String type) {
@@ -43,7 +45,7 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent e) {
-        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightClick() || players.contains(e.getPlayer()) || !e.getPlayer().isSneaking()) return;
+        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightClick() || players.getIfPresent(e.getPlayer().getUniqueId()) != null || !e.getPlayer().isSneaking()) return;
 
         if (e.getRightClicked() instanceof Player) {
             Player p = e.getPlayer();
@@ -52,7 +54,7 @@ public class TradeListener implements Listener, ChatButtonListener {
             if (!other.isOnline()) return; //npc
             if (!p.canSee(other)) return;
 
-            players.add(p, 1);
+            players.put(p.getUniqueId(), false);
             RequestManager.request(p, other);
         }
     }

@@ -5,7 +5,6 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
 import de.codingair.codingapi.server.specification.Version;
-import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.codingapi.utils.Value;
 import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
@@ -141,8 +140,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void printConsoleInfo(Runnable runnable) {
-        Timer timer = new Timer();
-        timer.start();
+        long start = System.currentTimeMillis();
 
         log(" ");
         log("__________________________________________________________");
@@ -161,7 +159,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         runnable.run();
 
         log(" ");
-        log("Finished (" + timer.result() + ")");
+        log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
         log(" ");
         log("__________________________________________________________");
         log(" ");
@@ -269,7 +267,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void copyConfig() {
-        ConfigFile file = this.fileManager.loadFile("Config", "/", false);
+        ConfigFile file = this.fileManager.loadFile("Config", "/", false, true);
         this.oldConfig = file.getConfig();
         this.fileManager.unloadFile(file);
     }
