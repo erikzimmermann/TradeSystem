@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&cВы не можете проводить сделки, 
 Cannot_trade_in_world: '&7В текущем мире &cнедоступна возможность&7 проведения сделок.'
 Other_cannot_trade_in_world: '&7В мире игрока &cнедоступна возможность&7 проведения сделок.'
 Cannot_trade_while_invisible: '&cВы не можете проводить сделки, &7пока невидимы.'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&cЭтот игрок торгует с другим игроком!'
 Online: В сети
 Offline: Не в сети

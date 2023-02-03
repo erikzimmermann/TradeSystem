@@ -108,8 +108,10 @@ Trade_You_are_Offline: '&7Use "%command%&e/trade toggle%command%&7" to trade aga
 Trade_Placed_Blocked_Item: '&7This item &ccannot &7be traded!'
 Cannot_trade_in_bed: '&cYou cannot trade&7, while you''re lying in bed.'
 Cannot_trade_in_world: '&7You &ccannot trade &7in this world!'
-Other_cannot_trade_in_world: '&7This player §ccannot trade &7in his world!'
+Other_cannot_trade_in_world: '&7This player §ccannot trade &7in their world!'
 Cannot_trade_while_invisible: '&7You &ccannot trade &7while you''re &cinvisible&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&7This player is &calready trading &7at the moment!'
 Online: Online
 Offline: Offline

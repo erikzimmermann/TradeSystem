@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&cNo puedes intercambiar&7, mientrás estás acostado en l
 Cannot_trade_in_world: '&c¡No puedes intercambiar &7en este mundo!'
 Other_cannot_trade_in_world: '&7¡Este jugador §cno puede intercambiar &7en su mundo!'
 Cannot_trade_while_invisible: '&c¡No puedes intercambiar &7mientras eres &cinvisible&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&c¡Este jugador ya está comerciando en este momento!'
 Online: Online
 Offline: Offline

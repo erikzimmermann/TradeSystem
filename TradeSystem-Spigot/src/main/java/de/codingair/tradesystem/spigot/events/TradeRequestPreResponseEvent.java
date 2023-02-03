@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.spigot.events;
 
+import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Called when a player is about to respond to a trade request.
  */
-public class TradeRequestPreResponseEvent extends Event implements Cancellable {
+public class TradeRequestPreResponseEvent extends TradeEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
     private final String sender;
     private final Player sendingPlayer;

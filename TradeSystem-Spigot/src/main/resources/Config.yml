@@ -20,6 +20,13 @@ TradeSystem:
   - "ExampleWorld-1"
   - "ExampleWorld-2"
 
+  Allowed_Regions:
+    # Valid modes: Blacklist, Whitelist
+    # Blacklist: All regions are allowed except the ones in the list
+    # Whitelist: Only the regions in the list are allowed
+    Mode: Blacklist
+    Regions: []
+
   # Example:            (all variables are optional)
   # - Material: STONE
   #   Data: 0

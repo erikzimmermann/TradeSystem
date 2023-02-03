@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&c你无法进行交易&7,因为你躺在床上.'
 Cannot_trade_in_world: '&7这个世界&c无法&7进行交易!'
 Other_cannot_trade_in_world: '&7该玩家处于§c无法&7交易的世界!'
 Cannot_trade_while_invisible: '&7你&c无法&7在&c隐身状态&7下交易!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&7该玩家&c正在&7交易!'
 Online: 正在交易所
 Offline: 已离开交易所

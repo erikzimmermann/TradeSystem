@@ -1,7 +1,7 @@
 package de.codingair.tradesystem.spigot.events;
 
+import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Called when a request was accepted or declined.
  */
-public class TradeRequestResponseEvent extends Event {
+public class TradeRequestResponseEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final String sender;
     private final Player sendingPlayer;

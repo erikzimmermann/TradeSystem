@@ -89,11 +89,13 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     public void onEnable() {
         instance = this;
         API.getInstance().onEnable(this);
-        PluginDependencies.enable();
 
         printConsoleInfo(() -> {
             loadConfigFiles();
             new BackwardSupport();
+            PluginDependencies.enable();
+            registerDefaultPluginMessagingChannel();
+
             this.commandManager = new CommandManager(getFileManager().getFile("Config"));
             loadManagers();
 
@@ -169,6 +171,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.tradeHandler.load();
         this.layoutManager.load();
         this.databaseInitializer.initialize();
+    }
+
+    private void registerDefaultPluginMessagingChannel() {
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
 
     private void loadConfigFiles() {

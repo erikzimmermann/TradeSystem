@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.managers;
 
+import de.codingair.packetmanagement.exceptions.TimeOutException;
 import de.codingair.tradesystem.proxy.packets.InviteResponsePacket;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.proxy.packets.TradeStateUpdatePacket;
@@ -132,14 +133,13 @@ public class InvitationManager {
     }
 
     @NotNull
-    public Set<String> getInvitationNames(String name) {
+    public Set<String> getInvitationNames(@NotNull String name) {
         Map<String, Invitation> map = getInvitations(name);
         return map == null ? new HashSet<>() : map.keySet();
     }
 
-    @Nullable
-    public Map<String, Invitation> clear(String name) {
-        return this.invitations.remove(name.toLowerCase());
+    public void clear(String name) {
+        this.invitations.remove(name.toLowerCase());
     }
 
     public void invalidate(@NotNull Player player, @NotNull Invitation invitation) {
@@ -162,37 +162,22 @@ public class InvitationManager {
         this.invitations.clear();
     }
 
-    private boolean invalidateIfEmpty(@NotNull String name, @Nullable Map<String, Invitation> map) {
+    private void invalidateIfEmpty(@NotNull String name, @Nullable Map<String, Invitation> map) {
         if (map == null) map = this.getInvitations(name);
-        if (map != null && map.isEmpty()) {
-            this.clear(name);
-            return true;
-        } else return false;
+        if (map != null && map.isEmpty()) this.clear(name);
     }
 
-    public void cancelAll(@NotNull Player player) {
-        String name = player.getName();
-
+    /**
+     * @param name The player name whom invitations should be cancelled.
+     */
+    public void cancelAll(@NotNull String name) {
         //cancel all open invitations on proxy too
-        Map<String, Invitation> received = clear(name);
-        if (received != null) {
-            for (Invitation invitation : received.values()) {
-                if (invitation.isProxyInvite()) cancel(player, invitation.getName(), name);
-            }
-        }
+        clear(name);
 
         this.invitations.entrySet().removeIf(e -> {
-            String receiver = e.getKey();
             Map<String, Invitation> invitations = e.getValue();
-
-            //get original invitation to check if it's a proxy invite
-            Invitation invitation = invitations.remove(name.toLowerCase());
-            if (invitation != null) {
-                //cancel on proxy level
-                if (invitation.isProxyInvite()) cancel(player, name, receiver);
-            }
-
-            return invalidateIfEmpty(receiver, invitations);
+            invitations.remove(name.toLowerCase());
+            return invitations.isEmpty();
         });
     }
 
@@ -271,9 +256,11 @@ public class InvitationManager {
 
                 if (RuleManager.isViolatingRules(sender)) return;
 
-                TradeSystem.proxyHandler().send(new InviteResponsePacket(name, sender.getName(), true, false), sender).whenComplete((suc, t) -> {
-                    if (t != null) t.printStackTrace();
-                    else {
+                TradeSystem.proxyHandler().send(new InviteResponsePacket(name, sender.getName(), true, false), sender, 1000).whenComplete((suc, t) -> {
+                    if (t != null) {
+                        if (t instanceof TimeOutException) return; // external plugin handling
+                        t.printStackTrace();
+                    } else {
                         if (suc.getResult() == InviteResponsePacket.Result.SUCCESS) {
                             //call event
                             Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, name, null, true)));

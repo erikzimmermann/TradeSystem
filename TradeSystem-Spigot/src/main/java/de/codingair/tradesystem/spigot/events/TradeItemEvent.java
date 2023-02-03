@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.spigot.events;
 
+import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Called when a player trades an item with another player.
  */
-public class TradeItemEvent extends Event {
+public class TradeItemEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String sender;
