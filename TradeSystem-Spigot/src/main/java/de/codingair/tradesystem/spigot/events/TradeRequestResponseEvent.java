@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a request was accepted or declined.
- *
- * @author CodingAir
  */
 public class TradeRequestResponseEvent extends Event {
     private static final HandlerList handlerList = new HandlerList();

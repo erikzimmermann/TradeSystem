@@ -20,7 +20,7 @@ public class TradeIconUpdatePacketHandler implements PacketHandler<TradeIconUpda
     @Override
     public void process(@NotNull TradeIconUpdatePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
         Player player = Bukkit.getPlayer(packet.getRecipient());
-        ProxyTrade t = TradeSystem.proxy().getTrade(player, packet.getRecipient(), packet.getSender());
+        ProxyTrade t = TradeSystem.proxy().getTrade(packet.getRecipient(), packet.getSender());
 
         if (t != null) {
             ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());

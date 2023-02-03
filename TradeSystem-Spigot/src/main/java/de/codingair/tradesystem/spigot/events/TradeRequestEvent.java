@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player requests a trade with another player. This event is only fired if the sender does not violate against rules (see {@link de.codingair.tradesystem.spigot.trade.managers.RuleManager}).
- *
- * @author CodingAir
  */
 public class TradeRequestEvent extends Event implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();

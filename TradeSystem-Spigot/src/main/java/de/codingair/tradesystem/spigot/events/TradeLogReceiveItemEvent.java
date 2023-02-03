@@ -7,6 +7,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Called when a player receives an item from another player after a trade was completed.
+ */
 public class TradeLogReceiveItemEvent extends Event {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;

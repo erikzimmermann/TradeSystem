@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player trades an item with another player.
- *
- * @author CodingAir
  */
 public class TradeItemEvent extends Event {
     private static final HandlerList handlerList = new HandlerList();

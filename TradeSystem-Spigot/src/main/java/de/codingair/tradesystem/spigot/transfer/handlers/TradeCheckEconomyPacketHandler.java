@@ -19,7 +19,7 @@ public class TradeCheckEconomyPacketHandler implements ResponsiblePacketHandler<
     @Override
     public @NotNull CompletableFuture<SuccessPacket> response(@NotNull TradeCheckFinishPacket packet, @NotNull Proxy proxy, @Nullable Object connection, @NotNull Direction direction) {
         Player player = Bukkit.getPlayer(packet.getRecipient());
-        ProxyTrade t = TradeSystem.proxy().getTrade(player, packet.getRecipient(), packet.getSender());
+        ProxyTrade t = TradeSystem.proxy().getTrade(packet.getRecipient(), packet.getSender());
 
         boolean success;
         if (t == null) success = false;

@@ -9,7 +9,7 @@ public class ExpirationListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        TradeSystem.invitations().cancelAll(e.getPlayer(), e.getPlayer().getName());
+        TradeSystem.invitations().cancelAll(e.getPlayer());
     }
 
 }

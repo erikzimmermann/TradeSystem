@@ -19,7 +19,7 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
     @Override
     public void process(@NotNull PlayerInventoryPacket packet, @NotNull Proxy proxy, @Nullable Object connection, @NotNull Direction direction) {
         Player p = Bukkit.getPlayer(packet.getRecipient());
-        ProxyTrade t = TradeSystem.proxy().getTrade(p, packet.getRecipient(), packet.getSender());
+        ProxyTrade t = TradeSystem.proxy().getTrade(packet.getRecipient(), packet.getSender());
         if (t == null) return;
 
         try {

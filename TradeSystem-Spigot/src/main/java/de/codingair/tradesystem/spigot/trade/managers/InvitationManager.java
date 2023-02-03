@@ -5,10 +5,10 @@ import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.proxy.packets.TradeStateUpdatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeRequestExpireEvent;
+import de.codingair.tradesystem.spigot.events.TradeRequestPreResponseEvent;
 import de.codingair.tradesystem.spigot.events.TradeRequestResponseEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,25 +19,23 @@ public class InvitationManager {
     /**
      * receiver to invitations from others
      */
-    private final Map<String, Set<Invitation>> invitations = new HashMap<>();
+    private final Map<String, Map<String, Invitation>> invitations = new HashMap<>();
     private int expirationHandler = -1;
 
     public void startExpirationHandler() {
         long expiration = TradeSystem.man().getRequestExpirationTime() * 1000L;
 
-        expirationHandler = Bukkit.getScheduler().scheduleSyncRepeatingTask(TradeSystem.getInstance(), () -> {
-            invitations.entrySet().removeIf(e -> {
-                e.getValue().removeIf(inv -> {
-                    boolean valid = inv.valid(expiration);
-                    if (valid) return false;
+        expirationHandler = Bukkit.getScheduler().scheduleSyncRepeatingTask(TradeSystem.getInstance(), () -> invitations.entrySet().removeIf(e -> {
+            e.getValue().values().removeIf(inv -> {
+                boolean valid = inv.valid(expiration);
+                if (valid) return false;
 
-                    notifyExpiration(e.getKey(), inv);
-                    return true;
-                });
-
-               return e.getValue().isEmpty();
+                notifyExpiration(e.getKey(), inv);
+                return true;
             });
-        }, 20, 10);
+
+            return e.getValue().isEmpty();
+        }), 20, 10);
     }
 
     public void stopExpirationHandler() {
@@ -65,28 +63,31 @@ public class InvitationManager {
     }
 
     //proxy usage
-    public static boolean processInvitation(Player player, @Nullable Player other, @NotNull String name) {
-        Set<Invitation> l = instance().invitations.get(player.getName());
-        boolean invited = l != null && l.remove(new Invitation(name));
+    public static boolean processInvitation(@NotNull Player inviter, @Nullable Player receiver, @NotNull String receiverName) {
+        // check if this player has already an invitation
+        Map<String, Invitation> map = instance().getInvitations(inviter.getName());
+        boolean invited = map != null && map.remove(receiverName.toLowerCase()) != null;
 
         if (invited) {
-            acceptInvitation(player, other, name, l);
+            if (map.isEmpty()) instance().clear(inviter.getName());
+            acceptInvitation(inviter, receiver, receiverName);
             return true;
         }
 
-        l = instance().invitations.get(name);
-        boolean alreadyRequested = l != null && l.contains(new Invitation(player.getName()));
+        // check if other player has already an invitation from this player
+        map = instance().getInvitations(receiverName);
+        boolean alreadyRequested = map != null && map.containsKey(inviter.getName().toLowerCase());
 
         if (alreadyRequested) {
-            player.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam", player));
+            inviter.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam", inviter));
             return true;
         }
 
         //wait for trade compatibility check if proxyTrade == true
-        boolean proxyTrade = other == null;
+        boolean proxyTrade = receiver == null;
         if (!proxyTrade) {
-            registerInvitation(player, player.getName(), other, name);
-            player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player, new Lang.P("player", name)));
+            registerInvitation(inviter, inviter.getName(), receiver, receiverName);
+            inviter.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", inviter, new Lang.P("player", receiverName)));
         }
         return false;
     }
@@ -97,14 +98,12 @@ public class InvitationManager {
         Invitation invitation = new Invitation(nameInviter, proxy);
 
         instance().invitations
-                .computeIfAbsent(nameReceiver, $ -> new HashSet<>())
-                .add(invitation);
+                .computeIfAbsent(nameReceiver.toLowerCase(), $ -> new HashMap<>())
+                .put(nameInviter.toLowerCase(), invitation);
     }
 
     //proxy usage
-    private static void acceptInvitation(@NotNull Player player, @Nullable Player other, @NotNull String name, Set<Invitation> l) {
-        if (l.isEmpty()) instance().clear(player.getName());
-
+    private static void acceptInvitation(@NotNull Player player, @Nullable Player other, @NotNull String name) {
         player.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", player));
         if (other != null) {
             Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, other, player.getName(), player, true));
@@ -128,46 +127,70 @@ public class InvitationManager {
     }
 
     @Nullable
-    public Set<Invitation> getInvites(String name) {
-        return this.invitations.get(name);
+    private Map<String, Invitation> getInvitations(String name) {
+        return this.invitations.get(name.toLowerCase());
+    }
+
+    @NotNull
+    public Set<String> getInvitationNames(String name) {
+        Map<String, Invitation> map = getInvitations(name);
+        return map == null ? new HashSet<>() : map.keySet();
     }
 
     @Nullable
-    public Set<Invitation> clear(String name) {
-        return this.invitations.remove(name);
+    public Map<String, Invitation> clear(String name) {
+        return this.invitations.remove(name.toLowerCase());
     }
 
-    private boolean invalidateIfEmpty(@NotNull String name, @Nullable Set<Invitation> set) {
-        if (set == null) set = this.invitations.get(name);
-        if (set != null && set.isEmpty()) {
+    public void invalidate(@NotNull Player player, @NotNull Invitation invitation) {
+        Map<String, Invitation> l = getInvitations(player.getName());
+        if (l != null) {
+            l.remove(invitation.getName().toLowerCase());
+            invalidateIfEmpty(player.getName(), l);
+        }
+    }
+
+    public void invalidate(@NotNull Player inviter, @NotNull String other) {
+        Map<String, Invitation> l = getInvitations(other);
+        if (l != null) {
+            l.remove(inviter.getName().toLowerCase());
+            invalidateIfEmpty(other, l);
+        }
+    }
+
+    public void clear() {
+        this.invitations.clear();
+    }
+
+    private boolean invalidateIfEmpty(@NotNull String name, @Nullable Map<String, Invitation> map) {
+        if (map == null) map = this.getInvitations(name);
+        if (map != null && map.isEmpty()) {
             this.clear(name);
             return true;
         } else return false;
     }
 
-    public void cancelAll(@Nullable Player player, @NotNull String name) {
+    public void cancelAll(@NotNull Player player) {
+        String name = player.getName();
+
         //cancel all open invitations on proxy too
-        Set<Invitation> received = clear(name);
+        Map<String, Invitation> received = clear(name);
         if (received != null) {
-            for (Invitation invitation : received) {
+            for (Invitation invitation : received.values()) {
                 if (invitation.isProxyInvite()) cancel(player, invitation.getName(), name);
             }
         }
 
-        Invitation invitation = new Invitation(name);
-
         this.invitations.entrySet().removeIf(e -> {
             String receiver = e.getKey();
-            Set<Invitation> invitations = e.getValue();
+            Map<String, Invitation> invitations = e.getValue();
 
             //get original invitation to check if it's a proxy invite
-            invitations.stream().filter(i -> i.equals(invitation)).findFirst().ifPresent(original -> {
+            Invitation invitation = invitations.remove(name.toLowerCase());
+            if (invitation != null) {
                 //cancel on proxy level
-                if (original.isProxyInvite()) cancel(player, name, receiver);
-
-                //remove it when an invitation is available
-                invitations.remove(invitation);
-            });
+                if (invitation.isProxyInvite()) cancel(player, name, receiver);
+            }
 
             return invalidateIfEmpty(receiver, invitations);
         });
@@ -178,130 +201,121 @@ public class InvitationManager {
         TradeSystem.proxyHandler().send(packet, player);
     }
 
-    public void clear() {
-        this.invitations.clear();
-    }
+    @Nullable
+    private Invitation getInvitationOrMessagePlayer(@NotNull Player player, @Nullable String argument) {
+        Map<String, Invitation> invitations = this.getInvitations(player.getName());
 
-    public void invalidate(Player inviter, String other) {
-        Set<Invitation> l = invitations.get(other);
-        if (l != null) {
-            l.remove(new Invitation(inviter.getName()));
-            invalidateIfEmpty(other, l);
+        if (invitations == null || invitations.isEmpty()) {
+            player.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", player));
+            return null;
         }
-    }
 
-    public boolean deny(CommandSender sender, String argument) {
-        Set<Invitation> l = invitations.get(sender.getName());
-
-        if (l != null && l.remove(new Invitation(argument))) {
-            Player other = Bukkit.getPlayer(argument);
-            invalidateIfEmpty(sender.getName(), l);
-
-            if (other == null) {
-                if (TradeSystem.proxy().isOnline(argument)) {
-                    //call event
-                    Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), (Player) sender, TradeSystem.proxy().getCaseSensitive(argument), null, false));
-
-                    TradeSystem.proxyHandler().send(new InviteResponsePacket(argument, sender.getName(), false, false).noFuture(), (Player) sender);
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender, new Lang.P("player", argument)));
-                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", (Player) sender));
-                return true;
-            }
-
-            //call event
-            Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), (Player) sender, other.getName(), other, false));
-
-            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", (Player) sender, new Lang.P("player", other.getName())));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", (Player) sender, new Lang.P("player", sender.getName())));
+        if (argument == null) {
+            if (invitations.size() > 1) player.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", player));
+            else return invitations.values().stream().findAny().get();
+            return null;
         } else {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", (Player) sender));
+            Invitation inv = invitations.get(argument.toLowerCase());
+            if (inv == null) player.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", player));
+            return inv;
         }
-
-        return true;
     }
 
-    public boolean accept(Player sender, String argument) {
-        Set<Invitation> l = invitations.get(sender.getName());
-        Invitation dummy = new Invitation(argument);
+    /**
+     * Handles the trade request response.
+     *
+     * @param sender   The player who responded.
+     * @param argument The player name forwarded by the command.
+     * @param accept   True if the player accepted the request, false if he denied it.
+     */
+    public void handleInvitation(@NotNull Player sender, @Nullable String argument, boolean accept) {
+        Invitation invitation = getInvitationOrMessagePlayer(sender, argument);
+        if (invitation == null) return;
 
-        if (l != null && l.contains(dummy)) {
-            Player other = Bukkit.getPlayerExact(argument);
+        TradeRequestPreResponseEvent e = new TradeRequestPreResponseEvent(invitation.getCaseSensitiveName(), invitation.getPlayer(), sender.getName(), sender, accept);
+        Bukkit.getPluginManager().callEvent(e);
+        if (e.isCancelled()) return;
 
-            if (other == null) {
-                String name = TradeSystem.proxy().getCaseSensitive(argument);
+        if (accept) accept(sender, invitation);
+        else deny(sender, invitation);
+    }
 
-                if (TradeSystem.proxy().isOnline(argument)) {
-                    if (RuleManager.isViolatingRules(sender)) return true;
+    private void deny(@NotNull Player sender, @NotNull Invitation invitation) {
+        Player other = invitation.getPlayer();
+        invalidate(sender, invitation);
 
-                    TradeSystem.proxyHandler().send(new InviteResponsePacket(argument, sender.getName(), true, false), sender).whenComplete((suc, t) -> {
-                        if (t != null) t.printStackTrace();
-                        else {
-                            if (suc.getResult() == InviteResponsePacket.Result.SUCCESS) {
-                                //call event
-                                Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, name, null, true)));
+        if (other == null) {
+            if (TradeSystem.proxy().isOnline(invitation.getName())) {
+                //call event
+                Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, TradeSystem.proxy().getCaseSensitive(invitation.getName()), null, false));
 
-                                l.remove(dummy);
-                                invalidateIfEmpty(sender.getName(), l);
+                TradeSystem.proxyHandler().send(new InviteResponsePacket(invitation.getName(), sender.getName(), false, false).noFuture(), sender);
+                sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", sender, new Lang.P("player", invitation.getName())));
+            } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+            return;
+        }
 
-                                sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
-                                TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, false);
-                            } else if (suc.getResult() == InviteResponsePacket.Result.NOT_ONLINE) {
-                                sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
-                            } else if (suc.getResult() == InviteResponsePacket.Result.OTHER_GROUP) {
-                                sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
-                            }
+        //call event
+        Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, other.getName(), other, false));
+
+        sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", sender, new Lang.P("player", other.getName())));
+        other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", sender, new Lang.P("player", sender.getName())));
+    }
+
+    private void accept(@NotNull Player sender, @NotNull Invitation invitation) {
+        Player other = invitation.getPlayer();
+
+        if (other == null) {
+            if (TradeSystem.proxy().isOnline(invitation.getName())) {
+                String name = TradeSystem.proxy().getCaseSensitive(invitation.getName());
+
+                if (RuleManager.isViolatingRules(sender)) return;
+
+                TradeSystem.proxyHandler().send(new InviteResponsePacket(name, sender.getName(), true, false), sender).whenComplete((suc, t) -> {
+                    if (t != null) t.printStackTrace();
+                    else {
+                        if (suc.getResult() == InviteResponsePacket.Result.SUCCESS) {
+                            //call event
+                            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, name, null, true)));
+
+                            invalidate(sender, invitation);
+
+                            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
+                            TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, false);
+                        } else if (suc.getResult() == InviteResponsePacket.Result.NOT_ONLINE) {
+                            sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+                        } else if (suc.getResult() == InviteResponsePacket.Result.OTHER_GROUP) {
+                            sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
                         }
-                    });
-                } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
-                return true;
-            }
-
-            if (RuleManager.isViolatingRules(sender, other)) return true;
-
-            //call event
-            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, other.getName(), other, true)));
-
-            l.remove(dummy);
-            invalidateIfEmpty(sender.getName(), l);
-
-            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender, new Lang.P("player", sender.getName())));
-
-            TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), true);
-        } else {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", sender));
+                    }
+                });
+            } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+            return;
         }
 
-        return true;
+        if (RuleManager.isViolatingRules(sender, other)) return;
+
+        //call event
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender, other.getName(), other, true)));
+
+        invalidate(sender, invitation);
+
+        sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
+        other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender, new Lang.P("player", sender.getName())));
+
+        TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), true);
     }
 
-    public boolean accept(Player sender) {
-        Set<Invitation> l = invitations.get(sender.getName());
-
-        if (l == null || l.isEmpty()) {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", sender));
-        } else if (l.size() == 1) {
-            String other = l.stream().findAny().get().getName();
-
-            return accept(sender, other);
-        } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", sender));
-        return true;
-    }
-
-    public boolean isInvited(Player inviter, String receiver) {
-        Set<Invitation> l = getInvites(receiver);
-        if (l == null) return false;
-        return l.contains(new Invitation(inviter.getName()));
+    public boolean isInvited(@NotNull Player inviter, @NotNull String receiver) {
+        Map<String, Invitation> invitations = getInvitations(receiver);
+        if (invitations == null) return false;
+        return invitations.containsKey(inviter.getName().toLowerCase());
     }
 
     public static class Invitation {
         private final String name;
         private final boolean proxyInvite;
         private final long birth;
-
-        public Invitation(String name) {
-            this(name, false);
-        }
 
         public Invitation(String name, boolean proxyInvite) {
             this(name, proxyInvite, System.currentTimeMillis());
@@ -315,6 +329,20 @@ public class InvitationManager {
 
         public String getName() {
             return name;
+        }
+
+        @Nullable
+        public Player getPlayer() {
+            return Bukkit.getPlayerExact(name);
+        }
+
+        @NotNull
+        public String getCaseSensitiveName() {
+            Player player = getPlayer();
+            if (player != null) return player.getName();
+
+            // try proxy
+            return TradeSystem.proxy().getCaseSensitive(name);
         }
 
         public boolean isProxyInvite() {
@@ -338,10 +366,6 @@ public class InvitationManager {
         @Override
         public int hashCode() {
             return Objects.hash(name.toLowerCase());
-        }
-
-        public long getBirth() {
-            return birth;
         }
 
         public boolean valid(long expirationTime) {

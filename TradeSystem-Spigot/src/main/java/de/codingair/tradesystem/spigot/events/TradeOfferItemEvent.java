@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player offers an item. Can be cancelled if this item should be blocked.
- *
- * @author CodingAir
  */
 public class TradeOfferItemEvent extends Event implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
