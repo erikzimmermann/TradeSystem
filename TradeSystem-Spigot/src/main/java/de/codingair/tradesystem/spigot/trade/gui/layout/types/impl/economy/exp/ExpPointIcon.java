@@ -21,9 +21,8 @@ public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
 
     @Override
     protected @NotNull BigDecimal getBalance(Player player) {
-        //This causes issues when directly setting the level before.
-        //Unfortunately, there is no other easy way to get the total experience points.
-        return BigDecimal.valueOf(player.getTotalExperience());
+        int totalExp = (int) ExpLevelIcon.getTotalExp(player.getLevel() + player.getExp());
+        return BigDecimal.valueOf(totalExp);
     }
 
     @Override

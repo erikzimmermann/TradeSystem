@@ -50,8 +50,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull String makeString(@Nullable G current) {
-                        return InputIcon.this.makeString(current);
+                    public @NotNull String makeString(@NotNull Player player, @Nullable G current) {
+                        return InputIcon.this.makeString(player, current);
                     }
 
                     @Override
@@ -115,8 +115,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull String makeString(@Nullable G current) {
-                        return InputIcon.this.makeString(current);
+                    public @NotNull String makeString(@NotNull Player player, @Nullable G current) {
+                        return InputIcon.this.makeString(player, current);
                     }
 
                     @Override

@@ -14,7 +14,7 @@ public abstract class SimpleSignGUIIcon<G> extends SignGUIIcon<G> {
 
     @Override
     public @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player player) {
-        String input = makeString(getValue());
+        String input = makeString(player, getValue());
 
         String[] text = new String[4];
         text[0] = input;

@@ -24,10 +24,15 @@ public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Trans
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player) + ": §7" + EconomyIcon.makeFancyString(value, true));
+        layout.setName("§e" + getName(player) + ": §7" + makeString(player, value));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
+    }
+
+    @NotNull
+    protected String makeString(@NotNull Player player, @NotNull BigDecimal value) {
+        return EconomyIcon.makeFancyString(value, true);
     }
 
     @NotNull
@@ -40,10 +45,11 @@ public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Trans
     }
 
     @Override
-    public void applyTransition(BigDecimal value) {
+    public void applyTransition(@NotNull BigDecimal value) {
         this.value = value;
     }
 
+    @NotNull
     public BigDecimal getValue() {
         return value;
     }

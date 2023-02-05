@@ -88,7 +88,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         BigDecimal max = getBalance(player);
         if (input.compareTo(max) > 0) {
             String s = Lang.get("Only_X_Amount")
-                    .replace("%amount%", makeString(max))
+                    .replace("%amount%", makeString(player, max))
                     .replace("%type%", getName(player, max.equals(BigDecimal.ONE)));
 
             player.sendMessage(Lang.getPrefix() + s);
@@ -100,7 +100,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @NotNull String makeString(@Nullable BigDecimal current) {
+    public @NotNull String makeString(@NotNull Player player, @Nullable BigDecimal current) {
         return makeFancyString(current, decimal);
     }
 
@@ -126,7 +126,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(player, value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);

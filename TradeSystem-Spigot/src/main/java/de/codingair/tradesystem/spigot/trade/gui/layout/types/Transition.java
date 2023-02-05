@@ -30,11 +30,11 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
          *
          * @param value The updated value.
          */
-        void applyTransition(G value);
+        void applyTransition(@NotNull G value);
 
         /**
          * @return The current stored value.
          */
-        G getValue();
+        @NotNull G getValue();
     }
 }
