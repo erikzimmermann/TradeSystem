@@ -71,20 +71,20 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
         return super.makeString(player, current);
     }
 
-    public static double getTotalExp(double level) {
+    static double getTotalExp(double level) {
         if (level < 17) return Math.pow(level, 2) + 6 * level;
         else if (level < 32) return 2.5 * Math.pow(level, 2) - 40.5 * level + 360;
         else return 4.5 * Math.pow(level, 2) - 162.5 * level + 2220;
     }
 
-    public static double getTotalLevel(double exp) {
+    private static double getTotalLevel(double exp) {
         if (exp < 353) return Math.sqrt(exp + 9) - 3;
         else if (exp < 1508) return 8.1 + Math.sqrt(0.4 * (exp - 195.975));
         else return 325 / 18D + Math.sqrt(2 / 9D * (exp - 54215 / 72D));
     }
 
     @NotNull
-    public static BigDecimal levelToExp(@NotNull Player player, @NotNull BigDecimal input) {
+    private static BigDecimal levelToExp(@NotNull Player player, @NotNull BigDecimal input) {
         double currentExp = getTotalExp(player.getLevel() + player.getExp());
         double targetExp = getTotalExp(player.getLevel() + player.getExp() - input.doubleValue());
         double diff = currentExp - targetExp;
@@ -93,7 +93,7 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @NotNull
-    public static BigDecimal expToLevel(double currentExp, @NotNull BigDecimal current) {
+    static BigDecimal expToLevel(double currentExp, @NotNull BigDecimal current) {
         double targetExp = currentExp + current.doubleValue();
         double targetLevel = getTotalLevel(targetExp) - getTotalLevel(currentExp);
 
