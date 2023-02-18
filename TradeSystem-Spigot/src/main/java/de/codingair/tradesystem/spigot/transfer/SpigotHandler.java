@@ -29,7 +29,7 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
         registerHandler(TradeItemUpdatePacket.class, new TradeItemUpdatePacketHandler());
         registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
         registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
-        registerHandler(TradeCheckFinishPacket.class, new TradeCheckEconomyPacketHandler());
+        registerHandler(TradeCheckFinishPacket.class, new TradeCheckFinishPacketHandler());
         registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
         registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
         registerHandler(PlayerStatePacket.class, new PlayerStatePacketHandler());
@@ -56,7 +56,7 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
     }
 
     @Override
-    public void onPluginMessageReceived(@NotNull String tag, @NotNull Player player, @NotNull byte[] bytes) {
+    public void onPluginMessageReceived(@NotNull String tag, @NotNull Player player, byte[] bytes) {
         if (tag.equals(getChannelBackend())) receive(bytes, player);
     }
 

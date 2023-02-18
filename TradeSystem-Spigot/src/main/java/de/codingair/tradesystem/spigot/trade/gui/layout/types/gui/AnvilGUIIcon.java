@@ -73,7 +73,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
     }
 
     protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-        trade.handleClickResult(icon, gui.getPlayer(), id, gui, result, 1);
+        trade.handleClickResult(icon, gui.getPlayer(), id, gui, result);
     }
 
     /**

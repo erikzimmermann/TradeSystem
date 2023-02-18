@@ -156,7 +156,7 @@ public class TradeGUIListener implements Listener {
             Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
                 trade.getCursor()[trade.getId(player)] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
                 trade.getWaitForPickup()[trade.getId(player)] = false;
-                trade.cancelOverflow(trade.getOtherId(player));
+                trade.cancelItemOverflow(trade.getOtherId(player));
             }, 1);
         }
 

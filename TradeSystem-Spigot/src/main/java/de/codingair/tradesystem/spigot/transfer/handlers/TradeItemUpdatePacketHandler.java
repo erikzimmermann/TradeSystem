@@ -7,8 +7,6 @@ import de.codingair.tradesystem.proxy.packets.TradeItemUpdatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +17,6 @@ public class TradeItemUpdatePacketHandler implements PacketHandler<TradeItemUpda
 
     @Override
     public void process(@NotNull TradeItemUpdatePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
-        Player player = Bukkit.getPlayer(packet.getRecipient());
         ProxyTrade t = TradeSystem.proxy().getTrade(packet.getRecipient(), packet.getSender());
         if (t == null) return;
 

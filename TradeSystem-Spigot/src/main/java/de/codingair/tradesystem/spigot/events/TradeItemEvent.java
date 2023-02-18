@@ -103,6 +103,6 @@ public class TradeItemEvent extends TradeEvent {
      */
     public boolean isAboutToDrop() {
         if (this.item == null) return false;
-        return Trade.fit(receiver, item) > 0;
+        return Trade.checkItemFit(receiver, item) > 0;
     }
 }

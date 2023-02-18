@@ -6,22 +6,14 @@ import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
+import de.codingair.packetmanagement.packets.impl.BooleanPacket;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
-import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,9 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class ProxyTrade extends Trade {
     private final Player player;
@@ -39,9 +30,9 @@ public class ProxyTrade extends Trade {
     private ItemStack[] sent;
     private ItemStack[] received;
     private final ItemStack[] otherInventory = new ItemStack[36];
-    private boolean finishing = false;
+    private final CompletableFuture<Boolean> finishCheck = new CompletableFuture<>();
 
-    public ProxyTrade(Player player, String other, boolean initiationServer) {
+    public ProxyTrade(@NotNull Player player, @NotNull String other, boolean initiationServer) {
         super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
@@ -57,15 +48,16 @@ public class ProxyTrade extends Trade {
 
     public void receiveItemData(int slotId, @Nullable ItemStack item) {
         this.received[slotId] = item;
-        update();
+        guis[0].setItem(otherSlots.get(slotId), item);
     }
 
-    public boolean receiveEconomyCheck() {
-        confirmFinish();
-        return true;
+    public boolean receiveFinishCheck() {
+        boolean success = tryFinish(player, false);
+        finishCheck.complete(success);
+        return success;
     }
 
-    public void receiveState(TradeStateUpdatePacket.State state, String extra) {
+    public void receiveState(@NotNull TradeStateUpdatePacket.State state, @Nullable String extra) {
         switch (state) {
             case READY:
                 ready[1] = true;
@@ -83,13 +75,13 @@ public class ProxyTrade extends Trade {
         }
     }
 
-    public void receiveTradeIconUpdate(TradeIcon icon) {
+    public void receiveTradeIconUpdate(@NotNull TradeIcon icon) {
         updateReady(0, false);
         super.synchronizeTradeIcon(1, icon, false);
     }
 
     @Override
-    public void synchronizeTradeIcon(int playerId, TradeIcon icon, boolean updateIcon) {
+    public void synchronizeTradeIcon(int playerId, @NotNull TradeIcon icon, boolean updateIcon) {
         super.synchronizeTradeIcon(playerId, icon, updateIcon);
 
         //sync on proxy
@@ -108,7 +100,7 @@ public class ProxyTrade extends Trade {
         TradeSystem.proxyHandler().send(packet, this.player);
     }
 
-    public void synchronizeState(@NotNull TradeStateUpdatePacket.State state, String extra) {
+    public void synchronizeState(@NotNull TradeStateUpdatePacket.State state, @Nullable String extra) {
         TradeStateUpdatePacket packet = new TradeStateUpdatePacket(player.getName(), other, state, extra);
         TradeSystem.proxyHandler().send(packet, this.player);
     }
@@ -139,55 +131,28 @@ public class ProxyTrade extends Trade {
         }
     }
 
-    private ItemStack getSent(int slot) {
-        if (slot < 0 || slot >= 54) return null;
-        return sent[slot];
-    }
-
-    private ItemStack getReceived(int slot) {
-        if (slot < 0 || slot >= 54) return null;
-        return received[slot];
+    @Nullable
+    private ItemStack getSent(int slotId) {
+        return sent[slotId];
     }
 
     @Override
-    protected boolean updateGUI() {
-        boolean change = false;
-
-        if (guis[0] != null) {
-            for (int i = 0; i < slots.size(); i++) {
-                int slot = slots.get(i);
-
-                ItemStack item = guis[0].getItem(slot);
-                if (!Objects.equals(item, getSent(i))) {
-                    change = true;
-                    synchronizeItem(i, item);
-
-                    ready[0] = ready[1] = false;
-                }
-
-                int otherSlot = otherSlots.get(i);
-                item = guis[0].getItem(otherSlot);
-                if (!Objects.equals(item, getReceived(i))) {
-                    guis[0].setItem(otherSlot, getReceived(i));
-
-                    ready[0] = ready[1] = false;
-                }
-            }
-
-            updateStatusIcon(player, 0);
-        }
-
-        return change;
+    protected @Nullable ItemStack removeReceivedItem(int id, int slotId) {
+        ItemStack item = received[slotId];
+        received[slotId] = null;
+        return item;
     }
 
     @Override
-    protected void synchronizeTitle() {
-        guis[0].synchronizeTitle();
+    protected void updateDisplayItem(int id, int slotId, @Nullable ItemStack item) {
+        if (id != 1) return;
+        synchronizeItem(slotId, item);
     }
 
     @Override
-    protected void playCountDownStopSound() {
-        TradeSystem.man().playCountdownStopSound(player);
+    protected @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId) {
+        if (id != 1) return null;
+        return getSent(slotId);
     }
 
     @Override
@@ -208,86 +173,30 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void playStartSound() {
-        TradeSystem.man().playStartSound(this.player);
+    protected @Nullable Player getPlayer(int id) {
+        if (id == 0) return player;
+        return null;
     }
 
     @Override
-    protected synchronized boolean[] cancelGUIs() {
-        if (this.guis[0] == null) return null;
+    public void updateReady(int id, boolean ready) {
+        if (this.ready[id] == ready) return;
 
-        boolean[] droppedItems = new boolean[] {false, false};
-        for (Integer slot : this.slots) {
-            if (this.guis[0].getItem(slot) != null && this.guis[0].getItem(slot).getType() != Material.AIR) {
-                ItemStack item = this.guis[0].getItem(slot);
-                droppedItems[0] |= addOrDrop(this.player, item);
-            }
+        if (id == 0) {
+            if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
+            else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
         }
 
-        ItemStack item = this.player.getOpenInventory().getCursor();
-        if (item != null && item.getType() != Material.AIR) {
-            droppedItems[0] |= addOrDrop(this.player, item);
-            this.player.getOpenInventory().setCursor(null);
-        }
-
-        this.guis[0] = null;
-        return droppedItems;
+        super.updateReady(id, ready);
     }
 
     @Override
-    protected void callReadyUpdate(int id, boolean ready) {
-        if (id == 1) return;  // We cannot update the state of the other player remotely.
-        if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
-        else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
+    protected void onItemPickUp(@NotNull Player player, int id) {
+        synchronizeInventory();
     }
 
     @Override
-    protected void closeInventories() {
-        this.player.closeInventory();
-        if (this.guis[0] != null) this.guis[0].destroy();
-        this.player.updateInventory();
-    }
-
-    @Override
-    protected void playCancelSound() {
-        TradeSystem.man().playCancelSound(this.player);
-    }
-
-    @Override
-    protected void sendMessage(String message) {
-        sendMessage(0, message);
-    }
-
-    @Override
-    protected void sendMessage(int id, String message) {
-        if (id == 0) this.player.sendMessage(message);
-    }
-
-    @Override
-    protected String getPlaceholderMessage(int playerId, String message) {
-        return Lang.get(message, player);
-    }
-
-    @Override
-    protected Listener getPickUpListener() {
-        //noinspection deprecation
-        return new Listener() {
-            @EventHandler
-            public void onPickup(PlayerPickupItemEvent e) {
-                if (guis[0] == null) return;
-                if (e.getPlayer() == player) {
-                    if (!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[0]) e.setCancelled(true);
-                    else {
-                        //player picked up an item, check trading items -> balance items of other trader
-                        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> synchronizeInventory(), 1);
-                    }
-                }
-            }
-        };
-    }
-
-    @Override
-    protected void cancelling(String message) {
+    protected void cancelling(@Nullable String message) {
         synchronizeState(TradeStateUpdatePacket.State.CANCELLED, message);
     }
 
@@ -298,147 +207,17 @@ public class ProxyTrade extends Trade {
         }
     }
 
-    public synchronized boolean confirmFinish() {
-        if (!finishing) {
-            finishing = true;
-            return false;
-        } else {
-            //finish
-            pause[0] = true;
-
-            this.player.closeInventory();
-
-            TradeSystem.man().unregisterTrade(this.player.getName());
-            TradeSystem.man().unregisterTrade(this.other);
-
-            boolean[] droppedItems = new boolean[] {false, false};
-            for (int i = 0; i < slots.size(); i++) {
-                int slot = slots.get(i);
-
-                guis[0].setItem(slot, null);
-
-                //using original one to prevent dupe glitches!!!
-                ItemStack i0 = getReceived(i);
-
-                //Log before calling the event. The event could remove this item, and we would still lose it.
-                if (i0 != null && i0.getType() != Material.AIR) {
-                    //exception -> proxy trade -> handle item on one server -> switch players
-                    TradeLog.logItemReceive(this.player, initiationServer, this.other, i0);
-                }
-
-                //call event
-                i0 = callTradeEvent(this.player, this.other, i0);
-
-                if (i0 != null && i0.getType() != Material.AIR) {
-                    int rest = fit(this.player, i0);
-
-                    if (rest <= 0) this.player.getInventory().addItem(i0);
-                    else {
-                        ItemStack toDrop = i0.clone();
-                        toDrop.setAmount(rest);
-
-                        i0.setAmount(i0.getAmount() - rest);
-                        if (i0.getAmount() > 0) this.player.getInventory().addItem(i0);
-
-                        droppedItems[0] |= dropItem(this.player, toDrop);
-                    }
-                }
-            }
-
-            guis[0].clear();
-
-            finishPlayer(this.player);
-
-            this.player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", this.player));
-            if (droppedItems[0]) this.player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", this.player));
-
-            if (initiationServer) TradeLogService.logLater(this.player.getName(), this.other, TradeLog.FINISHED.get(), 10);
-
-            TradeSystem.man().playFinishSound(this.player);
-            return true;
-        }
-    }
-
-    private void checkFinish(@NotNull CompletableFuture<Boolean> future) {
-        if (!tryFinish(this.player)) {
-            future.complete(false);
-            return;
-        }
-
-        TradeSystem.proxyHandler().send(new TradeCheckFinishPacket(this.player.getName(), this.other), this.player).whenComplete((suc, t) -> {
-            if (t != null) {
-                t.printStackTrace();
-                future.complete(false);
-            } else if (suc.getBoolean()) future.complete(confirmFinish());
-            else {
-                callEconomyError();
-                future.complete(false);
-            }
-        });
-    }
-
-    private void callEconomyError() {
-        cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
+    @Override
+    protected @NotNull CompletableFuture<Boolean> canFinish() {
+        return TradeSystem.proxyHandler()
+                .send(new TradeCheckFinishPacket(this.player.getName(), this.other), this.player)  // test if other player can finish
+                .thenApply(BooleanPacket::getBoolean)
+                .thenCompose(ready -> ready ? finishCheck : CompletableFuture.completedFuture(false));  // test this player once the other server checks in
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> finish() {
-        if (this.countdown != null) return CompletableFuture.completedFuture(false);
-
-        if (this.guis[0] == null) return CompletableFuture.completedFuture(false);
-        if (pause[0]) return CompletableFuture.completedFuture(false);
-
-        int interval = TradeSystem.man().getCountdownInterval();
-        int repetitions = TradeSystem.man().getCountdownRepetitions();
-
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-
-        if (interval == 0 || repetitions == 0) checkFinish(future);
-        else {
-            this.countdown = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (guis[0] == null) {
-                        this.cancel();
-                        countdownTicks = 0;
-                        countdown = null;
-                        return;
-                    }
-
-                    if (!ready[0] || !ready[1]) {
-                        this.cancel();
-                        TradeSystem.man().playCountdownStopSound(player);
-                        countdownTicks = 0;
-                        countdown = null;
-                        guis[0].synchronizeTitle();
-                        return;
-                    }
-
-                    if (countdownTicks == repetitions) {
-                        checkFinish(future);
-                        this.cancel();
-                        countdownTicks = 0;
-                        countdown = null;
-                        return;
-                    } else {
-                        guis[0].synchronizeTitle();
-                        TradeSystem.man().playCountdownTickSound(player);
-                    }
-
-                    countdownTicks++;
-                }
-            };
-
-            this.countdown.runTaskTimer(TradeSystem.getInstance(), 0, interval);
-        }
-
-        return future;
-    }
-
-    @Override
-    public void cancelOverflow(int playerId) {
-        if (guis[0] == null || playerId != 0) return;
-        super.cancelOverflow(this.player);
+    protected @NotNull Stream<Player> getParticipants() {
+        return Stream.of(player);
     }
 
     @Override
@@ -447,18 +226,28 @@ public class ProxyTrade extends Trade {
         return new PlayerInventory(this.otherInventory);
     }
 
-    @Override
-    public Optional<Player> getOther(Player p) {
-        return Optional.empty();
-    }
-
-    public void applyOtherInventoryItem(int slot, @Nullable ItemStack item) {
+    public void setDisplayItem(int slot, @Nullable ItemStack item) {
         this.otherInventory[slot] = item;
     }
 
     @Override
-    protected void informTransition(TradeIcon icon, int otherId) {
+    protected void informTransition(@NotNull TradeIcon icon, int otherId) {
         if (otherId == 1) return;
         super.informTransition(icon, otherId);
+    }
+
+    @Override
+    protected boolean isActive() {
+        return this.guis[0] != null;
+    }
+
+    @Override
+    protected boolean isPaused() {
+        return pause[0];
+    }
+
+    @Override
+    protected boolean isInitiator(@NotNull Player player, int id) {
+        return this.player.equals(player) && initiationServer;
     }
 }
