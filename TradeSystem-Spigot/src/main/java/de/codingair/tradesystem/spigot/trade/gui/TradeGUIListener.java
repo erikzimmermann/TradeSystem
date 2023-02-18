@@ -277,7 +277,7 @@ public class TradeGUIListener implements Listener {
     private void onTopInventoryClick(Player player, Trade trade, InventoryClickEvent e) {
         //cancel faster --> fix dupe glitch
         if (e.getView().getTopInventory().equals(e.getClickedInventory()) && trade.getSlots().contains(e.getSlot()) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
-            trade.updateReady(trade.getId(player), false);
+            trade.onTradeOfferChange(true);
         }
 
         if (e.getClick().name().equals("SWAP_OFFHAND")) {

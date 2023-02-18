@@ -54,7 +54,7 @@ public class ProxyDataManager {
             blacklist = Objects.hash(blacklist, blockedItem.hashCode());
         }
 
-        return Objects.hash(patternHash, cooldown, blacklist);
+        return Objects.hash(patternHash, cooldown, TradeSystem.man().isRevokeReadyOnChange(), blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {

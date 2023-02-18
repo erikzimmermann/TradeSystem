@@ -76,7 +76,7 @@ public class ProxyTrade extends Trade {
     }
 
     public void receiveTradeIconUpdate(@NotNull TradeIcon icon) {
-        updateReady(0, false);
+        onTradeOfferChange(true);
         super.synchronizeTradeIcon(1, icon, false);
     }
 
@@ -179,15 +179,10 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    public void updateReady(int id, boolean ready) {
-        if (this.ready[id] == ready) return;
-
-        if (id == 0) {
-            if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
-            else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
-        }
-
-        super.updateReady(id, ready);
+    protected void onReadyStateChange(int id, boolean ready) {
+        if (id != 0) return;
+        if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
+        else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
     }
 
     @Override

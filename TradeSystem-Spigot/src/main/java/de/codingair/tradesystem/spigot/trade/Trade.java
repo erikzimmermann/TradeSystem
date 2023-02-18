@@ -160,6 +160,8 @@ public abstract class Trade {
     @NotNull
     protected abstract Stream<Player> getParticipants();
 
+    protected abstract void onReadyStateChange(int id, boolean ready);
+
     void start() {
         buildPattern();     // Build pattern first to
         initializeGUIs();   // use it here for the inventory size.
@@ -219,7 +221,7 @@ public abstract class Trade {
                     if (!Objects.equals(item, other)) {
                         change = true;
                         updateDisplayItem(otherId, slotId, item);
-                        ready[0] = ready[1] = false;
+                        onTradeOfferChange(false);
                     }
                 }
             }
@@ -232,6 +234,18 @@ public abstract class Trade {
         }
 
         return change;
+    }
+
+    /**
+     * Called when an offer has changed.
+     * @param invokeTradeUpdate True, if the current state should be updated. Active countdowns will be stopped then.
+     */
+    public void onTradeOfferChange(boolean invokeTradeUpdate) {
+        if (TradeSystem.man().isRevokeReadyOnChange()) {
+            setReadyState(0, false);
+            setReadyState(1, false);
+        }
+        if (invokeTradeUpdate) update();
     }
 
     /**
@@ -271,16 +285,21 @@ public abstract class Trade {
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory), 1);
     }
 
+    private boolean setReadyState(int id, boolean ready) {
+        if (this.ready[id] == ready) return false;
+        this.ready[id] = ready;
+        onReadyStateChange(id, ready);
+        return true;
+    }
+
     /**
      * Update the ready state of the given player.
      *
      * @param id    The id of the player.
      * @param ready The new ready state.
      */
-    public void updateReady(int id, boolean ready) {
-        if (this.ready[id] == ready) return;
-        this.ready[id] = ready;
-        update();
+    private void updateReady(int id, boolean ready) {
+        if (setReadyState(id, ready)) update();
     }
 
     /**
@@ -311,7 +330,7 @@ public abstract class Trade {
 
             switch (result) {
                 case ERROR_ECONOMY:
-                    if (failDirectly) cancel(Lang.getPrefix() + Lang.get("Economy_Error"));
+                    if (failDirectly) callEconomyError();
                     return false;
 
                 case PASS:
@@ -328,38 +347,42 @@ public abstract class Trade {
         if (!isActive()) return CompletableFuture.completedFuture(false);
         if (isPaused()) return CompletableFuture.completedFuture(false);
 
-        return runCountdown().thenCompose($ -> canFinish()).thenApply(ready -> {
+        return runCountdown().thenApply($ -> {
+            // prepare finish before sending the finish-check packet (prevents the GUI from bugging out)
+            for (int id = 0; id < 2; id++) {
+                Player player = getPlayer(id);
+                if (player == null) continue;
+
+                if (!tryFinish(player, false)) return false;
+
+                prepareFinish(player, id);
+            }
+
+            return true;
+        }).thenCompose(ready -> ready ? canFinish() : CompletableFuture.completedFuture(false)).thenApply(ready -> {
             if (!ready) {
                 callEconomyError();
                 return false;
             }
 
             boolean logFinish = false;
-            Player[] players = new Player[2];
             boolean[] droppedItems = new boolean[2];
 
             for (int id = 0; id < 2; id++) {
-                players[id] = getPlayer(id);
-                if (players[id] == null) continue;
+                Player player = getPlayer(id);
+                if (player == null) continue;
 
-                if (!tryFinish(players[id], true)) return false;
-
-                prepareFinish(players[id], id);
-            }
-
-            for (int id = 0; id < 2; id++) {
-                if (players[id] == null) continue;
-
-                boolean initiator = isInitiator(players[id], id);
-                droppedItems[id] = exchangeItems(players[id], id, initiator);
-                exchangeOtherGoods(players[id]);
+                boolean initiator = isInitiator(player, id);
+                droppedItems[id] = exchangeItems(player, id, initiator);
+                exchangeOtherGoods(player);
 
                 if (initiator) logFinish = true;
             }
 
 
             for (int id = 0; id < 2; id++) {
-                postFinish(players[id], id, droppedItems[id]);
+                Player player = getPlayer(id);
+                postFinish(player, id, droppedItems[id]);
             }
 
             if (logFinish) TradeLogService.logLater(this.players[0], this.players[1], TradeLog.FINISHED.get(), 10);
@@ -487,8 +510,6 @@ public abstract class Trade {
     }
 
     public void cancel(@Nullable String message, boolean alreadyCalled) {
-        new IllegalStateException().printStackTrace();
-
         this.cancelling = true;
         boolean[] droppedItems = returnItemsToOwner();
 
@@ -933,8 +954,7 @@ public abstract class Trade {
 
             case UPDATE:
                 //calls an update
-                updateReady(playerId, false);
-                updateReady(getOtherId(playerId), false);
+                onTradeOfferChange(true);
 
                 synchronizeTradeIcon(playerId, tradeIcon, true);
 

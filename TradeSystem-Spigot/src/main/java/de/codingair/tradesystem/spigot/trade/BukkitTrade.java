@@ -113,4 +113,9 @@ public class BukkitTrade extends Trade {
     protected @NotNull Stream<Player> getParticipants() {
         return Arrays.stream(players);
     }
+
+    @Override
+    protected void onReadyStateChange(int id, boolean ready) {
+        // ignore
+    }
 }

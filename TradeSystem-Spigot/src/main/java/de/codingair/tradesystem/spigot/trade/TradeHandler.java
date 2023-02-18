@@ -54,6 +54,7 @@ public class TradeHandler {
     private int countdownInterval = 0;
 
     private boolean cancelOnDamage = true;
+    private boolean revokeReadyOnChange = true;
     private boolean requestOnShiftRightclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
@@ -94,6 +95,7 @@ public class TradeHandler {
         } else this.distance = -1;
 
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
+        this.revokeReadyOnChange = config.getBoolean("TradeSystem.Revoke_Ready_State_on_Offer_Change", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
@@ -403,6 +405,10 @@ public class TradeHandler {
 
     public boolean isCancelOnDamage() {
         return cancelOnDamage;
+    }
+
+    public boolean isRevokeReadyOnChange() {
+        return revokeReadyOnChange;
     }
 
     public boolean isTradeBoth() {

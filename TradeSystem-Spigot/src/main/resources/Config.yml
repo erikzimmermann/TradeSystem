@@ -14,6 +14,10 @@ TradeSystem:
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50
+
+  # This is highly recommended to be enabled. Otherwise, players can easily scam others. Only disable this setting if you know your users.
+  Revoke_Ready_State_on_Offer_Change: true
+
   Allowed_GameModes:
   - SURVIVAL
   Blocked_Worlds:
