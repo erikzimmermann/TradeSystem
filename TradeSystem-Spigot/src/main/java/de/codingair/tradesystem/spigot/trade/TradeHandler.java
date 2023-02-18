@@ -434,9 +434,9 @@ public class TradeHandler {
         return true;
     }
 
-    public void setState(@NotNull String player, boolean state) {
-        if (state) this.offline.add(player);
-        else this.offline.remove(player);
+    public void setState(@NotNull String player, boolean online) {
+        if (online) this.offline.remove(player);
+        else this.offline.add(player);
     }
 
     public List<BlockedItem> getBlacklist() {
