@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.external.vault;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -15,7 +14,7 @@ import java.util.function.Function;
 
 public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     public VaultIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Coin", "Coins", TradeLogMessages.PAYED_MONEY, TradeLogMessages.RECEIVED_MONEY, true);
+        super(itemStack, "Coin", "Coins", true);
     }
 
     @Override

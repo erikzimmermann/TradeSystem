@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.external.playerpoints;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
@@ -14,7 +13,7 @@ import java.util.function.Function;
 
 public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     public PlayerPointsIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "PlayerPoint", "PlayerPoints", TradeLogMessages.PAYED_PLAYER_POINTS, TradeLogMessages.RECEIVED_PLAYER_POINTS, false);
+        super(itemStack, "PlayerPoint", "PlayerPoints", false);
     }
 
     @Override

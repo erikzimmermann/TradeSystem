@@ -6,8 +6,6 @@ import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
@@ -59,14 +57,14 @@ public class TradeLogCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 try {
-                    if (TradeLogOptions.isEnabled()) {
+                    if (TradeLog.isEnabled()) {
                         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
-                            if (TradeLogService.getTradeLog().notConnected()) {
+                            if (TradeLogService.notConnected()) {
                                 sender.sendMessage(Lang.getPrefix() + Lang.get("TradeLog_Disabled", new Lang.P("label", label)));
                                 return;
                             }
 
-                            List<TradeLog> log = TradeLogService.getTradeLog().getLogMessages(argument);
+                            List<TradeLog.Entry> log = TradeLogService.getLogMessages(argument);
 
                             List<String> messages = new ArrayList<>();
                             messages.add("§0");
@@ -81,7 +79,7 @@ public class TradeLogCMD extends CommandBuilder {
                                 boolean samePlayers = false;
 
                                 for (int i = 0; i < log.size(); i++) {
-                                    TradeLog l = log.get(i);
+                                    TradeLog.Entry l = log.get(i);
                                     boolean last = i + 1 == log.size();
 
                                     String name1 = l.getPlayer1Name();
@@ -94,7 +92,7 @@ public class TradeLogCMD extends CommandBuilder {
                                         if (!last) messages.add("§0");
                                     }
 
-                                    String color = TradeLogMessages.getByString(l.getMessage()).getColor();
+                                    String color = TradeLog.getColorByString(l.getMessage());
                                     messages.add("§8" + l.getTimestamp().format(formatter) + " " + color + "» §7" + l.getMessage());
 
                                     p1 = name1;

@@ -25,10 +25,11 @@ public interface Input<G> {
     IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable G input, @NotNull String origin);
 
     /**
+     * @param player The trading player.
      * @param current The current value.
      * @return A {@link String} which will be used to display the current value.
      */
-    @NotNull String makeString(@Nullable G current);
+    @NotNull String makeString(@NotNull Player player, @Nullable G current);
 
     /**
      * @return The current value.

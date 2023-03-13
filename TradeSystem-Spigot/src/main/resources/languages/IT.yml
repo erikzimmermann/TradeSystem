@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&cNon puoi fare un trade&7, mentre sei nel letto.'
 Cannot_trade_in_world: '&cNon puoi &7fare trade in questo mondo!'
 Other_cannot_trade_in_world: '&7Questo giocatore §cnon può &7fare trade nel suo mondo!'
 Cannot_trade_while_invisible: '&cNon puoi &7fare trade mentre sei &cinvisibile&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&7Questo giocatore &csta gia &7facendo un trade con qualcuno!'
 Online: Online
 Offline: Offline
@@ -136,7 +138,6 @@ Level: Level
 Too_Little_Exp: '&cNon hai &7exp per il trade&7.'
 Exp_Points: Exp points
 Exp_Point: Exp point
-Open_GUI_Error: '&7Il trade è stato &ccancellato &7a causa &cdi un'apertura dell'inventario&7.'
 Reset: Reset
 Balance_limit_reached: '&7Il tuo saldo è &cnon sufficiente&7.'
 AnvilGUI_Title: 'Repair & Name'

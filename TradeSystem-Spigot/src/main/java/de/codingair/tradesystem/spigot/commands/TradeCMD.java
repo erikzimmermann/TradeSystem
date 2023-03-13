@@ -6,7 +6,6 @@ import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
-import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
@@ -59,7 +58,7 @@ public class TradeCMD extends CommandBuilder {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
                     try {
-                        return TradeSystem.invitations().accept((Player) sender);
+                        TradeSystem.invitations().handleInvitation((Player) sender, null, true);
                     } catch (Throwable t) {
                         t.printStackTrace();
                     }
@@ -70,17 +69,13 @@ public class TradeCMD extends CommandBuilder {
             getComponent(cmd).addChild(new MultiCommandComponent() {
                 @Override
                 public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                    Set<InvitationManager.Invite> l = TradeSystem.invitations().getInvites(sender.getName());
-                    if (l == null) return;
-                    for (InvitationManager.Invite invite : l) {
-                        suggestions.add(invite.getName());
-                    }
+                    suggestions.addAll(TradeSystem.invitations().getInvitationNames(sender.getName()));
                 }
 
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                     try {
-                        return TradeSystem.invitations().accept((Player) sender, argument);
+                        TradeSystem.invitations().handleInvitation((Player) sender, argument, true);
                     } catch (Throwable t) {
                         t.printStackTrace();
                     }
@@ -95,23 +90,21 @@ public class TradeCMD extends CommandBuilder {
             getBaseComponent().addChild(new CommandComponent(cmd) {
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String[] args) {
-                    return deny(sender);
+                    TradeSystem.invitations().handleInvitation((Player) sender, null, false);
+                    return true;
                 }
             });
 
             getComponent(cmd).addChild(new MultiCommandComponent() {
                 @Override
                 public void addArguments(CommandSender sender, String[] args, List<String> suggestions) {
-                    Set<InvitationManager.Invite> l = TradeSystem.invitations().getInvites(sender.getName());
-                    if (l == null) return;
-                    for (InvitationManager.Invite invite : l) {
-                        suggestions.add(invite.getName());
-                    }
+                    suggestions.addAll(TradeSystem.invitations().getInvitationNames(sender.getName()));
                 }
 
                 @Override
                 public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
-                    return TradeSystem.invitations().deny(sender, argument);
+                    TradeSystem.invitations().handleInvitation((Player) sender, argument, false);
+                    return true;
                 }
             });
         }
@@ -124,14 +117,15 @@ public class TradeCMD extends CommandBuilder {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (player.getName().equals(sender.getName()) || !((Player) sender).canSee(player)) continue;
 
-                    Set<InvitationManager.Invite> l = TradeSystem.invitations().getInvites(player.getName());
-                    if (l != null && l.contains(new InvitationManager.Invite(sender.getName()))) continue;
+
+                    Set<String> invitations = TradeSystem.invitations().getInvitationNames(player.getName());
+                    if (invitations.contains(sender.getName().toLowerCase())) continue;
                     suggestions.add(player.getName());
                 }
 
                 TradeSystem.proxy().getPlayers(sender).forEach(player -> {
-                    Set<InvitationManager.Invite> l = TradeSystem.invitations().getInvites(player);
-                    if (l != null && l.contains(new InvitationManager.Invite(sender.getName()))) return;
+                    Set<String> l = TradeSystem.invitations().getInvitationNames(player);
+                    if (l.contains(sender.getName().toLowerCase())) return;
 
                     suggestions.add(player);
                 });
@@ -143,18 +137,6 @@ public class TradeCMD extends CommandBuilder {
                 return true;
             }
         });
-    }
-
-    private boolean deny(CommandSender sender) {
-        Set<InvitationManager.Invite> l = TradeSystem.invitations().getInvites(sender.getName());
-
-        if (l == null || l.isEmpty()) {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", (Player) sender));
-        } else if (l.size() == 1) {
-            String other = l.stream().findAny().get().getName();
-            return TradeSystem.invitations().deny(sender, other);
-        } else sender.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", (Player) sender));
-        return true;
     }
 
     private boolean toggle(CommandSender sender) {

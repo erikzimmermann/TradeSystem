@@ -12,7 +12,8 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -32,8 +33,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 public class TradeHandler {
     /**
@@ -55,6 +54,7 @@ public class TradeHandler {
     private int countdownInterval = 0;
 
     private boolean cancelOnDamage = true;
+    private boolean revokeReadyOnChange = true;
     private boolean requestOnShiftRightclick = false;
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
@@ -80,8 +80,9 @@ public class TradeHandler {
 
         //load options
         requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
-        if (requestExpirationTime <= 10) {
-            config.set("TradeSystem.Trade_Request_Expiration_Time", 10);
+        if (requestExpirationTime < 5) {
+            requestExpirationTime = 5;
+            config.set("TradeSystem.Trade_Request_Expiration_Time", 5);
             save = true;
         }
 
@@ -94,6 +95,7 @@ public class TradeHandler {
         } else this.distance = -1;
 
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
+        this.revokeReadyOnChange = config.getBoolean("TradeSystem.Revoke_Ready_State_on_Offer_Change", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
@@ -232,6 +234,13 @@ public class TradeHandler {
         TradeSystem.log("    ...got " + this.blacklist.size() + " blocked item(s)");
 
         if (save) file.saveConfig();
+
+        invitationManager.startExpirationHandler();
+    }
+
+    public void disable() {
+        cancelAll();
+        invitationManager.stopExpirationHandler();
     }
 
     private SoundData getSound(String name, FileConfiguration config, String def) {
@@ -303,7 +312,7 @@ public class TradeHandler {
         }
 
         //log only one start (proxy trades have a start on each server)
-        if (initiationServer) getTradeLog().log(player.getName(), othersName, TradeLogMessages.STARTED.get());
+        if (initiationServer) TradeLogService.log(player.getName(), othersName, TradeLog.STARTED.get());
 
         MetricsManager.TRADES++;
 
@@ -353,7 +362,8 @@ public class TradeHandler {
         }
     }
 
-    public void cancelAll() {
+    private void cancelAll() {
+        TradeSystem.log("  > Cancelling all active trades");
         List<Trade> tradeList = new ArrayList<>(this.trades.values());
 
         for (Trade trade : tradeList) {
@@ -397,6 +407,10 @@ public class TradeHandler {
         return cancelOnDamage;
     }
 
+    public boolean isRevokeReadyOnChange() {
+        return revokeReadyOnChange;
+    }
+
     public boolean isTradeBoth() {
         return tradeBoth;
     }
@@ -426,9 +440,9 @@ public class TradeHandler {
         return true;
     }
 
-    public void setState(@NotNull String player, boolean state) {
-        if (state) this.offline.add(player);
-        else this.offline.remove(player);
+    public void setState(@NotNull String player, boolean online) {
+        if (online) this.offline.remove(player);
+        else this.offline.add(player);
     }
 
     public List<BlockedItem> getBlacklist() {

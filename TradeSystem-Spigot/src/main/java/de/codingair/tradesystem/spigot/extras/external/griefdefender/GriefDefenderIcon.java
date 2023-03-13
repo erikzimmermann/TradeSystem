@@ -5,7 +5,6 @@ import com.griefdefender.api.User;
 import com.griefdefender.api.permission.option.Options;
 import com.griefdefender.lib.geantyref.TypeToken;
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +16,7 @@ import java.util.function.Function;
 
 public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     public GriefDefenderIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "ClaimBlock", "ClaimBlocks", TradeLogMessages.PAYED_CLAIM_BLOCKS, TradeLogMessages.RECEIVED_CLAIM_BLOCKS, false);
+        super(itemStack, "ClaimBlock", "ClaimBlocks", false);
     }
 
     @Override

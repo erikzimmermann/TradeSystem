@@ -2,7 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.InputIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
@@ -29,8 +29,6 @@ import java.util.function.Function;
 public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & TradeIcon> extends InputIcon<BigDecimal> implements Transition<T, BigDecimal> {
     private final String nameSingular;
     private final String namePlural;
-    private final TradeLogMessages give;
-    private final TradeLogMessages receive;
     private final boolean decimal;
     private BigDecimal value = BigDecimal.ZERO;
 
@@ -38,16 +36,12 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
      * @param itemStack    The item that will be used to show this icon.
      * @param nameSingular The name (singular) - The plugin checks the language file first if a language tag can be found by the given name. Otherwise, the pure name will be used.
      * @param namePlural   The name (plural) - The plugin checks the language file first if a language tag can be found by the given name. Otherwise, the pure name will be used.
-     * @param giveLog      The log type for trading. Can be null or {@link TradeLogMessages#NONE}.
-     * @param receiveLog   The log type for receiving. Can be null or {@link TradeLogMessages#NONE}.
      * @param decimal      Whether decimals are allowed or not.
      */
-    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, @Nullable TradeLogMessages giveLog, @Nullable TradeLogMessages receiveLog, boolean decimal) {
+    public EconomyIcon(@NotNull ItemStack itemStack, @NotNull String nameSingular, @NotNull String namePlural, boolean decimal) {
         super(itemStack);
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
-        this.give = giveLog;
-        this.receive = receiveLog;
         this.decimal = decimal;
     }
 
@@ -94,7 +88,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         BigDecimal max = getBalance(player);
         if (input.compareTo(max) > 0) {
             String s = Lang.get("Only_X_Amount")
-                    .replace("%amount%", makeString(max))
+                    .replace("%amount%", makeString(player, max))
                     .replace("%type%", getName(player, max.equals(BigDecimal.ONE)));
 
             player.sendMessage(Lang.getPrefix() + s);
@@ -106,7 +100,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @NotNull String makeString(@Nullable BigDecimal current) {
+    public @NotNull String makeString(@NotNull Player player, @Nullable BigDecimal current) {
         return makeFancyString(current, decimal);
     }
 
@@ -132,7 +126,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player, false) + ": §7" + makeString(value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(player, value));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
@@ -169,10 +163,10 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         int sign = diff.signum();
         if (sign < 0) {
             withdraw(player, diff.negate());
-            log(trade, give, player.getName(), fancyDiff);
+            log(trade, TradeLog.OFFERED_AMOUNT, player.getName(), namePlural, fancyDiff);
         } else if (sign > 0) {
             deposit(player, diff);
-            log(trade, receive, player.getName(), fancyDiff);
+            log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);
         }
     }
 

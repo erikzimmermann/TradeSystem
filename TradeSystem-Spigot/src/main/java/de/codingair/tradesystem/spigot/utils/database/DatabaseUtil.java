@@ -7,8 +7,6 @@ import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteC
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DatabaseUtil {
-    private static final String MYSQL_STRING = "MYSQL";
-    private static final String SQLITE_STRING = "SQLITE";
     private static DatabaseUtil instance;
     private final DatabaseType databaseType;
 
@@ -16,15 +14,10 @@ public class DatabaseUtil {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
 
-        String databaseType = config.getString("TradeSystem.TradeLog.Database.Type", MYSQL_STRING);
+        String databaseType = config.getString("TradeSystem.TradeLog.Database.Type", "MYSQL");
 
-        if (MYSQL_STRING.equalsIgnoreCase(databaseType)) {
-            this.databaseType = DatabaseType.MYSQL;
-        } else if (SQLITE_STRING.equalsIgnoreCase(databaseType)) {
-            this.databaseType = DatabaseType.SQLITE;
-        } else {
-            throw new IllegalStateException("Invalid database type configured: " + databaseType);
-        }
+        this.databaseType = DatabaseType.byName(databaseType);
+        if (this.databaseType == null) throw new IllegalStateException("Invalid database type configured: " + databaseType);
     }
 
     public static DatabaseUtil database() {
@@ -37,8 +30,6 @@ public class DatabaseUtil {
             MySQLConnection.checkDataSource();
         } else if (databaseType == DatabaseType.SQLITE) {
             SqlLiteConnection.connect().close();
-        } else {
-            throw new IllegalStateException("No database configured");
         }
     }
 

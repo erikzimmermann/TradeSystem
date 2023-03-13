@@ -1,7 +1,8 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types;
 
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
+import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
@@ -13,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
-import static de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService.getTradeLog;
 
 /**
  * Each trade GUI get its own icon instances. This means that you can store custom variables in your own class implementation.<p>
@@ -119,11 +118,11 @@ public interface TradeIcon {
      * @param message The message to log.
      * @param vars    Data to fill 'message'.
      */
-    default void log(@NotNull Trade trade, @NotNull TradeLogMessages message, Object... vars) {
-        if (trade.isInitiationServer()) getTradeLog().log(trade.getPlayers()[0], trade.getPlayers()[1], message.get(vars));
+    default void log(@NotNull Trade trade, @NotNull TradeLog.Message message, Object... vars) {
+        if (trade.isInitiationServer()) TradeLogService.log(trade.getPlayers()[0], trade.getPlayers()[1], message.get(vars));
         else {
             //exception -> proxy trade -> handle exchange only on one server -> switch players
-            getTradeLog().log(trade.getPlayers()[1], trade.getPlayers()[0], message.get(vars));
+            TradeLogService.log(trade.getPlayers()[1], trade.getPlayers()[0], message.get(vars));
         }
     }
 }

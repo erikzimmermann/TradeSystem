@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&cVocê não pode Trocar&7 enquanto estiver deitado na cam
 Cannot_trade_in_world: '&7Você não pode Trocar &7neste mundo!'
 Other_cannot_trade_in_world: '&7Este jogador &cnão pode Trocar &7neste mundo!'
 Cannot_trade_while_invisible: '&7Você não pode trocar &7enquanto estiver &cinvisível&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&7Este jogador &cjá está negociando &7no momento!'
 Online: Online
 Offline: Offline
@@ -136,7 +138,6 @@ Level: Nível
 Too_Little_Exp: '&7Você &cnão tem exp para Trocar 7.'
 Exp_Points: Pontos de EXP
 Exp_Point: Ponto de EXP
-Open_GUI_Error: '&7O comércio foi &cancelado &7devido a um &cinventário aberto&7.'
 Reset: Resetar
 Balance_limit_reached: '&7Seu saldo é &cinsuficiente&7.'
 AnvilGUI_Title: 'Repair & Name'

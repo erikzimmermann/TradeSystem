@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.external.tokenmanager;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogMessages;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import me.realized.tokenmanager.api.TokenManager;
 import org.bukkit.Bukkit;
@@ -14,7 +13,7 @@ import java.util.function.Function;
 
 public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     public TokenIcon(@NotNull ItemStack itemStack) {
-        super(itemStack, "Token", "Tokens", TradeLogMessages.PAYED_TOKENS, TradeLogMessages.RECEIVED_TOKENS, false);
+        super(itemStack, "Token", "Tokens", false);
     }
 
     @Override

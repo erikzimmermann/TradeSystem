@@ -8,7 +8,6 @@ import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +54,7 @@ public class ProxyDataManager {
             blacklist = Objects.hash(blacklist, blockedItem.hashCode());
         }
 
-        return Objects.hash(patternHash, cooldown, blacklist);
+        return Objects.hash(patternHash, cooldown, TradeSystem.man().isRevokeReadyOnChange(), blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {
@@ -65,16 +64,16 @@ public class ProxyDataManager {
 
     @NotNull
     public String getCaseSensitive(@NotNull String player) {
-        String name = getPlayer(player);
+        String name = getPlayerName(player);
         return name == null ? player : name;
     }
 
     public boolean isOnline(String player) {
-        return getPlayer(player) != null;
+        return getPlayerName(player) != null;
     }
 
     @Nullable
-    private String getPlayer(@NotNull String name) {
+    private String getPlayerName(@NotNull String name) {
         String lowerName = name.toLowerCase(Locale.ENGLISH);
 
         String found = this.players.get(lowerName);
@@ -94,7 +93,7 @@ public class ProxyDataManager {
         return found;
     }
 
-    public @Nullable ProxyTrade getTrade(@Nullable Player player, @NotNull String name, @NotNull String other) {
+    public @Nullable ProxyTrade getTrade(@NotNull String name, @NotNull String other) {
         Trade trade = TradeSystem.man().getTrade(name);
 
         if (trade instanceof ProxyTrade && other.equals(trade.getOther(name))) return (ProxyTrade) trade;

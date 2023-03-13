@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.utils;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BackwardSupport {
@@ -18,6 +19,7 @@ public class BackwardSupport {
         moveCommandAliases();
         moveEasyMoneySelection();
         moveTradeLog();
+        moveMySQLSettings();
 
         if (changed) current.saveConfig();
     }
@@ -57,9 +59,32 @@ public class BackwardSupport {
     }
 
     private void moveTradeLog() {
-        if (old.getConfigurationSection("TradeSystem.Tradelog") != null) {
+        ConfigurationSection sec = old.getConfigurationSection("TradeSystem.Tradelog");
+        if (sec != null) {
+            boolean oldCaseSensitive = sec.getKeys(false).contains("Tradelog");
+
+            if (oldCaseSensitive) {
+                //old
+                current.getConfig().set("TradeSystem.TradeLog", old.getConfigurationSection("TradeSystem.Tradelog"));
+                changed = true;
+            }
+        }
+    }
+
+    private void moveMySQLSettings() {
+        if (old.contains("TradeSystem.TradeLog.Database.Db_host")) {
             //old
-            current.getConfig().set("TradeSystem.TradeLog", old.getConfigurationSection("TradeSystem.Tradelog"));
+
+            String url = "jdbc:mysql://%s:%s/%s?autoReconnect=true&useSSL=false";
+            url = String.format(url,
+                    old.getString("TradeSystem.TradeLog.Database.Db_host"),
+                    old.getInt("TradeSystem.TradeLog.Database.Db_port") + "",
+                    old.getString("TradeSystem.TradeLog.Database.Db_name")
+            );
+
+            current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.Connection_URL", url);
+            current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.User", old.getString("TradeSystem.TradeLog.Database.Db_user"));
+            current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.Password", old.getString("TradeSystem.TradeLog.Database.Db_password"));
             changed = true;
         }
     }

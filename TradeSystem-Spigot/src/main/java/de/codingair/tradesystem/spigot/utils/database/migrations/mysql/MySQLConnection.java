@@ -15,20 +15,17 @@ public class MySQLConnection {
     private static final FileConfiguration config = file.getConfig();
     private static MySQLConnection instance;
 
-    private final String host;
-    private final int port;
-    private final String db;
+    private final String url;
     private final String user;
     private final String password;
 
     private MySQLConnection() {
-        host = config.getString("TradeSystem.TradeLog.Database.Db_host");
-        port = config.getInt("TradeSystem.TradeLog.Database.Db_port");
-        db = config.getString("TradeSystem.TradeLog.Database.Db_name");
-        user = config.getString("TradeSystem.TradeLog.Database.Db_user");
+        url = config.getString("TradeSystem.TradeLog.Database.MySQL.Connection_URL");
+        user = config.getString("TradeSystem.TradeLog.Database.MySQL.User");
 
-        String password = config.getString("TradeSystem.TradeLog.Database.Db_password");
+        String password = config.getString("TradeSystem.TradeLog.Database.MySQL.Password");
         if (password != null && password.equalsIgnoreCase("null")) password = null;
+
         this.password = password;
     }
 
@@ -46,8 +43,7 @@ public class MySQLConnection {
     }
 
     private Connection buildConnection() throws SQLException {
-        if (host == null || port == 0 || db == null || user == null) return null;
-
-        return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db + "?autoReconnect=true&useSSL=false", user, password);
+        if (url == null || user == null) return null;
+        return DriverManager.getConnection(url, user, password);
     }
 }

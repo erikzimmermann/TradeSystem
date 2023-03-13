@@ -46,7 +46,7 @@ public class RuleManager {
 
     public static void handle(Player player, String other, TradeInvitePacket.ResultPacket result) {
         if (result.getResult() == TradeInvitePacket.Result.INVITED) {
-            InvitationManager.registerExpiration(player, player.getName(), null, other);
+            InvitationManager.registerInvitation(player, player.getName(), null, other);
         }
 
         message(player, other, result.getResult(), result.getServer());

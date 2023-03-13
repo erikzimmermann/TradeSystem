@@ -14,11 +14,22 @@ TradeSystem:
   Trade_Distance:
     enabled: true
     distance_in_blocks: 50
+
+  # This is highly recommended to be enabled. Otherwise, players can easily scam others. Only disable this setting if you know your users.
+  Revoke_Ready_State_on_Offer_Change: true
+
   Allowed_GameModes:
   - SURVIVAL
   Blocked_Worlds:
   - "ExampleWorld-1"
   - "ExampleWorld-2"
+
+  Allowed_Regions:
+    # Valid modes: Blacklist, Whitelist
+    # Blacklist: All regions are allowed except the ones in the list
+    # Whitelist: Only the regions in the list are allowed
+    Mode: Blacklist
+    Regions: []
 
   # Example:            (all variables are optional)
   # - Material: STONE
@@ -86,18 +97,16 @@ TradeSystem:
     Toggle:
     - toggle
 
-  # BETA - Please post issues on my GitHub Issue-Tracker: https://github.com/CodingAir/TradeSystem/issues
-  # WARNING - This log does not remove files automatically after some time, so you have to do it yourself.
+  # WARNING - This log is very basic and does not remove files automatically after some time, so you have to do it yourself.
   TradeLog:
     Enabled: false
     Database:
-      # Values: SQLITE, MYSQL
-      Type: MYSQL
-      Db_host: localhost
-      Db_port: 3306
-      Db_name: tradelog
-      Db_user: root
-      Db_password: password
+      # Values: BUKKIT (does not support in-game access to the log), SQLite, MySQL
+      Type: MySQL
+      MySQL:
+        Connection_URL: "jdbc:mysql://localhost:3306/tradelog?autoReconnect=true&useSSL=false"
+        User: root
+        Password: password
 
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:

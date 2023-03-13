@@ -1,7 +1,6 @@
 package de.codingair.tradesystem.spigot.events;
 
 import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
-import de.codingair.tradesystem.spigot.trade.Trade;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
@@ -9,14 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Called when a player trades an item with another player.
+ * Called when a player receives an item from another player after a trade was completed.
  */
-public class TradeItemEvent extends TradeEvent {
+public class TradeLogReceiveItemEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String sender;
     private final Player sendingPlayer;
-    private ItemStack item;
+    private final ItemStack item;
+    private String message;
 
     /**
      * Indicates a proxy trade.
@@ -25,7 +25,7 @@ public class TradeItemEvent extends TradeEvent {
      * @param sender   The name of the player who trades the item.
      * @param item     The item being transferred.
      */
-    public TradeItemEvent(@NotNull Player receiver, @NotNull String sender, @NotNull ItemStack item) {
+    public TradeLogReceiveItemEvent(@NotNull Player receiver, @NotNull String sender, @NotNull ItemStack item) {
         this.receiver = receiver;
         this.sender = sender;
         this.item = item;
@@ -39,7 +39,7 @@ public class TradeItemEvent extends TradeEvent {
      * @param sendingPlayer The {@link Player} who trades the item.
      * @param item          The item being transferred.
      */
-    public TradeItemEvent(@NotNull Player receiver, @NotNull Player sendingPlayer, @NotNull ItemStack item) {
+    public TradeLogReceiveItemEvent(@NotNull Player receiver, @NotNull Player sendingPlayer, @NotNull ItemStack item) {
         this.receiver = receiver;
         this.sendingPlayer = sendingPlayer;
         this.item = item;
@@ -85,24 +85,23 @@ public class TradeItemEvent extends TradeEvent {
     }
 
     /**
-     * @return The item being transferred.
+     * @return A copy of the item being transferred.
      */
     public @NotNull ItemStack getItem() {
-        return this.item;
+        return this.item.clone();
     }
 
     /**
-     * @param item The new {@link ItemStack} which will be traded instead. Null values will remove this item from the trade.
+     * @return The message that should be logged for trading the given item. The default message will be used if 'message' is null.
      */
-    public void setItem(@Nullable ItemStack item) {
-        this.item = item;
+    public @Nullable String getMessage() {
+        return message;
     }
 
     /**
-     * @return {@link Boolean#TRUE} if this item will be dropped on exchange.
+     * @param message The message that should be logged for trading the given item. The default message will be used if 'message' is null.
      */
-    public boolean isAboutToDrop() {
-        if (this.item == null) return false;
-        return Trade.checkItemFit(receiver, item) > 0;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

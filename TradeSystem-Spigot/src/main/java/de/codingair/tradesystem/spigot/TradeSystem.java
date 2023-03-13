@@ -5,18 +5,13 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
 import de.codingair.codingapi.server.specification.Version;
-import de.codingair.codingapi.tools.time.Timer;
 import de.codingair.codingapi.utils.Value;
 import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
-import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogOptions;
 import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
@@ -32,9 +27,6 @@ import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseInitializer;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseUtil;
-import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
@@ -97,11 +89,13 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     public void onEnable() {
         instance = this;
         API.getInstance().onEnable(this);
-        PluginDependencies.enable();
 
         printConsoleInfo(() -> {
             loadConfigFiles();
             new BackwardSupport();
+            PluginDependencies.enable();
+            registerDefaultPluginMessagingChannel();
+
             this.commandManager = new CommandManager(getFileManager().getFile("Config"));
             loadManagers();
 
@@ -130,8 +124,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getScheduler().cancelTasks(this);
 
         printConsoleInfo(() -> {
-            log("  > Cancelling all active trades");
-            this.tradeHandler.cancelAll();
+            this.tradeHandler.disable();
 
             this.tradeCMD.unregister();
             this.tradeSystemCMD.unregister();
@@ -149,8 +142,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void printConsoleInfo(Runnable runnable) {
-        Timer timer = new Timer();
-        timer.start();
+        long start = System.currentTimeMillis();
 
         log(" ");
         log("__________________________________________________________");
@@ -169,7 +161,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         runnable.run();
 
         log(" ");
-        log("Finished (" + timer.result() + ")");
+        log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
         log(" ");
         log("__________________________________________________________");
         log(" ");
@@ -179,6 +171,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.tradeHandler.load();
         this.layoutManager.load();
         this.databaseInitializer.initialize();
+    }
+
+    private void registerDefaultPluginMessagingChannel() {
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
 
     private void loadConfigFiles() {
@@ -277,7 +273,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void copyConfig() {
-        ConfigFile file = this.fileManager.loadFile("Config", "/", false);
+        ConfigFile file = this.fileManager.loadFile("Config", "/", false, true);
         this.oldConfig = file.getConfig();
         this.fileManager.unloadFile(file);
     }
@@ -296,22 +292,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public YamlConfiguration getOldConfig() {
         return oldConfig;
-    }
-
-    public TradeLogRepository getTradeLogRepository() {
-        if (!TradeLogOptions.isEnabled()) {
-            return null;
-        }
-
-        DatabaseType type = DatabaseUtil.database().getType();
-        switch (type) {
-            case MYSQL:
-                return new MysqlTradeLogRepository(MySQLConnection.getConnection());
-            case SQLITE:
-                return new SqlLiteTradeLogRepository();
-            default:
-                throw new RuntimeException("Invalid database type provided: " + type);
-        }
     }
 
     public DatabaseInitializer getDatabaseInitializer() {

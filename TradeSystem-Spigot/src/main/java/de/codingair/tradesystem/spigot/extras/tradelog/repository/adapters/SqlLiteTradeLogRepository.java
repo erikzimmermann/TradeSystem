@@ -34,7 +34,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
     }
 
     @Override
-    public @Nullable List<TradeLog> getLogMessages(String playerName) {
+    public @Nullable List<TradeLog.Entry> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";
 
@@ -44,9 +44,9 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
             pstmt.setString(2, playerName);
             ResultSet rs = pstmt.executeQuery();
 
-            List<TradeLog> result = new ArrayList<>();
+            List<TradeLog.Entry> result = new ArrayList<>();
             while (rs.next()) {
-                result.add(new TradeLog(
+                result.add(new TradeLog.Entry(
                         rs.getString(2),
                         rs.getString(3),
                         rs.getString(4),

@@ -110,6 +110,8 @@ Cannot_trade_in_bed: '&cNemůžes obchodovat&7, když ležíš v posteli.'
 Cannot_trade_in_world: '&7V toomto &csvětě &7nelze obchodovat!'
 Other_cannot_trade_in_world: '&7Tento hráč §cnemůže &7nemůže obchodovat ve svém světě!'
 Cannot_trade_while_invisible: '&cNemůžeš obchodovat &7když jsi &cneviditelný&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&7Tento hráč &cjiž v tuto &7chvíli obchoduje, prosím počkej.'
 Online: Online
 Offline: Offline
@@ -136,7 +138,6 @@ Level: 'Level'
 Too_Little_Exp: '&cNemáš &cexp na obchodování&7.'
 Exp_Points: "Xp body"
 Exp_Point: "Xp bod"
-Open_GUI_Error: '&7Obchod byl &czrušen &7 kvůli &cotevření inventáře&7.'
 Reset: "Reset"
 Balance_limit_reached: '&7Váš zůstatek je &cnedostatečný&7.'
 AnvilGUI_Title: 'Repair & Name'

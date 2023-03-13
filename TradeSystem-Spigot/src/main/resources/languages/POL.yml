@@ -110,6 +110,8 @@ Cannot_trade_in_bed: "&cNie możesz uczestniczyć w wymianie&7, w trakcie gdy le
 Cannot_trade_in_world: "&7Nie możesz się &cwymieniać &7w tym świecie!"
 Other_cannot_trade_in_world: "&7Gracz nie może się §cwymieniać &7w jego świecie!"
 Cannot_trade_while_invisible: '&7Nie możesz się &cwymieniać &7jeśli jesteś &cniewidoczny/a&7!'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&cTen gracz handluje w tej chwili!'
 Online: Online
 Offline: Offline
@@ -136,7 +138,6 @@ Level: 'Poziom'
 Too_Little_Exp: '&7Masz za mało &cXP &7aby się wymienić.'
 Exp_Points: "Punkty XP"
 Exp_Point: "Punkt XP"
-Open_GUI_Error: '&7Wymiana została &canulowana &7przez &cotwarcie ekwipunku&7.'
 Reset: "Resetuj"
 Balance_limit_reached: '&7Twój bilans jest &cnie wystarczający&7.'
 AnvilGUI_Title: 'Repair & Name'

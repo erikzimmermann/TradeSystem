@@ -1,8 +1,8 @@
 package de.codingair.tradesystem.spigot.events;
 
+import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -10,10 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player offers an item. Can be cancelled if this item should be blocked.
- *
- * @author CodingAir
  */
-public class TradeOfferItemEvent extends Event implements Cancellable {
+public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
     private final Player player;
     private final String receiver;
