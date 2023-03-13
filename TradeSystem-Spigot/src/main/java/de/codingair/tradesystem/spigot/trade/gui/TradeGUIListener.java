@@ -74,6 +74,7 @@ public class TradeGUIListener implements Listener {
                         }
                     }
 
+                    trade.onTradeOfferChange(true);
                     trade.updateLater(1);
                 }
             }
@@ -204,6 +205,7 @@ public class TradeGUIListener implements Listener {
                     e.getView().getBottomInventory().setItem(e.getSlot(), null);
                 }
 
+                trade.onTradeOfferChange(true);
                 trade.updateLater(1);
             }
         }
@@ -227,7 +229,10 @@ public class TradeGUIListener implements Listener {
         }
 
         if (cursor.getAmount() > startSize) {
-            //update!
+            // scam glitch -> update immediately
+            trade.onTradeOfferChange(true);
+
+            // update!
             trade.updateLater(1);
         }
     }
@@ -275,7 +280,7 @@ public class TradeGUIListener implements Listener {
     }
 
     private void onTopInventoryClick(Player player, Trade trade, InventoryClickEvent e) {
-        //cancel faster --> fix dupe glitch
+        // cancel faster --> fix dupe glitch
         if (e.getView().getTopInventory().equals(e.getClickedInventory()) && trade.getSlots().contains(e.getSlot()) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
             trade.onTradeOfferChange(true);
         }
