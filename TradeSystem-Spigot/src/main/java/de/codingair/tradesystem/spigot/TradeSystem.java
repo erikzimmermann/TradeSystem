@@ -15,6 +15,8 @@ import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
 import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconController;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
 import de.codingair.tradesystem.spigot.trade.listeners.JoinNoteListener;
 import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
@@ -37,11 +39,13 @@ import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 
 public class TradeSystem extends JavaPlugin implements Proxy {
     private static TradeSystem instance;
+    private static IconController iconController;
 
     private final LayoutManager layoutManager = new LayoutManager();
     private final TradeHandler tradeHandler = new TradeHandler();
@@ -93,6 +97,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         printConsoleInfo(() -> {
             loadConfigFiles();
             new BackwardSupport();
+
+            IconHandler.init();  // create icon controller
+            iconController.registerDefault();
+
             PluginDependencies.enable();
             registerDefaultPluginMessagingChannel();
 
@@ -138,6 +146,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             this.fileManager.destroy();
 
             PluginDependencies.disable();
+
+            if (iconController != null) iconController.clear();
         });
     }
 
@@ -249,11 +259,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     public void reload() throws FileNotFoundException {
-        try {
-            API.getInstance().reload(this);
-        } catch (InvalidDescriptionException | InvalidPluginException e) {
-            e.printStackTrace();
-        }
+        onDisable();
+        onEnable();
     }
 
     public void notifyPlayers(Player player) {
@@ -300,5 +307,9 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public static void setIconController(@NotNull IconController iconController) {
+        TradeSystem.iconController = iconController;
     }
 }

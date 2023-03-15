@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.registration;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.exceptions.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
@@ -22,7 +23,22 @@ public class IconHandler {
     private static final HashMap<String, Class<? extends TradeIcon>> TRADE_ICONS = new HashMap<>();
     private static final LinkedHashMap<Class<? extends TradeIcon>, EditorInfo> ICON_DATA = new LinkedHashMap<>();
 
-    static {
+    public static void init() {
+        TradeSystem.setIconController(new IconController() {
+            @Override
+            public void registerDefault() {
+                IconHandler.registerDefault();
+            }
+
+            @Override
+            public void clear() {
+                TRADE_ICONS.clear();
+                ICON_DATA.clear();
+            }
+        });
+    }
+
+    private static void registerDefault() {
         registerBasic();
         registerEconomy();
     }
