@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public class Lang {
             File file = new File(plugin.getDataFolder() + "/Languages/", language);
             if (!file.exists()) {
                 try {
-                    if (file.createNewFile()) copy(is, new FileOutputStream(file));
+                    if (file.createNewFile()) copy(is, Files.newOutputStream(file.toPath()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -66,8 +67,7 @@ public class Lang {
 
     public static String getPrefix() {
         String prefix = getConfig().getString("TradeSystem.Prefix", "&8» &r");
-        prefix = ChatColor.translateAll('&', prefix);
-        return prefix;
+        return prepare(null, prefix);
     }
 
     public static @NotNull String getLanguageKey() {
@@ -157,14 +157,6 @@ public class Lang {
         @NotNull
         public String apply(@NotNull String s) {
             return s.replace("%" + placeholder + "%", replacement);
-        }
-
-        public String getPlaceholder() {
-            return placeholder;
-        }
-
-        public String getReplacement() {
-            return replacement;
         }
     }
 }
