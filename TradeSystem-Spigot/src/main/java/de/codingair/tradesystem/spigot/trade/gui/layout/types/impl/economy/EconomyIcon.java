@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy;
 
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeReceiveEconomyEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.InputIcon;
@@ -10,6 +11,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -166,6 +168,13 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
             log(trade, TradeLog.OFFERED_AMOUNT, player.getName(), namePlural, fancyDiff);
         } else if (sign > 0) {
             deposit(player, diff);
+
+            // call economy receive event for external logging purposes
+            TradeReceiveEconomyEvent e = other != null ?
+                    new TradeReceiveEconomyEvent(player, other, diff, nameSingular, namePlural) :
+                    new TradeReceiveEconomyEvent(player, othersName, diff, nameSingular, namePlural);
+            Bukkit.getPluginManager().callEvent(e);
+
             log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);
         }
     }
