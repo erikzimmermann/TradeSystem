@@ -4,6 +4,8 @@ version: "${project.version}"
 description: A beautiful way to trade with other players.
 main: de.codingair.tradesystem.spigot.TradeSystem
 softdepend: [Vault, Essentials, PlaceholderAPI, TokenManager, PlayerPoints, GriefDefender, MMOItems, WorldGuard]
+load-after: [Vault, Essentials, PlaceholderAPI, TokenManager, PlayerPoints, GriefDefender, MMOItems, WorldGuard]
+
 api-version: "1.13"
 
 permissions:
