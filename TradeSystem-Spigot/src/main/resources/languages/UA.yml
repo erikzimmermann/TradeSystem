@@ -1,0 +1,139 @@
+No_Permissions: '&cНедостатньо прав!'
+Only_for_Player: '&cТільки для гравців!'
+No_Money: '&cУ Вас недостатньо грошей!'
+Enter_Correct_Amount: '&cБудь ласка, введіть коректну кількість!'
+Only_X_Amount: '&7У вас є тільки &c%amount% %type%&7!'
+Trade_Was_Cancelled: '&cУгоду скасовано..'
+Trade_Was_Finished: '&7Угода &аздійснена&7.'
+Cannot_Trade_With_Yourself: '&cВи не можете проводити угоду із самим собою.'
+Player_Not_Online: '&cГравець не в мережі.'
+Want_To_Trade: '&7Гравець &c%player% &7хоче провести з Вами угоду &8[%accept% &8| %deny%&8]'
+Want_To_Trade_Accept: '&aПрийняти'
+Want_To_Trade_Deny: '&cВідхилити'
+Want_To_Trade_Hover: '&8» Натисніть «'
+Player_Is_Invited: '&7Гравець &c%player% &7запрошений.'
+Command_How_To: '&7Використання: /trade <player, accept, deny, toggle>'
+Command_How_To_Accept: '&7Використання: /trade accept <гравця>'
+Command_How_To_Deny: '&7Використання: /trade deny <нік гравця>'
+Player_Of_Request_Not_Online: '&cГравець, якому Ви запропонували угоду, вийшов з гри.'
+Request_Accepted: '&7Ви &априйняли &7пропозицію про угоду&7.'
+Request_Was_Accepted: '&7Ваша пропозиція про угоду з &c%player% &7було прийнято&7.'
+Request_Denied: '&7Ви &cвідхилили &7пропозиція про угоду.'
+Request_Was_Denied: '&7Ваша пропозиція про угоду з &c%player% &cвідхилено&7.'
+No_Request_Found: '&cВи не отримували пропозицій про угоду від цього гравця!'
+No_Requests_Found: '&cВи не отримували пропозицій про угоду!'
+Too_many_requests: '&cУ Вас є кілька пропозицій про угоду &7, будь ласка, вкажіть нік гравця.'
+GUI_Title: '&cУгода з %player%'
+Money_Amount: Кількість грошей
+Coin: Монета
+Coins: Монет(-и/-а)
+Status: Статус
+Ready: Готовий
+Not_Ready: Не готовий
+Wait_For_Other_Player: Очікуємо другого гравця...
+Trade_Only_With_Objects: Вам потрібно щось запропонувати для завершення угоди.
+Click_To_Change: Натисніть, щоб змінити
+Cancel_Trade: Натисніть, щоб скасувати
+Not_Able_To_Trade: Вам недоступне проведення угоди.
+Player_Is_Not_Able_Trade: Гравцеві недоступна угода.
+TRADE_EDITOR: Редактор - інтерфейс угоди
+TRADE_EDITOR_FUNCTIONS: Редактор - функціонал
+EDITOR_RESET: Ваш тимчасовий інтерфейс було відновлено.
+Editor_Command_How_To: '&7Використання: /tradeEditor [reset]'
+Editor_Not_Empty: Слот не порожній!
+Editor_No_Item: Немає предмета!
+Layout_Name: Назва-макета
+Layout_Name_Already_Exists: Зазначена назва макета вже використовується!
+Layout_Finished: Макет успішно &aстворений&7.
+Layout_Edited: Макет успішно &aзмінений&7.
+Layout_Editor: '&9Макет &8- &9редактор'
+Save: Зберегти
+Not_Ready_For_Saving: '&cМакет не готовий для збереження.'
+Items: Макет
+Set: готово
+Not_Set: не готово
+Functions: Функціонал
+Name: Назва
+Ambiguous_Functions: Доп. функціонал
+Layout_Set_Items: Заповнити інтерфейс угоди
+Layout_Set_Functions: Налаштувати функції
+Layout_Set_Name: Вказати назву
+Layout_Set_Ambiguous_Functions: Налаштувати додаткові функції
+Layout_Editor_Set_Items: '&cЗакрийте для продовження'
+Back: Назад
+Trader: Перший гравець
+Other: Другий гравець
+Layout_Set_Own_Slots: Вказати слоти 1-го гравця
+Layout_Set_Other_Slots: Вказати слоти 2-го гравця
+Layout_Set_Cancel: Встановити іконку скасування
+Layout_Set_Other_Not_Ready: Встановити іконку статусу 2-го гравця
+Layout_Set_Status: Встановити іконку статусу 1-го гравця
+Layout_Set_Money: Встановити іконку грошей 1-го гравця
+Layout_Set_Other_Money: Встановити іконку грошей 2-го гравця
+Help_TradeSystem: '&7Використання: &e/%label% <layout, reload>'
+Help_TradeSystem_Layout: '&7Використання: &e/%label% layout <create, edit, delete, activate>'
+Help_TradeSystem_Layout_Create: '&7Напиши &e/%label% layout create <назва> [9..54]'
+Help_TradeSystem_Layout_Activate: '&7Напиши &e/%label% layout activate <назва>'
+Help_TradeSystem_Layout_Delete: '&7Напиши &e/%label% layout delete <назва>'
+Help_TradeSystem_Layout_Edit: '&7Напиши &e/%label% layout edit <назва>'
+Help_TradeLog: '&7Напиши: &e/%label% <name>'
+Layout_Does_Not_Exist: '&cЗазначений макет не знайдено.'
+Layout_Activated: '&7Макет ''&b%name%&7'' &aувімкнений&7.'
+Layout_Deleted: '&7Макет ''&b%name%&7'' &cвидалений&7.'
+Enter_Correct_Name_Space: '&cБудь ласка, не використовуйте пробіл.'
+Sure_That_You_Want_To_Loose_Your_Data: '&7Ви впевнені, що &сне &7хочете &cзберегти &7зміни?'
+Close: Закрити
+Layout_Already_Activated: '&7Макет &суже активований&7!'
+Layout_Set_Replacement_For_Money: '&7Іконка, що &езамінює іконку грошей&7, коли плагін економіки &ене виявлено&7.'
+Layout_Hint_Same_Slot_Amount: '&7Обидва учасники угоди &cповинні мати &cрівну кількість слотів&7!'
+Current_Amount: Поточна кількість
+Trade_Spam: '&7Гравцеві &суже надіслано пропозицію про угоду&7!'
+Plugin_Reloading: '&cПерезавантаження плагіна...'
+Success_Plugin_Reloaded: '&aПлагін перезавантажено.'
+Player_is_not_in_range: '&7Гравець &c%player% &7занадто &cдалеко&7!'
+Cannot_trade_in_that_GameMode: '&7Проведення угоди &снедоступно&7 у Вашому ігровому режимі!'
+Other_cannot_trade_in_that_GameMode: '&7Проведення угоди &снедоступно&7 в ігровому режимі зазначеного гравця!'
+Trade_cancelled_by_attack: '&cУгоду скасовано через атаку.'
+Trade_Partner_No_Space: '&7В інвентарі другого гравця &снедостатньо місця.'
+Trade_Offline: '&7Тепер Ви &сне будете&7 отримувати пропозиції про угоду.'
+Trade_Online: '&7Тепер Ви &азнову будете&7 отримувати пропозиції про угоду.'
+Trade_Partner_is_Offline: '&7Зазначений гравець &відключив&7 пропозиції про угоди.'
+Trade_You_are_Offline: '&7Використовуйте "%command%&e/trade toggle%command%&7", щоб увімкнути можливість проведення угод.'
+Trade_Placed_Blocked_Item: '&7Обраний предмет &снедоступний&7 для угод.'
+Cannot_trade_in_bed: '&cВи не можете проводити операції, &7поки перебуваєте в ліжку.'
+Cannot_trade_in_world: '&7У поточному світі &снедоступна можливість&7 проведення угод.'
+Other_cannot_trade_in_world: '&7У світі гравця &снедоступна можливість&7 проведення угод.'
+Cannot_trade_while_invisible: '&cВи не можете проводити угоди, &7поки невидимі.'
+Other_is_already_trading: '&cЦей гравець торгує з іншим гравцем!'
+Online: У мережі
+Offline: Не в мережі
+Your_request_expired: '&7Ваш торговий запит до гравця &e%player% &cexpired&7.'
+Request_expired: '&7Торговий запит від гравця &e%player% &cexpired&7.'
+Fancy_Countdown: ' &7- &e%seconds%сек.'
+Economy_Error: '&7Угоду &cскасовано &7через &cпомилка економіки&7.'
+Items_Dropped: '&7Ваш інвентар &сзаповнений&7, деякі предмети &cвипали на землю&7!'
+TradeLog_Disabled: '&7Реєстрація угод &cвідключена&7!'
+Sign_Enter_Amount: |-
+  ^^^^^^^^
+  Введіть сумму
+  выще
+Leftclick: Лівий клік
+Rightclick: Правий клік
+Shift_Leftclick: Shift-Лівий клік
+Shift_Rightclick: Shift-Правий клік
+Select: Вибрати
+Select_Foreign_Preview: Виберіть інший перегляд
+Edit: Редагувати
+Edit_Variant: Змінити варіант
+Variant: Варіант
+Cancel: Скасування
+Finish: Закінчити
+Levels: Рівні
+Level: Рівень
+Too_Little_Exp: '&7У вас &cнемає &7досвіду для торгівлі.'
+Exp_Points: Очки досвіду
+Exp_Point: Очко досвіду
+Open_GUI_Error: '&7Угоду &cскасовано &7через відкритий інвентар&7.'
+Reset: Скинути
+Balance_limit_reached: '&7Ваш баланс &снедостатній&7.'
+AnvilGUI_Title: Repair & Name
