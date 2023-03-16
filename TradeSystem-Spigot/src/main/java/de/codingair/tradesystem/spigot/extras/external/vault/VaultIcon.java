@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.extras.external.vault;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -10,7 +11,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.function.Function;
 
 public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     public VaultIcon(@NotNull ItemStack itemStack) {
@@ -38,7 +38,7 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.DOUBLE;
     }
 

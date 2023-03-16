@@ -27,6 +27,12 @@ GUI_Title: '&cУгода з %player%'
 Money_Amount: Кількість грошей
 Coin: Монета
 Coins: Монет(-и/-а)
+PlayerPoint: "PlayerPoint"
+PlayerPoints: "PlayerPoints"
+Token: "Token"
+Tokens: "Tokens"
+ClaimBlock: "ClaimBlock"
+ClaimBlocks: "ClaimBlocks"
 Status: Статус
 Ready: Готовий
 Not_Ready: Не готовий
@@ -104,6 +110,8 @@ Cannot_trade_in_bed: '&cВи не можете проводити операці
 Cannot_trade_in_world: '&7У поточному світі &снедоступна можливість&7 проведення угод.'
 Other_cannot_trade_in_world: '&7У світі гравця &снедоступна можливість&7 проведення угод.'
 Cannot_trade_while_invisible: '&cВи не можете проводити угоди, &7поки невидимі.'
+Cannot_trade_in_region: '&7You &ccannot trade &7in this region!'
+Other_cannot_trade_in_region: '&7This player &ccannot trade &7in their region!'
 Other_is_already_trading: '&cЦей гравець торгує з іншим гравцем!'
 Online: У мережі
 Offline: Не в мережі
@@ -113,10 +121,7 @@ Fancy_Countdown: ' &7- &e%seconds%сек.'
 Economy_Error: '&7Угоду &cскасовано &7через &cпомилка економіки&7.'
 Items_Dropped: '&7Ваш інвентар &сзаповнений&7, деякі предмети &cвипали на землю&7!'
 TradeLog_Disabled: '&7Реєстрація угод &cвідключена&7!'
-Sign_Enter_Amount: |-
-  ^^^^^^^^
-  Введіть сумму
-  выще
+Sign_Enter_Amount: "^^^^^^^^\nВведіть сумму\nвыще"
 Leftclick: Лівий клік
 Rightclick: Правий клік
 Shift_Leftclick: Shift-Лівий клік
@@ -133,7 +138,10 @@ Level: Рівень
 Too_Little_Exp: '&7У вас &cнемає &7досвіду для торгівлі.'
 Exp_Points: Очки досвіду
 Exp_Point: Очко досвіду
-Open_GUI_Error: '&7Угоду &cскасовано &7через відкритий інвентар&7.'
 Reset: Скинути
 Balance_limit_reached: '&7Ваш баланс &снедостатній&7.'
 AnvilGUI_Title: Repair & Name
+Shulker_Box: 'Shulker Box'
+Trade_Finish_Report_Receive: "  &a+ &7%object%"
+Trade_Finish_Report_Give: "  &c- &7%object%"
+Trade_Finish_Report_Object_Item: "%amount%x %item%"

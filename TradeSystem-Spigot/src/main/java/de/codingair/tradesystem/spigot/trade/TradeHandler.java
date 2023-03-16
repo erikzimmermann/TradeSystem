@@ -56,6 +56,7 @@ public class TradeHandler {
     private boolean cancelOnDamage = true;
     private boolean revokeReadyOnChange = true;
     private boolean requestOnShiftRightclick = false;
+    private boolean tradeReport = true;
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
 
@@ -97,6 +98,7 @@ public class TradeHandler {
         this.cancelOnDamage = config.getBoolean("TradeSystem.Action_To_Cancel.Player_get_damaged", true);
         this.revokeReadyOnChange = config.getBoolean("TradeSystem.Revoke_Ready_State_on_Offer_Change", true);
         this.requestOnShiftRightclick = config.getBoolean("TradeSystem.Action_To_Request.Shift_Rightclick", false);
+        this.tradeReport = config.getBoolean("TradeSystem.Trade_Finish_Report", true);
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
@@ -529,5 +531,9 @@ public class TradeHandler {
 
     public DecimalFormat getMoneyPattern() {
         return moneyPattern;
+    }
+
+    public boolean isTradeReport() {
+        return tradeReport;
     }
 }

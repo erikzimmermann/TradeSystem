@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.function.Function;
 
 /**
  * A trade icon to trade exp levels. Due to the exponential experience formula, some calculations must be done before exchanging exp levels.
@@ -44,7 +44,7 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.DOUBLE;
     }
 

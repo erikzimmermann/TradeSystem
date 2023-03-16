@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeReceiveEconomyEvent;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.InputIcon;
@@ -26,7 +27,6 @@ import java.math.RoundingMode;
 import java.text.ParsePosition;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & TradeIcon> extends InputIcon<BigDecimal> implements Transition<T, BigDecimal> {
     private final String nameSingular;
@@ -137,7 +137,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @NotNull
-    private String getName(@NotNull Player player, boolean singular) {
+    public String getName(@NotNull Player player, boolean singular) {
         try {
             return Lang.get(singular ? nameSingular : namePlural, player);
         } catch (NullPointerException ex) {
@@ -157,8 +157,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     @Override
     public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
         int id = trade.getId(player);
-        T show = trade.getLayout()[id].getIcon(getTargetClass());
-        BigDecimal diff = show.getValue().subtract(value);
+        BigDecimal diff = getOverallDifference(trade, id);
 
         String fancyDiff = TradeSystem.man().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
 
@@ -177,6 +176,17 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
             log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);
         }
+    }
+
+    /**
+     * @param trade The trade instance.
+     * @param id    The id of the player.
+     * @return The computed difference comparing the offered amount of this player and the offered amount of the trade partner.
+     */
+    @NotNull
+    public BigDecimal getOverallDifference(@NotNull Trade trade, int id) {
+        T show = trade.getLayout()[id].getIcon(getTargetClass());
+        return show.getValue().subtract(value);
     }
 
     @NotNull
@@ -203,7 +213,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
     protected abstract void deposit(Player player, @NotNull BigDecimal value);
 
-    protected abstract @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue();
+    protected abstract @NotNull TypeCap getMaxSupportedValue();
 
     @Override
     public boolean isEmpty() {
@@ -223,5 +233,9 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     @Override
     public void inform(@NotNull T icon) {
         icon.applyTransition(this.value);
+    }
+
+    public boolean isDecimal() {
+        return decimal;
     }
 }

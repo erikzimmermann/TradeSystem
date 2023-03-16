@@ -9,8 +9,10 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
+import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
+import de.codingair.tradesystem.spigot.events.TradeReportEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
@@ -115,7 +117,7 @@ public abstract class Trade {
     protected abstract PlayerInventory getPlayerInventory(int playerId);
 
     /**
-     * @param id   The id of the player who receives the items.
+     * @param id     The id of the player who receives the items.
      * @param slotId The slot of the item to receive (left side slots).
      * @return The item to receive.
      */
@@ -238,6 +240,7 @@ public abstract class Trade {
 
     /**
      * Called when an offer has changed.
+     *
      * @param invokeTradeUpdate True, if the current state should be updated. Active countdowns will be stopped then.
      */
     public void onTradeOfferChange(boolean invokeTradeUpdate) {
@@ -367,7 +370,16 @@ public abstract class Trade {
 
             boolean logFinish = false;
             boolean[] droppedItems = new boolean[2];
+            TradeResult[] results = new TradeResult[2];
 
+            // Create result before exchanging items. Otherwise, we loose some information.
+            for (int id = 0; id < 2; id++) {
+                Player player = getPlayer(id);
+                if (player == null) continue;
+                results[id] = createResult(player, id);
+            }
+
+            // exchange goods
             for (int id = 0; id < 2; id++) {
                 Player player = getPlayer(id);
                 if (player == null) continue;
@@ -379,10 +391,10 @@ public abstract class Trade {
                 if (initiator) logFinish = true;
             }
 
-
+            // finish trade
             for (int id = 0; id < 2; id++) {
                 Player player = getPlayer(id);
-                postFinish(player, id, droppedItems[id]);
+                postFinish(player, id, droppedItems[id], results[id]);
             }
 
             if (logFinish) TradeLogService.logLater(this.players[0], this.players[1], TradeLog.FINISHED.get(), 10);
@@ -438,6 +450,23 @@ public abstract class Trade {
     private void prepareFinish(@NotNull Player player, int id) {
         pause[id] = true;
         player.closeInventory();
+    }
+
+    @NotNull
+    private TradeResult createResult(@NotNull Player player, int id) {
+        TradeResult result = new TradeResult(this, player, id);
+
+        TradingGUI gui = getGUIs()[id];
+
+        slots.forEach(slot -> result.add(gui.getItem(slot), false));
+        otherSlots.forEach(slot -> result.add(gui.getItem(slot), true));
+
+        for (TradeIcon icon : layout[id].getIcons()) {
+            if (icon == null) continue;
+            result.add(icon);
+        }
+
+        return result;
     }
 
     /**
@@ -546,15 +575,50 @@ public abstract class Trade {
         }
     }
 
-    private void postFinish(@Nullable Player player, int id, boolean droppedItems) {
+    private void postFinish(@Nullable Player player, int id, boolean droppedItems, @NotNull TradeResult result) {
         if (guis[id] != null) guis[id].clear();
         TradeSystem.man().unregisterTrade(players[id]);
 
         if (player != null) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Finished", player));
-            if (droppedItems) player.sendMessage(Lang.getPrefix() + Lang.get("Items_Dropped", player));
-            TradeSystem.man().playFinishSound(player);
+            int oId = getOtherId(id);
+            TradeReportEvent e = getPlayerOpt(oId)
+                    .map(other -> new TradeReportEvent(player, other, result))
+                    .orElseGet(() -> new TradeReportEvent(player, players[oId], result));
+            Bukkit.getPluginManager().callEvent(e);
+
+            if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, result, e));
+            if (e.isPlayFinishSound()) TradeSystem.man().playFinishSound(player);
         }
+    }
+
+    private @NotNull String @NotNull [] buildFinishMessages(@NotNull Player player, int id, boolean droppedItems, @NotNull TradeResult result, @NotNull TradeReportEvent event) {
+        List<String> messages = new ArrayList<>();
+        messages.add(Lang.getPrefix() + getPlaceholderMessage(id, "Trade_Was_Finished"));
+
+        if (TradeSystem.man().isTradeReport()) {
+            // collect reports and sort them
+            List<String> list = new ArrayList<>();
+
+            if (event.getEconomyReport() != null) list.addAll(event.getEconomyReport());
+            else list.addAll(result.buildEconomyReport());
+
+            if (event.getItemReport() != null) list.addAll(event.getItemReport());
+            else list.addAll(result.buildItemReport());
+
+            list.sort((o1, o2) -> {
+                o1 = ChatColor.stripColor(o1).replaceFirst("\\d+(x)?", "");
+                o2 = ChatColor.stripColor(o2).replaceFirst("\\d+(x)?", "");
+                return o1.compareTo(o2);
+            });
+            messages.addAll(list);
+        }
+
+        if (droppedItems) {
+            messages.add("");
+            messages.add(Lang.getPrefix() + Lang.get("Items_Dropped", player));
+        }
+
+        return messages.toArray(new String[0]);
     }
 
     private void cleanUp() {

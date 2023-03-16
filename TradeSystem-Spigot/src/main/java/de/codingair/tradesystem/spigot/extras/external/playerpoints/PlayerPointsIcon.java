@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.extras.external.playerpoints;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
@@ -9,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.function.Function;
 
 public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     public PlayerPointsIcon(@NotNull ItemStack itemStack) {
@@ -41,7 +41,7 @@ public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.INTEGER;
     }
 }
