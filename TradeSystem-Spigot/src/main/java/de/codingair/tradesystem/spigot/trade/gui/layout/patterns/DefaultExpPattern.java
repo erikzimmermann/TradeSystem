@@ -4,8 +4,8 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.*;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ExpPointIcon;
-import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ShowExpPointIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ExpLevelIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ShowExpLevelIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.IconData;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,9 +35,9 @@ public class DefaultExpPattern extends Pattern {
                 /*0*/   new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
-                new IconData(ExpPointIcon.class, NUGGET.clone()),
+                new IconData(ExpLevelIcon.class, NUGGET.clone()),
                 new IconData(DecorationIcon.class, GRAY_STAINED.clone()),
-                /*5*/   new IconData(ShowExpPointIcon.class, NUGGET.clone()),
+                /*5*/   new IconData(ShowExpLevelIcon.class, NUGGET.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
                 new IconData(DecorationIcon.class, BLACK_STAINED.clone()),
