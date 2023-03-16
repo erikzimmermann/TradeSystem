@@ -595,23 +595,24 @@ public abstract class Trade {
         List<String> messages = new ArrayList<>();
         messages.add(Lang.getPrefix() + getPlaceholderMessage(id, "Trade_Was_Finished"));
 
-        if (TradeSystem.man().isTradeReport()) {
-            // collect reports and sort them
-            List<String> list = new ArrayList<>();
+        // collect reports and sort them
+        List<String> list = new ArrayList<>();
 
+        if (TradeSystem.man().isTradeReportEconomy()) {
             if (event.getEconomyReport() != null) list.addAll(event.getEconomyReport());
             else list.addAll(result.buildEconomyReport());
-
+        }
+        if (TradeSystem.man().isTradeReportItems()) {
             if (event.getItemReport() != null) list.addAll(event.getItemReport());
             else list.addAll(result.buildItemReport());
-
-            list.sort((o1, o2) -> {
-                o1 = ChatColor.stripColor(o1).replaceFirst("\\d+(x)?", "");
-                o2 = ChatColor.stripColor(o2).replaceFirst("\\d+(x)?", "");
-                return o1.compareTo(o2);
-            });
-            messages.addAll(list);
         }
+
+        list.sort((o1, o2) -> {
+            o1 = ChatColor.stripColor(o1).replaceFirst("\\d+(x)?", "");
+            o2 = ChatColor.stripColor(o2).replaceFirst("\\d+(x)?", "");
+            return o1.compareTo(o2);
+        });
+        messages.addAll(list);
 
         if (droppedItems) {
             messages.add("");
