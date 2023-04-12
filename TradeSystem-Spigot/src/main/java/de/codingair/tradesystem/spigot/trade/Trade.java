@@ -538,7 +538,9 @@ public abstract class Trade {
         cancel(message, false);
     }
 
-    public void cancel(@Nullable String message, boolean alreadyCalled) {
+    public synchronized void cancel(@Nullable String message, boolean alreadyCalled) {
+        if (cancelling) return;  // already cancelling
+
         this.cancelling = true;
         boolean[] droppedItems = returnItemsToOwner();
 
@@ -550,6 +552,11 @@ public abstract class Trade {
 
         playCancelSound();
         closeInventories();
+
+        // indicate inactive trade
+        // DUPE fix: guis must be null AFTER closing all inventories
+        this.guis[0] = null;
+        this.guis[1] = null;
 
         TradeSystem.man().unregisterTrade(players[0]);
         TradeSystem.man().unregisterTrade(players[1]);
@@ -690,8 +697,6 @@ public abstract class Trade {
         // check cursor of viewers which are not the main participants
         this.getViewers().filter(nonTrader()).forEach(this::moveCursorItemToInventory);
 
-        this.guis[0] = null;
-        this.guis[1] = null;
         return droppedItems;
     }
 
