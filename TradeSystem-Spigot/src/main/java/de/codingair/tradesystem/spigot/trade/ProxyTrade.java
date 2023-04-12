@@ -151,8 +151,8 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId) {
-        if (id == 0) return getSent(slotId);
-        else return guis[0].getItem(slots.get(slotId));
+        if (id == 1) return getSent(slotId);
+        else return guis[0].getItem(otherSlots.get(slotId));
     }
 
     @Override
