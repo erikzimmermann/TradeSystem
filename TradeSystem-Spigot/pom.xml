@@ -167,8 +167,8 @@
         </dependency>
         <dependency>
             <groupId>io.lumine</groupId>
-            <artifactId>MythicLib</artifactId>
-            <version>1.5.1-SNAPSHOT</version>
+            <artifactId>MythicLib-dist</artifactId>
+            <version>1.6-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
