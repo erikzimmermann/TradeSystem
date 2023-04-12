@@ -1,7 +1,7 @@
 package de.codingair.tradesystem.spigot.events;
 
 import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
-import de.codingair.tradesystem.spigot.trade.TradeResult;
+import de.codingair.tradesystem.spigot.trade.PlayerTradeResult;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -11,14 +11,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Called when a player receives an item from another player after a trade was completed.
+ * Called when a player receives items or other goods from another player after a trade was completed. Can be used to control the trade report which will be sent via chat.
  */
 public class TradeReportEvent extends TradeEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String other;
     private final Player otherPlayer;
-    private final TradeResult result;
+    private final PlayerTradeResult result;
     private List<String> itemReport;
     private List<String> economyReport;
     private boolean playFinishSound = true;
@@ -29,9 +29,9 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
      *
      * @param receiver The {@link Player} who received the item.
      * @param other    The name of the player who trades the item.
-     * @param result   The {@link TradeResult} of the trade.
+     * @param result   The {@link PlayerTradeResult} of the trade.
      */
-    public TradeReportEvent(@NotNull Player receiver, @NotNull String other, @NotNull TradeResult result) {
+    public TradeReportEvent(@NotNull Player receiver, @NotNull String other, @NotNull PlayerTradeResult result) {
         this.receiver = receiver;
         this.other = other;
         this.result = result;
@@ -43,9 +43,9 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
      *
      * @param receiver    The {@link Player} who received the item.
      * @param otherPlayer The {@link Player} who trades the item.
-     * @param result      The {@link TradeResult} of the trade.
+     * @param result      The {@link PlayerTradeResult} of the trade.
      */
-    public TradeReportEvent(@NotNull Player receiver, @NotNull Player otherPlayer, @NotNull TradeResult result) {
+    public TradeReportEvent(@NotNull Player receiver, @NotNull Player otherPlayer, @NotNull PlayerTradeResult result) {
         this.receiver = receiver;
         this.otherPlayer = otherPlayer;
         this.result = result;
@@ -91,10 +91,10 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
     }
 
     /**
-     * @return The {@link TradeResult result} of the trade for the given player.
+     * @return The {@link PlayerTradeResult result} of the trade for the given player.
      */
     @NotNull
-    public TradeResult getResult() {
+    public PlayerTradeResult getResult() {
         return result;
     }
 

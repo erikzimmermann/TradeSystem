@@ -11,6 +11,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeReportEvent;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
@@ -84,6 +85,12 @@ public abstract class Trade {
      */
     protected abstract void startGUI();
 
+    /**
+     * Note: Player with id=0 is never null.
+     *
+     * @param id The id of the player who should be returned.
+     * @return The player with the given id.
+     */
     @Nullable
     protected abstract Player getPlayer(int id);
 
@@ -148,6 +155,13 @@ public abstract class Trade {
      * @param item   The item to display.
      */
     protected abstract void updateDisplayItem(int id, int slotId, @Nullable ItemStack item);
+
+    /**
+     * @param id     The id of the player.
+     * @param slotId The item slot id.
+     * @return The item that is currently offered on the left side of the trade panel (i.e. the item that will be sent).
+     */
+    protected abstract @Nullable ItemStack getCurrentOfferedItem(int id, int slotId);
 
     /**
      * @param id     The id of the player.
@@ -370,14 +384,7 @@ public abstract class Trade {
 
             boolean logFinish = false;
             boolean[] droppedItems = new boolean[2];
-            TradeResult[] results = new TradeResult[2];
-
-            // Create result before exchanging items. Otherwise, we loose some information.
-            for (int id = 0; id < 2; id++) {
-                Player player = getPlayer(id);
-                if (player == null) continue;
-                results[id] = createResult(player, id);
-            }
+            TradeResult[] results = createResults();
 
             // exchange goods
             for (int id = 0; id < 2; id++) {
@@ -398,6 +405,8 @@ public abstract class Trade {
             }
 
             if (logFinish) TradeLogService.logLater(this.players[0], this.players[1], TradeLog.FINISHED.get(), 10);
+
+            closeTrade(results);
             return true;
         });
     }
@@ -452,14 +461,20 @@ public abstract class Trade {
         player.closeInventory();
     }
 
+
     @NotNull
-    private TradeResult createResult(@NotNull Player player, int id) {
-        TradeResult result = new TradeResult(this, player, id);
+    private TradeResult[] createResults() {
+        return new TradeResult[] {createResult(getPlayer(0), 0), createResult(getPlayer(1), 1)};
+    }
 
-        TradingGUI gui = getGUIs()[id];
+    @NotNull
+    private TradeResult createResult(@Nullable Player player, int id) {
+        TradeResult result = player == null ? new TradeResult(id) : new PlayerTradeResult(this, player, id);
 
-        slots.forEach(slot -> result.add(gui.getItem(slot), false));
-        otherSlots.forEach(slot -> result.add(gui.getItem(slot), true));
+        for (int i = 0; i < slots.size(); i++) {
+            result.add(getCurrentOfferedItem(id, i), false);
+            result.add(getCurrentDisplayedItem(id, i), true);
+        }
 
         for (TradeIcon icon : layout[id].getIcons()) {
             if (icon == null) continue;
@@ -489,7 +504,7 @@ public abstract class Trade {
                 TradeLog.logItemReceive(player, initiator, players[otherId], item);
 
             //call events
-            item = callTradeEvent(player, other, players[otherId], item);
+            item = callTradeItemEvent(player, other, players[otherId], item);
 
             //try fit into inventory
             if (item != null && item.getType() != Material.AIR) {
@@ -541,6 +556,8 @@ public abstract class Trade {
     public synchronized void cancel(@Nullable String message, boolean alreadyCalled) {
         if (cancelling) return;  // already cancelling
 
+        TradeResult[] results = createResults();
+
         this.cancelling = true;
         boolean[] droppedItems = returnItemsToOwner();
 
@@ -580,25 +597,55 @@ public abstract class Trade {
                 sendMessage(i, Lang.getPrefix() + getPlaceholderMessage(i, "Items_Dropped"));
             }
         }
+
+        closeTrade(results);
     }
 
     private void postFinish(@Nullable Player player, int id, boolean droppedItems, @NotNull TradeResult result) {
         if (guis[id] != null) guis[id].clear();
         TradeSystem.man().unregisterTrade(players[id]);
 
-        if (player != null) {
+        PlayerTradeResult playerResult = result instanceof PlayerTradeResult ? (PlayerTradeResult) result : null;
+        if (player != null && playerResult != null) {
             int oId = getOtherId(id);
             TradeReportEvent e = getPlayerOpt(oId)
-                    .map(other -> new TradeReportEvent(player, other, result))
-                    .orElseGet(() -> new TradeReportEvent(player, players[oId], result));
+                    .map(other -> new TradeReportEvent(player, other, playerResult))
+                    .orElseGet(() -> new TradeReportEvent(player, players[oId], playerResult));
             Bukkit.getPluginManager().callEvent(e);
 
-            if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, result, e));
+            if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, playerResult, e));
             if (e.isPlayFinishSound()) TradeSystem.man().playFinishSound(player);
         }
     }
 
-    private @NotNull String @NotNull [] buildFinishMessages(@NotNull Player player, int id, boolean droppedItems, @NotNull TradeResult result, @NotNull TradeReportEvent event) {
+    /**
+     * At this state, the trade is already unregistered. This is just a last opportunity to do something with this trade instance.
+     *
+     * @param results The results of the trade.
+     */
+    private void closeTrade(@NotNull TradeResult @NotNull [] results) {
+        callFinishEvent(results);
+    }
+
+    private void callFinishEvent(@NotNull TradeResult @NotNull [] results) {
+        Player player = getPlayer(0);
+        assert player != null;
+
+        TradeFinishEvent e;
+        if (isInitiator(player, 0)) {
+            e = getPlayerOpt(1)
+                    .map(other -> new TradeFinishEvent(player, other, !cancelling, results))
+                    .orElseGet(() -> new TradeFinishEvent(player, players[1], !cancelling, results));
+        } else {
+            e = getPlayerOpt(1)
+                    .map(other -> new TradeFinishEvent(other, player, !cancelling, results))
+                    .orElseGet(() -> new TradeFinishEvent(players[1], player, !cancelling, results));
+        }
+
+        Bukkit.getPluginManager().callEvent(e);
+    }
+
+    private @NotNull String @NotNull [] buildFinishMessages(@NotNull Player player, int id, boolean droppedItems, @NotNull PlayerTradeResult result, @NotNull TradeReportEvent event) {
         List<String> messages = new ArrayList<>();
         messages.add(Lang.getPrefix() + getPlaceholderMessage(id, "Trade_Was_Finished"));
 
@@ -633,7 +680,7 @@ public abstract class Trade {
         stopListeners();
     }
 
-    protected @Nullable ItemStack callTradeEvent(@NotNull Player receiver, @Nullable Player sender, @NotNull String senderName, @Nullable ItemStack item) {
+    protected @Nullable ItemStack callTradeItemEvent(@NotNull Player receiver, @Nullable Player sender, @NotNull String senderName, @Nullable ItemStack item) {
         if (item == null) return null;
 
         TradeItemEvent event = sender == null ? new TradeItemEvent(receiver, senderName, item) : new TradeItemEvent(receiver, sender, item);

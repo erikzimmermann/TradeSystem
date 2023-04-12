@@ -136,6 +136,11 @@ public class ProxyTrade extends Trade {
         return sent[slotId];
     }
 
+    @Nullable
+    private ItemStack getReceived(int slotId) {
+        return received[slotId];
+    }
+
     @Override
     protected @Nullable ItemStack removeReceivedItem(int id, int slotId) {
         ItemStack item = received[slotId];
@@ -147,6 +152,12 @@ public class ProxyTrade extends Trade {
     protected void updateDisplayItem(int id, int slotId, @Nullable ItemStack item) {
         if (id != 1) return;
         synchronizeItem(slotId, item);
+    }
+
+    @Override
+    protected @Nullable ItemStack getCurrentOfferedItem(int id, int slotId) {
+        if (id == 1) return getReceived(slotId);
+        else return guis[0].getItem(slots.get(slotId));
     }
 
     @Override

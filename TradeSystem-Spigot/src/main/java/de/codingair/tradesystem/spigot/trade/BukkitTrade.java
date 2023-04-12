@@ -50,6 +50,11 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
+    protected @Nullable ItemStack getCurrentOfferedItem(int id, int slotId) {
+        return guis[id].getItem(slots.get(slotId));
+    }
+
+    @Override
     protected @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId) {
         return guis[id].getItem(otherSlots.get(slotId));
     }
