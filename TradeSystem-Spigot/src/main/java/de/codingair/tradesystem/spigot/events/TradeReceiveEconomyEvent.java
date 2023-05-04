@@ -3,32 +3,38 @@ package de.codingair.tradesystem.spigot.events;
 import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+
 /**
- * Called when a player receives an item from another player after a trade was completed.
+ * Called when a player receives something that was traded by an economy icon from another player after a trade was completed.
  */
-public class TradeLogReceiveItemEvent extends TradeEvent {
+public class TradeReceiveEconomyEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String sender;
     private final Player sendingPlayer;
-    private final ItemStack item;
-    private String message;
+    private final BigDecimal balance;
+    private final String nameSingular;
+    private final String namePlural;
 
     /**
      * Indicates a proxy trade.
      *
-     * @param receiver The {@link Player} who received the item.
-     * @param sender   The name of the player who trades the item.
-     * @param item     The item being transferred.
+     * @param receiver     The {@link Player} who received the item.
+     * @param sender       The name of the player who trades the item.
+     * @param balance      The balance being transferred.
+     * @param nameSingular The name of the currency in singular.
+     * @param namePlural   The name of the currency in plural.
      */
-    public TradeLogReceiveItemEvent(@NotNull Player receiver, @NotNull String sender, @NotNull ItemStack item) {
+    public TradeReceiveEconomyEvent(@NotNull Player receiver, @NotNull String sender, @NotNull BigDecimal balance, @NotNull String nameSingular, @NotNull String namePlural) {
         this.receiver = receiver;
         this.sender = sender;
-        this.item = item;
+        this.balance = balance;
+        this.nameSingular = nameSingular;
+        this.namePlural = namePlural;
         this.sendingPlayer = null;
     }
 
@@ -37,12 +43,16 @@ public class TradeLogReceiveItemEvent extends TradeEvent {
      *
      * @param receiver      The {@link Player} who received the item.
      * @param sendingPlayer The {@link Player} who trades the item.
-     * @param item          The item being transferred.
+     * @param balance       The balance being transferred.
+     * @param nameSingular  The name of the currency in singular.
+     * @param namePlural    The name of the currency in plural.
      */
-    public TradeLogReceiveItemEvent(@NotNull Player receiver, @NotNull Player sendingPlayer, @NotNull ItemStack item) {
+    public TradeReceiveEconomyEvent(@NotNull Player receiver, @NotNull Player sendingPlayer, @NotNull BigDecimal balance, @NotNull String nameSingular, @NotNull String namePlural) {
         this.receiver = receiver;
         this.sendingPlayer = sendingPlayer;
-        this.item = item;
+        this.balance = balance;
+        this.nameSingular = nameSingular;
+        this.namePlural = namePlural;
         this.sender = sendingPlayer.getName();
     }
 
@@ -85,25 +95,23 @@ public class TradeLogReceiveItemEvent extends TradeEvent {
     }
 
     /**
-     * @return A copy of the item being transferred.
+     * @return The balance being transferred.
      */
-    public @NotNull ItemStack getItem() {
-        return this.item.clone();
+    public @NotNull BigDecimal getBalance() {
+        return this.balance;
     }
 
     /**
-     * @return The message that should be logged for trading the given item. The default message will be used if 'message' is null.
+     * @return The name of the currency in singular.
      */
-    public @Nullable String getMessage() {
-        return message;
+    public @NotNull String getNameSingular() {
+        return this.nameSingular;
     }
 
     /**
-     * Apply a message for the second variable replacement in the {@link de.codingair.tradesystem.spigot.extras.tradelog.TradeLog#RECEIVED RECEIVED} message.
-     *
-     * @param message The message that should be logged for trading the given item. The default message will be used if 'message' is null.
+     * @return The name of the currency in plural.
      */
-    public void setMessage(String message) {
-        this.message = message;
+    public @NotNull String getNamePlural() {
+        return this.namePlural;
     }
 }

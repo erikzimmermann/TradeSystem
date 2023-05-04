@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.extras.external.tokenmanager;
 
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import me.realized.tokenmanager.api.TokenManager;
 import org.bukkit.Bukkit;
@@ -9,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.function.Function;
 
 public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     public TokenIcon(@NotNull ItemStack itemStack) {
@@ -43,7 +43,7 @@ public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.LONG;
     }
 }

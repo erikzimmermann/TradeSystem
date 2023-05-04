@@ -15,6 +15,7 @@ import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
+import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -59,6 +60,9 @@ public class TradeHandler {
     private List<String> allowedGameModes = new ArrayList<>();
     private List<String> blockedWorlds;
 
+    private boolean tradeReportItems = true;
+    private boolean tradeReportEconomy = true;
+
     private InputGUI inputGUI = InputGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
@@ -100,6 +104,9 @@ public class TradeHandler {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
+
+        this.tradeReportItems = config.getBoolean("TradeSystem.Trade_Finish_Report.Items", true);
+        this.tradeReportEconomy = config.getBoolean("TradeSystem.Trade_Finish_Report.Economy", true);
 
         if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
@@ -450,14 +457,24 @@ public class TradeHandler {
     }
 
     /**
+     * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy.
+     *
      * @param placer          The player that placed the item.
      * @param receivingPlayer The player that should receive the item.
      * @param receiver        The name of the receivingPlayer.
      * @param item            The {@link ItemStack} which will be traded.
      * @return {@link Boolean#TRUE} if this item should be marked as blocked.
      */
-    public boolean isBlocked(@NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
+    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
         boolean blacklisted = false;
+
+        if (trade instanceof ProxyTrade) {
+            boolean compatible = ItemStackUtils.isCompatible(item);
+            if (!compatible) {
+                // item is not TradeProxy compatible
+                return true;
+            }
+        }
 
         for (BlockedItem blocked : this.blacklist) {
             if (blocked.matches(item)) {
@@ -529,5 +546,13 @@ public class TradeHandler {
 
     public DecimalFormat getMoneyPattern() {
         return moneyPattern;
+    }
+
+    public boolean isTradeReportItems() {
+        return tradeReportItems;
+    }
+
+    public boolean isTradeReportEconomy() {
+        return tradeReportEconomy;
     }
 }

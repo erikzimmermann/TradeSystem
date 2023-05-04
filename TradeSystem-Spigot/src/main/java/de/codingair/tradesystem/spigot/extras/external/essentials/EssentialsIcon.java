@@ -5,6 +5,7 @@ import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import net.ess3.api.MaxMoneyException;
 import org.bukkit.entity.Player;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     public EssentialsIcon(@NotNull ItemStack itemStack) {
@@ -71,7 +71,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.BIG_DECIMAL;
     }
 }

@@ -5,6 +5,7 @@ import com.griefdefender.api.User;
 import com.griefdefender.api.permission.option.Options;
 import com.griefdefender.lib.geantyref.TypeToken;
 import de.codingair.tradesystem.spigot.extras.external.EconomySupportType;
+import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     public GriefDefenderIcon(@NotNull ItemStack itemStack) {
@@ -60,7 +60,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    protected @NotNull Function<BigDecimal, BigDecimal> getMaxSupportedValue() {
+    protected @NotNull TypeCap getMaxSupportedValue() {
         return EconomySupportType.INTEGER;
     }
 }

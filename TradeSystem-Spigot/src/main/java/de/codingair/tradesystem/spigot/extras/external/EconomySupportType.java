@@ -25,14 +25,15 @@ public class EconomySupportType {
     private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
     private static final BigDecimal MIN_DOUBLE = BigDecimal.valueOf(Double.MIN_VALUE);
 
-    public static final Function<BigDecimal, BigDecimal> BYTE = d -> d.min(MAX_BYTE).max(MIN_BYTE).setScale(0, RoundingMode.DOWN);
-    public static final Function<BigDecimal, BigDecimal> SHORT = d -> d.min(MAX_SHORT).max(MIN_SHORT).setScale(0, RoundingMode.DOWN);
-    public static final Function<BigDecimal, BigDecimal> INTEGER = d -> d.min(MAX_INTEGER).max(MIN_INTEGER).setScale(0, RoundingMode.DOWN);
-    public static final Function<BigDecimal, BigDecimal> LONG = d -> d.min(MAX_LONG).max(MIN_LONG).setScale(0, RoundingMode.DOWN);
+    public static final TypeCap BYTE = new TypeCap(Byte.class, d -> d.min(MAX_BYTE).max(MIN_BYTE).setScale(0, RoundingMode.DOWN));
+    public static final TypeCap SHORT = new TypeCap(Short.class, d -> d.min(MAX_SHORT).max(MIN_SHORT).setScale(0, RoundingMode.DOWN));
+    public static final TypeCap INTEGER = new TypeCap(Integer.class, d -> d.min(MAX_INTEGER).max(MIN_INTEGER).setScale(0, RoundingMode.DOWN));
+    public static final TypeCap LONG = new TypeCap(Long.class, d -> d.min(MAX_LONG).max(MIN_LONG).setScale(0, RoundingMode.DOWN));
 
-    public static final Function<BigDecimal, BigDecimal> FLOAT = EconomySupportType::toFloat;
-    public static final Function<BigDecimal, BigDecimal> DOUBLE = EconomySupportType::toDouble;
-    public static final Function<BigDecimal, BigDecimal> BIG_DECIMAL = d -> d;
+    public static final TypeCap FLOAT = new TypeCap(Float.class, EconomySupportType::toFloat);
+    public static final TypeCap DOUBLE = new TypeCap(Double.class, EconomySupportType::toDouble);
+
+    public static final TypeCap BIG_DECIMAL = new TypeCap(BigDecimal.class, d -> d);
 
     private EconomySupportType() {
     }

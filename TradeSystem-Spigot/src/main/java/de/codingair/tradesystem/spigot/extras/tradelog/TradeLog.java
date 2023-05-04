@@ -61,7 +61,7 @@ public class TradeLog {
         TradeLogService.log(
                 initiator ? receiver.getName() : trader,
                 initiator ? trader : receiver.getName(),
-                TradeLog.RECEIVED.get(receiver, message)
+                TradeLog.RECEIVED.get(receiver.getName(), message)
         );
     }
 

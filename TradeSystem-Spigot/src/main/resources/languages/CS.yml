@@ -142,3 +142,6 @@ Reset: "Reset"
 Balance_limit_reached: '&7Váš zůstatek je &cnedostatečný&7.'
 AnvilGUI_Title: 'Repair & Name'
 Shulker_Box: 'Shulker Box'
+Trade_Finish_Report_Receive: "  &a+ &7%object%"
+Trade_Finish_Report_Give: "  &c- &7%object%"
+Trade_Finish_Report_Object_Item: "%amount%x %item%"
