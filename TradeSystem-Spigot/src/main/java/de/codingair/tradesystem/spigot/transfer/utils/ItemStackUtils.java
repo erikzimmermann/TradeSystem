@@ -1,11 +1,13 @@
 package de.codingair.tradesystem.spigot.transfer.utils;
 
+import de.codingair.packetmanagement.utils.SerializedGeneric;
 import org.bukkit.Color;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,8 +15,34 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 public class ItemStackUtils {
+    /**
+     * Allowed number of bytes being able to transfer at once. 32766 bytes is the maximum of Minecraft's limitations.
+     */
+    private static final int MAX_TRANSFER_LIMIT = 30000;
 
-    @Nullable
+    /**
+     * Checks an item for serialisation and transfer compatibility.
+     *
+     * @param item The item that should be checked.
+     * @return True if the given item is compatible with TradeProxy. False, otherwise.
+     */
+    public static boolean isCompatible(@NotNull ItemStack item) {
+        try {
+            Map<String, Object> data = serializeItemStack(item);
+            SerializedGeneric generic = new SerializedGeneric(data);
+
+            if (generic.getData().length >= MAX_TRANSFER_LIMIT) return false;
+
+            Map<String, Object> copy = generic.getObject();
+            ItemStack itemCopy = deserializeItemStack(copy);
+
+            return item.equals(itemCopy);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    @Contract("null -> null")
     public static Map<String, Object> serializeItemStack(@Nullable ItemStack item) {
         if (item == null) return null;
 
@@ -35,7 +63,7 @@ public class ItemStackUtils {
     }
 
     @NotNull
-    private static Map<String, Object> serializeItemMeta(ItemMeta o) {
+    private static Map<String, Object> serializeItemMeta(@NotNull ItemMeta o) {
         //create new map from immutable map
         Map<String, Object> metaData = new HashMap<>(o.serialize());
 
@@ -60,7 +88,7 @@ public class ItemStackUtils {
     }
 
     @NotNull
-    private static List<Map<String, Object>> serializeCustomEffects(List<PotionEffect> o) {
+    private static List<Map<String, Object>> serializeCustomEffects(@NotNull List<PotionEffect> o) {
         List<Map<String, Object>> converted = new ArrayList<>();
         o.forEach(p -> {
             Map<String, Object> serialized = new HashMap<>(p.serialize());
@@ -84,7 +112,7 @@ public class ItemStackUtils {
     }
 
     @NotNull
-    private static Map<String, Object> serializeCustomColor(Color o) {
+    private static Map<String, Object> serializeCustomColor(@NotNull Color o) {
         Map<String, Object> serialized = new HashMap<>(o.serialize());
         serialized.put("==", "Color");
         return serialized;
@@ -121,7 +149,7 @@ public class ItemStackUtils {
     }
 
     @NotNull
-    private static Map<String, Object> serializeAttributeModifier(AttributeModifier am) {
+    private static Map<String, Object> serializeAttributeModifier(@NotNull AttributeModifier am) {
         Map<String, Object> serialized = new HashMap<>(am.serialize());
         serialized.put("==", "org.bukkit.attribute.AttributeModifier");
         return serialized;

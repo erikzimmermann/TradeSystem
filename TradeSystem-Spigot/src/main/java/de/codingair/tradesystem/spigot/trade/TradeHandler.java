@@ -15,6 +15,7 @@ import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
+import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import de.codingair.tradesystem.spigot.utils.InputGUI;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -456,14 +457,24 @@ public class TradeHandler {
     }
 
     /**
+     * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy.
+     *
      * @param placer          The player that placed the item.
      * @param receivingPlayer The player that should receive the item.
      * @param receiver        The name of the receivingPlayer.
      * @param item            The {@link ItemStack} which will be traded.
      * @return {@link Boolean#TRUE} if this item should be marked as blocked.
      */
-    public boolean isBlocked(@NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
+    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
         boolean blacklisted = false;
+
+        if (trade instanceof ProxyTrade) {
+            boolean compatible = ItemStackUtils.isCompatible(item);
+            if (!compatible) {
+                // item is not TradeProxy compatible
+                return true;
+            }
+        }
 
         for (BlockedItem blocked : this.blacklist) {
             if (blocked.matches(item)) {

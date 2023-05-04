@@ -52,7 +52,7 @@ public class TradeGUIListener implements Listener {
 
                 for (ItemStack item : e.getNewItems().values()) {
                     //check if it's blocked
-                    if (TradeSystem.getInstance().getTradeManager().isBlocked(player, other, othersName, item)) {
+                    if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, other, othersName, item)) {
                         e.setCancelled(true);
                         player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                         return;
@@ -167,7 +167,7 @@ public class TradeGUIListener implements Listener {
             e.setCancelled(true);
 
             //check if it's blocked
-            if (TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), item)) {
+            if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
             } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && trade.doesNotFit(player, item)) {
@@ -317,7 +317,7 @@ public class TradeGUIListener implements Listener {
             }
         }
 
-        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), blockedItem)) {
+        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getOther(player).orElse(null), trade.getOther(player.getName()), blockedItem)) {
             e.setCancelled(true);
             player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
             TradeSystem.getInstance().getTradeManager().playBlockSound(player);

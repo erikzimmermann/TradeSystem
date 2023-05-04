@@ -12,8 +12,10 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,7 +113,16 @@ public class ProxyTrade extends Trade {
         ItemStack[] contents = player.getInventory().getContents();
 
         for (int i = 0; i < 36; i++) {
-            Map<String, Object> data = contents[i] == null ? null : ItemStackUtils.serializeItemStack(contents[i]);
+            if (!ItemStackUtils.isCompatible(contents[i])) {
+
+                continue;
+            }
+            Map<String, Object> data;
+
+            if (contents[i] == null) data = null;
+            else if (ItemStackUtils.isCompatible(contents[i])) data = ItemStackUtils.serializeItemStack(contents[i]);
+            else data = ItemStackUtils.serializeItemStack(getItemPlaceholder(i));
+
             try {
                 PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
                 TradeSystem.proxyHandler().send(packet, this.player);
@@ -119,6 +130,24 @@ public class ProxyTrade extends Trade {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /**
+     * Creates an item placeholder for the remote {@link PlayerInventory} since some items cannot be transferred.
+     *
+     * @param slot The current slot.
+     * @return The created placeholder item.
+     */
+    @NotNull
+    private ItemStack getItemPlaceholder(int slot) {
+        ItemStack item = new ItemStack(Material.BARRIER);
+
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName("TRADE PLACEHOLDER ITEM " + slot);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
@@ -232,7 +261,7 @@ public class ProxyTrade extends Trade {
         return new PlayerInventory(this.otherInventory);
     }
 
-    public void setDisplayItem(int slot, @Nullable ItemStack item) {
+    public void setOtherInventory(int slot, @Nullable ItemStack item) {
         this.otherInventory[slot] = item;
     }
 
