@@ -55,22 +55,23 @@ public class PlayerTradeResult extends TradeResult {
         Map<ItemStack, Integer> receiving = new HashMap<>();
         Map<ItemStack, Integer> sending = new HashMap<>();
 
-        for (Map.Entry<ItemStack, Boolean> e : items.entrySet()) {
-            ItemStack item = e.getKey();
-            boolean receive = e.getValue();
-
+        for (ItemStack item : sendingItems) {
             int amount = item.getAmount();
             item.setAmount(1);
+            sending.merge(item, amount, Integer::sum);
+        }
 
-            if (receive) receiving.merge(item, amount, Integer::sum);
-            else sending.merge(item, amount, Integer::sum);
+        for (ItemStack item : receivingItems) {
+            int amount = item.getAmount();
+            item.setAmount(1);
+            receiving.merge(item, amount, Integer::sum);
         }
 
         receiving.forEach((item, amount) -> {
             item.setAmount(amount);
 
             String itemName = Lang.get("Trade_Finish_Report_Object_Item", player,
-                    new Lang.P("amount", amount + ""),
+                    new Lang.P("amount", String.valueOf(amount)),
                     new Lang.P("item", mapper.apply(item))
             );
 
@@ -82,7 +83,7 @@ public class PlayerTradeResult extends TradeResult {
             item.setAmount(amount);
 
             String itemName = Lang.get("Trade_Finish_Report_Object_Item", player,
-                    new Lang.P("amount", amount + ""),
+                    new Lang.P("amount", String.valueOf(amount)),
                     new Lang.P("item", mapper.apply(item))
             );
 
