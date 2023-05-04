@@ -17,7 +17,8 @@ import java.util.List;
  */
 public class TradeResult {
     protected final int playerId;
-    protected final LinkedHashMap<ItemStack, Boolean> items = new LinkedHashMap<>();
+    protected final List<ItemStack> receivingItems = new ArrayList<>();
+    protected final List<ItemStack> sendingItems = new ArrayList<>();
     protected final List<EconomyIcon<?>> economyIcons = new ArrayList<>();
 
     public TradeResult(int playerId) {
@@ -32,10 +33,17 @@ public class TradeResult {
     }
 
     /**
-     * @return ALl items that were exchanged. The boolean value indicates whether the item was received (true) or given (false).
+     * @return All items that were received during the exchange.
      */
-    public LinkedHashMap<ItemStack, Boolean> getItems() {
-        return items;
+    public List<ItemStack> getReceivingItems() {
+        return receivingItems;
+    }
+
+    /**
+     * @return All items that were sent during the exchange.
+     */
+    public List<ItemStack> getSendingItems() {
+        return sendingItems;
     }
 
     /**
@@ -47,7 +55,9 @@ public class TradeResult {
 
     void add(@Nullable ItemStack item, boolean receive) {
         if (item == null) return;
-        items.put(item.clone(), receive);
+
+        if (receive) receivingItems.add(item.clone());
+        else sendingItems.add(item.clone());
     }
 
     void add(@Nullable TradeIcon icon) {
