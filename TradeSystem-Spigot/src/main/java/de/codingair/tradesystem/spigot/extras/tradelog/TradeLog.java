@@ -1,10 +1,10 @@
 package de.codingair.tradesystem.spigot.extras.tradelog;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeLogReceiveItemEvent;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
-import de.codingair.tradesystem.spigot.extras.external.PluginDependency;
 import de.codingair.tradesystem.spigot.extras.external.mmoitems.MMOItemsDependency;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -60,17 +60,14 @@ public class TradeLog {
 
         String message = e.getMessage();
         if (message == null) {
-            String name = PluginDependencies.get(MMOItemsDependency.class).getMmoNameSafely(getting);
+            String type = PluginDependencies.get(MMOItemsDependency.class).getMmoNameSafely(getting);
+            if (type == null) type = getting.getType().name();
 
-            if (name == null) {
-                if (getting.hasItemMeta() && getting.getItemMeta().hasDisplayName()) {
-                    name = getting.getItemMeta().getDisplayName();
-                } else {
-                    name = getting.getType().name();
-                }
+            if (getting.hasItemMeta() && getting.getItemMeta().hasDisplayName()) {
+                type += " (" + ChatColor.stripColor(getting.getItemMeta().getDisplayName()) + ")";
             }
 
-            message = getting.getAmount() + "x " + name;
+            message = getting.getAmount() + "x " + type;
         }
 
         TradeLogService.log(
