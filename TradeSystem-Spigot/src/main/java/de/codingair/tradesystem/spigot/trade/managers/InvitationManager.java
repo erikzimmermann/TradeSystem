@@ -51,7 +51,9 @@ public class InvitationManager {
         Player receiver = Bukkit.getPlayerExact(nameReceiver);
 
         if (inviter != null) nameInviter = inviter.getName();
+        else nameInviter = TradeSystem.proxy().getCaseSensitive(nameInviter);
         if (receiver != null) nameReceiver = receiver.getName();
+        else nameReceiver = TradeSystem.proxy().getCaseSensitive(nameReceiver);
 
         String nameInviterCase = nameInviter;
         String nameReceiverCase = nameReceiver;
