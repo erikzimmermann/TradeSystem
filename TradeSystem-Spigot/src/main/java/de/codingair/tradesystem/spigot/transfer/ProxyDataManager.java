@@ -26,16 +26,31 @@ public class ProxyDataManager {
      */
     private final HashMap<String, String> players = new HashMap<>();
 
+    /**
+     * lower-case name to skinId
+     */
+    private final HashMap<String, String> skins = new HashMap<>();
+
     public void onDisable() {
         this.players.clear();
     }
 
-    public void join(String player) {
+    public void join(@NotNull String player) {
         this.players.put(player.toLowerCase(), player);
     }
 
-    public void quit(String player) {
+    public void addSkin(@NotNull String player, @NotNull String skinId) {
+        this.skins.put(player.toLowerCase(), skinId);
+    }
+
+    @Nullable
+    public String getSkin(@NotNull String player) {
+        return this.skins.get(player.toLowerCase());
+    }
+
+    public void quit(@NotNull String player) {
         this.players.remove(player.toLowerCase());
+        this.skins.remove(player.toLowerCase());
     }
 
     public void clearPlayers() {

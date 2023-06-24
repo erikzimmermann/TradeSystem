@@ -9,6 +9,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.SimpleTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.PlayerHeadUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -67,6 +68,7 @@ public class StatusIcon extends MultiTradeIcon {
 
         @Override
         public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+            PlayerHeadUtils.applyPlayerHead(layout, player);
             layout.setName("§7" + Lang.get("Status", player) + ": §a" + Lang.get("Ready", player));
             layout.addLore("", "§7" + Lang.get("Wait_For_Other_Player", player));
             return layout;
@@ -114,6 +116,7 @@ public class StatusIcon extends MultiTradeIcon {
 
         @Override
         public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+            PlayerHeadUtils.applyPlayerHead(layout, player);
             layout.setName("§7" + Lang.get("Status", player) + ": §c" + Lang.get("Not_Ready", player));
             return layout;
         }
@@ -160,6 +163,7 @@ public class StatusIcon extends MultiTradeIcon {
 
         @Override
         public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+            PlayerHeadUtils.applyPlayerHead(layout, player);
             layout.setText("§c" + Lang.get("Trade_Only_With_Objects", player), TextAlignment.LEFT, 150);
             return layout;
         }

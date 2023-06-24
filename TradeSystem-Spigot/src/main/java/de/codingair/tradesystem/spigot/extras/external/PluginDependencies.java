@@ -45,4 +45,16 @@ public abstract class PluginDependencies {
             }
         }
     }
+
+    @NotNull
+    public static <T extends PluginDependency> T get(@NotNull Class<T> c) {
+        for (PluginDependency external : EXTERNALS) {
+            if (c.isInstance(external)) {
+                //noinspection unchecked
+                return (T) external;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown dependency: " + c.getName());
+    }
 }

@@ -4,6 +4,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.PlayerHeadUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,6 +49,7 @@ public class ShowStatusIcon extends MultiTradeIcon {
 
         @Override
         public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+            PlayerHeadUtils.applyPlayerHead(layout, other, othersName);
             return layout.setName("§7" + Lang.get("Status", player) + ": §a" + Lang.get("Ready", player));
         }
     }
@@ -59,6 +61,7 @@ public class ShowStatusIcon extends MultiTradeIcon {
 
         @Override
         public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+            PlayerHeadUtils.applyPlayerHead(layout, other, othersName);
             return layout.setName("§7" + Lang.get("Status", player) + ": §c" + Lang.get("Not_Ready", player));
         }
     }

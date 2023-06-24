@@ -17,10 +17,7 @@ import de.codingair.tradesystem.spigot.trade.gui.TradeGUIListener;
 import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconController;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
-import de.codingair.tradesystem.spigot.trade.listeners.ExpirationListener;
-import de.codingair.tradesystem.spigot.trade.listeners.JoinNoteListener;
-import de.codingair.tradesystem.spigot.trade.listeners.ProxyPayerListener;
-import de.codingair.tradesystem.spigot.trade.listeners.TradeListener;
+import de.codingair.tradesystem.spigot.trade.listeners.*;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
 import de.codingair.tradesystem.spigot.transfer.ProxyDataManager;
@@ -212,6 +209,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getPluginManager().registerEvents(new ProxyPayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinNoteListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PublishSkinListener(), this);
     }
 
     private void registerCommands() {

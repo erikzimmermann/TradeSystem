@@ -1135,6 +1135,14 @@ public abstract class Trade {
         });
 
         guis().forEach(TradingGUI::destroy);
+
+        // fix buggy inventories of other plugins that were opened while trading
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+            this.getViewers().forEach(p -> {
+                p.closeInventory();
+                p.updateInventory();
+            });
+        });
     }
 
     public boolean[] getCursor() {

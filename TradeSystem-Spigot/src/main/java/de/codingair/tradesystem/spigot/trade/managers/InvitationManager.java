@@ -47,16 +47,23 @@ public class InvitationManager {
 
     private void notifyExpiration(String nameReceiver, Invitation inv) {
         String nameInviter = inv.getName();
-        Player inviter = Bukkit.getPlayer(nameInviter);
-        Player receiver = Bukkit.getPlayer(nameReceiver);
+        Player inviter = Bukkit.getPlayerExact(nameInviter);
+        Player receiver = Bukkit.getPlayerExact(nameReceiver);
 
+        if (inviter != null) nameInviter = inviter.getName();
+        else nameInviter = TradeSystem.proxy().getCaseSensitive(nameInviter);
+        if (receiver != null) nameReceiver = receiver.getName();
+        else nameReceiver = TradeSystem.proxy().getCaseSensitive(nameReceiver);
+
+        String nameInviterCase = nameInviter;
+        String nameReceiverCase = nameReceiver;
         Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
-            TradeRequestExpireEvent event = new TradeRequestExpireEvent(nameInviter, inviter, nameReceiver, receiver);
+            TradeRequestExpireEvent event = new TradeRequestExpireEvent(nameInviterCase, inviter, nameReceiverCase, receiver);
             Bukkit.getPluginManager().callEvent(event);
         });
 
-        if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter, new Lang.P("player", nameReceiver)));
-        if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver, new Lang.P("player", nameInviter)));
+        if (inviter != null) inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter, new Lang.P("player", nameReceiverCase)));
+        if (receiver != null) receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver, new Lang.P("player", nameInviterCase)));
     }
 
     private static InvitationManager instance() {

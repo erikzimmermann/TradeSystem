@@ -1,8 +1,11 @@
 package de.codingair.tradesystem.spigot.extras.tradelog;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeLogReceiveItemEvent;
+import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
+import de.codingair.tradesystem.spigot.extras.external.mmoitems.MMOItemsDependency;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -56,7 +59,16 @@ public class TradeLog {
         Bukkit.getPluginManager().callEvent(e);
 
         String message = e.getMessage();
-        if (message == null) message = getting.getAmount() + "x " + getting.getType();
+        if (message == null) {
+            String type = PluginDependencies.get(MMOItemsDependency.class).getMmoNameSafely(getting);
+            if (type == null) type = getting.getType().name();
+
+            if (getting.hasItemMeta() && getting.getItemMeta().hasDisplayName()) {
+                type += " (" + ChatColor.stripColor(getting.getItemMeta().getDisplayName()) + ")";
+            }
+
+            message = getting.getAmount() + "x " + type;
+        }
 
         TradeLogService.log(
                 initiator ? receiver.getName() : trader,
