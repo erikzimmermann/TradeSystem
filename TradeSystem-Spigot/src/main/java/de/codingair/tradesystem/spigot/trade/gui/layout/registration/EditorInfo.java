@@ -46,7 +46,7 @@ public class EditorInfo {
     }
 
     public Type getType() {
-        if (type == null) throw new NullPointerException();
+        if (type == null) throw new NullPointerException(name + " (" + tradeIcon + ") has no type.");
         return type;
     }
 

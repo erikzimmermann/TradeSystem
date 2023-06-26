@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public enum Type {
     BASIC("Basic", new ItemBuilder(XMaterial.ITEM_FRAME)),
-    ECONOMY("Economy", new ItemBuilder(XMaterial.EMERALD));
+    ECONOMY("Economy", new ItemBuilder(XMaterial.EMERALD)),
+    COSMETICS("Cosmetics", new ItemBuilder(XMaterial.ORANGE_DYE));
 
     private final String name;
     private final ItemBuilder item;
