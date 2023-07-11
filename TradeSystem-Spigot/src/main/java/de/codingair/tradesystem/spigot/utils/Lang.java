@@ -10,12 +10,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Lang {
+    private static final String[] LANGUAGES = {
+            "BR", "CHI", "CS", "ENG", "ES", "FR", "GER", "IT", "POL", "RUS", "TR", "UA", "VI"
+    };
+    private static final String DEFAULT_LANG = "ENG";
+
     private static void deleteEmptyFiles(JavaPlugin plugin) {
         File folder = new File(plugin.getDataFolder(), "/Languages/");
 
@@ -32,29 +38,31 @@ public class Lang {
         }
     }
 
+    public static void checkLanguageKeys() {
+        FileConfiguration def = getLanguageFile(DEFAULT_LANG);
+
+        for (String language : LANGUAGES) {
+            FileConfiguration file = getLanguageFile(language);
+
+            for (String key : def.getKeys(true)) {
+                if (!file.contains(key)) {
+                    TradeSystem.getInstance().getLogger().warning("Missing language key \"" + key + "\" in " + language + ".yml. Using default value.");
+                    file.set(key, def.get(key));
+                }
+            }
+        }
+    }
+
     public static void initPreDefinedLanguages(JavaPlugin plugin) {
         deleteEmptyFiles(plugin);
-
-        List<String> languages = new ArrayList<>();
-        languages.add("BR.yml");
-        languages.add("CHI.yml");
-        languages.add("CS.yml");
-        languages.add("ENG.yml");
-        languages.add("ES.yml");
-        languages.add("FR.yml");
-        languages.add("GER.yml");
-        languages.add("POL.yml");
-        languages.add("RUS.yml");
-        languages.add("TR.yml");
-        languages.add("VI.yml");
 
         File folder = new File(plugin.getDataFolder(), "/Languages/");
         if (!folder.exists()) mkDir(folder);
 
-        for (String language : languages) {
-            InputStream is = plugin.getResource("languages/" + language);
+        for (String language : LANGUAGES) {
+            InputStream is = plugin.getResource("languages/" + language + ".yml");
 
-            File file = new File(plugin.getDataFolder() + "/Languages/", language);
+            File file = new File(plugin.getDataFolder() + "/Languages/", language + ".yml");
             if (!file.exists()) {
                 try {
                     if (file.createNewFile()) copy(is, Files.newOutputStream(file.toPath()));
