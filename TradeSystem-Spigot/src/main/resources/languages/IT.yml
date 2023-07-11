@@ -84,8 +84,8 @@ Help_TradeSystem_Layout_Delete: '&7Usa &e/%label% layout delete <nome>'
 Help_TradeSystem_Layout_Edit: '&7Usa &e/%label% layout edit <nome>'
 Help_TradeLog: '&7Usa &e/%label% <nome>'
 Layout_Does_Not_Exist: '&cQuesto layout non esiste!'
-Layout_Activated: '&7Il layout ''&b%name%&7'' è stato &aattivato&7.'
-Layout_Deleted: '&7Il layout ''&b%name%&7'' è stato &ccancellato&7.'
+Layout_Activated: "&7Il layout '&b%name%&7' è stato &aattivato&7."
+Layout_Deleted: "&7Il layout '&b%name%&7' è stato &ccancellato&7."
 Enter_Correct_Name_Space: '&cPer favore non usare spazi.'
 Sure_That_You_Want_To_Loose_Your_Data: '&7Sei sicuro che &cnon &7vuoi salvare &7le tue modifiche?'
 Close: Close
@@ -118,7 +118,7 @@ Offline: Offline
 Your_request_expired: '&7La tua richiesta di trade per &e%player% &7è &cscaduta&7.'
 Request_expired: '&7La richiesta di trade da parte di &e%player% &7è &cscaduta&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
-Economy_Error: '&7Il trade è stato &ccancellato &7a causa di &cun errore dell'economia&7.'
+Economy_Error: "&7Il trade è stato &ccancellato &7a causa di &cun errore dell'economia&7."
 Items_Dropped: '&7Il tuo inventario &cè pieno&7, qualche oggetto &cè caduto a terra&7!'
 TradeLog_Disabled: '&7I log dei trade sono &cdisabilitati&7!'
 Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
