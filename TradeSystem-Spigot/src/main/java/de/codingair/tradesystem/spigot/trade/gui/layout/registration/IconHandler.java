@@ -8,6 +8,8 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.*;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.OtherPlayerHeadIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.PlayerHeadIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ExpLevelIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ExpPointIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.exp.ShowExpLevelIcon;
@@ -41,6 +43,10 @@ public class IconHandler {
     private static void registerDefault() {
         registerBasic();
         registerEconomy();
+
+        // Currently, head icons without any additional text seems to be very unintuitive and confusing.
+        // Therefore, this is disabled for now and should be improved later on.
+        // registerCosmetics();
     }
 
     /**
@@ -138,6 +144,15 @@ public class IconHandler {
         try {
             //economy
             registerExp();
+        } catch (TradeIconException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void registerCosmetics() {
+        try {
+            register(PlayerHeadIcon.class, new EditorInfo("Trader's head", Type.COSMETICS, (editor) -> new ItemBuilder(XMaterial.PLAYER_HEAD), false));
+            register(OtherPlayerHeadIcon.class, new EditorInfo("Trade partner's head", Type.COSMETICS, (editor) -> new ItemBuilder(XMaterial.SKELETON_SKULL), false));
         } catch (TradeIconException e) {
             e.printStackTrace();
         }

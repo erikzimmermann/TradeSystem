@@ -16,6 +16,7 @@ public class PlaceholderDependency implements PluginDependency {
     private static PlaceholderDependency instance;
     static final String IDENTIFIER = "tradesystem";
     static final Pattern PATTERN = Pattern.compile("%" + IDENTIFIER + "_[a-z_]+%", Pattern.CASE_INSENSITIVE);
+    private TradeSystemPlaceholder placeholder;
 
     public PlaceholderDependency() {
         instance = this;
@@ -42,7 +43,13 @@ public class PlaceholderDependency implements PluginDependency {
 
     @Override
     public void onEnable() {
-        new TradeSystemPlaceholder().register();
+        placeholder = new TradeSystemPlaceholder();
+        placeholder.register();
+    }
+
+    @Override
+    public void onDisable() {
+        if (placeholder != null) placeholder.unregister();
     }
 
     @Nullable

@@ -11,6 +11,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.Type;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.enchantments.Enchantment;
@@ -109,6 +110,8 @@ public class LayoutPage extends Page {
         //switch icons
         int slot = 1;
         for (Type value : Type.values()) {
+            if (IconHandler.isTypeEmpty(value)) continue;
+
             addButton(slot, new Button() {
                 @Override
                 public @Nullable ItemStack buildItem() {

@@ -14,4 +14,9 @@ public class TransitionTargetEditorInfo extends EditorInfo {
     public Class<? extends TradeIcon> getOrigin() {
         return origin;
     }
+
+    @Override
+    public Type getType() {
+        return IconHandler.getInfo(origin).getType();
+    }
 }
