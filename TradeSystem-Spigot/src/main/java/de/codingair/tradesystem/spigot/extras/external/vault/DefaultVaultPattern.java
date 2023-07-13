@@ -5,7 +5,6 @@ import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.IconData;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class DefaultVaultPattern extends Pattern {
@@ -13,7 +12,7 @@ public class DefaultVaultPattern extends Pattern {
     private static final ItemStack BLACK_STAINED = new ItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE).getItem();
     private static final ItemStack GRAY_STAINED = new ItemBuilder(XMaterial.GRAY_STAINED_GLASS_PANE).getItem();
     private static final ItemStack NUGGET = new ItemBuilder(XMaterial.GOLD_NUGGET).getItem();
-    private static final ItemStack BARRIER = new ItemBuilder(Material.BARRIER).getItem();
+    private static final ItemStack BARRIER = new ItemBuilder(XMaterial.BARRIER).getItem();
     private static final ItemStack STATUS_NONE = new ItemBuilder(XMaterial.LIGHT_GRAY_TERRACOTTA).getItem();
     private static final ItemStack STATUS_READY = new ItemBuilder(XMaterial.LIME_TERRACOTTA).getItem();
     private static final ItemStack STATUS_NOT_READY = new ItemBuilder(XMaterial.RED_TERRACOTTA).getItem();
