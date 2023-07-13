@@ -25,14 +25,18 @@ public class PublishSkinListener implements Listener {
     }
 
     private static void sync(@NotNull Player player, int tryCount) {
-        if (tryCount >= 5) return;
+        if (tryCount >= 2) return;
 
         try {
             String skin = GameProfileUtils.extractSkinId(GameProfileUtils.getGameProfile(player));
-            TradeSystem.proxyHandler().send(new PublishSkinPacket(player.getName(), skin), player);
-        } catch (NullPointerException ex) {
-            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> sync(player, tryCount + 1), 2L);
+            if (skin != null) {
+                TradeSystem.proxyHandler().send(new PublishSkinPacket(player.getName(), skin), player);
+                return;
+            }
+        } catch (NullPointerException ignored) {
         }
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> sync(player, tryCount + 1), 2L);
     }
 
 }
