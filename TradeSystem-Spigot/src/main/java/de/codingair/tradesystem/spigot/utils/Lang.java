@@ -99,8 +99,8 @@ public class Lang {
 
         ConfigFile file = fileManager.getFile(langTag);
         if (file == null) {
-            TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
-            return getLanguageFile(langTag);
+            fileManager.loadFile(langTag, "/Languages/", "languages/");
+            return getLanguageFile(fileManager, langTag);
         }
         return file.getConfig();
     }
