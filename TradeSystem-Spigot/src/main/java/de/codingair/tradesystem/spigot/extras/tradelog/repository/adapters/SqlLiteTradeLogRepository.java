@@ -59,4 +59,24 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
             return null;
         }
     }
+
+    @Override
+    public boolean haveTraded(String player1, String player2) {
+        String sql = "SELECT 1 FROM tradelog " +
+                "WHERE player1=? AND player2=? OR player1=? AND player2=? LIMIT 1;";
+
+        try (Connection conn = SqlLiteConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, player1);
+            pstmt.setString(2, player2);
+            pstmt.setString(3, player2);
+            pstmt.setString(4, player1);
+
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe(e.getMessage());
+            return false;
+        }
+    }
 }

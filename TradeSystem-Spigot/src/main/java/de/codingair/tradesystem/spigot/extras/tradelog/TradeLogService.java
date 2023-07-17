@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.tradelog;
 
+import de.codingair.codingapi.tools.Callback;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.BukkitTradeLogRepository;
@@ -50,6 +51,22 @@ public class TradeLogService {
     public static List<TradeLog.Entry> getLogMessages(String playerName) {
         if (notConnected()) return new ArrayList<>();
         return getTradeLog().tradeLogRepository.getLogMessages(playerName);
+    }
+
+    public static boolean haveTraded(@NotNull String player1, @NotNull String player2) {
+        if (notConnected()) return false;
+        return getTradeLog().tradeLogRepository.haveTraded(player1, player2);
+    }
+
+    public static void haveTraded(@NotNull String player1, @NotNull String player2, @NotNull Callback<Boolean> callback) {
+        if (notConnected()) {
+            callback.accept(false);
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(),
+                () -> callback.accept(getTradeLog().tradeLogRepository.haveTraded(player1, player2))
+        );
     }
 
     public static boolean notConnected() {

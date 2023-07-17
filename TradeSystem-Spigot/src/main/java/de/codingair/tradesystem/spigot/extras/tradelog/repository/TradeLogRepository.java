@@ -11,4 +11,6 @@ public interface TradeLogRepository {
 
     @Nullable
     List<TradeLog.Entry> getLogMessages(String playerName);
+
+    boolean haveTraded(String player1, String player2);
 }

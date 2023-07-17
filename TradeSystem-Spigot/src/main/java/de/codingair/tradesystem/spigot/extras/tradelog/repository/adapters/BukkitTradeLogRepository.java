@@ -19,4 +19,9 @@ public class BukkitTradeLogRepository implements TradeLogRepository {
     public @Nullable List<TradeLog.Entry> getLogMessages(String player) {
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean haveTraded(String player1, String player2) {
+        return false;
+    }
 }
