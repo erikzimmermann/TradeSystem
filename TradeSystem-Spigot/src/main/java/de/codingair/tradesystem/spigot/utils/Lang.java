@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.utils;
 
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.external.placeholderapi.PlaceholderDependency;
@@ -38,15 +39,15 @@ public class Lang {
         }
     }
 
-    public static void checkLanguageKeys() {
+    public static void checkLanguageKeys(@NotNull JavaPlugin plugin, @NotNull FileManager fileManager) {
         FileConfiguration def = getLanguageFile(DEFAULT_LANG);
 
         for (String language : LANGUAGES) {
-            FileConfiguration file = getLanguageFile(language);
+            FileConfiguration file = getLanguageFile(fileManager, language);
 
             for (String key : def.getKeys(true)) {
                 if (!file.contains(key)) {
-                    TradeSystem.getInstance().getLogger().warning("Missing language key \"" + key + "\" in " + language + ".yml. Using default value.");
+                    plugin.getLogger().warning("Missing language key \"" + key + "\" in " + language + ".yml. Using default value.");
                     file.set(key, def.get(key));
                 }
             }
@@ -61,6 +62,7 @@ public class Lang {
 
         for (String language : LANGUAGES) {
             InputStream is = plugin.getResource("languages/" + language + ".yml");
+            if (is == null) continue;
 
             File file = new File(plugin.getDataFolder() + "/Languages/", language + ".yml");
             if (!file.exists()) {
@@ -88,8 +90,14 @@ public class Lang {
         getLanguageFile(getLanguageKey());
     }
 
-    private static @NotNull FileConfiguration getLanguageFile(String langTag) {
-        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile(langTag);
+    private static @NotNull FileConfiguration getLanguageFile(@NotNull String langTag) {
+        return getLanguageFile(null, langTag);
+    }
+
+    private static @NotNull FileConfiguration getLanguageFile(@Nullable FileManager fileManager, @NotNull String langTag) {
+        if (fileManager == null) fileManager = TradeSystem.getInstance().getFileManager();
+
+        ConfigFile file = fileManager.getFile(langTag);
         if (file == null) {
             TradeSystem.getInstance().getFileManager().loadFile(langTag, "/Languages/", "languages/");
             return getLanguageFile(langTag);
@@ -102,7 +110,11 @@ public class Lang {
     }
 
     public static @NotNull String get(@NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
-        String s = getLanguageFile(getLanguageKey()).getString(key, null);
+        return get(null, key, p, placeholders);
+    }
+
+    public static @NotNull String get(@Nullable FileManager fileManager, @NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
+        String s = getLanguageFile(fileManager, getLanguageKey()).getString(key, null);
         if (s == null) throw new NullPointerException("Message \"" + key + "\" cannot be found in " + getLanguageKey());
 
         for (P placeholder : placeholders) {

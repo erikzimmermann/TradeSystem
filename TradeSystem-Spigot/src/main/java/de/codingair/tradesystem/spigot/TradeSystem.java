@@ -189,7 +189,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.fileManager.loadFile("Layouts", "/");
 
         Lang.initPreDefinedLanguages(this);
-        Lang.checkLanguageKeys();
+        Lang.checkLanguageKeys(this, fileManager);
     }
 
     private void checkPermissions() {
