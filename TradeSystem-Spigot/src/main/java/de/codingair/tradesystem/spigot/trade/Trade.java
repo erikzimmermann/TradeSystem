@@ -690,7 +690,7 @@ public abstract class Trade {
     protected @Nullable ItemStack callTradeItemEvent(@NotNull Player receiver, @Nullable Player sender, @NotNull String senderName, @Nullable ItemStack item) {
         if (item == null) return null;
 
-        TradeItemEvent event = sender == null ? new TradeItemEvent(receiver, senderName, item) : new TradeItemEvent(receiver, sender, item);
+        TradeItemEvent event = sender == null ? new TradeItemEvent(receiver, senderName, getUniqueId(senderName), item) : new TradeItemEvent(receiver, sender, item);
         Bukkit.getPluginManager().callEvent(event);
         return event.getItem();
     }
