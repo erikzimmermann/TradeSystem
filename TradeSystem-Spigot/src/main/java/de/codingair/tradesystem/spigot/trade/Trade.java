@@ -92,7 +92,14 @@ public abstract class Trade {
      * @return The player with the given id.
      */
     @Nullable
-    protected abstract Player getPlayer(int id);
+    public abstract Player getPlayer(int id);
+
+    /**
+     * @param id The id of the player who should be returned.
+     * @return The {@link UUID} of the player with the given id.
+     */
+    @NotNull
+    public abstract UUID getUniqueId(int id);
 
     /**
      * Avoid moving the item which will be renamed into the players inventory.
@@ -501,7 +508,7 @@ public abstract class Trade {
 
             //Log before calling the events. These events could remove this item, and we would still lose it.
             if (item != null && item.getType() != Material.AIR)
-                TradeLog.logItemReceive(player, initiator, players[otherId], item);
+                TradeLog.logItemReceive(player, initiator, players[otherId], getUniqueId(otherId), item);
 
             //call events
             item = callTradeItemEvent(player, other, players[otherId], item);
@@ -610,7 +617,7 @@ public abstract class Trade {
             int oId = getOtherId(id);
             TradeReportEvent e = getPlayerOpt(oId)
                     .map(other -> new TradeReportEvent(player, other, playerResult))
-                    .orElseGet(() -> new TradeReportEvent(player, players[oId], playerResult));
+                    .orElseGet(() -> new TradeReportEvent(player, players[oId], getUniqueId(oId), playerResult));
             Bukkit.getPluginManager().callEvent(e);
 
             if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, playerResult, e));
@@ -635,11 +642,11 @@ public abstract class Trade {
         if (isInitiator(player, 0)) {
             e = getPlayerOpt(1)
                     .map(other -> new TradeFinishEvent(player, other, !cancelling, results))
-                    .orElseGet(() -> new TradeFinishEvent(player, players[1], !cancelling, results));
+                    .orElseGet(() -> new TradeFinishEvent(player, players[1], getUniqueId(1), !cancelling, results));
         } else {
             e = getPlayerOpt(1)
                     .map(other -> new TradeFinishEvent(other, player, !cancelling, results))
-                    .orElseGet(() -> new TradeFinishEvent(players[1], player, !cancelling, results));
+                    .orElseGet(() -> new TradeFinishEvent(players[1], getUniqueId(1), player, !cancelling, results));
         }
 
         Bukkit.getPluginManager().callEvent(e);
@@ -944,14 +951,23 @@ public abstract class Trade {
         else return 1;
     }
 
-    public int getOtherId(Player player) {
+    public int getOtherId(@NotNull Player player) {
         return getOtherId(getId(player));
     }
 
-    public int getId(Player player) {
-        if (player.getName().equals(this.players[0])) return 0;
-        else if (player.getName().equals(this.players[1])) return 1;
+    public int getId(@NotNull Player player) {
+        return getId(player.getName());
+    }
+
+    public int getId(@NotNull String player) {
+        if (player.equalsIgnoreCase(this.players[0])) return 0;
+        else if (player.equalsIgnoreCase(this.players[1])) return 1;
         else return -1;
+    }
+
+    @NotNull
+    public UUID getUniqueId(@NotNull String player) {
+        return getUniqueId(getId(player));
     }
 
     public List<Integer> getSlots() {
@@ -1137,12 +1153,10 @@ public abstract class Trade {
         guis().forEach(TradingGUI::destroy);
 
         // fix buggy inventories of other plugins that were opened while trading
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
-            this.getViewers().forEach(p -> {
-                p.closeInventory();
-                p.updateInventory();
-            });
-        });
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(p -> {
+            p.closeInventory();
+            p.updateInventory();
+        }));
     }
 
     public boolean[] getCursor() {

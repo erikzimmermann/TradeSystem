@@ -16,12 +16,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeInvitePacket, TradeInvitePacket.ResultPacket> {
     @Override
     public @NotNull CompletableFuture<TradeInvitePacket.ResultPacket> response(@NotNull TradeInvitePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
         Player player = Bukkit.getPlayer(packet.getRecipient());
+        UUID playerId = null;
+
         TradeInvitePacket.Result result;
 
         //same trade options?
@@ -30,6 +33,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
             //compatible
             if (player == null) result = TradeInvitePacket.Result.NOT_ONLINE;
             else {
+                playerId = player.getUniqueId();
                 result = RuleManager.isOtherViolatingRules(player);
 
                 if (result == TradeInvitePacket.Result.INVITED) {
@@ -37,10 +41,10 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
 
                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
                         //call request event
-                        TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), player, TradeSystem.man().getRequestExpirationTime());
+                        TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), packet.getInviterId(), player, TradeSystem.man().getRequestExpirationTime());
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
-                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.PLUGIN));
+                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.PLUGIN, player.getUniqueId()));
                             return;
                         }
 
@@ -48,18 +52,18 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
                             //double invite -> start trading
 
                             //call response event
-                            TradeRequestResponseEvent responseEvent = new TradeRequestResponseEvent(player.getName(), player, packet.getInviter(), null, true);
+                            TradeRequestResponseEvent responseEvent = new TradeRequestResponseEvent(player.getName(), player.getUniqueId(), player, packet.getInviter(), packet.getInviterId(), null, true);
                             Bukkit.getPluginManager().callEvent(responseEvent);
 
                             TradeSystem.invitations().invalidate(player, packet.getInviter());
                             player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player, new Lang.P("player", packet.getInviter())));
-                            TradeSystem.man().startTrade(player, null, packet.getInviter(), true);
+                            TradeSystem.man().startTrade(player, null, packet.getInviter(), packet.getInviterId(), true);
 
-                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.START_TRADING));
+                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.START_TRADING, player.getUniqueId()));
                         } else {
-                            InvitationManager.registerInvitation(null, packet.getInviter(), player, player.getName());
+                            InvitationManager.registerInvitation(null, packet.getInviter(), packet.getInviterId(), player, player.getName());
                             RequestManager.sendRequest(packet.getInviter(), player);
-                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.INVITED));
+                            future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.INVITED, player.getUniqueId()));
                         }
                     });
 
@@ -68,6 +72,6 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
             }
         } else result = TradeInvitePacket.Result.INCOMPATIBLE;
 
-        return CompletableFuture.completedFuture(new TradeInvitePacket.ResultPacket(result));
+        return CompletableFuture.completedFuture(new TradeInvitePacket.ResultPacket(result, playerId));
     }
 }

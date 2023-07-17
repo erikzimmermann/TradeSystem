@@ -171,7 +171,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
             // call economy receive event for external logging purposes
             TradeReceiveEconomyEvent e = other != null ?
                     new TradeReceiveEconomyEvent(player, other, diff, nameSingular, namePlural) :
-                    new TradeReceiveEconomyEvent(player, othersName, diff, nameSingular, namePlural);
+                    new TradeReceiveEconomyEvent(player, othersName, trade.getUniqueId(othersName), diff, nameSingular, namePlural);
             Bukkit.getPluginManager().callEvent(e);
 
             log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);

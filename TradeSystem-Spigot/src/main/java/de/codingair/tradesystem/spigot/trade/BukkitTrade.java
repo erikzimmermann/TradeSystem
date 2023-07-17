@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -69,8 +70,13 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected @Nullable Player getPlayer(int id) {
+    public @Nullable Player getPlayer(int id) {
         return players[id];
+    }
+
+    @Override
+    public @NotNull UUID getUniqueId(int id) {
+        return players[id].getUniqueId();
     }
 
     @Override

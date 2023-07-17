@@ -7,15 +7,19 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * Called when a trade is either finished successfully or cancelled.
  */
 public class TradeFinishEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final String sender;
+    private final UUID senderId;
     private final Player sendingPlayer;
     private final TradeResult sendingPlayerResult;
     private final String receiver;
+    private final UUID receiverId;
     private final Player receivingPlayer;
     private final TradeResult receivingPlayerResult;
     private final boolean tradeResult;
@@ -24,17 +28,20 @@ public class TradeFinishEvent extends TradeEvent {
      * Indicates a proxy trade. Only called on the server of the receiving player.
      *
      * @param sender      The name of the player who sends the request.
+     * @param senderId    The {@link UUID} of the player who sends the request.
      * @param receiver    The {@link Player} who receives the request.
      * @param tradeResult Whether the trade was successfully finished or not.
      * @param results     The {@link TradeResult} of the sending and receiving player.
      */
-    public TradeFinishEvent(@NotNull String sender, @NotNull Player receiver, boolean tradeResult, @NotNull TradeResult @NotNull [] results) {
+    public TradeFinishEvent(@NotNull String sender, @NotNull UUID senderId, @NotNull Player receiver, boolean tradeResult, @NotNull TradeResult @NotNull [] results) {
         this.sender = sender;
-        this.tradeResult = tradeResult;
+        this.senderId = senderId;
         this.sendingPlayer = null;
         this.receiver = receiver.getName();
         this.receivingPlayer = receiver;
+        this.receiverId = receiver.getUniqueId();
 
+        this.tradeResult = tradeResult;
         this.sendingPlayerResult = results[0];
         this.receivingPlayerResult = results[1];
     }
@@ -44,16 +51,19 @@ public class TradeFinishEvent extends TradeEvent {
      *
      * @param sender      The {@link Player} who sends the request.
      * @param receiver    The name of the player who receives the request.
+     * @param receiverId  The {@link UUID} of the player who receives the request.
      * @param tradeResult Whether the trade was successfully finished or not.
      * @param results     The {@link TradeResult} of the sending and receiving player.
      */
-    public TradeFinishEvent(@NotNull Player sender, @NotNull String receiver, boolean tradeResult, @NotNull TradeResult @NotNull [] results) {
+    public TradeFinishEvent(@NotNull Player sender, @NotNull String receiver, @NotNull UUID receiverId, boolean tradeResult, @NotNull TradeResult @NotNull [] results) {
         this.sender = sender.getName();
+        this.senderId = sender.getUniqueId();
         this.sendingPlayer = sender;
         this.receiver = receiver;
-        this.tradeResult = tradeResult;
+        this.receiverId = receiverId;
         this.receivingPlayer = null;
 
+        this.tradeResult = tradeResult;
         this.sendingPlayerResult = results[0];
         this.receivingPlayerResult = results[1];
     }
@@ -68,11 +78,13 @@ public class TradeFinishEvent extends TradeEvent {
      */
     public TradeFinishEvent(@NotNull Player sender, @NotNull Player receiver, boolean tradeResult, @NotNull TradeResult @NotNull [] results) {
         this.sender = sender.getName();
+        this.senderId = sender.getUniqueId();
         this.sendingPlayer = sender;
         this.receiver = receiver.getName();
+        this.receiverId = receiver.getUniqueId();
         this.receivingPlayer = receiver;
-        this.tradeResult = tradeResult;
 
+        this.tradeResult = tradeResult;
         this.sendingPlayerResult = results[0];
         this.receivingPlayerResult = results[1];
     }
@@ -91,22 +103,49 @@ public class TradeFinishEvent extends TradeEvent {
     /**
      * @return The {@link Player} who sent the request.
      */
-    public @Nullable Player getSendingPlayer() {
+    @Nullable
+    public Player getSendingPlayer() {
         return this.sendingPlayer;
     }
 
     /**
      * @return The name of the player who sent the request.
      */
-    public @NotNull String getSender() {
+    @NotNull
+    public String getSender() {
         return this.sender;
+    }
+
+    /**
+     * @return The {@link UUID} of the player who sent the request.
+     */
+    @NotNull
+    public UUID getSenderId() {
+        return senderId;
     }
 
     /**
      * @return The {@link Player} who received the request. Is null if this is a proxy trade and the receiver is on another server.
      */
-    public @Nullable Player getReceivingPlayer() {
+    @Nullable
+    public Player getReceivingPlayer() {
         return this.receivingPlayer;
+    }
+
+    /**
+     * @return The name of the player who received the request.
+     */
+    @NotNull
+    public String getReceiver() {
+        return this.receiver;
+    }
+
+    /**
+     * @return The {@link UUID} of the player who received the request.
+     */
+    @NotNull
+    public UUID getReceiverId() {
+        return receiverId;
     }
 
     /**
@@ -114,13 +153,6 @@ public class TradeFinishEvent extends TradeEvent {
      */
     public boolean isProxyTrade() {
         return getSendingPlayer() == null || getReceivingPlayer() == null;
-    }
-
-    /**
-     * @return The name of the player who received the request.
-     */
-    public @NotNull String getReceiver() {
-        return this.receiver;
     }
 
     /**

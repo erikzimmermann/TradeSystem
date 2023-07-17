@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Called when a player receives something that was traded by an economy icon from another player after a trade was completed.
@@ -15,6 +16,7 @@ public class TradeReceiveEconomyEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String sender;
+    private final UUID senderId;
     private final Player sendingPlayer;
     private final BigDecimal balance;
     private final String nameSingular;
@@ -25,17 +27,20 @@ public class TradeReceiveEconomyEvent extends TradeEvent {
      *
      * @param receiver     The {@link Player} who received the item.
      * @param sender       The name of the player who trades the item.
+     * @param senderId     The {@link UUID} of the player who trades the item.
      * @param balance      The balance being transferred.
      * @param nameSingular The name of the currency in singular.
      * @param namePlural   The name of the currency in plural.
      */
-    public TradeReceiveEconomyEvent(@NotNull Player receiver, @NotNull String sender, @NotNull BigDecimal balance, @NotNull String nameSingular, @NotNull String namePlural) {
+    public TradeReceiveEconomyEvent(@NotNull Player receiver, @NotNull String sender, @NotNull UUID senderId, @NotNull BigDecimal balance, @NotNull String nameSingular, @NotNull String namePlural) {
         this.receiver = receiver;
         this.sender = sender;
+        this.senderId = senderId;
+        this.sendingPlayer = null;
+
         this.balance = balance;
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
-        this.sendingPlayer = null;
     }
 
     /**
@@ -49,11 +54,13 @@ public class TradeReceiveEconomyEvent extends TradeEvent {
      */
     public TradeReceiveEconomyEvent(@NotNull Player receiver, @NotNull Player sendingPlayer, @NotNull BigDecimal balance, @NotNull String nameSingular, @NotNull String namePlural) {
         this.receiver = receiver;
+        this.sender = sendingPlayer.getName();
+        this.senderId = sendingPlayer.getUniqueId();
         this.sendingPlayer = sendingPlayer;
+
         this.balance = balance;
         this.nameSingular = nameSingular;
         this.namePlural = namePlural;
-        this.sender = sendingPlayer.getName();
     }
 
     public static HandlerList getHandlerList() {
@@ -69,14 +76,32 @@ public class TradeReceiveEconomyEvent extends TradeEvent {
     /**
      * @return The {@link Player} who receives the item.
      */
-    public @NotNull Player getReceiver() {
+    @NotNull
+    public Player getReceiver() {
         return this.receiver;
+    }
+
+    /**
+     * @return The name of the player who trades the item.
+     */
+    @NotNull
+    public String getSender() {
+        return this.sender;
+    }
+
+    /**
+     * @return The {@link UUID} of the player who trades the item.
+     */
+    @NotNull
+    public UUID getSenderId() {
+        return senderId;
     }
 
     /**
      * @return The {@link Player} who trades the item. Is null if this is a proxy trade and the sender is on another server.
      */
-    public @Nullable Player getSendingPlayer() {
+    @Nullable
+    public Player getSendingPlayer() {
         return this.sendingPlayer;
     }
 
@@ -88,30 +113,26 @@ public class TradeReceiveEconomyEvent extends TradeEvent {
     }
 
     /**
-     * @return The name of the player who trades the item.
-     */
-    public @NotNull String getSender() {
-        return this.sender;
-    }
-
-    /**
      * @return The balance being transferred.
      */
-    public @NotNull BigDecimal getBalance() {
+    @NotNull
+    public BigDecimal getBalance() {
         return this.balance;
     }
 
     /**
      * @return The name of the currency in singular.
      */
-    public @NotNull String getNameSingular() {
+    @NotNull
+    public String getNameSingular() {
         return this.nameSingular;
     }
 
     /**
      * @return The name of the currency in plural.
      */
-    public @NotNull String getNamePlural() {
+    @NotNull
+    public String getNamePlural() {
         return this.namePlural;
     }
 }

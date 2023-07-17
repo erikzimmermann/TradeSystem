@@ -28,14 +28,14 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.NOT_ONLINE));
         }
 
-        TradeRequestPreResponseEvent e = new TradeRequestPreResponseEvent(player.getName(), player, packet.getResponding(), null, packet.isAccept());
+        TradeRequestPreResponseEvent e = new TradeRequestPreResponseEvent(player.getName(), player.getUniqueId(), player, packet.getResponding(), packet.getRespondingId(), null, packet.isAccept());
         Bukkit.getPluginManager().callEvent(e);
         if (e.isCancelled()) return CompletableFuture.completedFuture(null);  // let other server run into timeout to indicate plugin handling
 
         TradeSystem.invitations().invalidate(player, packet.getResponding());
         if (packet.isAccept()) {
             //start
-            TradeSystem.man().startTrade(player, null, packet.getResponding(), true);
+            TradeSystem.man().startTrade(player, null, packet.getResponding(), packet.getRespondingId(), true);
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS));
         } else {
             //ignored answer

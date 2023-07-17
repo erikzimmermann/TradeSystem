@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * Called when a player offers an item. Can be cancelled if this item should be blocked.
  */
@@ -16,6 +18,7 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
     private final Player player;
     private final String receiver;
+    private final UUID receiverId;
     private final Player receivingPlayer;
     private final ItemStack itemStack;
     private boolean cancelled;
@@ -23,14 +26,17 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     /**
      * Indicates a proxy trade.
      *
-     * @param player    The {@link Player} who places the item.
-     * @param receiver  The name of the player who would receive the item.
-     * @param itemStack The traded {@link ItemStack}. Cannot be modified.
-     * @param cancelled {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, ItemStack)}).
+     * @param player     The {@link Player} who places the item.
+     * @param receiver   The name of the player who would receive the item.
+     * @param receiverId The {@link UUID} of the player who would receive the item.
+     * @param itemStack  The traded {@link ItemStack}. Cannot be modified.
+     * @param cancelled  {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, UUID, ItemStack) isBlocked(...)}).
      */
-    public TradeOfferItemEvent(@NotNull Player player, @NotNull String receiver, @NotNull ItemStack itemStack, boolean cancelled) {
+    public TradeOfferItemEvent(@NotNull Player player, @NotNull String receiver, @NotNull UUID receiverId, @NotNull ItemStack itemStack, boolean cancelled) {
         this.player = player;
         this.receiver = receiver;
+        this.receiverId = receiverId;
+
         this.itemStack = itemStack;
         this.cancelled = cancelled;
         this.receivingPlayer = null;
@@ -42,11 +48,13 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
      * @param player          The {@link Player} who places the item.
      * @param receivingPlayer The {@link Player} who would receive the item.
      * @param itemStack       The traded {@link ItemStack}. Cannot be modified.
-     * @param cancelled       {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, ItemStack)}).
+     * @param cancelled       {@link Boolean#TRUE} if this {@link ItemStack} is blacklisted (see {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, UUID, ItemStack) isBlocked(...)}).
      */
     public TradeOfferItemEvent(@NotNull Player player, @NotNull Player receivingPlayer, @NotNull ItemStack itemStack, boolean cancelled) {
         this.player = player;
         this.receivingPlayer = receivingPlayer;
+        this.receiverId = receivingPlayer.getUniqueId();
+
         this.itemStack = itemStack;
         this.cancelled = cancelled;
         this.receiver = receivingPlayer.getName();
@@ -65,21 +73,32 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     /**
      * @return The {@link Player} who places the item.
      */
-    public @NotNull Player getPlayer() {
+    @NotNull
+    public Player getPlayer() {
         return player;
     }
 
     /**
      * @return The name of the player who would receive the item.
      */
-    public @NotNull String getReceiver() {
+    @NotNull
+    public String getReceiver() {
         return receiver;
+    }
+
+    /**
+     * @return The {@link UUID} of the player who would receive the item.
+     */
+    @NotNull
+    public UUID getReceiverId() {
+        return receiverId;
     }
 
     /**
      * @return The {@link Player} who would receive the item. Is null if this is a proxy trade and the receiver is on another server.
      */
-    public @Nullable Player getReceivingPlayer() {
+    @Nullable
+    public Player getReceivingPlayer() {
         return this.receivingPlayer;
     }
 
@@ -93,7 +112,8 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     /**
      * @return A copy of the traded {@link ItemStack}. Cannot be modified.
      */
-    public @NotNull ItemStack getItemStack() {
+    @NotNull
+    public ItemStack getItemStack() {
         return itemStack.clone();
     }
 
@@ -103,7 +123,7 @@ public class TradeOfferItemEvent extends TradeEvent implements Cancellable {
     }
 
     /**
-     * @param cancelled If this event should be cancelled. If {@link Boolean#TRUE}, the item will be marked as blocked. See usage of {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, ItemStack)}.
+     * @param cancelled If this event should be cancelled. If {@link Boolean#TRUE}, the item will be marked as blocked. See usage of {@link de.codingair.tradesystem.spigot.trade.TradeHandler#isBlocked(Trade, Player, Player, String, UUID, ItemStack) isBlocked(...)}.
      */
     @Override
     public void setCancelled(boolean cancelled) {

@@ -44,7 +44,8 @@ public class TradeIconInitializeEvent extends Event {
         try {
             this.registry.accept(icon, info);
         } catch (RuntimeException ex) {
-            if (ex.getCause() instanceof TradeIconException) throw new TradeIconException(getErrorMessage(plugin), ex.getCause());
+            if (ex.getCause() instanceof TradeIconException)
+                throw new TradeIconException(getErrorMessage(plugin), ex.getCause());
             else throw new RuntimeException(getErrorMessage(plugin), ex.getCause());
         }
     }
@@ -60,7 +61,8 @@ public class TradeIconInitializeEvent extends Event {
         try {
             this.registry.accept(icon, info);
         } catch (RuntimeException ex) {
-            if (ex.getCause() instanceof TradeIconException) throw new TradeIconException(getErrorMessage(plugin), ex.getCause());
+            if (ex.getCause() instanceof TradeIconException)
+                throw new TradeIconException(getErrorMessage(plugin), ex.getCause());
             else throw new RuntimeException(getErrorMessage(plugin), ex.getCause());
         }
     }

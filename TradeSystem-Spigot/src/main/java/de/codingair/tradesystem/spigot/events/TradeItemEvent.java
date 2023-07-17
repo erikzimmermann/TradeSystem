@@ -59,14 +59,16 @@ public class TradeItemEvent extends TradeEvent {
     /**
      * @return The {@link Player} who receives the item.
      */
-    public @NotNull Player getReceiver() {
+    @NotNull
+    public Player getReceiver() {
         return this.receiver;
     }
 
     /**
      * @return The {@link Player} who trades the item. Is null if this is a proxy trade and the sender is on another server.
      */
-    public @Nullable Player getSendingPlayer() {
+    @Nullable
+    public Player getSendingPlayer() {
         return this.sendingPlayer;
     }
 
@@ -80,14 +82,16 @@ public class TradeItemEvent extends TradeEvent {
     /**
      * @return The name of the player who trades the item.
      */
-    public @NotNull String getSender() {
+    @NotNull
+    public String getSender() {
         return this.sender;
     }
 
     /**
      * @return The item being transferred.
      */
-    public @NotNull ItemStack getItem() {
+    @NotNull
+    public ItemStack getItem() {
         return this.item;
     }
 

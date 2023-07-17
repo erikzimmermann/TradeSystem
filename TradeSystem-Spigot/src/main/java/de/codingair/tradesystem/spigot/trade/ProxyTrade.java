@@ -23,21 +23,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class ProxyTrade extends Trade {
     private final Player player;
     private final String other;
+    private final UUID otherId;
     private ItemStack[] sent;
     private ItemStack[] received;
     private final ItemStack[] otherInventory = new ItemStack[36];
     private final CompletableFuture<Boolean> finishCheck = new CompletableFuture<>();
 
-    public ProxyTrade(@NotNull Player player, @NotNull String other, boolean initiationServer) {
+    public ProxyTrade(@NotNull Player player, @NotNull String other, @NotNull UUID otherId, boolean initiationServer) {
         super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
+        this.otherId = otherId;
     }
 
     @Override
@@ -213,9 +216,15 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected @Nullable Player getPlayer(int id) {
+    public @Nullable Player getPlayer(int id) {
         if (id == 0) return player;
         return null;
+    }
+
+    @Override
+    public @NotNull UUID getUniqueId(int id) {
+        if (id == 0) return player.getUniqueId();
+        return otherId;
     }
 
     @Override
