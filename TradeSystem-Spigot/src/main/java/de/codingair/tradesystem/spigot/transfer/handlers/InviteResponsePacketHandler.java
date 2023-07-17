@@ -6,6 +6,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.proxy.packets.InviteResponsePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeRequestPreResponseEvent;
+import de.codingair.tradesystem.spigot.events.TradeRequestResponseEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,6 +32,9 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
         TradeRequestPreResponseEvent e = new TradeRequestPreResponseEvent(player.getName(), player.getUniqueId(), player, packet.getResponding(), packet.getRespondingId(), null, packet.isAccept());
         Bukkit.getPluginManager().callEvent(e);
         if (e.isCancelled()) return CompletableFuture.completedFuture(null);  // let other server run into timeout to indicate plugin handling
+
+        TradeRequestResponseEvent e2 = new TradeRequestResponseEvent(player.getName(), player.getUniqueId(), player, packet.getResponding(), packet.getRespondingId(), null, packet.isAccept());
+        Bukkit.getPluginManager().callEvent(e2);
 
         TradeSystem.invitations().invalidate(player, packet.getResponding());
         if (packet.isAccept()) {
