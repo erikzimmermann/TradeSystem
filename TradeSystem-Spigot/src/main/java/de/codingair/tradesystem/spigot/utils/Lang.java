@@ -16,12 +16,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Lang {
     private static final String[] LANGUAGES = {
             "BR", "CHI", "CS", "ENG", "ES", "FR", "GER", "IT", "POL", "RUS", "TR", "UA", "VI"
     };
     private static final String DEFAULT_LANG = "ENG";
+    private static final Map<String, FileManager> MANAGERS = new HashMap<>();
+    private static final Map<String, String> CACHED = new HashMap<>();
 
     private static void deleteEmptyFiles(JavaPlugin plugin) {
         File folder = new File(plugin.getDataFolder(), "/Languages/");
@@ -39,22 +43,51 @@ public class Lang {
         }
     }
 
-    public static void checkLanguageKeys(@NotNull JavaPlugin plugin, @NotNull FileManager fileManager) {
-        FileConfiguration def = getLanguageFile(DEFAULT_LANG);
+    public static void init(@NotNull JavaPlugin plugin, @NotNull FileManager fileManager) {
+        String path = plugin.getClass().getPackage().getName().toLowerCase();
+        MANAGERS.put(path, fileManager);
 
-        for (String language : LANGUAGES) {
-            FileConfiguration file = getLanguageFile(fileManager, language);
-
-            for (String key : def.getKeys(true)) {
-                if (!file.contains(key)) {
-                    plugin.getLogger().warning("Missing language key \"" + key + "\" in " + language + ".yml. Using default value.");
-                    file.set(key, def.get(key));
-                }
-            }
-        }
+        initPreDefinedLanguages(plugin);
+        checkLanguageKeys(plugin);
     }
 
-    public static void initPreDefinedLanguages(JavaPlugin plugin) {
+    @NotNull
+    private static String getAccessingPath() {
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+
+        // skip first 2 as they always are within this class
+        for (int i = 2; i < elements.length; i++) {
+            StackTraceElement e = elements[i];
+
+            String c = e.getClassName();
+            if (Lang.class.getName().equals(c)) continue;
+
+            int idx = c.lastIndexOf(".");
+            if (idx > 0) return c.substring(0, idx);
+            else return "";
+        }
+
+        throw new IllegalStateException("Could not find accessing path!");
+    }
+
+    @NotNull
+    private static FileManager getManager() {
+        String path = getAccessingPath();
+
+        String manPath = CACHED.get(path);
+        if (manPath != null) return MANAGERS.get(manPath);
+
+        for (String key : MANAGERS.keySet()) {
+            if (path.startsWith(key)) {
+                CACHED.put(path, key);
+                return MANAGERS.get(key);
+            }
+        }
+
+        throw new NullPointerException("No file manager found for path '" + path + "'!");
+    }
+
+    private static void initPreDefinedLanguages(@NotNull JavaPlugin plugin) {
         deleteEmptyFiles(plugin);
 
         File folder = new File(plugin.getDataFolder(), "/Languages/");
@@ -75,6 +108,24 @@ public class Lang {
         }
     }
 
+    private static void checkLanguageKeys(@NotNull JavaPlugin plugin) {
+        FileManager manager = getManager();
+        FileConfiguration def = getLanguageFile(manager, DEFAULT_LANG);
+
+        for (String language : LANGUAGES) {
+            File languageFile = new File(plugin.getDataFolder(), "/Languages/" + language + ".yml");
+            if (!languageFile.exists()) continue;
+
+            FileConfiguration file = getLanguageFile(manager, language);
+            for (String key : def.getKeys(true)) {
+                if (!file.contains(key)) {
+                    plugin.getLogger().warning("Missing language key \"" + key + "\" in " + language + ".yml. Using default value.");
+                    file.set(key, def.get(key));
+                }
+            }
+        }
+    }
+
     public static String getPrefix() {
         String prefix = getConfig().getString("TradeSystem.Prefix", "&8» &r");
         return prepare(null, prefix);
@@ -86,22 +137,15 @@ public class Lang {
         return key;
     }
 
-    public static void initializeFile() {
-        getLanguageFile(getLanguageKey());
-    }
-
-    private static @NotNull FileConfiguration getLanguageFile(@NotNull String langTag) {
-        return getLanguageFile(null, langTag);
-    }
-
     private static @NotNull FileConfiguration getLanguageFile(@Nullable FileManager fileManager, @NotNull String langTag) {
         if (fileManager == null) fileManager = TradeSystem.getInstance().getFileManager();
 
         ConfigFile file = fileManager.getFile(langTag);
         if (file == null) {
             fileManager.loadFile(langTag, "/Languages/", "languages/");
-            return getLanguageFile(fileManager, langTag);
+            file = fileManager.getFile(langTag);
         }
+
         return file.getConfig();
     }
 
@@ -110,10 +154,16 @@ public class Lang {
     }
 
     public static @NotNull String get(@NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
-        return get(null, key, p, placeholders);
+        try {
+            // prioritize external manager
+            return get(getManager(), key, p, placeholders);
+        } catch (NullPointerException e) {
+            // use internal manager as fallback
+            return get(null, key, p, placeholders);
+        }
     }
 
-    public static @NotNull String get(@Nullable FileManager fileManager, @NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
+    private static @NotNull String get(@Nullable FileManager fileManager, @NotNull String key, @Nullable Player p, @NotNull P... placeholders) {
         String s = getLanguageFile(fileManager, getLanguageKey()).getString(key, null);
         if (s == null) throw new NullPointerException("Message \"" + key + "\" cannot be found in " + getLanguageKey());
 
