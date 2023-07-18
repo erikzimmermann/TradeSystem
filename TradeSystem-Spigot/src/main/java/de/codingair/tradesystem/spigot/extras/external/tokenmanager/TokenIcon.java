@@ -28,7 +28,7 @@ public class TokenIcon extends EconomyIcon<ShowTokenIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         return BigDecimal.valueOf(getTokenManager().getTokens(player).orElse(0));
     }
 

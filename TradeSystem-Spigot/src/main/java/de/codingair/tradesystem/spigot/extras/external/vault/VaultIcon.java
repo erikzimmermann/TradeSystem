@@ -23,7 +23,7 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         return BigDecimal.valueOf(getEconomy().getBalance(player));
     }
 

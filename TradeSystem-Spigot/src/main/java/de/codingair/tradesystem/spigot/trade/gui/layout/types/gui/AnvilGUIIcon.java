@@ -9,13 +9,13 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, Clickable, Input<G>, ItemPrepareIcon {
     public AnvilGUIIcon(@NotNull ItemStack itemStack) {
@@ -23,9 +23,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
     }
 
     @Override
-    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        int id = trade.getId(player);
-
+    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
         return new AnvilButton() {
             @Override
             public void onAnvil(GUI fallback, AnvilClickEvent e) {
@@ -35,51 +33,51 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
                 if (origin == null) origin = "";
 
                 G in = convertInput(origin);
-                IconResult result = processInput(trade, player, in, origin);
+                IconResult result = processInput(trade, perspective, viewer, in, origin);
 
-                getClickSound().play(player);
+                getClickSound().play(viewer);
                 if (result != IconResult.GUI) {
                     //won't be closed until we say it.
                     e.setClose(true);
-                    handleResult(AnvilGUIIcon.this, fallback, result, trade, id);
+                    handleResult(AnvilGUIIcon.this, fallback, result, trade, perspective);
                 }
             }
 
             @Override
             public ItemStack buildAnvilItem() {
-                return AnvilGUIIcon.this.buildAnvilItem(trade, player);
+                return AnvilGUIIcon.this.buildAnvilItem(trade, viewer);
             }
 
             @Override
             public ItemStack buildItem() {
-                return prepareItemStack(new ItemBuilder(itemStack), trade, player, other, othersName).getItem();
+                return prepareItemStack(new ItemBuilder(itemStack), trade, perspective, viewer).getItem();
             }
 
             @Override
             public boolean canClick(ClickType clickType) {
-                return isClickable(trade, player, other, othersName);
+                return isClickable(trade, perspective, viewer);
             }
 
             @Override
             public void onClick(GUI gui, InventoryClickEvent inventoryClickEvent) {
-                trade.acknowledgeGuiSwitch(player);  // fixes dupe glitch
+                trade.acknowledgeGuiSwitch(viewer);  // fixes dupe glitch
             }
 
             @Override
             public boolean canSwitch(ClickType clickType) {
                 return true;
             }
-        }.setTitle(Lang.get("AnvilGUI_Title", player));
+        }.setTitle(Lang.get("AnvilGUI_Title", viewer));
     }
 
-    protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-        trade.handleClickResult(icon, gui.getPlayer(), id, gui, result);
+    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
+        trade.handleClickResult(icon, perspective, gui, result);
     }
 
     /**
      * @param trade  The trade instance.
-     * @param player The trading player.
+     * @param viewer The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return The AnvilGUI item which will be used for the rename function.
      */
-    public abstract @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player player);
+    public abstract @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player viewer);
 }

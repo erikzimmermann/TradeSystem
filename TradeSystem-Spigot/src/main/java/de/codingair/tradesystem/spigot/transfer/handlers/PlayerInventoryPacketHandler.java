@@ -6,6 +6,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.proxy.packets.PlayerInventoryPacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
             else item = ItemStackUtils.deserializeItemStack(packet.getItem());
 
             t.setOtherInventory(packet.getSlot(), item);
-            t.cancelItemOverflow(0);
+            t.cancelItemOverflow(Perspective.PRIMARY);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

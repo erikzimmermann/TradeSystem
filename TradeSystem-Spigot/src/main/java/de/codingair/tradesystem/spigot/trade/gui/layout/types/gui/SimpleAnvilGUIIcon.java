@@ -13,9 +13,9 @@ public abstract class SimpleAnvilGUIIcon<G> extends AnvilGUIIcon<G> {
     }
 
     @Override
-    public @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player player) {
+    public @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player viewer) {
         return new ItemBuilder(Material.PAPER)
-                .setName(makeString(player, getValue()))
+                .setName(makeString(viewer, getValue()))
                 .getItem();
     }
 }

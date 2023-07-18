@@ -9,6 +9,7 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
 import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -48,10 +49,11 @@ public class TradeGUIListener implements Listener {
                 boolean onlyLowerInventory = e.getRawSlots().stream().allMatch(i -> i >= 54);
                 if (onlyLowerInventory) return;
 
-                int traderId = trade.getOtherId(player);
-                Player other = trade.getPlayer(traderId);
-                String othersName = trade.getPlayers()[traderId];
-                UUID otherId = trade.getUniqueId(traderId);
+                Perspective perspective = trade.getPerspective(player);
+                Perspective otherPerspective = perspective.flip();
+                Player other = trade.getPlayer(otherPerspective);
+                String othersName = trade.getNames()[otherPerspective.id()];
+                UUID otherId = trade.getUniqueId(otherPerspective);
 
                 for (ItemStack item : e.getNewItems().values()) {
                     //check if it's blocked
@@ -62,7 +64,7 @@ public class TradeGUIListener implements Listener {
                     }
                 }
 
-                if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(player, e.getNewItems().values())) {
+                if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(perspective, e.getNewItems().values())) {
                     player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                     TradeSystem.getInstance().getTradeManager().playBlockSound(player);
                     e.setCancelled(true);
@@ -92,7 +94,8 @@ public class TradeGUIListener implements Listener {
             Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
-                TradeLayout layout = trade.getLayout()[trade.getId(player)];
+                Perspective perspective = trade.getPerspective(player);
+                TradeLayout layout = trade.getLayout()[perspective.id()];
 
                 if (e.getClickedInventory() == null && e.getCursor() != null) {
                     e.setCancelled(false);
@@ -113,7 +116,7 @@ public class TradeGUIListener implements Listener {
 
                             // shulker peeking
                             if (e.getClick() == ClickType.RIGHT && Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(e.getCurrentItem())) {
-                                TradingGUI tradingGUI = trade.getGUIs()[trade.getId(player)];
+                                TradingGUI tradingGUI = trade.getGUIs()[perspective.id()];
                                 try {
                                     tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), e.getSlot()), true, true);
                                 } catch (AlreadyOpenedException | NoPageException | IsWaitingException ex) {
@@ -131,7 +134,7 @@ public class TradeGUIListener implements Listener {
                             if (tradePartner) {
                                 // shulker peeking
                                 if (Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(e.getCurrentItem())) {
-                                    TradingGUI tradingGUI = trade.getGUIs()[trade.getId(player)];
+                                    TradingGUI tradingGUI = trade.getGUIs()[perspective.id()];
                                     try {
                                         tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), e.getSlot()), true, true);
                                     } catch (AlreadyOpenedException | NoPageException | IsWaitingException ex) {
@@ -156,11 +159,12 @@ public class TradeGUIListener implements Listener {
     private void onClickBottomInventory(Player player, Trade trade, InventoryClickEvent e) {
         if (!TradeSystem.getInstance().getTradeManager().isDropItems()) {
             //check for cursor
-            trade.getWaitForPickup()[trade.getId(player)] = true;
+            Perspective perspective = trade.getPerspective(player);
+            trade.getWaitForPickup()[perspective.id()] = true;
             Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
-                trade.getCursor()[trade.getId(player)] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
-                trade.getWaitForPickup()[trade.getId(player)] = false;
-                trade.cancelItemOverflow(trade.getOtherId(player));
+                trade.getCursor()[perspective.id()] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+                trade.getWaitForPickup()[perspective.id()] = false;
+                trade.cancelItemOverflow(perspective.flip());
             }, 1);
         }
 
@@ -169,13 +173,14 @@ public class TradeGUIListener implements Listener {
                 item != null && item.getType() != Material.AIR) {
             e.setCancelled(true);
 
-            int traderId = trade.getOtherId(player);
+            Perspective perspective = trade.getPerspective(player);
+            Perspective other = perspective.flip();
 
             //check if it's blocked
-            if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(traderId), trade.getPlayers()[traderId], trade.getUniqueId(traderId), item)) {
+            if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(other), trade.getNames()[other.id()], trade.getUniqueId(other), item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
-            } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && trade.doesNotFit(player, item)) {
+            } else if (!TradeSystem.getInstance().getTradeManager().isDropItems() && trade.doesNotFit(perspective, item)) {
                 player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
             } else {
@@ -322,8 +327,9 @@ public class TradeGUIListener implements Listener {
             }
         }
 
-        int tradeId = trade.getOtherId(player);
-        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(tradeId), trade.getPlayers()[tradeId], trade.getUniqueId(tradeId), blockedItem)) {
+        Perspective perspective = trade.getPerspective(player);
+        Perspective other = perspective.flip();
+        if (blockedItem != null && TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(other), trade.getNames()[other.id()], trade.getUniqueId(other), blockedItem)) {
             e.setCancelled(true);
             player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
             TradeSystem.getInstance().getTradeManager().playBlockSound(player);
@@ -352,7 +358,7 @@ public class TradeGUIListener implements Listener {
                             item.setAmount(1);
                         }
 
-                        if (trade.doesNotFit(player, remove, item)) fits = false;
+                        if (trade.doesNotFit(perspective, remove, item)) fits = false;
                         break;
                     }
 
@@ -364,18 +370,18 @@ public class TradeGUIListener implements Listener {
                         List<Integer> remove = new ArrayList<>();
                         remove.add(e.getSlot());
 
-                        if (trade.doesNotFit(player, remove, item)) fits = false;
+                        if (trade.doesNotFit(perspective, remove, item)) fits = false;
                         break;
                     }
 
                     case "PLACE_ALL":
                         assert e.getCursor() != null;
-                        if (trade.doesNotFit(player, e.getCursor().clone())) fits = false;
+                        if (trade.doesNotFit(perspective, e.getCursor().clone())) fits = false;
                         break;
 
                     case "HOTBAR_SWAP": {
                         ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
-                        if (item != null && trade.doesNotFit(player, item.clone())) fits = false;
+                        if (item != null && trade.doesNotFit(perspective, item.clone())) fits = false;
                         break;
                     }
 
@@ -384,7 +390,7 @@ public class TradeGUIListener implements Listener {
                         List<Integer> remove = new ArrayList<>();
                         remove.add(e.getSlot());
 
-                        if (item != null && trade.doesNotFit(player, remove, item.clone())) fits = false;
+                        if (item != null && trade.doesNotFit(perspective, remove, item.clone())) fits = false;
                         else {
                             e.setCancelled(true);
 
@@ -407,7 +413,7 @@ public class TradeGUIListener implements Listener {
                         remove.add(e.getSlot());
 
                         assert e.getCursor() != null;
-                        if (trade.doesNotFit(player, remove, e.getCursor().clone())) fits = false;
+                        if (trade.doesNotFit(perspective, remove, e.getCursor().clone())) fits = false;
                         break;
                     }
 
@@ -416,7 +422,7 @@ public class TradeGUIListener implements Listener {
                     case "DROP_ONE_CURSOR":
                     case "DROP_ONE_SLOT":
                         assert e.getCurrentItem() != null;
-                        if (trade.doesNotFit(player, e.getCurrentItem().clone())) fits = false;
+                        if (trade.doesNotFit(perspective, e.getCurrentItem().clone())) fits = false;
                         break;
                 }
             }
@@ -430,10 +436,12 @@ public class TradeGUIListener implements Listener {
     }
 
     private void updateWaitForPickup(Trade trade, InventoryClickEvent e, Player player) {
-        trade.getWaitForPickup()[trade.getId(player)] = true;
+        Perspective perspective = trade.getPerspective(player);
+
+        trade.getWaitForPickup()[perspective.id()] = true;
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
-            trade.getCursor()[trade.getId(player)] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
-            trade.getWaitForPickup()[trade.getId(player)] = false;
+            trade.getCursor()[perspective.id()] = e.getCursor() != null && e.getCursor().getType() != Material.AIR;
+            trade.getWaitForPickup()[perspective.id()] = false;
         }, 1);
     }
 }

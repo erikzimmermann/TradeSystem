@@ -25,7 +25,7 @@ public class GriefDefenderIcon extends EconomyIcon<ShowGriefDefenderIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         User user = GriefDefender.getCore().getUser(player.getUniqueId());
         if (user == null) return BigDecimal.ZERO;
 

@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,20 +17,20 @@ import java.util.List;
  * It also holds the information in case of cancelled trades which means that no goods were exchanged at all (see {@link de.codingair.tradesystem.spigot.events.TradeFinishEvent}).
  */
 public class TradeResult {
-    protected final int playerId;
+    protected final Perspective perspective;
     protected final List<ItemStack> receivingItems = new ArrayList<>();
     protected final List<ItemStack> sendingItems = new ArrayList<>();
     protected final List<EconomyIcon<?>> economyIcons = new ArrayList<>();
 
-    public TradeResult(int playerId) {
-        this.playerId = playerId;
+    public TradeResult(@NotNull Perspective perspective) {
+        this.perspective = perspective;
     }
 
     /**
-     * @return The id of the current player. Either 0 or 1.
+     * @return The perspective of the player who received the result.
      */
-    public int getPlayerId() {
-        return playerId;
+    public Perspective getPlayerId() {
+        return perspective;
     }
 
     /**

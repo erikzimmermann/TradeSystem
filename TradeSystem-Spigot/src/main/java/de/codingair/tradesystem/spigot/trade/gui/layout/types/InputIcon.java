@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.AnvilGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SignGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleAnvilGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleSignGUIIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -40,18 +41,18 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable G input, @NotNull String origin) {
-                        return InputIcon.this.processInput(trade, player, input, origin);
+                    public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G input, @NotNull String origin) {
+                        return InputIcon.this.processInput(trade, perspective, viewer, input, origin);
                     }
 
                     @Override
-                    protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-                        super.handleResult(InputIcon.this, gui, result, trade, id);
+                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
+                        super.handleResult(InputIcon.this, gui, result, trade, perspective);
                     }
 
                     @Override
-                    public @NotNull String makeString(@NotNull Player player, @Nullable G current) {
-                        return InputIcon.this.makeString(player, current);
+                    public @NotNull String makeString(@NotNull Player viewer, @Nullable G current) {
+                        return InputIcon.this.makeString(viewer, current);
                     }
 
                     @Override
@@ -60,23 +61,23 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-                        return InputIcon.this.prepareItemStack(layout, trade, player, other, othersName);
+                    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                        return InputIcon.this.prepareItemStack(layout, trade, perspective, viewer);
                     }
 
                     @Override
-                    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-                        return InputIcon.this.isClickable(trade, player, other, othersName);
+                    public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                        return InputIcon.this.isClickable(trade, perspective, viewer);
                     }
 
                     @Override
-                    public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-                        InputIcon.this.onFinish(trade, player, other, othersName, initiationServer);
+                    public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                        InputIcon.this.onFinish(trade, perspective, viewer, initiationServer);
                     }
 
                     @Override
-                    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-                        return InputIcon.this.tryFinish(trade, player, other, othersName, initiationServer);
+                    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                        return InputIcon.this.tryFinish(trade, perspective, viewer, initiationServer);
                     }
 
                     @Override
@@ -105,18 +106,18 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable G input, @NotNull String origin) {
-                        return InputIcon.this.processInput(trade, player, input, origin);
+                    public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G input, @NotNull String origin) {
+                        return InputIcon.this.processInput(trade, perspective, viewer, input, origin);
                     }
 
                     @Override
-                    protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-                        super.handleResult(InputIcon.this, gui, result, trade, id);
+                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
+                        super.handleResult(InputIcon.this, gui, result, trade, perspective);
                     }
 
                     @Override
-                    public @NotNull String makeString(@NotNull Player player, @Nullable G current) {
-                        return InputIcon.this.makeString(player, current);
+                    public @NotNull String makeString(@NotNull Player viewer, @Nullable G current) {
+                        return InputIcon.this.makeString(viewer, current);
                     }
 
                     @Override
@@ -125,23 +126,23 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-                        return InputIcon.this.prepareItemStack(layout, trade, player, other, othersName);
+                    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                        return InputIcon.this.prepareItemStack(layout, trade, perspective, viewer);
                     }
 
                     @Override
-                    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-                        return InputIcon.this.isClickable(trade, player, other, othersName);
+                    public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                        return InputIcon.this.isClickable(trade, perspective, viewer);
                     }
 
                     @Override
-                    public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-                        InputIcon.this.onFinish(trade, player, other, othersName, initiationServer);
+                    public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                        InputIcon.this.onFinish(trade, perspective, viewer, initiationServer);
                     }
 
                     @Override
-                    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-                        return InputIcon.this.tryFinish(trade, player, other, othersName, initiationServer);
+                    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                        return InputIcon.this.tryFinish(trade, perspective, viewer, initiationServer);
                     }
 
                     @Override
@@ -164,7 +165,7 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
     }
 
     @Override
-    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        return this.icon.getButton(trade, player, other, othersName);
+    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        return this.icon.getButton(trade, perspective, viewer);
     }
 }

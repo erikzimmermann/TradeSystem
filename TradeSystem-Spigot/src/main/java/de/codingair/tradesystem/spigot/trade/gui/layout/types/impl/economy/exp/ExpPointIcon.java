@@ -20,7 +20,7 @@ public class ExpPointIcon extends EconomyIcon<ShowExpPointIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         int totalExp = (int) ExpLevelIcon.getTotalExp(player.getLevel() + player.getExp());
         return BigDecimal.valueOf(totalExp);
     }

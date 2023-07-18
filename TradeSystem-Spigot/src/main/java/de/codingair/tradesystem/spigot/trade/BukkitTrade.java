@@ -7,6 +7,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedEx
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -46,18 +47,18 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void updateDisplayItem(int id, int slotId, @Nullable ItemStack item) {
-        guis[id].setItem(otherSlots.get(slotId), item);
+    protected void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
+        guis[perspective.id()].setItem(otherSlots.get(slotId), item);
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentOfferedItem(int id, int slotId) {
-        return guis[id].getItem(slots.get(slotId));
+    protected @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
+        return guis[perspective.id()].getItem(slots.get(slotId));
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId) {
-        return guis[id].getItem(otherSlots.get(slotId));
+    protected @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId) {
+        return guis[perspective.id()].getItem(otherSlots.get(slotId));
     }
 
     @Override
@@ -70,18 +71,18 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    public @Nullable Player getPlayer(int id) {
-        return players[id];
+    public @Nullable Player getPlayer(@NotNull Perspective perspective) {
+        return players[perspective.id()];
     }
 
     @Override
-    public @NotNull UUID getUniqueId(int id) {
-        return players[id].getUniqueId();
+    public @NotNull UUID getUniqueId(@NotNull Perspective perspective) {
+        return players[perspective.id()].getUniqueId();
     }
 
     @Override
-    protected void onItemPickUp(@NotNull Player player, int id) {
-        cancelItemOverflow(players[getOtherId(id)], id);
+    protected void onItemPickUp(@NotNull Perspective perspective) {
+        cancelItemOverflow(perspective.flip());
     }
 
     @Override
@@ -95,22 +96,21 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected boolean isInitiator(@NotNull Player player, int id) {
-        return id == 0;
+    protected boolean isInitiator(@NotNull Perspective perspective) {
+        return perspective.isPrimary();
     }
 
     @Override
-    protected @NotNull PlayerInventory getPlayerInventory(int playerId) {
-        return new PlayerInventory(players[playerId], true);
+    protected @NotNull PlayerInventory getPlayerInventory(@NotNull Perspective perspective) {
+        return new PlayerInventory(players[perspective.id()], true);
     }
 
     @Override
-    protected @Nullable ItemStack removeReceivedItem(int id, int slotId) {
-        int oId = getOtherId(id);
+    protected @Nullable ItemStack removeReceivedItem(@NotNull Perspective perspective, int slotId) {
         int slot = slots.get(slotId);
 
-        ItemStack item = guis[oId].getItem(slot);
-        guis[oId].setItem(slot, null);
+        ItemStack item = guis[perspective.flip().id()].getItem(slot);
+        guis[perspective.flip().id()].setItem(slot, null);
 
         return item;
     }
@@ -126,7 +126,7 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void onReadyStateChange(int id, boolean ready) {
+    protected void onReadyStateChange(@NotNull Perspective perspective, boolean ready) {
         // ignore
     }
 }

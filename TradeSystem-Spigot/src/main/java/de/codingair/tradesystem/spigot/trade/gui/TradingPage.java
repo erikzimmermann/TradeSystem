@@ -4,6 +4,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.Page;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 
 public class TradingPage extends Page {
@@ -21,14 +22,13 @@ public class TradingPage extends Page {
         TradeIcon[] icons = trade.getLayout()[id].getIcons();
 
         Player player = gui.getPlayer();
-        Player other = trade.getOther(player).orElse(null);
-        String othersName = trade.getOther(player.getName());
+        Perspective perspective = trade.getPerspective(player);
 
         for (int slot = 0; slot < icons.length; slot++) {
             TradeIcon icon = icons[slot];
             if (icon == null || icon instanceof TradeSlot) continue;
 
-            addButton(slot, icon.getButton(trade, player, other, othersName));
+            addButton(slot, icon.getButton(trade, perspective, player));
         }
     }
 }

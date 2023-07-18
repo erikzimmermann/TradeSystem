@@ -26,7 +26,7 @@ public class PlayerPointsIcon extends EconomyIcon<ShowPlayerPointsIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         return BigDecimal.valueOf(api().look(player.getUniqueId()));
     }
 

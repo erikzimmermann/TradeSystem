@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.player.chat.ChatButtonListener;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
@@ -79,9 +80,10 @@ public class TradeListener implements Listener, ChatButtonListener {
         Trade t = TradeSystem.handler().getTrade(p);
 
         if (t != null) {
+            Perspective perspective = t.getPerspective(p);
             if (!TradeSystem.handler().isDropItems()) {
                 //does it fit?
-                if (t.doesNotFit(p, e.getItem().getItemStack())) e.setCancelled(true);
+                if (t.doesNotFit(perspective, e.getItem().getItemStack())) e.setCancelled(true);
             }
         }
     }

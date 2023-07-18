@@ -10,13 +10,13 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.PlayerHeadUtils;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,21 +43,19 @@ public class StatusIcon extends MultiTradeIcon {
     }
 
     @Override
-    public @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        int id = trade.getId(player);
-
+    public @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
         if (TradeSystem.getInstance().getTradeManager().isTradeBoth()) {
             boolean canFinish = false;
             for (Integer slot : trade.getSlots()) {
-                ItemStack item = trade.getGUIs()[id].getItem(slot);
+                ItemStack item = trade.getGUIs()[perspective.id()].getItem(slot);
                 if (item != null && !item.getType().equals(Material.AIR)) canFinish = true;
             }
 
-            if (!trade.getLayout()[id].areTradeIconsEmpty()) canFinish = true;
+            if (!trade.getLayout()[perspective.id()].areTradeIconsEmpty()) canFinish = true;
             if (!canFinish) return getIcon(CannotReadyIcon.class);
         }
 
-        if (trade.getReady()[id]) return getIcon(ReadyIcon.class);
+        if (trade.getReady()[perspective.id()]) return getIcon(ReadyIcon.class);
         else return getIcon(NotReadyIcon.class);
     }
 
@@ -67,30 +65,30 @@ public class StatusIcon extends MultiTradeIcon {
         }
 
         @Override
-        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-            PlayerHeadUtils.applyPlayerHead(layout, player);
-            layout.setName("§7" + Lang.get("Status", player) + ": §a" + Lang.get("Ready", player));
-            layout.addLore("", "§7" + Lang.get("Wait_For_Other_Player", player));
+        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+            PlayerHeadUtils.applyPlayerHead(layout, viewer);
+            layout.setName("§7" + Lang.get("Status", viewer) + ": §a" + Lang.get("Ready", viewer));
+            layout.addLore("", "§7" + Lang.get("Wait_For_Other_Player", viewer));
             return layout;
         }
 
         @Override
-        public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+        public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
             return true;
         }
 
         @Override
-        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Player player, @NotNull InventoryClickEvent event) {
+        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @NotNull InventoryClickEvent event) {
             return IconResult.NOT_READY;
         }
 
         @Override
-        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
             return FinishResult.PASS;
         }
 
         @Override
-        public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
         }
 
         @Override
@@ -115,29 +113,29 @@ public class StatusIcon extends MultiTradeIcon {
         }
 
         @Override
-        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-            PlayerHeadUtils.applyPlayerHead(layout, player);
-            layout.setName("§7" + Lang.get("Status", player) + ": §c" + Lang.get("Not_Ready", player));
+        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+            PlayerHeadUtils.applyPlayerHead(layout, viewer);
+            layout.setName("§7" + Lang.get("Status", viewer) + ": §c" + Lang.get("Not_Ready", viewer));
             return layout;
         }
 
         @Override
-        public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+        public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
             return true;
         }
 
         @Override
-        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Player player, @NotNull InventoryClickEvent event) {
+        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @NotNull InventoryClickEvent event) {
             return IconResult.READY;
         }
 
         @Override
-        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
             return FinishResult.PASS;
         }
 
         @Override
-        public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
         }
 
         @Override
@@ -162,29 +160,29 @@ public class StatusIcon extends MultiTradeIcon {
         }
 
         @Override
-        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-            PlayerHeadUtils.applyPlayerHead(layout, player);
-            layout.setText("§c" + Lang.get("Trade_Only_With_Objects", player), TextAlignment.LEFT, 150);
+        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+            PlayerHeadUtils.applyPlayerHead(layout, viewer);
+            layout.setText("§c" + Lang.get("Trade_Only_With_Objects", viewer), TextAlignment.LEFT, 150);
             return layout;
         }
 
         @Override
-        public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+        public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
             return false;
         }
 
         @Override
-        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Player player, @NotNull InventoryClickEvent event) {
+        public @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @NotNull InventoryClickEvent event) {
             return IconResult.PASS;
         }
 
         @Override
-        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
             return FinishResult.PASS;
         }
 
         @Override
-        public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
+        public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
         }
 
         @Override
