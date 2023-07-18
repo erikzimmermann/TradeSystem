@@ -28,7 +28,7 @@ public class RequestManager {
             String invited = TradeSystem.proxy().getCaseSensitive(receiver);
 
             //call request event
-            TradeRequestEvent event = new TradeRequestEvent(sender, receiver, TradeSystem.proxy().getUniqueId(receiver), TradeSystem.man().getRequestExpirationTime());
+            TradeRequestEvent event = new TradeRequestEvent(sender, receiver, TradeSystem.proxy().getUniqueId(receiver), TradeSystem.handler().getRequestExpirationTime());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) return;
 
@@ -54,7 +54,7 @@ public class RequestManager {
         assert other != null; //already sent a message if other == null
 
         //call event
-        TradeRequestEvent event = new TradeRequestEvent(sender, other, TradeSystem.man().getRequestExpirationTime());
+        TradeRequestEvent event = new TradeRequestEvent(sender, other, TradeSystem.handler().getRequestExpirationTime());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 

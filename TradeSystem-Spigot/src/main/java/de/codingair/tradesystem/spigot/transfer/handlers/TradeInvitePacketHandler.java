@@ -41,7 +41,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
 
                     Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
                         //call request event
-                        TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), packet.getInviterId(), player, TradeSystem.man().getRequestExpirationTime());
+                        TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), packet.getInviterId(), player, TradeSystem.handler().getRequestExpirationTime());
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
                             future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.PLUGIN, player.getUniqueId()));
@@ -57,7 +57,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
 
                             TradeSystem.invitations().invalidate(player, packet.getInviter());
                             player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player, new Lang.P("player", packet.getInviter())));
-                            TradeSystem.man().startTrade(player, null, packet.getInviter(), packet.getInviterId(), true);
+                            TradeSystem.handler().startTrade(player, null, packet.getInviter(), packet.getInviterId(), true);
 
                             future.complete(new TradeInvitePacket.ResultPacket(TradeInvitePacket.Result.START_TRADING, player.getUniqueId()));
                         } else {

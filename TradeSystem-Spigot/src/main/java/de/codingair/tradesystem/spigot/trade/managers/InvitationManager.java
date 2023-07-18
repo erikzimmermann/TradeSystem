@@ -24,7 +24,7 @@ public class InvitationManager {
     private int expirationHandler = -1;
 
     public void startExpirationHandler() {
-        long expiration = TradeSystem.man().getRequestExpirationTime() * 1000L;
+        long expiration = TradeSystem.handler().getRequestExpirationTime() * 1000L;
 
         expirationHandler = Bukkit.getScheduler().scheduleSyncRepeatingTask(TradeSystem.getInstance(), () -> invitations.entrySet().removeIf(e -> {
             e.getValue().values().removeIf(inv -> {

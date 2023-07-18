@@ -35,12 +35,12 @@ public class TradeListener implements Listener, ChatButtonListener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        TradeSystem.man().join(e.getPlayer());
+        TradeSystem.handler().join(e.getPlayer());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        TradeSystem.man().quit(e.getPlayer());
+        TradeSystem.handler().quit(e.getPlayer());
     }
 
     @EventHandler
@@ -76,10 +76,10 @@ public class TradeListener implements Listener, ChatButtonListener {
     @EventHandler
     public void onPickup(PlayerPickupItemEvent e) {
         Player p = e.getPlayer();
-        Trade t = TradeSystem.man().getTrade(p);
+        Trade t = TradeSystem.handler().getTrade(p);
 
         if (t != null) {
-            if (!TradeSystem.man().isDropItems()) {
+            if (!TradeSystem.handler().isDropItems()) {
                 //does it fit?
                 if (t.doesNotFit(p, e.getItem().getItemStack())) e.setCancelled(true);
             }

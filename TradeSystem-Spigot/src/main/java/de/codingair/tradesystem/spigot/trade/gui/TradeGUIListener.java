@@ -32,15 +32,15 @@ public class TradeGUIListener implements Listener {
 
     @EventHandler
     public void onPickup(PlayerPickupItemEvent e) {
-        Trade trade = TradeSystem.man().getTrade(e.getPlayer());
-        if (trade != null && !TradeSystem.man().isDropItems()) e.setCancelled(true);
+        Trade trade = TradeSystem.handler().getTrade(e.getPlayer());
+        if (trade != null && !TradeSystem.handler().isDropItems()) e.setCancelled(true);
     }
 
     @EventHandler (priority = EventPriority.HIGH)
     public void onDrag(InventoryDragEvent e) {
         if (e.getWhoClicked() instanceof Player) {
             Player player = (Player) e.getWhoClicked();
-            Trade trade = TradeSystem.man().getTrade(player);
+            Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
                 if (e.getNewItems().isEmpty()) return;
@@ -89,7 +89,7 @@ public class TradeGUIListener implements Listener {
     public void onClick(InventoryClickEvent e) {
         if (e.getWhoClicked() instanceof Player) {
             Player player = (Player) e.getWhoClicked();
-            Trade trade = TradeSystem.man().getTrade(player);
+            Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
                 TradeLayout layout = trade.getLayout()[trade.getId(player)];

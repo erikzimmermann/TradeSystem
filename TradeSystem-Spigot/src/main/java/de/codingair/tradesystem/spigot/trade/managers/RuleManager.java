@@ -74,7 +74,7 @@ public class RuleManager {
             return TradeInvitePacket.Result.SLEEPING;
         }
 
-        if (TradeSystem.man().isTrading(other)) {
+        if (TradeSystem.handler().isTrading(other)) {
             return TradeInvitePacket.Result.IS_ALREADY_TRADING;
         }
 

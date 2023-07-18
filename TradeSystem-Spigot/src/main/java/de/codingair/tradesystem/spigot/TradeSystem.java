@@ -76,12 +76,12 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return instance.proxyDataManager;
     }
 
-    public static TradeHandler man() {
+    public static TradeHandler handler() {
         return instance.tradeHandler;
     }
 
     public static InvitationManager invitations() {
-        return man().getInvitationManager();
+        return handler().getInvitationManager();
     }
 
     @Override
@@ -114,8 +114,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             afterOnEnable();
             startUpdateNotifier();
-
-            Lang.initializeFile();
         });
 
         notifyPlayers(null);
@@ -188,12 +186,11 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.fileManager.loadFile("Config", "/");
         this.fileManager.loadFile("Layouts", "/");
 
-        Lang.initPreDefinedLanguages(this);
-        Lang.checkLanguageKeys(this, fileManager);
+        Lang.init(this, fileManager);
     }
 
     private void checkPermissions() {
-        if (!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
+        if (!arePermissionsEnabled()) {
             Permissions.PERMISSION = null;
             Permissions.PERMISSION_INITIATE = null;
         }
@@ -280,6 +277,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         ConfigFile file = this.fileManager.loadFile("Config", "/", false, true);
         this.oldConfig = file.getConfig();
         this.fileManager.unloadFile(file);
+    }
+
+    public boolean arePermissionsEnabled() {
+        return fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true);
     }
 
     public TradeHandler getTradeManager() {

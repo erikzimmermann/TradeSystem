@@ -57,6 +57,7 @@ public abstract class Trade {
     protected final TradingGUI[] guis = new TradingGUI[2];
     protected final List<Integer> slots = new ArrayList<>();
     protected final List<Integer> otherSlots = new ArrayList<>();
+    private final Set<Runnable> subscribers = new HashSet<>();
 
     protected final boolean[] ready = new boolean[] {false, false};
     protected final boolean[] pause = new boolean[] {false, false};
@@ -265,7 +266,7 @@ public abstract class Trade {
      * @param invokeTradeUpdate True, if the current state should be updated. Active countdowns will be stopped then.
      */
     public void onTradeOfferChange(boolean invokeTradeUpdate) {
-        if (TradeSystem.man().isRevokeReadyOnChange()) {
+        if (TradeSystem.handler().isRevokeReadyOnChange()) {
             setReadyState(0, false);
             setReadyState(1, false);
         }
@@ -287,6 +288,24 @@ public abstract class Trade {
     }
 
     /**
+     * Registers runnables that will be executed when the trade is updated.
+     *
+     * @param runnable The runnable to register.
+     */
+    public void subscribe(@NotNull Runnable runnable) {
+        subscribers.add(runnable);
+    }
+
+    /**
+     * Unregisters runnables that will be executed when the trade is updated.
+     *
+     * @param runnable The runnable to unregister.
+     */
+    public void unsubscribe(@NotNull Runnable runnable) {
+        subscribers.remove(runnable);
+    }
+
+    /**
      * Update displayed items and start countdown if both players are ready.
      */
     public void update() {
@@ -304,6 +323,8 @@ public abstract class Trade {
             countdown = null;
             synchronizeTitle();
         }
+
+        subscribers.forEach(Runnable::run);
 
         // update inventory a tick later to fix some visualization bugs
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory), 1);
@@ -422,8 +443,8 @@ public abstract class Trade {
     protected CompletableFuture<Void> runCountdown() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        int interval = TradeSystem.man().getCountdownInterval();
-        int repetitions = TradeSystem.man().getCountdownRepetitions();
+        int interval = TradeSystem.handler().getCountdownInterval();
+        int repetitions = TradeSystem.handler().getCountdownRepetitions();
         this.countdown = new BukkitRunnable() {
             @Override
             public void run() {
@@ -436,13 +457,16 @@ public abstract class Trade {
 
                 if (!ready[0] || !ready[1]) {
                     this.cancel();
-                    Trade.this.getViewers().forEach(p -> TradeSystem.man().playCountdownStopSound(p));
+                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
                     countdownTicks = 0;
                     countdown = null;
+
+                    subscribers.forEach(Runnable::run);
                     guis().forEach(TradingGUI::synchronizeTitle);
                     return;
                 }
 
+                subscribers.forEach(Runnable::run);
                 if (countdownTicks == repetitions) {
                     future.complete(null);
                     this.cancel();
@@ -451,7 +475,7 @@ public abstract class Trade {
                     return;
                 } else {
                     guis().forEach(TradingGUI::synchronizeTitle);
-                    Trade.this.getViewers().forEach(p -> TradeSystem.man().playCountdownTickSound(p));
+                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownTickSound(p));
                 }
 
                 countdownTicks++;
@@ -582,8 +606,8 @@ public abstract class Trade {
         this.guis[0] = null;
         this.guis[1] = null;
 
-        TradeSystem.man().unregisterTrade(players[0]);
-        TradeSystem.man().unregisterTrade(players[1]);
+        TradeSystem.handler().unregisterTrade(players[0]);
+        TradeSystem.handler().unregisterTrade(players[1]);
 
         if (!alreadyCalled) cancelling(message);
 
@@ -610,7 +634,7 @@ public abstract class Trade {
 
     private void postFinish(@Nullable Player player, int id, boolean droppedItems, @NotNull TradeResult result) {
         if (guis[id] != null) guis[id].clear();
-        TradeSystem.man().unregisterTrade(players[id]);
+        TradeSystem.handler().unregisterTrade(players[id]);
 
         PlayerTradeResult playerResult = result instanceof PlayerTradeResult ? (PlayerTradeResult) result : null;
         if (player != null && playerResult != null) {
@@ -621,7 +645,7 @@ public abstract class Trade {
             Bukkit.getPluginManager().callEvent(e);
 
             if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, playerResult, e));
-            if (e.isPlayFinishSound()) TradeSystem.man().playFinishSound(player);
+            if (e.isPlayFinishSound()) TradeSystem.handler().playFinishSound(player);
         }
     }
 
@@ -659,11 +683,11 @@ public abstract class Trade {
         // collect reports and sort them
         List<String> list = new ArrayList<>();
 
-        if (TradeSystem.man().isTradeReportEconomy()) {
+        if (TradeSystem.handler().isTradeReportEconomy()) {
             if (event.getEconomyReport() != null) list.addAll(event.getEconomyReport());
             else list.addAll(result.buildEconomyReport());
         }
-        if (TradeSystem.man().isTradeReportItems()) {
+        if (TradeSystem.handler().isTradeReportItems()) {
             if (event.getItemReport() != null) list.addAll(event.getItemReport());
             else list.addAll(result.buildItemReport());
         }
@@ -706,7 +730,7 @@ public abstract class Trade {
             boolean ownShulkerBox = getSlots().contains(shulkerPeek.getOriginalSlot());
             if (!ownShulkerBox) {
                 try {
-                    TradeSystem.man().playChangeDuringShulkerPeekSound(p);
+                    TradeSystem.handler().playChangeDuringShulkerPeekSound(p);
                     shulkerPeek.close();
                 } catch (AlreadyClosedException e) {
                     throw new RuntimeException(e);
@@ -1213,15 +1237,15 @@ public abstract class Trade {
     }
 
     protected final void playCountDownStopSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playCountdownStopSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
     }
 
     protected final void playStartSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playStartSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playStartSound(p));
     }
 
     protected final void playCancelSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playCancelSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playCancelSound(p));
     }
 
     public boolean isInitiationServer() {

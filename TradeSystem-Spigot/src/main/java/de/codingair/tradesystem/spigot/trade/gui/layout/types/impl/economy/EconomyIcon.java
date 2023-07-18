@@ -61,10 +61,10 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     public @Nullable BigDecimal convertInput(@NotNull String input) {
         if (input.isEmpty()) return BigDecimal.ZERO;
 
-        BigDecimal value = (BigDecimal) TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
+        BigDecimal value = (BigDecimal) TradeSystem.handler().getMoneyPattern().parse(input, new ParsePosition(0));
         if (value == null) return BigDecimal.ZERO;
 
-        BigDecimal factor = TradeSystem.man().getMoneyShortcutFactor(input);
+        BigDecimal factor = TradeSystem.handler().getMoneyShortcutFactor(input);
         if (factor != null) value = value.multiply(factor);
 
         return value;
@@ -109,7 +109,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     public static @NotNull String makeFancyString(@Nullable BigDecimal current, boolean decimal) {
         if (current == null) return "";
 
-        Map.Entry<String, BigDecimal> shortcut = TradeSystem.man().getApplicableMoneyShortcut(current);
+        Map.Entry<String, BigDecimal> shortcut = TradeSystem.handler().getApplicableMoneyShortcut(current);
         String appendix = "";
         if (shortcut != null) {
             current = current.divide(shortcut.getValue(), current.precision(), RoundingMode.FLOOR);
@@ -118,7 +118,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
         Number number = current;
         if (!decimal) number = number.intValue();
-        return TradeSystem.man().getMoneyPattern().format(number) + appendix;
+        return TradeSystem.handler().getMoneyPattern().format(number) + appendix;
     }
 
     @Override
@@ -159,7 +159,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         int id = trade.getId(player);
         BigDecimal diff = getOverallDifference(trade, id);
 
-        String fancyDiff = TradeSystem.man().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
+        String fancyDiff = TradeSystem.handler().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
 
         int sign = diff.signum();
         if (sign < 0) {

@@ -54,7 +54,7 @@ public class PlaceholderDependency implements PluginDependency {
 
     @Nullable
     static String apply(@NotNull Player player, @NotNull String id) {
-        Trade t = TradeSystem.man().getTrade(player);
+        Trade t = TradeSystem.handler().getTrade(player);
 
         switch (id.toLowerCase()) {
             case "partner":
@@ -64,19 +64,19 @@ public class PlaceholderDependency implements PluginDependency {
 
             case "countdown":
                 if (t != null && t.getCountdown() != null) {
-                    int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
+                    int remaining = (int) Math.ceil((TradeSystem.handler().getCountdownInterval() * (TradeSystem.handler().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
                     return remaining + "";
                 } else return "";
 
             case "countdown_fancy":
                 if (t != null && t.getCountdown() != null) {
-                    int remaining = (int) Math.ceil((TradeSystem.man().getCountdownInterval() * (TradeSystem.man().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
+                    int remaining = (int) Math.ceil((TradeSystem.handler().getCountdownInterval() * (TradeSystem.handler().getCountdownRepetitions() - t.getCountdownTicks())) / 20F);
                     return Lang.get("Fancy_Countdown").replace("%seconds%", remaining + "");
                 }
                 return "";
 
             case "status":
-                if (TradeSystem.man().isOffline(player)) return Lang.get("Offline");
+                if (TradeSystem.handler().isOffline(player)) return Lang.get("Offline");
                 else return Lang.get("Online");
 
             case "is_trading":

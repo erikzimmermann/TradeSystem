@@ -317,7 +317,7 @@ public class TradeHandler {
     }
 
     public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
-        if (TradeSystem.man().isTrading(player) || TradeSystem.man().isTrading(other)) {
+        if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }
@@ -559,5 +559,9 @@ public class TradeHandler {
 
     public boolean isTradeReportEconomy() {
         return tradeReportEconomy;
+    }
+
+    public HashMap<String, Trade> getTrades() {
+        return trades;
     }
 }

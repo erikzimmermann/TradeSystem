@@ -70,14 +70,14 @@ public class ProxyDataManager {
         Pattern pattern = TradeSystem.getInstance().getLayoutManager().getActive();
 
         int patternHash = pattern.hashCode();
-        int cooldown = TradeSystem.man().getCountdownRepetitions() * TradeSystem.man().getCountdownInterval();
+        int cooldown = TradeSystem.handler().getCountdownRepetitions() * TradeSystem.handler().getCountdownInterval();
 
         int blacklist = 0;
-        for (BlockedItem blockedItem : TradeSystem.man().getBlacklist()) {
+        for (BlockedItem blockedItem : TradeSystem.handler().getBlacklist()) {
             blacklist = Objects.hash(blacklist, blockedItem.hashCode());
         }
 
-        return Objects.hash(patternHash, cooldown, TradeSystem.man().isRevokeReadyOnChange(), blacklist);
+        return Objects.hash(patternHash, cooldown, TradeSystem.handler().isRevokeReadyOnChange(), blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {
@@ -122,7 +122,7 @@ public class ProxyDataManager {
     }
 
     public @Nullable ProxyTrade getTrade(@NotNull String name, @NotNull String other) {
-        Trade trade = TradeSystem.man().getTrade(name);
+        Trade trade = TradeSystem.handler().getTrade(name);
 
         if (trade instanceof ProxyTrade && other.equals(trade.getOther(name))) return (ProxyTrade) trade;
         return null;

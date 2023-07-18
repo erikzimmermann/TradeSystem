@@ -31,7 +31,7 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
     public InputIcon(@NotNull ItemStack itemStack) {
         super(itemStack);
 
-        switch (TradeSystem.man().getInputGUI()) {
+        switch (TradeSystem.handler().getInputGUI()) {
             case SIGN:
                 this.icon = new SimpleSignGUIIcon<G>(itemStack) {
                     @Override
