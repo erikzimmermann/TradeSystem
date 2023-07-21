@@ -18,6 +18,9 @@ TradeSystem:
   # This is highly recommended to be enabled. Otherwise, players can easily scam others. Only disable this setting if you know your users.
   Revoke_Ready_State_on_Offer_Change: true
 
+  # Whether to only display an items display name rather than item type & display name in chat when the trade is successful.
+  Only_DisplayName_in_Message: false
+
   Allowed_GameModes:
   - SURVIVAL
   Blocked_Worlds:

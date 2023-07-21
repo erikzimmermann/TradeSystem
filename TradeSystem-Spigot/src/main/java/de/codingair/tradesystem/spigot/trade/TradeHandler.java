@@ -66,6 +66,7 @@ public class TradeHandler {
     private InputGUI inputGUI = InputGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
+    private boolean onlyDisplayNameInMessage = false;
 
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
@@ -104,6 +105,7 @@ public class TradeHandler {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
+        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Only_DisplayName_in_Message", false);
 
         this.tradeReportItems = config.getBoolean("TradeSystem.Trade_Finish_Report.Items", true);
         this.tradeReportEconomy = config.getBoolean("TradeSystem.Trade_Finish_Report.Economy", true);
@@ -432,6 +434,10 @@ public class TradeHandler {
 
     public void setDropItems(boolean dropItems) {
         this.dropItems = dropItems;
+    }
+
+    public boolean isOnlyDisplayNameInMessage() {
+        return onlyDisplayNameInMessage;
     }
 
     public boolean isOffline(Player player) {

@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.utils.ChatColor;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -38,7 +39,8 @@ public class PlayerTradeResult extends TradeResult {
                 ItemMeta meta = item.getItemMeta();
                 assert meta != null;
 
-                if (meta.hasDisplayName()) return formatName(item.getType().name()) + " (" + ChatColor.stripColor(meta.getDisplayName()) + ")";
+                if (meta.hasDisplayName())
+                    return TradeSystem.handler().isOnlyDisplayNameInMessage() ? meta.getDisplayName() : formatName(item.getType().name()) + " (" + ChatColor.stripColor(meta.getDisplayName()) + ")";
             }
 
             return formatName(item.getType().name());
