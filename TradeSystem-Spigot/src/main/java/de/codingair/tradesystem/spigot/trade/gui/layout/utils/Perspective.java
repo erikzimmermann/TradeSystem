@@ -64,6 +64,13 @@ public enum Perspective {
     }
 
     /**
+     * @return Whether this perspective is either {@link #PRIMARY} or {@link #SECONDARY}.
+     */
+    public boolean isMain() {
+        return isPrimary() || isSecondary();
+    }
+
+    /**
      * @return An array containing all main perspectives. The main perspectives are {@link #PRIMARY} and {@link #SECONDARY}.
      */
     @NotNull

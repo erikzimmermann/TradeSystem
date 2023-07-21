@@ -29,7 +29,7 @@ public class TradeGUIListener implements Listener {
         Perspective other = perspective.flip();
 
         configuration.targetSlots = e -> trade.getSlots();
-        configuration.isItemAllowedInInventory = items -> {
+        configuration.isItemAllowedInInventory = (items, slots) -> {
             for (ItemStack item : items) {
                 if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(other), trade.getNames()[other.id()], trade.getUniqueId(other), item)) {
                     player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
@@ -63,8 +63,6 @@ public class TradeGUIListener implements Listener {
             Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
-                if (e.getNewItems().isEmpty()) return;
-
                 // Cancelling the drag event resets the cursor in a later tick.
                 // Therefore, simply remove all new items added during this event.
                 e.setCancelled(false);

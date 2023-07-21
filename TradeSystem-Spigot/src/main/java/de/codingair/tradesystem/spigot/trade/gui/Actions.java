@@ -53,9 +53,9 @@ public class Actions {
          * {@link org.bukkit.event.inventory.InventoryAction#PLACE_SOME PLACE_SOME} and
          * {@link org.bukkit.event.inventory.InventoryAction#PLACE_ONE PLACE_ONE}.
          */
-        public @NotNull Function<Collection<ItemStack>, Boolean> isItemAllowedInInventory;
+        public @NotNull BiFunction<List<ItemStack>, List<Integer>, Boolean> isItemAllowedInInventory;
 
-        public Configuration(@NotNull Function<Integer, Integer> slotMapper, @NotNull Function<InventoryInteractEvent, List<Integer>> targetSlots, @NotNull BiFunction<InventoryInteractEvent, Integer, Inventory> inventoryMapper, boolean collectFromBothInventories, @NotNull Function<Collection<ItemStack>, Boolean> isItemAllowedInInventory) {
+        public Configuration(@NotNull Function<Integer, Integer> slotMapper, @NotNull Function<InventoryInteractEvent, List<Integer>> targetSlots, @NotNull BiFunction<InventoryInteractEvent, Integer, Inventory> inventoryMapper, boolean collectFromBothInventories, @NotNull BiFunction<List<ItemStack>, List<Integer>, Boolean> isItemAllowedInInventory) {
             this.slotMapper = slotMapper;
             this.targetSlots = targetSlots;
             this.inventoryMapper = inventoryMapper;
@@ -70,7 +70,7 @@ public class Actions {
                     e -> IntStream.range(0, e.getView().getTopInventory().getSize()).collect(ArrayList::new, ArrayList::add, ArrayList::addAll),
                     (e, slot) -> e.getView().getTopInventory(),
                     true,
-                    i -> true
+                    (item, slot) -> true
             );
         }
     }
@@ -86,6 +86,9 @@ public class Actions {
     public static boolean projectResult(@NotNull InventoryDragEvent event, @NotNull Configuration configuration) {
         int topSize = event.getView().getTopInventory().getSize();
 
+        boolean onlyInBottom = event.getRawSlots().stream().allMatch(i -> i >= topSize);
+        if (onlyInBottom) return false;
+
         // check target slots before blacklisted items
         List<Integer> targetSlots = configuration.targetSlots.apply(event);
 
@@ -98,14 +101,28 @@ public class Actions {
         }
 
         // check blacklisted items
-        Set<ItemStack> topItems = event.getNewItems().entrySet().stream()
-                .filter(e -> e.getKey() < topSize)
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toSet());
-        if (!configuration.isItemAllowedInInventory.apply(topItems)) {
+        List<Integer> slots = new ArrayList<>();
+        List<ItemStack> items = new ArrayList<>();
+        for (Map.Entry<Integer, ItemStack> e : event.getNewItems().entrySet()) {
+            if (e.getKey() >= topSize) continue;
+
+            slots.add(e.getKey());
+            items.add(e.getValue());
+        }
+        if (!configuration.isItemAllowedInInventory.apply(items, slots)) {
             // make sure to cancel the drag event since this is not done before
             event.setCancelled(true);
             return false;
+        }
+
+        // add items to the inventory
+        for (Map.Entry<Integer, ItemStack> e : event.getNewItems().entrySet()) {
+            Inventory inventory = configuration.inventoryMapper.apply(event, e.getKey());
+
+            // only set item if it is not the top inventory
+            if (inventory.equals(event.getView().getTopInventory())) continue;
+
+            inventory.setItem(configuration.slotMapper.apply(e.getKey() % topSize), e.getValue());
         }
 
         // Bukkit does not allow to cancel the event and to make changes to the inventory at the same time.
@@ -170,7 +187,7 @@ public class Actions {
 
     private static boolean handlePickUp(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
@@ -242,7 +259,7 @@ public class Actions {
 
     private static boolean handlePlace(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
@@ -253,7 +270,7 @@ public class Actions {
                 ItemStack cursor = event.getView().getCursor();
                 if (nullOrAir(cursor)) break;
 
-                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singleton(cursor))) break;
+                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot()))) break;
 
                 if (currentItem != null) {
                     if (cursor.isSimilar(currentItem)) {
@@ -277,7 +294,7 @@ public class Actions {
                 ItemStack cursor = event.getView().getCursor();
                 if (nullOrAir(cursor)) break;
 
-                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singleton(cursor))) break;
+                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot()))) break;
 
                 if (currentItem != null) {
                     if (cursor.isSimilar(currentItem)) {
@@ -309,7 +326,7 @@ public class Actions {
 
     private static boolean handleDrop(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
@@ -375,14 +392,16 @@ public class Actions {
     private static boolean handleCollect(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, @NotNull Configuration configuration) {
         if (nullOrAir(event.getCursor())) return false;
 
-        List<Integer> target = configuration.targetSlots.apply(event);
-        target.sort(Comparator.naturalOrder());
+        ItemStack cursor = event.getCursor();
+
+        List<Integer> target = new ArrayList<>(configuration.targetSlots.apply(event));
+        sortByAmount(cursor, target, inventory);
         boolean changed = false;
 
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory || configuration.collectFromBothInventories) {
             for (int slot : target) {
-                if (collectTo(inventory, event.getCursor(), slot)) break;
+                if (collectTo(inventory, configuration.slotMapper.apply(slot), cursor)) break;
                 changed = true;
             }
         }
@@ -391,24 +410,42 @@ public class Actions {
         if (bottomInventory || configuration.collectFromBothInventories) {
             Inventory bottom = event.getView().getBottomInventory();
 
-            for (int slot = 0; slot < bottom.getSize(); slot++) {
-                if (collectTo(bottom, event.getCursor(), slot)) break;
+            target = IntStream
+                    .range(0, bottom.getSize())
+                    .boxed()
+                    .collect(Collectors.toList());
+            sortByAmount(cursor, target, bottom);
+
+            for (int slot : target) {
+                if (collectTo(bottom, slot, cursor)) break;
             }
         }
 
         return changed;
     }
 
+    private static void sortByAmount(@NotNull ItemStack cursor, @NotNull List<Integer> target, @NotNull Inventory bottom) {
+        target.sort((slot1, slot2) -> {
+            ItemStack item1 = bottom.getItem(slot1);
+            ItemStack item2 = bottom.getItem(slot2);
+
+            int amount1 = item1 != null && item1.isSimilar(cursor) ? item1.getAmount() : 0;
+            int amount2 = item2 != null && item2.isSimilar(cursor) ? item2.getAmount() : 0;
+
+            return Integer.compare(amount1, amount2);
+        });
+    }
+
     private static boolean handleSwap(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         int switchTo = event.getHotbarButton();
         ItemStack switched = event.getView().getBottomInventory().getItem(switchTo);
         boolean changed = false;
 
-        if (topInventory && switched != null && !configuration.isItemAllowedInInventory.apply(Collections.singleton(switched)))
+        if (topInventory && switched != null && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(switched), Collections.singletonList(event.getSlot())))
             return false;
         if (Objects.equals(currentItem, switched)) return false;
 
@@ -423,12 +460,12 @@ public class Actions {
 
     private static boolean handleMove(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         if (nullOrAir(clickedItem)) return false;
 
-        if (!topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singleton(clickedItem)))
+        if (!topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(clickedItem), Collections.singletonList(event.getRawSlot())))
             return false;
         boolean changed = false;
 
@@ -445,6 +482,7 @@ public class Actions {
             int freeSlot = -1;
 
             for (int currentSlot : targetSlots) {
+                currentSlot = configuration.slotMapper.apply(currentSlot);
                 ItemStack current = inventory.getItem(currentSlot);
                 if (nullOrAir(current) && freeSlot == -1) freeSlot = currentSlot;
                 if (nullOrAir(current) || !current.isSimilar(clickedItem)) continue;
@@ -484,13 +522,13 @@ public class Actions {
 
     private static boolean handleExchange(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(slot)) return false;
+        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
 
         ItemStack cursor = event.getCursor();
-        if (cursor != null && topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singleton(cursor)))
+        if (cursor != null && topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
             return false;
 
         if (topInventory) {
@@ -507,11 +545,11 @@ public class Actions {
      * Tries to collect the item in the given slot to the given {@link ItemStack}. Checks for similarity first.
      *
      * @param inventory The {@link Inventory} to collect from.
-     * @param to        The {@link ItemStack} to collect to.
      * @param slot      The slot to collect from.
+     * @param to        The {@link ItemStack} to collect to.
      * @return Whether the item 'to' was fully merged.
      */
-    private static boolean collectTo(@NotNull Inventory inventory, @NotNull ItemStack to, int slot) {
+    private static boolean collectTo(@NotNull Inventory inventory, int slot, @NotNull ItemStack to) {
         ItemStack from = inventory.getItem(slot);
 
         if (from != null && to.isSimilar(from)) {
