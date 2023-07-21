@@ -222,10 +222,11 @@ public abstract class Trade {
     /**
      * Update all displayed items on both sides (i.e. the items that one receive).
      *
-     * @return True if something has changed.
+     * @return The perspectives that have changed their displayed items.
      */
-    private boolean updateDisplayedItems() {
-        boolean change = false;
+    @NotNull
+    private Set<Perspective> updateDisplayedItems() {
+        Set<Perspective> change = new HashSet<>();
 
         if (isActive()) {
             for (Perspective perspective : Perspective.main()) {
@@ -237,7 +238,7 @@ public abstract class Trade {
                     ItemStack other = getCurrentDisplayedItem(perspective.flip(), slotId);
 
                     if (!Objects.equals(item, other)) {
-                        change = true;
+                        change.add(perspective);
                         updateDisplayItem(perspective.flip(), slotId, item);
                         onTradeOfferChange(false);
                     }
@@ -305,8 +306,8 @@ public abstract class Trade {
      * Update displayed items and start countdown if both players are ready.
      */
     public void update() {
-        boolean someChange = updateDisplayedItems();
-        if (someChange) closeShulkerPeekingGUIs();
+        Set<Perspective> someChange = updateDisplayedItems();
+        if (!someChange.isEmpty()) closeShulkerPeekingGUIs(someChange);
 
         if (this.ready[0] && this.ready[1]) finish().whenComplete((suc, err) -> {
             if (err != null) err.printStackTrace();
@@ -726,16 +727,17 @@ public abstract class Trade {
 
     /**
      * Close shulker peeking GUIs in case of trade offer changes.
+     *
+     * @param invokedBy The perspectives that invoked the change which caused closing the shulker GUIs.
      */
-    private void closeShulkerPeekingGUIs() {
-        getViewers().forEach(p -> {
-            ShulkerPeekGUI shulkerPeek = API.getRemovable(p, ShulkerPeekGUI.class);
+    private void closeShulkerPeekingGUIs(@NotNull Set<Perspective> invokedBy) {
+        getViewers().forEach(player -> {
+            ShulkerPeekGUI shulkerPeek = API.getRemovable(player, ShulkerPeekGUI.class);
             if (shulkerPeek == null) return;
 
-            boolean ownShulkerBox = getSlots().contains(shulkerPeek.getOriginalSlot());
-            if (!ownShulkerBox) {
+            if (invokedBy.contains(shulkerPeek.getOwner())) {
                 try {
-                    TradeSystem.handler().playChangeDuringShulkerPeekSound(p);
+                    TradeSystem.handler().playChangeDuringShulkerPeekSound(player);
                     shulkerPeek.close();
                 } catch (AlreadyClosedException e) {
                     throw new RuntimeException(e);
@@ -1104,7 +1106,7 @@ public abstract class Trade {
                 synchronizeTradeIcon(perspective, tradeIcon, true);
 
                 // make sure player get notified when something changed
-                closeShulkerPeekingGUIs();
+                closeShulkerPeekingGUIs(Collections.singleton(perspective));
 
                 // status icon might can be ready now
                 updateStatusIcon(perspective);

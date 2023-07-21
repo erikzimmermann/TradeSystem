@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.shulker;
 
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
@@ -11,11 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShulkerPeekGUI extends GUI {
-    private final int originalSlot;
+    private final Perspective owner;
 
-    public ShulkerPeekGUI(@NotNull Player player, @NotNull ItemStack item, int originalSlot) {
+    public ShulkerPeekGUI(@NotNull Player player, @NotNull ItemStack item, @NotNull Perspective owner) {
         super(player, TradeSystem.getInstance(), 36, Lang.get("Shulker_Box", player), true);
-        this.originalSlot = originalSlot;
+        this.owner = owner;
 
         ShulkerBox box = getBoxFrom(item);
         if (box != null) {
@@ -39,8 +40,12 @@ public class ShulkerPeekGUI extends GUI {
         return null;
     }
 
-    public int getOriginalSlot() {
-        return originalSlot;
+    /**
+     * @return the perspective of the owner of the shulker box.
+     */
+    @NotNull
+    public Perspective getOwner() {
+        return owner;
     }
 
     public static boolean isShulkerBox(@Nullable ItemStack item) {

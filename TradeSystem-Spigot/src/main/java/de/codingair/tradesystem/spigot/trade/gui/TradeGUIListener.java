@@ -121,7 +121,7 @@ public class TradeGUIListener implements Listener {
             if (ownSlots) {
                 // shulker peeking
                 if (event.getClick() == ClickType.RIGHT && Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(event.getCurrentItem())) {
-                    openShulkerPeekingGUI(event, player, trade, perspective);
+                    openShulkerPeekingGUI(event, player, trade, perspective, perspective);
                     return true;
                 }
             } else {
@@ -129,7 +129,7 @@ public class TradeGUIListener implements Listener {
                 if (otherSlots) {
                     // shulker peeking
                     if (Version.atLeast(11) && ShulkerPeekGUI.isShulkerBox(event.getCurrentItem())) {
-                        openShulkerPeekingGUI(event, player, trade, perspective);
+                        openShulkerPeekingGUI(event, player, trade, perspective, perspective.flip());
                         return true;
                     }
                 }
@@ -139,11 +139,11 @@ public class TradeGUIListener implements Listener {
         return false;
     }
 
-    private void openShulkerPeekingGUI(@NotNull InventoryClickEvent e, @NotNull Player player, @NotNull Trade trade, @NotNull Perspective perspective) {
+    private void openShulkerPeekingGUI(@NotNull InventoryClickEvent e, @NotNull Player player, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective owner) {
         TradingGUI tradingGUI = trade.getGUIs()[perspective.id()];
         try {
             assert e.getCurrentItem() != null;
-            tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), e.getSlot()), true, true);
+            tradingGUI.openNestedGUI(new ShulkerPeekGUI(player, e.getCurrentItem(), owner), true, true);
         } catch (AlreadyOpenedException | NoPageException | IsWaitingException ex) {
             throw new RuntimeException(ex);
         }
