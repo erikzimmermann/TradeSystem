@@ -620,10 +620,16 @@ public abstract class Trade {
         } else {
             if (initiationServer) TradeLogService.log(names[0], names[1], TradeLog.CANCELLED.get());
 
-            for (Perspective perspective : Perspective.main()) {
-                String m = Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Cancelled");
-                sendMessage(perspective, m);
-            }
+            getViewers().forEach(player -> {
+                Perspective perspective = getPerspective(player);
+
+                if (perspective.isMain()) {
+                    String m = Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Cancelled");
+                    sendMessage(perspective, m);
+                } else {
+                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", player));
+                }
+            });
         }
 
 
