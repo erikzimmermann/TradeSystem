@@ -7,12 +7,13 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShulkerPeekGUI extends GUI {
     private final int originalSlot;
 
-    public ShulkerPeekGUI(Player player, ItemStack item, int originalSlot) {
+    public ShulkerPeekGUI(@NotNull Player player, @NotNull ItemStack item, int originalSlot) {
         super(player, TradeSystem.getInstance(), 36, Lang.get("Shulker_Box", player), true);
         this.originalSlot = originalSlot;
 
@@ -26,7 +27,7 @@ public class ShulkerPeekGUI extends GUI {
     }
 
     @Nullable
-    private ShulkerBox getBoxFrom(ItemStack item) {
+    private ShulkerBox getBoxFrom(@NotNull ItemStack item) {
         if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta b = (BlockStateMeta) item.getItemMeta();
 
@@ -42,7 +43,7 @@ public class ShulkerPeekGUI extends GUI {
         return originalSlot;
     }
 
-    public static boolean isShulkerBox(ItemStack item) {
+    public static boolean isShulkerBox(@Nullable ItemStack item) {
         return item != null && item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta && ((BlockStateMeta) item.getItemMeta()).getBlockState() instanceof ShulkerBox;
     }
 }

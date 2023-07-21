@@ -7,8 +7,6 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedEx
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
-import de.codingair.codingapi.tools.items.ItemBuilder;
-import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
@@ -30,6 +28,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.StatusI
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
+import de.codingair.tradesystem.spigot.trade.subscribe.PlayerSubscriber;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -61,8 +60,6 @@ public abstract class Trade {
 
     protected final boolean[] ready = new boolean[]{false, false};
     protected final boolean[] pause = new boolean[]{false, false};
-    protected final boolean[] cursor = new boolean[]{false, false};
-    protected final boolean[] waitForPickup = new boolean[]{false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
 
     protected Pattern pattern;
     protected Listener pickupListener;
@@ -125,10 +122,11 @@ public abstract class Trade {
 
     /**
      * @param perspective The perspective that should be checked.
-     * @return The inventory of the player.
+     * @return The inventory of the player including the current cursor.
      */
     @NotNull
     protected abstract PlayerInventory getPlayerInventory(@NotNull Perspective perspective);
+
 
     /**
      * @param perspective The perspective that received the item.
@@ -325,7 +323,7 @@ public abstract class Trade {
         subscribers.forEach(Runnable::run);
 
         // update inventory a tick later to fix some visualization bugs
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory), 1);
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory));
     }
 
     private boolean setReadyState(@NotNull Perspective perspective, boolean ready) {
@@ -352,6 +350,13 @@ public abstract class Trade {
      */
     public void updateLater(long delay) {
         Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), this::update, delay);
+    }
+
+    /**
+     * Update the trade in the next tick.
+     */
+    public void updateLater() {
+        updateLater(0);
     }
 
     /**
@@ -796,17 +801,18 @@ public abstract class Trade {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canPickup(Player player, ItemStack item) {
         PlayerInventory inv = new PlayerInventory(player, false);
+        Perspective perspective = getPerspective(player);
 
         for (Integer slot : this.slots) {
-            ItemStack back = guis[getPerspective(player).id()].getItem(slot);
+            ItemStack back = guis[perspective.id()].getItem(slot);
             if (back != null && back.getType() != Material.AIR) {
                 inv.addItem(back);
             }
         }
 
         //placeholder
-        if (this.cursor[getPerspective(player).id()]) {
-            ItemStack cursor = new ItemBuilder(XMaterial.BEDROCK).setName("PLACEHOLDER_CURSOR").getItem();
+        ItemStack cursor = player.getOpenInventory().getCursor();
+        if (cursor != null) {
             if (!inv.addItem(cursor, false)) return false;
         }
 
@@ -823,7 +829,7 @@ public abstract class Trade {
                     if (guis[i] == null) continue;
 
                     if (e.getPlayer().getName().equals(names[i])) {
-                        if (!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[i])
+                        if (!canPickup(e.getPlayer(), e.getItem().getItemStack()))
                             e.setCancelled(true);
                         else {
                             //player picked up an item, check trading items -> balance items of other trader
@@ -986,7 +992,7 @@ public abstract class Trade {
     }
 
     /**
-     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     * Checks if the given collection of items can be picked up by the trade partner of the given player.
      *
      * @param from The perspective of the trading player.
      * @param item The item that should be checked if it does not fit into the inventory of the trade partner.
@@ -1165,14 +1171,6 @@ public abstract class Trade {
         }));
     }
 
-    public boolean[] getCursor() {
-        return cursor;
-    }
-
-    public boolean[] getWaitForPickup() {
-        return waitForPickup;
-    }
-
     public BukkitRunnable getCountdown() {
         return countdown;
     }
@@ -1257,7 +1255,11 @@ public abstract class Trade {
     @NotNull
     public final Stream<Player> getViewers() {
         // Preparation for future features.
-        return getParticipants();
+        return Stream.concat(getParticipants(),
+                this.subscribers.stream()
+                        .filter(s -> s instanceof PlayerSubscriber)
+                        .map(s -> ((PlayerSubscriber) s).getPlayer())
+        );
     }
 
     @NotNull

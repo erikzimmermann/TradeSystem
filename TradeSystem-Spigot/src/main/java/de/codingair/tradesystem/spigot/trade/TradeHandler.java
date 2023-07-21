@@ -463,14 +463,10 @@ public class TradeHandler {
     /**
      * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy.
      *
-     * @param placer          The player that placed the item.
-     * @param receivingPlayer The player that should receive the item.
-     * @param receiver        The name of the receivingPlayer.
-     * @param receiverId      The {@link UUID} of the receivingPlayer.
-     * @param item            The {@link ItemStack} which will be traded.
+     * @param item The {@link ItemStack} which will be traded.
      * @return {@link Boolean#TRUE} if this item should be marked as blocked.
      */
-    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull UUID receiverId, @NotNull ItemStack item) {
+    public boolean isBlocked(@NotNull Trade trade, @NotNull ItemStack item) {
         boolean blacklisted = false;
 
         if (trade instanceof ProxyTrade) {
@@ -487,6 +483,22 @@ public class TradeHandler {
                 break;
             }
         }
+
+        return blacklisted;
+    }
+
+    /**
+     * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy and other plugins.
+     *
+     * @param placer          The player that placed the item.
+     * @param receivingPlayer The player that should receive the item.
+     * @param receiver        The name of the receivingPlayer.
+     * @param receiverId      The {@link UUID} of the receivingPlayer.
+     * @param item            The {@link ItemStack} which will be traded.
+     * @return {@link Boolean#TRUE} if this item should be marked as blocked.
+     */
+    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull UUID receiverId, @NotNull ItemStack item) {
+        boolean blacklisted = isBlocked(trade, item);
 
         TradeOfferItemEvent event;
         if (receivingPlayer == null) event = new TradeOfferItemEvent(placer, receiver, receiverId, item, blacklisted);

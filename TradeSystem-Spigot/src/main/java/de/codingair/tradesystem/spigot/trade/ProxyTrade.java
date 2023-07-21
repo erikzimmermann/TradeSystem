@@ -267,7 +267,17 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected @NotNull PlayerInventory getPlayerInventory(@NotNull Perspective perspective) {
-        if (perspective.isPrimary()) return new PlayerInventory(this.player, false);
+        if (perspective.isPrimary()) {
+            PlayerInventory inventory = new PlayerInventory(this.player, false);
+
+            if (inventory.getPlayer() != null) {
+                ItemStack item = inventory.getPlayer().getOpenInventory().getCursor();
+                if (item != null && item.getType() != Material.AIR) inventory.addItem(item);
+            }
+
+            return inventory;
+        }
+
         return new PlayerInventory(this.otherInventory);
     }
 
