@@ -1090,7 +1090,7 @@ public abstract class Trade {
 
     protected void informTransition(@NotNull TradeIcon from, @NotNull Perspective to) {
         try {
-            Method method = findInform(from.getClass(), from.getClass());
+            Method method = IconHandler.findInform(from.getClass(), from.getClass());
 
             TradeIcon consumer = getLayout()[to.id()].getIcon(IconHandler.getTransitionTarget(from.getClass()));
             method.invoke(from, consumer);
@@ -1142,22 +1142,6 @@ public abstract class Trade {
             default:
                 throw new IllegalStateException("Unexpected value: " + result);
         }
-    }
-
-    private @NotNull Method findInform(Class<? extends TradeIcon> origin, Class<? extends TradeIcon> icon) throws NoSuchMethodException {
-        try {
-            return icon.getMethod("inform", IconHandler.getTransitionTarget(origin));
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        //might be a generic
-        try {
-            return icon.getMethod("inform", TradeIcon.class);
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        //transition without transition method?
-        throw new NoSuchMethodException();
     }
 
     protected final void synchronizeTitle() {

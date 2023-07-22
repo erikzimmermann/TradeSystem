@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class IconHandler {
@@ -150,6 +151,7 @@ public class IconHandler {
     }
 
     private static void registerCosmetics() {
+        // currently not ready for usage: would require some item modification options ion the layout editor
         try {
             register(PlayerHeadIcon.class, new EditorInfo("Trader's head", Type.COSMETICS, (editor) -> new ItemBuilder(XMaterial.PLAYER_HEAD), false));
             register(OtherPlayerHeadIcon.class, new EditorInfo("Trade partner's head", Type.COSMETICS, (editor) -> new ItemBuilder(XMaterial.SKELETON_SKULL), false));
@@ -165,8 +167,13 @@ public class IconHandler {
         register(ShowExpPointIcon.class, new TransitionTargetEditorInfo("Exp point preview icon", ExpPointIcon.class));
     }
 
+    /**
+     *
+     * @param icon The icon class which should be checked.
+     * @return The found editor info of the given icon class.
+     */
     @NotNull
-    public static EditorInfo getInfo(Class<? extends TradeIcon> icon) {
+    public static EditorInfo getInfo(@NotNull Class<? extends TradeIcon> icon) {
         EditorInfo info = ICON_DATA.get(icon);
         if (info == null) throw new IllegalStateException("IconInfo from " + icon.getName() + " could not be found.");
         return info;
@@ -185,7 +192,8 @@ public class IconHandler {
         EditorInfo info = getInfo(icon);
 
         Class<? extends TradeIcon> target = info.getTransitionTarget();
-        if (target == null) throw new IllegalStateException("Could not found a transition target for " + icon.getName());
+        if (target == null)
+            throw new IllegalStateException("Could not found a transition target for " + icon.getName());
 
         return target;
     }
@@ -202,6 +210,11 @@ public class IconHandler {
         return (int) icons.values().stream().filter(icon::equals).count();
     }
 
+    /**
+     * @param type The type of the icons which should be returned.
+     * @return A list of all registered icons of the given type.
+     */
+    @NotNull
     public static List<EditorInfo> getIcons(@NotNull Type type) {
         List<EditorInfo> icons = new ArrayList<>();
 
@@ -213,6 +226,9 @@ public class IconHandler {
         return icons;
     }
 
+    /**
+     * @return A list of all registered icons which are necessary for the layout editor.
+     */
     public static List<EditorInfo> getNecessaryIcons() {
         List<EditorInfo> icons = new ArrayList<>();
 
@@ -223,5 +239,28 @@ public class IconHandler {
         }
 
         return icons;
+    }
+
+    /**
+     * @param origin The origin icon class from which data should be transmitted.
+     * @param icon   The icon class which should be informed.
+     * @return The method which should be called to transmit data.
+     * @throws NoSuchMethodException If no method could be found. Only fired when the layout is invalid.
+     */
+    @NotNull
+    public static Method findInform(@NotNull Class<? extends TradeIcon> origin, @NotNull Class<? extends TradeIcon> icon) throws NoSuchMethodException {
+        try {
+            return icon.getMethod("inform", IconHandler.getTransitionTarget(origin));
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        //might be a generic
+        try {
+            return icon.getMethod("inform", TradeIcon.class);
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        //transition without transition method?
+        throw new NoSuchMethodException();
     }
 }
