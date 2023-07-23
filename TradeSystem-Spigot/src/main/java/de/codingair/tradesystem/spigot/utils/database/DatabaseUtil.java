@@ -14,7 +14,7 @@ public class DatabaseUtil {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
 
-        String databaseType = config.getString("TradeSystem.TradeLog.Database.Type", "MYSQL");
+        String databaseType = config.getString("TradeSystem.Database.Type", "MYSQL");
 
         this.databaseType = DatabaseType.byName(databaseType);
         if (this.databaseType == null) throw new IllegalStateException("Invalid database type configured: " + databaseType);

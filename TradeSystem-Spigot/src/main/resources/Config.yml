@@ -101,16 +101,19 @@ TradeSystem:
     Toggle:
     - toggle
 
+  Database:
+    # Values: SQLite, MySQL
+    Type: SQLite
+    MySQL:
+      Connection_URL: "jdbc:mysql://localhost:3306/tradesystem?autoReconnect=true&useSSL=false"
+      User: root
+      Password: password
+
   # WARNING - This log is very basic and does not remove files automatically after some time, so you have to do it yourself.
   TradeLog:
     Enabled: false
-    Database:
-      # Values: BUKKIT (does not support in-game access to the log), SQLite, MySQL
-      Type: MySQL
-      MySQL:
-        Connection_URL: "jdbc:mysql://localhost:3306/tradelog?autoReconnect=true&useSSL=false"
-        User: root
-        Password: password
+    # The bukkit logger works additionally to the database logging.
+    Bukkit_logger: false
 
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:

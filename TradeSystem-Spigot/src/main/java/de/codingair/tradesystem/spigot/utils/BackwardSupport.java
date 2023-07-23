@@ -20,6 +20,7 @@ public class BackwardSupport {
         moveEasyMoneySelection();
         moveTradeLog();
         moveMySQLSettings();
+        outsourceDbFromTradeLog();
 
         if (changed) current.saveConfig();
     }
@@ -85,6 +86,22 @@ public class BackwardSupport {
             current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.Connection_URL", url);
             current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.User", old.getString("TradeSystem.TradeLog.Database.Db_user"));
             current.getConfig().set("TradeSystem.TradeLog.Database.MySQL.Password", old.getString("TradeSystem.TradeLog.Database.Db_password"));
+            changed = true;
+        }
+    }
+
+    private void outsourceDbFromTradeLog() {
+        if (old.contains("TradeSystem.TradeLog.Database")) {
+            //old
+
+            String type = old.getString("TradeSystem.TradeLog.Database.Type");
+            boolean bukkit = "bukkit".equalsIgnoreCase(type);
+            current.getConfig().set("TradeSystem.TradeLog.Bukkit_logger", bukkit);
+
+            current.getConfig().set("TradeSystem.Database.Type", bukkit ? "SQLite" : type);
+            current.getConfig().set("TradeSystem.Database.MySQL.Connection_URL", old.getString("TradeSystem.TradeLog.Database.MySQL.Connection_URL"));
+            current.getConfig().set("TradeSystem.Database.MySQL.User", old.getString("TradeSystem.TradeLog.Database.MySQL.User"));
+            current.getConfig().set("TradeSystem.Database.MySQL.Password", old.getString("TradeSystem.TradeLog.Database.MySQL.Password"));
             changed = true;
         }
     }

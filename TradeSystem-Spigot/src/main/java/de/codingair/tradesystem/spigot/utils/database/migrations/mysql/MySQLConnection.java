@@ -4,6 +4,8 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.Supplier;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,20 +22,22 @@ public class MySQLConnection {
     private final String password;
 
     private MySQLConnection() {
-        url = config.getString("TradeSystem.TradeLog.Database.MySQL.Connection_URL");
-        user = config.getString("TradeSystem.TradeLog.Database.MySQL.User");
+        url = config.getString("TradeSystem.Database.MySQL.Connection_URL");
+        user = config.getString("TradeSystem.Database.MySQL.User");
 
-        String password = config.getString("TradeSystem.TradeLog.Database.MySQL.Password");
+        String password = config.getString("TradeSystem.Database.MySQL.Password");
         if (password != null && password.equalsIgnoreCase("null")) password = null;
 
         this.password = password;
     }
 
+    @NotNull
     private static MySQLConnection getInstance() {
         if (instance == null) instance = new MySQLConnection();
         return instance;
     }
 
+    @NotNull
     public static Supplier<Connection, SQLException> getConnection() {
         return () -> getInstance().buildConnection();
     }
@@ -42,6 +46,7 @@ public class MySQLConnection {
         getConnection().get().close();
     }
 
+    @Nullable
     private Connection buildConnection() throws SQLException {
         if (url == null || user == null) return null;
         return DriverManager.getConnection(url, user, password);

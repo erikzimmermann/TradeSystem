@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 public enum DatabaseType {
     MYSQL,
     SQLITE,
-    BUKKIT,
     ;
 
     @Nullable

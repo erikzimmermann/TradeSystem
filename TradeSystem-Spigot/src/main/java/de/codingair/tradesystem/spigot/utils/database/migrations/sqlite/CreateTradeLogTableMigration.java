@@ -1,10 +1,11 @@
 package de.codingair.tradesystem.spigot.utils.database.migrations.sqlite;
 
 import de.codingair.tradesystem.spigot.utils.database.migrations.Migration;
+import org.jetbrains.annotations.NotNull;
 
 public class CreateTradeLogTableMigration implements Migration {
     @Override
-    public String getStatement() {
+    public @NotNull String getStatement() {
         return "CREATE TABLE IF NOT EXISTS tradelog ("
                 + "	id integer PRIMARY KEY,"
                 + "	player1 varchar(16) NOT NULL,"
@@ -15,10 +16,5 @@ public class CreateTradeLogTableMigration implements Migration {
                 " ON tradelog(player1);" +
                 " CREATE INDEX player2_tradelog" +
                 " ON tradelog(player2);";
-    }
-
-    @Override
-    public int getVersion() {
-        return 1;
     }
 }

@@ -1,20 +1,23 @@
 package de.codingair.tradesystem.spigot.utils.database.migrations.mysql;
 
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.Supplier;
-import de.codingair.tradesystem.spigot.utils.database.migrations.Migration;
 import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
+import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-public class MysqlMigrations implements SqlMigrations {
-    // Define all migrations in this list.
-    private static final List<Migration> migrations = Arrays.asList(
-            new CreateTradeLogTableMigration(),
-            new AddIndexTradeLogTableMigration());
+public class MysqlMigrations extends SqlMigrations {
+
+    static {
+        getInstance().register(TradeSystem.getInstance(),
+                new CreateTradeLogTableMigration(),
+                new AddIndexTradeLogTableMigration()
+        );
+    }
+
     private static MysqlMigrations instance;
     private final Supplier<Connection, SQLException> connection;
 
@@ -22,61 +25,24 @@ public class MysqlMigrations implements SqlMigrations {
         connection = MySQLConnection.getConnection();
     }
 
+    @Override
+    public void setVersion(@NotNull Connection connection, @NotNull String user, int version) throws SQLException {
+        try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO migrations VALUES (?, ?) ON DUPLICATE KEY UPDATE version=?;")) {
+            stmt.setString(1, user);
+            stmt.setInt(2, version);
+            stmt.setInt(3, version);
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public @NotNull Connection getConnection() throws SQLException {
+        return connection.get();
+    }
+
+    @NotNull
     public static MysqlMigrations getInstance() {
-        if (instance == null) {
-            instance = new MysqlMigrations();
-        }
+        if (instance == null) instance = new MysqlMigrations();
         return instance;
-    }
-
-    @Override
-    public void createMigrationTable() throws SQLException {
-        try (Connection con = this.connection.get(); Statement stmt = con.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS migrations (\n"
-                    + "	id BIGINT PRIMARY KEY AUTO_INCREMENT,\n"
-                    + "	version integer NOT NULL\n"
-                    + ");";
-            stmt.execute(sql);
-        }
-    }
-
-    @Override
-    public void runMigrations() throws SQLException {
-        try (Connection con = this.connection.get()) {
-            // Disabling auto commit because we want to manually commit
-            con.setAutoCommit(false);
-
-            int maxVersion = getMaxVersion();
-
-            List<Migration> validMigrations = migrations.stream().filter(m -> m.getVersion() > maxVersion)
-                    .sorted(Comparator.comparingInt(Migration::getVersion))
-                    .collect(Collectors.toList());
-
-            for (Migration migration : validMigrations) {
-                try (Statement stmt = con.createStatement()) {
-                    String sql = migration.getStatement();
-                    stmt.execute(sql);
-
-                    PreparedStatement migrationStatement = con.prepareStatement("INSERT INTO migrations (version) VALUES (?);");
-                    migrationStatement.setInt(1, migration.getVersion());
-                    migrationStatement.execute();
-
-                    con.commit();
-                }
-            }
-
-            // Reenabling auto commit
-            con.setAutoCommit(true);
-        }
-    }
-
-    private int getMaxVersion() {
-        try (Connection con = this.connection.get(); Statement stmt = con.createStatement()) {
-            ResultSet resultSet = stmt.executeQuery("SELECT max(version) as max from migrations");
-            return resultSet.next() ? resultSet.getInt("max") : 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 }

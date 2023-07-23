@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot.extras.tradelog;
 import de.codingair.codingapi.tools.Callback;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.BukkitTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
 import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
@@ -19,8 +18,12 @@ import java.util.List;
 public class TradeLogService {
     private static TradeLogService instance;
     private final TradeLogRepository tradeLogRepository = getTradeLogRepository();
+    private final boolean bukkitLogger;
 
     private TradeLogService() {
+        bukkitLogger = TradeSystem.getInstance().getFileManager()
+                .getFile("Config").getConfig()
+                .getBoolean("TradeSystem.TradeLog.Bukkit_logger", false);
     }
 
     private static TradeLogService getTradeLog() {
@@ -29,22 +32,21 @@ public class TradeLogService {
     }
 
     public static void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
-        if (message == null || notConnected()) return;
-
-        Runnable runnable = () -> getTradeLog().tradeLogRepository.log(player1, player2, message);
-
-        //it will throw an error if the plugin is not enabled
-        if (TradeSystem.getInstance().isEnabled()) Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), runnable);
-        else runnable.run();
+        logLater(player1, player2, message, 0);
     }
 
     public static void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
         if (message == null || notConnected()) return;
 
-        Runnable runnable = () -> getTradeLog().tradeLogRepository.log(player1, player2, message);
+        Runnable runnable = () -> {
+            if (getTradeLog().bukkitLogger)
+                Bukkit.getLogger().info("TradeLog [" + player1 + ", " + player2 + "] " + message);
+            getTradeLog().tradeLogRepository.log(player1, player2, message);
+        };
 
         //it will throw an error if the plugin is not enabled
-        if (TradeSystem.getInstance().isEnabled()) Bukkit.getScheduler().runTaskLaterAsynchronously(TradeSystem.getInstance(), runnable, delay);
+        if (TradeSystem.getInstance().isEnabled())
+            Bukkit.getScheduler().runTaskLaterAsynchronously(TradeSystem.getInstance(), runnable, delay);
         else runnable.run();
     }
 
@@ -84,8 +86,6 @@ public class TradeLogService {
                 return new MysqlTradeLogRepository(MySQLConnection.getConnection());
             case SQLITE:
                 return new SqlLiteTradeLogRepository();
-            case BUKKIT:
-                return new BukkitTradeLogRepository();
             default:
                 throw new RuntimeException("Invalid database type provided: " + type);
         }
