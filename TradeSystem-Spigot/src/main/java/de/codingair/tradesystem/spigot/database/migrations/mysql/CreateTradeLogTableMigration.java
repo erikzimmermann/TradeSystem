@@ -1,6 +1,6 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.mysql;
+package de.codingair.tradesystem.spigot.database.migrations.mysql;
 
-import de.codingair.tradesystem.spigot.utils.database.migrations.Migration;
+import de.codingair.tradesystem.spigot.database.migrations.Migration;
 import org.jetbrains.annotations.NotNull;
 
 public class CreateTradeLogTableMigration implements Migration {

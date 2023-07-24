@@ -1,6 +1,6 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.sqlite;
+package de.codingair.tradesystem.spigot.database.migrations.sqlite;
 
-import de.codingair.tradesystem.spigot.utils.database.migrations.Migration;
+import de.codingair.tradesystem.spigot.database.migrations.Migration;
 import org.jetbrains.annotations.NotNull;
 
 public class AddIndexTradeLogTableMigration implements Migration {

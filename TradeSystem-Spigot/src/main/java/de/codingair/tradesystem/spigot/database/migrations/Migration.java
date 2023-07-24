@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations;
+package de.codingair.tradesystem.spigot.database.migrations;
 
 import org.jetbrains.annotations.NotNull;
 

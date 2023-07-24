@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations;
+package de.codingair.tradesystem.spigot.database.migrations;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.ext.Extensions;
@@ -41,6 +41,7 @@ public abstract class SqlMigrations {
 
     private static int getOldMigrationVersion(@NotNull Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
+            // include `id` to be sure this is the old table
             String sql = "SELECT max(version) as max FROM migrations WHERE id IS NOT NULL;";
             ResultSet set = stmt.executeQuery(sql);
 

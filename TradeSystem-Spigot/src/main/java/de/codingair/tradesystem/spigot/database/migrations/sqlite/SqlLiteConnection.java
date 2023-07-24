@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.sqlite;
+package de.codingair.tradesystem.spigot.database.migrations.sqlite;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
 import org.jetbrains.annotations.NotNull;

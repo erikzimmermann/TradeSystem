@@ -1,4 +1,4 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.mysql;
+package de.codingair.tradesystem.spigot.database.migrations.mysql;
 
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;

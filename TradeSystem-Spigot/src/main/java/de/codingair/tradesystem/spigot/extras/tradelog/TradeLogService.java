@@ -2,12 +2,11 @@ package de.codingair.tradesystem.spigot.extras.tradelog;
 
 import de.codingair.codingapi.tools.Callback;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.database.DatabaseType;
+import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.MysqlTradeLogRepository;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters.SqlLiteTradeLogRepository;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseType;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseUtil;
-import de.codingair.tradesystem.spigot.utils.database.migrations.mysql.MySQLConnection;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +79,7 @@ public class TradeLogService {
             return null;
         }
 
-        DatabaseType type = DatabaseUtil.database().getType();
+        DatabaseType type = TradeSystem.database().getType();
         switch (type) {
             case MYSQL:
                 return new MysqlTradeLogRepository(MySQLConnection.getConnection());

@@ -2,7 +2,7 @@ package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
+import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 

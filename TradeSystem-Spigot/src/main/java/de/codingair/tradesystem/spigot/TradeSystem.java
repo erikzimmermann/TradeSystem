@@ -25,7 +25,7 @@ import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseInitializer;
+import de.codingair.tradesystem.spigot.database.DatabaseHandler;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
@@ -44,7 +44,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     private final LayoutManager layoutManager = new LayoutManager();
     private final TradeHandler tradeHandler = new TradeHandler();
-    private final DatabaseInitializer databaseInitializer = new DatabaseInitializer();
+    private final DatabaseHandler databaseHandler = new DatabaseHandler();
     private final FileManager fileManager = new FileManager(this);
 
     private final SpigotHandler spigotHandler = new SpigotHandler(this);
@@ -74,6 +74,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public static ProxyDataManager proxy() {
         return instance.proxyDataManager;
+    }
+
+    public static DatabaseHandler database() {
+        return instance.databaseHandler;
     }
 
     public static TradeHandler handler() {
@@ -173,7 +177,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private void loadManagers() {
         this.tradeHandler.load();
         this.layoutManager.load();
-        this.databaseInitializer.initialize();
+        this.databaseHandler.load();
     }
 
     private void registerDefaultPluginMessagingChannel() {
@@ -299,8 +303,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return oldConfig;
     }
 
-    public DatabaseInitializer getDatabaseInitializer() {
-        return databaseInitializer;
+    public DatabaseHandler getDatabaseInitializer() {
+        return databaseHandler;
     }
 
     public CommandManager getCommandManager() {

@@ -1,7 +1,7 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.sqlite;
+package de.codingair.tradesystem.spigot.database.migrations.sqlite;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
-import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
+import de.codingair.tradesystem.spigot.database.migrations.SqlMigrations;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;

@@ -1,8 +1,8 @@
-package de.codingair.tradesystem.spigot.utils.database.migrations.mysql;
+package de.codingair.tradesystem.spigot.database.migrations.mysql;
 
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.database.migrations.SqlMigrations;
 import de.codingair.tradesystem.spigot.utils.Supplier;
-import de.codingair.tradesystem.spigot.utils.database.migrations.SqlMigrations;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
