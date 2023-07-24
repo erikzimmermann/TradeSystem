@@ -3,6 +3,9 @@ package de.codingair.tradesystem.spigot.extras.bstats;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.AdvancedPie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -33,7 +36,7 @@ public class MetricsManager {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         YamlConfiguration config = file.getConfig();
 
-        metrics.addCustomChart(new Metrics.AdvancedPie("configuration", () -> {
+        metrics.addCustomChart(new AdvancedPie("configuration", () -> {
             Map<String, Integer> map = new HashMap<>();
 
             map.put("Trade", 1);
@@ -44,12 +47,12 @@ public class MetricsManager {
             return map;
         }));
 
-        metrics.addCustomChart(new Metrics.SingleLineChart("trades", () -> {
+        metrics.addCustomChart(new SingleLineChart("trades", () -> {
             int trades = TRADES;
             TRADES = 0;
             return trades;
         }));
 
-        metrics.addCustomChart(new Metrics.SingleLineChart("layouts", () -> TradeSystem.getInstance().getLayoutManager().getPatterns().size() - 1));
+        metrics.addCustomChart(new SingleLineChart("layouts", () -> TradeSystem.getInstance().getLayoutManager().getPatterns().size() - 1));
     }
 }
