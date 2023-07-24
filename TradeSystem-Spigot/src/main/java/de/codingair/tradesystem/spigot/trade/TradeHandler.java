@@ -105,10 +105,10 @@ public class TradeHandler {
         this.tradeBoth = config.getBoolean("TradeSystem.Trade_Both", true);
         this.inputGUI = InputGUI.getByName(config.getString("TradeSystem.Input_GUI", "SIGN"));
         this.dropItems = config.getBoolean("TradeSystem.Trade_Drop_Items", true);
-        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Only_DisplayName_in_Message", false);
 
         this.tradeReportItems = config.getBoolean("TradeSystem.Trade_Finish_Report.Items", true);
         this.tradeReportEconomy = config.getBoolean("TradeSystem.Trade_Finish_Report.Economy", true);
+        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Trade_Finish_Report.Only_DisplayName_in_Message", false);
 
         if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
