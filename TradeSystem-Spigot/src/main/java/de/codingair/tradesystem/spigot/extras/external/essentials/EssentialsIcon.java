@@ -26,7 +26,7 @@ public class EssentialsIcon extends EconomyIcon<ShowEssentialsIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         check(player);
 
         try {

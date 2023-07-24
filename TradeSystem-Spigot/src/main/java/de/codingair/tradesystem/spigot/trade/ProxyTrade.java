@@ -11,6 +11,7 @@ import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,21 +24,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class ProxyTrade extends Trade {
     private final Player player;
     private final String other;
+    private final UUID otherId;
     private ItemStack[] sent;
     private ItemStack[] received;
     private final ItemStack[] otherInventory = new ItemStack[36];
     private final CompletableFuture<Boolean> finishCheck = new CompletableFuture<>();
 
-    public ProxyTrade(@NotNull Player player, @NotNull String other, boolean initiationServer) {
+    public ProxyTrade(@NotNull Player player, @NotNull String other, @NotNull UUID otherId, boolean initiationServer) {
         super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
+        this.otherId = otherId;
     }
 
     @Override
@@ -54,7 +58,7 @@ public class ProxyTrade extends Trade {
     }
 
     public boolean receiveFinishCheck() {
-        boolean success = tryFinish(player, false);
+        boolean success = tryFinish(Perspective.PRIMARY, false);
         finishCheck.complete(success);
         return success;
     }
@@ -79,12 +83,12 @@ public class ProxyTrade extends Trade {
 
     public void receiveTradeIconUpdate(@NotNull TradeIcon icon) {
         onTradeOfferChange(true);
-        super.synchronizeTradeIcon(1, icon, false);
+        super.synchronizeTradeIcon(Perspective.SECONDARY, icon, false);
     }
 
     @Override
-    public void synchronizeTradeIcon(int playerId, @NotNull TradeIcon icon, boolean updateIcon) {
-        super.synchronizeTradeIcon(playerId, icon, updateIcon);
+    public void synchronizeTradeIcon(@NotNull Perspective from, @NotNull TradeIcon icon, boolean updateIcon) {
+        super.synchronizeTradeIcon(from, icon, updateIcon);
 
         //sync on proxy
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -96,7 +100,7 @@ public class ProxyTrade extends Trade {
             throw new IllegalStateException("An error occurred while serializing " + icon.getClass().getName(), e);
         }
 
-        int slot = layout[playerId].getSlotOf(icon);
+        int slot = layout[from.id()].getSlotOf(icon);
 
         TradeIconUpdatePacket packet = new TradeIconUpdatePacket(player.getName(), other, slot, baos.toByteArray());
         TradeSystem.proxyHandler().send(packet, this.player);
@@ -171,27 +175,27 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected @Nullable ItemStack removeReceivedItem(int id, int slotId) {
+    protected @Nullable ItemStack removeReceivedItem(@NotNull Perspective perspective, int slotId) {
         ItemStack item = received[slotId];
         received[slotId] = null;
         return item;
     }
 
     @Override
-    protected void updateDisplayItem(int id, int slotId, @Nullable ItemStack item) {
-        if (id != 1) return;
+    protected void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
+        if (!perspective.isSecondary()) return;
         synchronizeItem(slotId, item);
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentOfferedItem(int id, int slotId) {
-        if (id == 1) return getReceived(slotId);
+    protected @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
+        if (perspective.isSecondary()) return getReceived(slotId);
         else return guis[0].getItem(slots.get(slotId));
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId) {
-        if (id == 1) return getSent(slotId);
+    protected @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId) {
+        if (perspective.isSecondary()) return getSent(slotId);
         else return guis[0].getItem(otherSlots.get(slotId));
     }
 
@@ -213,20 +217,26 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected @Nullable Player getPlayer(int id) {
-        if (id == 0) return player;
+    public @Nullable Player getPlayer(@NotNull Perspective perspective) {
+        if (perspective == Perspective.PRIMARY) return player;
         return null;
     }
 
     @Override
-    protected void onReadyStateChange(int id, boolean ready) {
-        if (id != 0) return;
+    public @NotNull UUID getUniqueId(@NotNull Perspective perspective) {
+        if (perspective.isPrimary()) return player.getUniqueId();
+        return otherId;
+    }
+
+    @Override
+    protected void onReadyStateChange(@NotNull Perspective perspective, boolean ready) {
+        if (!perspective.isPrimary()) return;
         if (ready) synchronizeState(TradeStateUpdatePacket.State.READY, null);
         else synchronizeState(TradeStateUpdatePacket.State.NOT_READY, null);
     }
 
     @Override
-    protected void onItemPickUp(@NotNull Player player, int id) {
+    protected void onItemPickUp(@NotNull Perspective perspective) {
         synchronizeInventory();
     }
 
@@ -256,8 +266,18 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected @NotNull PlayerInventory getPlayerInventory(int playerId) {
-        if (playerId == 0) return new PlayerInventory(this.player, false);
+    protected @NotNull PlayerInventory getPlayerInventory(@NotNull Perspective perspective) {
+        if (perspective.isPrimary()) {
+            PlayerInventory inventory = new PlayerInventory(this.player, false);
+
+            if (inventory.getPlayer() != null) {
+                ItemStack item = inventory.getPlayer().getOpenInventory().getCursor();
+                if (item != null && item.getType() != Material.AIR) inventory.addItem(item);
+            }
+
+            return inventory;
+        }
+
         return new PlayerInventory(this.otherInventory);
     }
 
@@ -266,9 +286,9 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void informTransition(@NotNull TradeIcon icon, int otherId) {
-        if (otherId == 1) return;
-        super.informTransition(icon, otherId);
+    protected void informTransition(@NotNull TradeIcon from, @NotNull Perspective to) {
+        if (to == Perspective.SECONDARY) return;
+        super.informTransition(from, to);
     }
 
     @Override
@@ -282,7 +302,7 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected boolean isInitiator(@NotNull Player player, int id) {
-        return this.player.equals(player) && initiationServer;
+    protected boolean isInitiator(@NotNull Perspective perspective) {
+        return perspective.isPrimary() && initiationServer;
     }
 }

@@ -4,6 +4,9 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the type of {@link de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon TradeIcons}. This will be used to categorize the icons in the layout editor.
+ */
 public enum Type {
     BASIC("Basic", new ItemBuilder(XMaterial.ITEM_FRAME)),
     ECONOMY("Economy", new ItemBuilder(XMaterial.EMERALD)),

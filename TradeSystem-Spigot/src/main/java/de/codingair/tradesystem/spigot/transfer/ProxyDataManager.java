@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -27,6 +28,11 @@ public class ProxyDataManager {
     private final HashMap<String, String> players = new HashMap<>();
 
     /**
+     * lower-case name to uuid
+     */
+    private final HashMap<String, UUID> uuids = new HashMap<>();
+
+    /**
      * lower-case name to skinId
      */
     private final HashMap<String, String> skins = new HashMap<>();
@@ -35,8 +41,9 @@ public class ProxyDataManager {
         this.players.clear();
     }
 
-    public void join(@NotNull String player) {
+    public void join(@NotNull String player, @NotNull UUID playerId) {
         this.players.put(player.toLowerCase(), player);
+        this.uuids.put(player.toLowerCase(), playerId);
     }
 
     public void addSkin(@NotNull String player, @NotNull String skinId) {
@@ -50,6 +57,7 @@ public class ProxyDataManager {
 
     public void quit(@NotNull String player) {
         this.players.remove(player.toLowerCase());
+        this.uuids.remove(player.toLowerCase());
         this.skins.remove(player.toLowerCase());
     }
 
@@ -62,14 +70,14 @@ public class ProxyDataManager {
         Pattern pattern = TradeSystem.getInstance().getLayoutManager().getActive();
 
         int patternHash = pattern.hashCode();
-        int cooldown = TradeSystem.man().getCountdownRepetitions() * TradeSystem.man().getCountdownInterval();
+        int cooldown = TradeSystem.handler().getCountdownRepetitions() * TradeSystem.handler().getCountdownInterval();
 
         int blacklist = 0;
-        for (BlockedItem blockedItem : TradeSystem.man().getBlacklist()) {
+        for (BlockedItem blockedItem : TradeSystem.handler().getBlacklist()) {
             blacklist = Objects.hash(blacklist, blockedItem.hashCode());
         }
 
-        return Objects.hash(patternHash, cooldown, TradeSystem.man().isRevokeReadyOnChange(), blacklist);
+        return Objects.hash(patternHash, cooldown, TradeSystem.handler().isRevokeReadyOnChange(), blacklist);
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {
@@ -81,6 +89,11 @@ public class ProxyDataManager {
     public String getCaseSensitive(@NotNull String player) {
         String name = getPlayerName(player);
         return name == null ? player : name;
+    }
+
+    @NotNull
+    public UUID getUniqueId(@NotNull String player) {
+        return uuids.get(player.toLowerCase());
     }
 
     public boolean isOnline(String player) {
@@ -109,7 +122,7 @@ public class ProxyDataManager {
     }
 
     public @Nullable ProxyTrade getTrade(@NotNull String name, @NotNull String other) {
-        Trade trade = TradeSystem.man().getTrade(name);
+        Trade trade = TradeSystem.handler().getTrade(name);
 
         if (trade instanceof ProxyTrade && other.equals(trade.getOther(name))) return (ProxyTrade) trade;
         return null;

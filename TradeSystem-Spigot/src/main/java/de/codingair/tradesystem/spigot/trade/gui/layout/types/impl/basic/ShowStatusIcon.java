@@ -5,11 +5,11 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.MultiTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.cosmetics.PlayerHeadUtils;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,9 +21,8 @@ public class ShowStatusIcon extends MultiTradeIcon {
     }
 
     @Override
-    public @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        int id = trade.getOtherId(player);
-        if (trade.getReady()[id]) return getIcon(ShowReadyIcon.class);
+    public @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        if (trade.getReady()[perspective.flip().id()]) return getIcon(ShowReadyIcon.class);
         else return getIcon(ShowNotReadyIcon.class);
     }
 
@@ -48,9 +47,9 @@ public class ShowStatusIcon extends MultiTradeIcon {
         }
 
         @Override
-        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-            PlayerHeadUtils.applyPlayerHead(layout, other, othersName);
-            return layout.setName("§7" + Lang.get("Status", player) + ": §a" + Lang.get("Ready", player));
+        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+            PlayerHeadUtils.applyPlayerHead(layout, trade.getPlayer(perspective.flip()), trade.getNames()[perspective.flip().id()]);
+            return layout.setName("§7" + Lang.get("Status", viewer) + ": §a" + Lang.get("Ready", viewer));
         }
     }
 
@@ -60,9 +59,9 @@ public class ShowStatusIcon extends MultiTradeIcon {
         }
 
         @Override
-        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-            PlayerHeadUtils.applyPlayerHead(layout, other, othersName);
-            return layout.setName("§7" + Lang.get("Status", player) + ": §c" + Lang.get("Not_Ready", player));
+        public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+            PlayerHeadUtils.applyPlayerHead(layout, trade.getPlayer(perspective.flip()), trade.getNames()[perspective.flip().id()]);
+            return layout.setName("§7" + Lang.get("Status", viewer) + ": §c" + Lang.get("Not_Ready", viewer));
         }
     }
 }

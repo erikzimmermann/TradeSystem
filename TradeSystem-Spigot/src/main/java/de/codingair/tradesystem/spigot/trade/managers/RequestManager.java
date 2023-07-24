@@ -28,7 +28,7 @@ public class RequestManager {
             String invited = TradeSystem.proxy().getCaseSensitive(receiver);
 
             //call request event
-            TradeRequestEvent event = new TradeRequestEvent(sender, receiver, TradeSystem.man().getRequestExpirationTime());
+            TradeRequestEvent event = new TradeRequestEvent(sender, receiver, TradeSystem.proxy().getUniqueId(receiver), TradeSystem.handler().getRequestExpirationTime());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) return;
 
@@ -39,8 +39,8 @@ public class RequestManager {
         }
     }
 
-    private static void sendRequest(Player sender, String invited) {
-        TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), invited, TradeSystem.proxy().getTradeHash()), sender)
+    private static void sendRequest(@NotNull Player sender, @NotNull String invited) {
+        TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), sender.getUniqueId(), invited, TradeSystem.proxy().getTradeHash()), sender)
                 .whenComplete((result, t) -> {
                     if (t != null) t.printStackTrace();
                     else RuleManager.handle(sender, invited, result);
@@ -54,7 +54,7 @@ public class RequestManager {
         assert other != null; //already sent a message if other == null
 
         //call event
-        TradeRequestEvent event = new TradeRequestEvent(sender, other, TradeSystem.man().getRequestExpirationTime());
+        TradeRequestEvent event = new TradeRequestEvent(sender, other, TradeSystem.handler().getRequestExpirationTime());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 

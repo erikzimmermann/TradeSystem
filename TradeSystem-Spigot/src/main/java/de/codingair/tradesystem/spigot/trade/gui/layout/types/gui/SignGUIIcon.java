@@ -7,6 +7,7 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,15 +23,13 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
     }
 
     @Override
-    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        int id = trade.getId(player);
-
-        String[] test = buildSignLines(trade, player);
+    public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        String[] test = buildSignLines(trade, viewer);
         if (test != null && test.length > 4)
             throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(test));
 
         return new SignButton(() -> {
-            String[] text = buildSignLines(trade, player);
+            String[] text = buildSignLines(trade, viewer);
             if (text == null || text.length < 4) return new String[0];
             else return text;
         }) {
@@ -41,30 +40,30 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
 
                 String origin = input[0];
                 G in = convertInput(origin);
-                IconResult result = processInput(trade, player, in, origin);
+                IconResult result = processInput(trade, perspective, viewer, in, origin);
 
                 if (result == IconResult.GUI) {
                     //first line will be updated before reopening
                     return false;
                 }
 
-                handleResult(SignGUIIcon.this, gui, result, trade, id);
+                handleResult(SignGUIIcon.this, gui, result, trade, perspective);
                 return true;
             }
 
             @Override
             public ItemStack buildItem() {
-                return prepareItemStack(new ItemBuilder(itemStack), trade, player, other, othersName).getItem();
+                return prepareItemStack(new ItemBuilder(itemStack), trade, perspective, viewer).getItem();
             }
 
             @Override
             public boolean canClick(ClickType clickType) {
-                return isClickable(trade, player, other, othersName);
+                return isClickable(trade, perspective, viewer);
             }
 
             @Override
             public void onClick(GUI gui, InventoryClickEvent inventoryClickEvent) {
-                trade.acknowledgeGuiSwitch(player);  // fixes dupe glitch
+                trade.acknowledgeGuiSwitch(viewer);  // fixes dupe glitch
             }
 
             @Override
@@ -74,14 +73,14 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
         };
     }
 
-    protected void handleResult(TradeIcon icon, GUI gui, IconResult result, @NotNull Trade trade, int id) {
-        trade.handleClickResult(icon, gui.getPlayer(), id, gui, result);
+    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
+        trade.handleClickResult(icon, perspective, gui, result);
     }
 
     /**
      * @param trade  The trade instance.
-     * @param player The trading player.
+     * @param viewer The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return The sign GUI lines. Must have a maximum length of 3 (the very first line of the SignGUI will be used for the input). Will be ignored if returning null.
      */
-    public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player player);
+    public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player viewer);
 }

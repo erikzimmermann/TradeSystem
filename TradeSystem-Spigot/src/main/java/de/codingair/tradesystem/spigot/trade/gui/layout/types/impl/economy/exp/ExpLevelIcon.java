@@ -5,6 +5,7 @@ import de.codingair.tradesystem.spigot.extras.external.TypeCap;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,7 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @Override
-    protected @NotNull BigDecimal getBalance(Player player) {
+    protected @NotNull BigDecimal getBalance(@NotNull Player player) {
         double totalExp = ExpLevelIcon.getTotalExp(player.getLevel() + player.getExp());
         return BigDecimal.valueOf(totalExp);
     }
@@ -49,26 +50,26 @@ public class ExpLevelIcon extends EconomyIcon<ShowExpLevelIcon> {
     }
 
     @Override
-    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable BigDecimal input, @NotNull String origin) {
+    public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable BigDecimal input, @NotNull String origin) {
         if (input != null) {
             // convert level to exp
-            input = levelToExp(player, input);
+            input = levelToExp(viewer, input);
         }
 
-        return super.processInput(trade, player, input, origin);
+        return super.processInput(trade, perspective, viewer, input, origin);
     }
 
     @Override
-    public @NotNull String makeString(@NotNull Player player, @Nullable BigDecimal current) {
+    public @NotNull String makeString(@NotNull Player viewer, @Nullable BigDecimal current) {
         if (current != null) {
             // convert exp to level
 
             // decrease own balance first to compute the correct level
-            double totalExp = getTotalExp(player.getLevel() + player.getExp());
+            double totalExp = getTotalExp(viewer.getLevel() + viewer.getExp());
             current = expToLevel(totalExp - current.doubleValue(), current);
         }
 
-        return super.makeString(player, current);
+        return super.makeString(viewer, current);
     }
 
     static double getTotalExp(double level) {

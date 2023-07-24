@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Called when a player receives items or other goods from another player after a trade was completed. Can be used to control the trade report which will be sent via chat.
@@ -17,6 +18,7 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
     private final Player receiver;
     private final String other;
+    private final UUID otherId;
     private final Player otherPlayer;
     private final PlayerTradeResult result;
     private List<String> itemReport;
@@ -29,11 +31,14 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
      *
      * @param receiver The {@link Player} who received the item.
      * @param other    The name of the player who trades the item.
+     * @param otherId  The {@link UUID} of the player who trades the item.
      * @param result   The {@link PlayerTradeResult} of the trade.
      */
-    public TradeReportEvent(@NotNull Player receiver, @NotNull String other, @NotNull PlayerTradeResult result) {
+    public TradeReportEvent(@NotNull Player receiver, @NotNull String other, @NotNull UUID otherId, @NotNull PlayerTradeResult result) {
         this.receiver = receiver;
         this.other = other;
+        this.otherId = otherId;
+
         this.result = result;
         this.otherPlayer = null;
     }
@@ -48,6 +53,8 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
     public TradeReportEvent(@NotNull Player receiver, @NotNull Player otherPlayer, @NotNull PlayerTradeResult result) {
         this.receiver = receiver;
         this.otherPlayer = otherPlayer;
+        this.otherId = otherPlayer.getUniqueId();
+
         this.result = result;
         this.other = otherPlayer.getName();
     }
@@ -65,15 +72,33 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
     /**
      * @return The {@link Player} who receives the item.
      */
-    public @NotNull Player getReceiver() {
+    @NotNull
+    public Player getReceiver() {
         return this.receiver;
     }
 
     /**
      * @return The {@link Player} who trades the item. Is null if this is a proxy trade and the sender is on another server.
      */
-    public @Nullable Player getOtherPlayer() {
+    @Nullable
+    public Player getOtherPlayer() {
         return this.otherPlayer;
+    }
+
+    /**
+     * @return The name of the player who trades the item.
+     */
+    @NotNull
+    public String getOther() {
+        return this.other;
+    }
+
+    /**
+     * @return The {@link UUID} of the player who trades the item.
+     */
+    @NotNull
+    public UUID getOtherId() {
+        return otherId;
     }
 
     /**
@@ -81,13 +106,6 @@ public class TradeReportEvent extends TradeEvent implements Cancellable {
      */
     public boolean isProxyTrade() {
         return getOtherPlayer() == null;
-    }
-
-    /**
-     * @return The name of the player who trades the item.
-     */
-    public @NotNull String getOther() {
-        return this.other;
     }
 
     /**

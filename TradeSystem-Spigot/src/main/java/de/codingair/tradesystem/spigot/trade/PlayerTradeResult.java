@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade;
 
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.economy.EconomyIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,8 +20,8 @@ public class PlayerTradeResult extends TradeResult {
     private final Trade trade;
     private final Player player;
 
-    public PlayerTradeResult(@NotNull Trade trade, @NotNull Player player, int playerId) {
-        super(playerId);
+    public PlayerTradeResult(@NotNull Trade trade, @NotNull Player player, @NotNull Perspective perspective) {
+        super(perspective);
         this.trade = trade;
         this.player = player;
     }
@@ -99,7 +100,7 @@ public class PlayerTradeResult extends TradeResult {
         List<String> lines = new ArrayList<>();
 
         for (EconomyIcon<?> icon : economyIcons) {
-            BigDecimal diff = icon.getOverallDifference(trade, playerId);
+            BigDecimal diff = icon.getOverallDifference(trade, perspective);
             if (diff.signum() == 0) continue;
             boolean receive = diff.signum() > 0;
 

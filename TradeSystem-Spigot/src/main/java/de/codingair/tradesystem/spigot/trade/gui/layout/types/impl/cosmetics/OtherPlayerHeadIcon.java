@@ -6,10 +6,10 @@ import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.DecorationIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class OtherPlayerHeadIcon extends DecorationIcon {
     public OtherPlayerHeadIcon(@NotNull ItemStack itemStack) {
@@ -17,12 +17,14 @@ public class OtherPlayerHeadIcon extends DecorationIcon {
     }
 
     @Override
-    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        Player other = trade.getPlayer(perspective.flip());
+
         String skinId;
         if (other != null) skinId = GameProfileUtils.extractSkinId(other);
-        else skinId = TradeSystem.proxy().getSkin(othersName);
+        else skinId = TradeSystem.proxy().getSkin(trade.getNames()[perspective.flip().id()]);
 
-        return super.prepareItemStack(layout, trade, player, other, othersName)
+        return super.prepareItemStack(layout, trade, perspective, viewer)
                 .setType(XMaterial.PLAYER_HEAD)
                 .setSkullId(skinId);
     }

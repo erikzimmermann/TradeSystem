@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
@@ -48,7 +49,10 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public boolean isClickable(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+    public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        Player player = trade.getPlayer(perspective);
+        if (player == null) return false;
+
         if (getBalance(player).signum() <= 0) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Balance_limit_reached", player));
             return false;
@@ -61,19 +65,19 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     public @Nullable BigDecimal convertInput(@NotNull String input) {
         if (input.isEmpty()) return BigDecimal.ZERO;
 
-        BigDecimal value = (BigDecimal) TradeSystem.man().getMoneyPattern().parse(input, new ParsePosition(0));
+        BigDecimal value = (BigDecimal) TradeSystem.handler().getMoneyPattern().parse(input, new ParsePosition(0));
         if (value == null) return BigDecimal.ZERO;
 
-        BigDecimal factor = TradeSystem.man().getMoneyShortcutFactor(input);
+        BigDecimal factor = TradeSystem.handler().getMoneyShortcutFactor(input);
         if (factor != null) value = value.multiply(factor);
 
         return value;
     }
 
     @Override
-    public IconResult processInput(@NotNull Trade trade, @NotNull Player player, @Nullable BigDecimal input, @NotNull String origin) {
+    public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable BigDecimal input, @NotNull String origin) {
         if (input == null || input.signum() == -1) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
+            viewer.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", viewer));
             return IconResult.GUI;
         }
 
@@ -83,33 +87,36 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         // this might already be caught by converting the input to the max allowed value
         boolean isDecimal = input.remainder(BigDecimal.ONE).signum() != 0;
         if (!decimal && isDecimal) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", player));
+            viewer.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", viewer));
             return IconResult.GUI;
         }
+
+        Player player = trade.getPlayer(perspective);
+        if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
 
         BigDecimal max = getBalance(player);
         if (input.compareTo(max) > 0) {
             String s = Lang.get("Only_X_Amount")
-                    .replace("%amount%", makeString(player, max))
-                    .replace("%type%", getName(player, max.equals(BigDecimal.ONE)));
+                    .replace("%amount%", makeString(viewer, max))
+                    .replace("%type%", getName(viewer, max.equals(BigDecimal.ONE)));
 
-            player.sendMessage(Lang.getPrefix() + s);
+            viewer.sendMessage(Lang.getPrefix() + s);
             return IconResult.GUI;
         }
 
-        this.value = checkLimit(trade, player, input);
+        this.value = checkLimit(trade, perspective, input);
         return IconResult.UPDATE;
     }
 
     @Override
-    public @NotNull String makeString(@NotNull Player player, @Nullable BigDecimal current) {
+    public @NotNull String makeString(@NotNull Player viewer, @Nullable BigDecimal current) {
         return makeFancyString(current, decimal);
     }
 
     public static @NotNull String makeFancyString(@Nullable BigDecimal current, boolean decimal) {
         if (current == null) return "";
 
-        Map.Entry<String, BigDecimal> shortcut = TradeSystem.man().getApplicableMoneyShortcut(current);
+        Map.Entry<String, BigDecimal> shortcut = TradeSystem.handler().getApplicableMoneyShortcut(current);
         String appendix = "";
         if (shortcut != null) {
             current = current.divide(shortcut.getValue(), current.precision(), RoundingMode.FLOOR);
@@ -118,7 +125,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
         Number number = current;
         if (!decimal) number = number.intValue();
-        return TradeSystem.man().getMoneyPattern().format(number) + appendix;
+        return TradeSystem.handler().getMoneyPattern().format(number) + appendix;
     }
 
     @Override
@@ -127,10 +134,13 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
+    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        Player player = trade.getPlayer(perspective);
+        if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
+
         layout.setName("§e" + getName(player, false) + ": §7" + makeString(player, value));
 
-        layout.addLore("", "§7» " + Lang.get("Click_To_Change", player));
+        layout.addLore("", "§7» " + Lang.get("Click_To_Change", viewer));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
@@ -146,8 +156,8 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        if (value.signum() > 0 && getBalance(player).compareTo(value) < 0) {
+    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+        if (value.signum() > 0 && getBalance(trade, perspective).compareTo(value) < 0) {
             return FinishResult.ERROR_ECONOMY;
         }
 
@@ -155,23 +165,27 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        int id = trade.getId(player);
-        BigDecimal diff = getOverallDifference(trade, id);
+    public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+        Player player = trade.getPlayer(perspective);
+        if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
 
-        String fancyDiff = TradeSystem.man().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
+        BigDecimal diff = getOverallDifference(trade, perspective);
+
+        String fancyDiff = TradeSystem.handler().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
 
         int sign = diff.signum();
         if (sign < 0) {
             withdraw(player, diff.negate());
-            log(trade, TradeLog.OFFERED_AMOUNT, player.getName(), namePlural, fancyDiff);
+            log(trade, TradeLog.OFFERED_AMOUNT, trade.getNames()[perspective.id()], namePlural, fancyDiff);
         } else if (sign > 0) {
             deposit(player, diff);
+
+            Player other = trade.getPlayer(perspective.flip());
 
             // call economy receive event for external logging purposes
             TradeReceiveEconomyEvent e = other != null ?
                     new TradeReceiveEconomyEvent(player, other, diff, nameSingular, namePlural) :
-                    new TradeReceiveEconomyEvent(player, othersName, diff, nameSingular, namePlural);
+                    new TradeReceiveEconomyEvent(player, trade.getNames()[perspective.flip().id()], trade.getUniqueId(perspective.flip()), diff, nameSingular, namePlural);
             Bukkit.getPluginManager().callEvent(e);
 
             log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);
@@ -179,19 +193,19 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     /**
-     * @param trade The trade instance.
-     * @param id    The id of the player.
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the player.
      * @return The computed difference comparing the offered amount of this player and the offered amount of the trade partner.
      */
     @NotNull
-    public BigDecimal getOverallDifference(@NotNull Trade trade, int id) {
-        T show = trade.getLayout()[id].getIcon(getTargetClass());
+    public BigDecimal getOverallDifference(@NotNull Trade trade, @NotNull Perspective perspective) {
+        T show = trade.getLayout()[perspective.id()].getIcon(getTargetClass());
         return show.getValue().subtract(value);
     }
 
     @NotNull
-    private BigDecimal checkLimit(@NotNull Trade trade, @NotNull Player player, @NotNull BigDecimal value) {
-        Player other = trade.getOther(player).orElse(null);
+    private BigDecimal checkLimit(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull BigDecimal value) {
+        Player other = trade.getPlayer(perspective.flip());
         if (other == null) return value;
 
         return getBalanceLimit(other).map(limit -> {
@@ -207,7 +221,13 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         return Optional.empty();
     }
 
-    protected abstract @NotNull BigDecimal getBalance(Player player);
+    protected @NotNull BigDecimal getBalance(@NotNull Trade trade, @NotNull Perspective perspective) {
+        Player player = trade.getPlayer(perspective);
+        if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
+        return getBalance(player);
+    }
+
+    protected abstract @NotNull BigDecimal getBalance(@NotNull Player player);
 
     protected abstract void withdraw(Player player, @NotNull BigDecimal value);
 

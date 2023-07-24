@@ -2,7 +2,7 @@ package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.utils.database.migrations.sqlite.SqlLiteConnection;
+import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +57,26 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
         } catch (SQLException e) {
             Bukkit.getLogger().severe(e.getMessage());
             return null;
+        }
+    }
+
+    @Override
+    public boolean haveTraded(String player1, String player2) {
+        String sql = "SELECT 1 FROM tradelog " +
+                "WHERE player1=? AND player2=? OR player1=? AND player2=? LIMIT 1;";
+
+        try (Connection conn = SqlLiteConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, player1);
+            pstmt.setString(2, player2);
+            pstmt.setString(3, player2);
+            pstmt.setString(4, player1);
+
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe(e.getMessage());
+            return false;
         }
     }
 }

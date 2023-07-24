@@ -25,7 +25,7 @@ import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
-import de.codingair.tradesystem.spigot.utils.database.DatabaseInitializer;
+import de.codingair.tradesystem.spigot.database.DatabaseHandler;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
@@ -44,7 +44,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     private final LayoutManager layoutManager = new LayoutManager();
     private final TradeHandler tradeHandler = new TradeHandler();
-    private final DatabaseInitializer databaseInitializer = new DatabaseInitializer();
+    private final DatabaseHandler databaseHandler = new DatabaseHandler();
     private final FileManager fileManager = new FileManager(this);
 
     private final SpigotHandler spigotHandler = new SpigotHandler(this);
@@ -76,12 +76,16 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return instance.proxyDataManager;
     }
 
-    public static TradeHandler man() {
+    public static DatabaseHandler database() {
+        return instance.databaseHandler;
+    }
+
+    public static TradeHandler handler() {
         return instance.tradeHandler;
     }
 
     public static InvitationManager invitations() {
-        return man().getInvitationManager();
+        return handler().getInvitationManager();
     }
 
     @Override
@@ -114,8 +118,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             afterOnEnable();
             startUpdateNotifier();
-
-            Lang.initializeFile();
         });
 
         notifyPlayers(null);
@@ -175,7 +177,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private void loadManagers() {
         this.tradeHandler.load();
         this.layoutManager.load();
-        this.databaseInitializer.initialize();
+        this.databaseHandler.load();
     }
 
     private void registerDefaultPluginMessagingChannel() {
@@ -188,12 +190,11 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.fileManager.loadFile("Config", "/");
         this.fileManager.loadFile("Layouts", "/");
 
-        Lang.initPreDefinedLanguages(this);
-        Lang.checkLanguageKeys();
+        Lang.init(this, fileManager);
     }
 
     private void checkPermissions() {
-        if (!fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true)) {
+        if (!arePermissionsEnabled()) {
             Permissions.PERMISSION = null;
             Permissions.PERMISSION_INITIATE = null;
         }
@@ -282,6 +283,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         this.fileManager.unloadFile(file);
     }
 
+    public boolean arePermissionsEnabled() {
+        return fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true);
+    }
+
     public TradeHandler getTradeManager() {
         return tradeHandler;
     }
@@ -298,8 +303,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return oldConfig;
     }
 
-    public DatabaseInitializer getDatabaseInitializer() {
-        return databaseInitializer;
+    public DatabaseHandler getDatabaseInitializer() {
+        return databaseHandler;
     }
 
     public CommandManager getCommandManager() {

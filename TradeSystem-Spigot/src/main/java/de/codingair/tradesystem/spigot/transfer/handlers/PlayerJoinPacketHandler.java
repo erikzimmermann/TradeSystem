@@ -12,6 +12,6 @@ public class PlayerJoinPacketHandler implements PacketHandler<PlayerJoinPacket> 
 
     @Override
     public void process(@NotNull PlayerJoinPacket playerJoinPacket, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
-        TradeSystem.proxy().join(playerJoinPacket.getPlayer());
+        TradeSystem.proxy().join(playerJoinPacket.getPlayer(), playerJoinPacket.getPlayerId());
     }
 }

@@ -4,12 +4,12 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.Transition;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.SimpleShowIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 
@@ -23,8 +23,8 @@ public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Trans
     }
 
     @Override
-    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        layout.setName("§e" + getName(player) + ": §7" + makeString(player, value));
+    public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        layout.setName("§e" + getName(viewer) + ": §7" + makeString(viewer, value));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;

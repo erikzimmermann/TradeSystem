@@ -4,9 +4,9 @@ import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.StatusIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * MultiTradeIcons allow one slot to hold more than one TradeIcon.<p>
@@ -21,28 +21,27 @@ public abstract class MultiTradeIcon implements TradeIcon {
     }
 
     @Override
-    public @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName) {
-        return currentTradeIcon(trade, player, other, othersName).getButton(trade, player, other, othersName);
+    public @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        return currentTradeIcon(trade, perspective, viewer).getButton(trade, perspective, viewer);
     }
 
     @Override
-    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        return currentTradeIcon(trade, player, other, othersName).tryFinish(trade, player, other, othersName, initiationServer);
+    public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+        return currentTradeIcon(trade, perspective, viewer).tryFinish(trade, perspective, viewer, initiationServer);
     }
 
     @Override
-    public void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        currentTradeIcon(trade, player, other, othersName).onFinish(trade, player, other, othersName, initiationServer);
+    public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+        currentTradeIcon(trade, perspective, viewer).onFinish(trade, perspective, viewer, initiationServer);
     }
 
     /**
-     * @param trade      The trade instance.
-     * @param player     The trading player.
-     * @param other      The trading partner. Null, if this is a proxy trade.
-     * @param othersName The name of 'other'. Useful for proxy trades.
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the viewer.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return The current {@link TradeIcon} which represents this {@link MultiTradeIcon} at the moment.
      */
-    public abstract @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName);
+    public abstract @NotNull TradeIcon currentTradeIcon(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer);
 
     protected @NotNull TradeIcon getIcon(Class<? extends TradeIcon> c) {
         for (TradeIcon icon : this.icons) {

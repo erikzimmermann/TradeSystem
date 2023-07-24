@@ -182,7 +182,8 @@ public class TradeHandler {
         if (this.soundFinish == null) TradeSystem.log("    > No finish sound detected (maybe a spelling mistake?)");
 
         this.soundBlocked = getSound("Trade_Blocked", config, "NOTE_BASS");
-        if (this.soundBlocked == null) TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
+        if (this.soundBlocked == null)
+            TradeSystem.log("    > No itemBlocked sound detected (maybe a spelling mistake?)");
 
         this.soundCancel = getSound("Trade_Cancelled", config, "ITEM_BREAK");
         if (this.soundCancel == null) TradeSystem.log("    > No cancel sound detected (maybe a spelling mistake?)");
@@ -191,13 +192,16 @@ public class TradeHandler {
         if (this.soundRequest == null) TradeSystem.log("    > No request sound detected (maybe a spelling mistake?)");
 
         this.soundCountdownTick = getSound("Countdown_Tick", config, "ORB_PICKUP");
-        if (this.soundCountdownTick == null) TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
+        if (this.soundCountdownTick == null)
+            TradeSystem.log("    > No countdown tick sound detected (maybe a spelling mistake?)");
 
         this.soundCountdownStop = getSound("Countdown_Stop", config, "ITEM_BREAK");
-        if (this.soundCountdownStop == null) TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
+        if (this.soundCountdownStop == null)
+            TradeSystem.log("    > No countdown stop sound detected (maybe a spelling mistake?)");
 
         this.soundChangeDuringShulkerPeek = getSound("Change_during_Shulker_Peek", config, "ITEM_BREAK");
-        if (this.soundChangeDuringShulkerPeek == null) TradeSystem.log("    > No change-during-shulker-peek sound detected (maybe a spelling mistake?)");
+        if (this.soundChangeDuringShulkerPeek == null)
+            TradeSystem.log("    > No change-during-shulker-peek sound detected (maybe a spelling mistake?)");
 
         //load allowed game modes
         if (this.allowedGameModes != null) this.allowedGameModes.clear();
@@ -223,7 +227,7 @@ public class TradeHandler {
                     }
                 } else if (o instanceof String) {
                     //LEGACY SUPPORT: 2.0.6 and lower
-                    @SuppressWarnings ("deprecation")
+                    @SuppressWarnings("deprecation")
                     BlockedItem item = BlockedItem.fromString((String) o);
                     if (item != null) this.blacklist.add(item);
                     else TradeSystem.log("    ...found a wrong Material-Tag (here: \"" + o + "\"). Skipping...");
@@ -312,8 +316,8 @@ public class TradeHandler {
         file.saveConfig();
     }
 
-    public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer) {
-        if (TradeSystem.man().isTrading(player) || TradeSystem.man().isTrading(other)) {
+    public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
+        if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
             player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
             return;
         }
@@ -326,7 +330,7 @@ public class TradeHandler {
         player.closeInventory();
         if (other != null) other.closeInventory();
 
-        Trade trade = createTrade(player, other, othersName, initiationServer);
+        Trade trade = createTrade(player, other, othersName, otherId, initiationServer);
 
         //register
         registerTrade(trade, player.getName());
@@ -344,9 +348,9 @@ public class TradeHandler {
     }
 
     @NotNull
-    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name, boolean initiationServer) {
+    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name, @NotNull UUID otherId, boolean initiationServer) {
         if (other != null) return new BukkitTrade(player, other, initiationServer);
-        else return new ProxyTrade(player, name, initiationServer);
+        else return new ProxyTrade(player, name, otherId, initiationServer);
     }
 
     public void quit(Player player) {
@@ -459,13 +463,10 @@ public class TradeHandler {
     /**
      * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy.
      *
-     * @param placer          The player that placed the item.
-     * @param receivingPlayer The player that should receive the item.
-     * @param receiver        The name of the receivingPlayer.
-     * @param item            The {@link ItemStack} which will be traded.
+     * @param item The {@link ItemStack} which will be traded.
      * @return {@link Boolean#TRUE} if this item should be marked as blocked.
      */
-    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull ItemStack item) {
+    public boolean isBlocked(@NotNull Trade trade, @NotNull ItemStack item) {
         boolean blacklisted = false;
 
         if (trade instanceof ProxyTrade) {
@@ -483,8 +484,24 @@ public class TradeHandler {
             }
         }
 
+        return blacklisted;
+    }
+
+    /**
+     * Checks whether an item is blocked or not. Also includes compatibility checks for TradeProxy and other plugins.
+     *
+     * @param placer          The player that placed the item.
+     * @param receivingPlayer The player that should receive the item.
+     * @param receiver        The name of the receivingPlayer.
+     * @param receiverId      The {@link UUID} of the receivingPlayer.
+     * @param item            The {@link ItemStack} which will be traded.
+     * @return {@link Boolean#TRUE} if this item should be marked as blocked.
+     */
+    public boolean isBlocked(@NotNull Trade trade, @NotNull Player placer, @Nullable Player receivingPlayer, @NotNull String receiver, @NotNull UUID receiverId, @NotNull ItemStack item) {
+        boolean blacklisted = isBlocked(trade, item);
+
         TradeOfferItemEvent event;
-        if (receivingPlayer == null) event = new TradeOfferItemEvent(placer, receiver, item, blacklisted);
+        if (receivingPlayer == null) event = new TradeOfferItemEvent(placer, receiver, receiverId, item, blacklisted);
         else event = new TradeOfferItemEvent(placer, receivingPlayer, item, blacklisted);
 
         Bukkit.getPluginManager().callEvent(event);
@@ -554,5 +571,9 @@ public class TradeHandler {
 
     public boolean isTradeReportEconomy() {
         return tradeReportEconomy;
+    }
+
+    public HashMap<String, Trade> getTrades() {
+        return trades;
     }
 }

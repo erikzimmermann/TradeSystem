@@ -7,6 +7,7 @@ import de.codingair.packetmanagement.utils.ByteMask;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Packet to respond to an open invitation of a player on another server.
@@ -14,15 +15,17 @@ import java.io.IOException;
 public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.ResultPacket> {
     private String inviter;
     private String responding;
+    private UUID respondingId;
     private boolean accept;
     private boolean expire; //silently (e.g. quitting the network)
 
     public InviteResponsePacket() {
     }
 
-    public InviteResponsePacket(String inviter, String responding, boolean accept, boolean expire) {
+    public InviteResponsePacket(String inviter, String responding, UUID respondingId, boolean accept, boolean expire) {
         this.inviter = inviter;
         this.responding = responding;
+        this.respondingId = respondingId;
         this.accept = accept;
         this.expire = expire;
     }
@@ -31,6 +34,8 @@ public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.
     public void write(DataOutputStream out) throws IOException {
         out.writeUTF(this.inviter);
         out.writeUTF(this.responding);
+        out.writeLong(this.respondingId.getMostSignificantBits());
+        out.writeLong(this.respondingId.getLeastSignificantBits());
 
         ByteMask mask = new ByteMask();
         mask.setBit(0, accept);
@@ -42,6 +47,7 @@ public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.
     public void read(DataInputStream in) throws IOException {
         this.inviter = in.readUTF();
         this.responding = in.readUTF();
+        this.respondingId = new UUID(in.readLong(), in.readLong());
 
         ByteMask mask = new ByteMask();
         mask.read(in);
@@ -55,6 +61,10 @@ public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.
 
     public String getResponding() {
         return responding;
+    }
+
+    public UUID getRespondingId() {
+        return respondingId;
     }
 
     public boolean isAccept() {

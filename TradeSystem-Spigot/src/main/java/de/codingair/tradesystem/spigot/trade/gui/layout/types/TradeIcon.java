@@ -6,10 +6,10 @@ import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,24 +22,22 @@ import java.io.IOException;
 public interface TradeIcon {
 
     /**
-     * @param trade      The trade instance.
-     * @param player     The trading player.
-     * @param other      The trading partner. Null, if this is a proxy trade.
-     * @param othersName The name of 'other'. Useful for proxy trades.
+     * @param trade       The trade instance.
+     * @param perspective The perspective that should be applied to this icon.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return A {@link Button} to represent this trade icon in the trade GUI.
      */
-    @NotNull Button getButton(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName);
+    @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer);
 
     /**
      * Executed when the trade countdown reaches zero and the goods must be exchanged.
      *
      * @param trade            The trade instance.
-     * @param player           The trading player.
-     * @param other            The trading partner. Null, if this is a proxy trade.
-     * @param othersName       The name of 'other'. Useful for proxy trades.
+     * @param perspective      THe perspective that finished this icon.
+     * @param viewer           The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @param initiationServer Important for proxy trades since we need the correct order of the trading players or sometimes need only one server to log. If true, 'player' is the inviter.
      */
-    void onFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer);
+    void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer);
 
     /**
      * Checks all trade icons for the last time to ensure that all data is correct.<br>
@@ -47,13 +45,12 @@ public interface TradeIcon {
      * <b>Do NOT exchange any goods here!</b>
      *
      * @param trade            The trade instance.
-     * @param player           The trading player.
-     * @param other            The trading partner. Null, if this is a proxy trade.
-     * @param othersName       The name of 'other'. Useful for proxy trades.
+     * @param perspective      THe perspective that tries to finish this icon.
+     * @param viewer           The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @param initiationServer Important for proxy trades since we need the correct order of the trading players or sometimes need only one server to log. If true, 'player' is the inviter.
      * @return A finish result. Important for messages like "items were dropped". You can ignore this by using {@link FinishResult#PASS}.
      */
-    @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Player player, @Nullable Player other, @NotNull String othersName, boolean initiationServer);
+    @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer);
 
     /**
      * Important when a player needs to trade something before clicking ready.
@@ -82,13 +79,13 @@ public interface TradeIcon {
      *
      * <p><strong>Overriding this method may break the trade functionality.</strong></p>
      *
-     * @param trade    The trade instance.
-     * @param playerId The id of the trading player.
+     * @param trade       The trade instance.
+     * @param perspective The perspective that should be applied to this icon.
      */
-    default void updateItem(@NotNull Trade trade, int playerId) {
-        int slot = trade.getLayout()[playerId].getSlotOf(this);
+    default void updateItem(@NotNull Trade trade, @NotNull Perspective perspective) {
+        int slot = trade.getLayout()[perspective.id()].getSlotOf(this);
 
-        TradingGUI gui = trade.getGUIs()[playerId];
+        TradingGUI gui = trade.getGUIs()[perspective.id()];
         Button button = gui.getActive().getButtonAt(slot);
         gui.setItem(slot, button.buildItem());
     }
@@ -102,11 +99,11 @@ public interface TradeIcon {
      * @param player The trading player.
      */
     default void updateButton(@NotNull Trade trade, @NotNull Player player) {
-        int playerId = trade.getId(player);
-        int slot = trade.getLayout()[playerId].getSlotOf(this);
+        Perspective perspective = trade.getPerspective(player);
+        int slot = trade.getLayout()[perspective.id()].getSlotOf(this);
 
-        TradingGUI gui = trade.getGUIs()[playerId];
-        Button button = getButton(trade, player, trade.getOther(player).orElse(null), trade.getOther(player.getName()));
+        TradingGUI gui = trade.getGUIs()[perspective.id()];
+        Button button = getButton(trade, perspective, player);
         gui.getActive().addButton(slot, button);
         gui.setItem(slot, button.buildItem());
     }
@@ -119,10 +116,11 @@ public interface TradeIcon {
      * @param vars    Data to fill 'message'.
      */
     default void log(@NotNull Trade trade, @NotNull TradeLog.Message message, Object... vars) {
-        if (trade.isInitiationServer()) TradeLogService.log(trade.getPlayers()[0], trade.getPlayers()[1], message.get(vars));
+        if (trade.isInitiationServer())
+            TradeLogService.log(trade.getNames()[0], trade.getNames()[1], message.get(vars));
         else {
             //exception -> proxy trade -> handle exchange only on one server -> switch players
-            TradeLogService.log(trade.getPlayers()[1], trade.getPlayers()[0], message.get(vars));
+            TradeLogService.log(trade.getNames()[1], trade.getNames()[0], message.get(vars));
         }
     }
 }

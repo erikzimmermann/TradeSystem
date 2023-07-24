@@ -14,10 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.MissingFormatArgumentException;
-import java.util.Set;
+import java.util.*;
 
 public class TradeLog {
     private static FileConfiguration config;
@@ -53,9 +50,9 @@ public class TradeLog {
      * @param trader    The name of the player who trades the item.
      * @param getting   The item being transferred.
      */
-    public static void logItemReceive(@NotNull Player receiver, boolean initiator, @NotNull String trader, @NotNull ItemStack getting) {
+    public static void logItemReceive(@NotNull Player receiver, boolean initiator, @NotNull String trader, @NotNull UUID tradeId, @NotNull ItemStack getting) {
         Player tradingPlayer = Bukkit.getPlayerExact(trader);
-        TradeLogReceiveItemEvent e = tradingPlayer == null ? new TradeLogReceiveItemEvent(receiver, trader, getting) : new TradeLogReceiveItemEvent(receiver, tradingPlayer, getting);
+        TradeLogReceiveItemEvent e = tradingPlayer == null ? new TradeLogReceiveItemEvent(receiver, trader, tradeId, getting) : new TradeLogReceiveItemEvent(receiver, tradingPlayer, getting);
         Bukkit.getPluginManager().callEvent(e);
 
         String message = e.getMessage();

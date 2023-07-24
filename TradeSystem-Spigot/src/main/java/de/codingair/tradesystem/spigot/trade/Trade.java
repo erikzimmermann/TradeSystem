@@ -7,8 +7,6 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyClosedEx
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
-import de.codingair.codingapi.tools.items.ItemBuilder;
-import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
@@ -29,6 +27,8 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.ShowSta
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.StatusIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
+import de.codingair.tradesystem.spigot.trade.subscribe.PlayerSubscriber;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -41,7 +41,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,17 +50,16 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public abstract class Trade {
-    protected final String[] players = new String[2];
+    protected final String[] names = new String[2];
     protected final boolean initiationServer;
     protected final TradeLayout[] layout = new TradeLayout[2];
     protected final TradingGUI[] guis = new TradingGUI[2];
     protected final List<Integer> slots = new ArrayList<>();
     protected final List<Integer> otherSlots = new ArrayList<>();
+    private final Set<Runnable> subscribers = new HashSet<>();
 
-    protected final boolean[] ready = new boolean[] {false, false};
-    protected final boolean[] pause = new boolean[] {false, false};
-    protected final boolean[] cursor = new boolean[] {false, false};
-    protected final boolean[] waitForPickup = new boolean[] {false, false}; //field to wait for a pickup event (e.g. when players holding items with their cursor)
+    protected final boolean[] ready = new boolean[]{false, false};
+    protected final boolean[] pause = new boolean[]{false, false};
 
     protected Pattern pattern;
     protected Listener pickupListener;
@@ -71,8 +69,8 @@ public abstract class Trade {
 
     protected Trade(String player0, String player1, boolean initiationServer) {
         this.initiationServer = initiationServer;
-        this.players[0] = player0;
-        this.players[1] = player1;
+        this.names[0] = player0;
+        this.names[1] = player1;
     }
 
     /**
@@ -88,11 +86,18 @@ public abstract class Trade {
     /**
      * Note: Player with id=0 is never null.
      *
-     * @param id The id of the player who should be returned.
+     * @param perspective The perspective that should be checked.
      * @return The player with the given id.
      */
     @Nullable
-    protected abstract Player getPlayer(int id);
+    public abstract Player getPlayer(@NotNull Perspective perspective);
+
+    /**
+     * @param perspective The perspective that should be checked.
+     * @return The {@link UUID} of the player with the given id.
+     */
+    @NotNull
+    public abstract UUID getUniqueId(@NotNull Perspective perspective);
 
     /**
      * Avoid moving the item which will be renamed into the players inventory.
@@ -110,26 +115,26 @@ public abstract class Trade {
     protected abstract boolean isPaused();
 
     /**
-     * @param player The player that should be checked.
-     * @param id     The id of the player.
-     * @return True if the player is the initiator of the trade.
+     * @param perspective The perspective that should be checked.
+     * @return True if the perspective is the initiator of the trade.
      */
-    protected abstract boolean isInitiator(@NotNull Player player, int id);
+    protected abstract boolean isInitiator(@NotNull Perspective perspective);
 
     /**
-     * @param playerId The id of the player whose inventory will be returned.
-     * @return The inventory of the player.
+     * @param perspective The perspective that should be checked.
+     * @return The inventory of the player including the current cursor.
      */
     @NotNull
-    protected abstract PlayerInventory getPlayerInventory(int playerId);
+    protected abstract PlayerInventory getPlayerInventory(@NotNull Perspective perspective);
+
 
     /**
-     * @param id     The id of the player who receives the items.
-     * @param slotId The slot of the item to receive (left side slots).
+     * @param perspective The perspective that received the item.
+     * @param slotId      The slot of the item to receive (left side slots).
      * @return The item to receive.
      */
     @Nullable
-    protected abstract ItemStack removeReceivedItem(int id, int slotId);
+    protected abstract ItemStack removeReceivedItem(@NotNull Perspective perspective, int slotId);
 
     /**
      * Check if the trade can be finished on both sides.
@@ -142,33 +147,32 @@ public abstract class Trade {
     /**
      * The item pickup event for checking item overflow.
      *
-     * @param player The player who is picking up the item.
-     * @param id     The id of the player.
+     * @param perspective The perspective that picked up an item.
      */
-    protected abstract void onItemPickUp(@NotNull Player player, int id);
+    protected abstract void onItemPickUp(@NotNull Perspective perspective);
 
     /**
      * Update the display item on the right side of the trade panel (i.e. the item that will be received).
      *
-     * @param id     The id of the player.
-     * @param slotId The item slot id.
-     * @param item   The item to display.
+     * @param perspective The perspective that should be checked.
+     * @param slotId      The item slot id.
+     * @param item        The item to display.
      */
-    protected abstract void updateDisplayItem(int id, int slotId, @Nullable ItemStack item);
+    protected abstract void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item);
 
     /**
-     * @param id     The id of the player.
-     * @param slotId The item slot id.
+     * @param perspective The perspective that should be checked.
+     * @param slotId      The item slot id.
      * @return The item that is currently offered on the left side of the trade panel (i.e. the item that will be sent).
      */
-    protected abstract @Nullable ItemStack getCurrentOfferedItem(int id, int slotId);
+    protected abstract @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId);
 
     /**
-     * @param id     The id of the player.
-     * @param slotId The item slot id.
+     * @param perspective The perspective that should be checked.
+     * @param slotId      The item slot id.
      * @return The item that is currently displayed on the right side of the trade panel (i.e. the item that will be received).
      */
-    protected abstract @Nullable ItemStack getCurrentDisplayedItem(int id, int slotId);
+    protected abstract @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId);
 
     /**
      * @return The players that are participating in the trade.
@@ -176,7 +180,7 @@ public abstract class Trade {
     @NotNull
     protected abstract Stream<Player> getParticipants();
 
-    protected abstract void onReadyStateChange(int id, boolean ready);
+    protected abstract void onReadyStateChange(@NotNull Perspective perspective, boolean ready);
 
     void start() {
         buildPattern();     // Build pattern first to
@@ -218,34 +222,33 @@ public abstract class Trade {
     /**
      * Update all displayed items on both sides (i.e. the items that one receive).
      *
-     * @return True if something has changed.
+     * @return The perspectives that have changed their displayed items.
      */
-    private boolean updateDisplayedItems() {
-        boolean change = false;
+    @NotNull
+    private Set<Perspective> updateDisplayedItems() {
+        Set<Perspective> change = new HashSet<>();
 
         if (isActive()) {
-            for (int id = 0; id < 2; id++) {
-                if (guis[id] == null) continue;
-
-                int otherId = getOtherId(id);
+            for (Perspective perspective : Perspective.main()) {
+                if (guis[perspective.id()] == null) continue;
 
                 // update displayed items on other gui
                 for (int slotId = 0; slotId < slots.size(); slotId++) {
-                    ItemStack item = guis[id].getItem(slots.get(slotId));
-                    ItemStack other = getCurrentDisplayedItem(otherId, slotId);
+                    ItemStack item = guis[perspective.id()].getItem(slots.get(slotId));
+                    ItemStack other = getCurrentDisplayedItem(perspective.flip(), slotId);
 
                     if (!Objects.equals(item, other)) {
-                        change = true;
-                        updateDisplayItem(otherId, slotId, item);
+                        change.add(perspective);
+                        updateDisplayItem(perspective.flip(), slotId, item);
                         onTradeOfferChange(false);
                     }
                 }
             }
 
             // update status icons after all items were updated
-            for (int id = 0; id < 2; id++) {
-                if (guis[id] == null) continue;
-                updateStatusIcon(guis[id].getPlayer(), id);
+            for (Perspective perspective : Perspective.main()) {
+                if (guis[perspective.id()] == null) continue;
+                updateStatusIcon(perspective);
             }
         }
 
@@ -258,9 +261,9 @@ public abstract class Trade {
      * @param invokeTradeUpdate True, if the current state should be updated. Active countdowns will be stopped then.
      */
     public void onTradeOfferChange(boolean invokeTradeUpdate) {
-        if (TradeSystem.man().isRevokeReadyOnChange()) {
-            setReadyState(0, false);
-            setReadyState(1, false);
+        if (TradeSystem.handler().isRevokeReadyOnChange()) {
+            setReadyState(Perspective.PRIMARY, false);
+            setReadyState(Perspective.SECONDARY, false);
         }
         if (invokeTradeUpdate) update();
     }
@@ -268,23 +271,43 @@ public abstract class Trade {
     /**
      * Update the status icon of the given player.
      *
-     * @param player The player whose status icon should be updated.
-     * @param id     The id of the player.
+     * @param perspective The perspective of the player.
      */
-    protected void updateStatusIcon(@NotNull Player player, int id) {
-        StatusIcon icon = layout[id].getIcon(StatusIcon.class);
+    protected void updateStatusIcon(@NotNull Perspective perspective) {
+        Player player = getPlayer(perspective);
+        if (player == null) return;
+
+        StatusIcon icon = layout[perspective.id()].getIcon(StatusIcon.class);
         icon.updateButton(this, player);
 
-        ShowStatusIcon showIcon = layout[id].getIcon(ShowStatusIcon.class);
+        ShowStatusIcon showIcon = layout[perspective.id()].getIcon(ShowStatusIcon.class);
         showIcon.updateButton(this, player);
+    }
+
+    /**
+     * Registers runnables that will be executed when the trade is updated.
+     *
+     * @param runnable The runnable to register.
+     */
+    public void subscribe(@NotNull Runnable runnable) {
+        subscribers.add(runnable);
+    }
+
+    /**
+     * Unregisters runnables that will be executed when the trade is updated.
+     *
+     * @param runnable The runnable to unregister.
+     */
+    public void unsubscribe(@NotNull Runnable runnable) {
+        subscribers.remove(runnable);
     }
 
     /**
      * Update displayed items and start countdown if both players are ready.
      */
     public void update() {
-        boolean someChange = updateDisplayedItems();
-        if (someChange) closeShulkerPeekingGUIs();
+        Set<Perspective> someChange = updateDisplayedItems();
+        if (!someChange.isEmpty()) closeShulkerPeekingGUIs(someChange);
 
         if (this.ready[0] && this.ready[1]) finish().whenComplete((suc, err) -> {
             if (err != null) err.printStackTrace();
@@ -298,25 +321,27 @@ public abstract class Trade {
             synchronizeTitle();
         }
 
+        subscribers.forEach(Runnable::run);
+
         // update inventory a tick later to fix some visualization bugs
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory), 1);
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory));
     }
 
-    private boolean setReadyState(int id, boolean ready) {
-        if (this.ready[id] == ready) return false;
-        this.ready[id] = ready;
-        onReadyStateChange(id, ready);
+    private boolean setReadyState(@NotNull Perspective perspective, boolean ready) {
+        if (this.ready[perspective.id()] == ready) return false;
+        this.ready[perspective.id()] = ready;
+        onReadyStateChange(perspective, ready);
         return true;
     }
 
     /**
      * Update the ready state of the given player.
      *
-     * @param id    The id of the player.
-     * @param ready The new ready state.
+     * @param perspective The perspective of the player.
+     * @param ready       The new ready state.
      */
-    private void updateReady(int id, boolean ready) {
-        if (setReadyState(id, ready)) update();
+    private void updateReady(@NotNull Perspective perspective, boolean ready) {
+        if (setReadyState(perspective, ready)) update();
     }
 
     /**
@@ -329,21 +354,26 @@ public abstract class Trade {
     }
 
     /**
+     * Update the trade in the next tick.
+     */
+    public void updateLater() {
+        updateLater(0);
+    }
+
+    /**
      * <b>Simulates</b> all trade icon exchanges.
      *
-     * @param player       The player which tries to finish.
+     * @param perspective  The perspective of the player.
      * @param failDirectly True, if an error should call a trade cancellation.
      * @return {@link Boolean#TRUE} if the simulation had no issues.
      */
-    protected boolean tryFinish(@NotNull Player player, boolean failDirectly) {
-        int id = getId(player);
+    protected boolean tryFinish(@NotNull Perspective perspective, boolean failDirectly) {
+        Player player = getPlayer(perspective);
+        if (player == null) return false;
 
-        Player other = getOther(player).orElse(null);
-        String othersName = getOther(player.getName());
-
-        for (TradeIcon icon : layout[id].getIcons()) {
+        for (TradeIcon icon : layout[perspective.id()].getIcons()) {
             if (icon == null) continue;
-            FinishResult result = icon.tryFinish(this, player, other, othersName, this.initiationServer);
+            FinishResult result = icon.tryFinish(this, perspective, player, this.initiationServer);
 
             switch (result) {
                 case ERROR_ECONOMY:
@@ -366,13 +396,12 @@ public abstract class Trade {
 
         return runCountdown().thenApply($ -> {
             // prepare finish before sending the finish-check packet (prevents the GUI from bugging out)
-            for (int id = 0; id < 2; id++) {
-                Player player = getPlayer(id);
+            for (Perspective perspective : Perspective.main()) {
+                Player player = getPlayer(perspective);
                 if (player == null) continue;
 
-                if (!tryFinish(player, false)) return false;
-
-                prepareFinish(player, id);
+                if (!tryFinish(perspective, false)) return false;
+                prepareFinish(perspective);
             }
 
             return true;
@@ -387,24 +416,23 @@ public abstract class Trade {
             TradeResult[] results = createResults();
 
             // exchange goods
-            for (int id = 0; id < 2; id++) {
-                Player player = getPlayer(id);
+            for (Perspective perspective : Perspective.main()) {
+                Player player = getPlayer(perspective);
                 if (player == null) continue;
 
-                boolean initiator = isInitiator(player, id);
-                droppedItems[id] = exchangeItems(player, id, initiator);
-                exchangeOtherGoods(player);
+                boolean initiator = isInitiator(perspective);
+                droppedItems[perspective.id()] = exchangeItems(perspective, initiator);
+                exchangeOtherGoods(perspective);
 
                 if (initiator) logFinish = true;
             }
 
             // finish trade
-            for (int id = 0; id < 2; id++) {
-                Player player = getPlayer(id);
-                postFinish(player, id, droppedItems[id], results[id]);
+            for (Perspective perspective : Perspective.main()) {
+                postFinish(perspective, droppedItems[perspective.id()], results[perspective.id()]);
             }
 
-            if (logFinish) TradeLogService.logLater(this.players[0], this.players[1], TradeLog.FINISHED.get(), 10);
+            if (logFinish) TradeLogService.logLater(this.names[0], this.names[1], TradeLog.FINISHED.get(), 10);
 
             closeTrade(results);
             return true;
@@ -415,8 +443,8 @@ public abstract class Trade {
     protected CompletableFuture<Void> runCountdown() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        int interval = TradeSystem.man().getCountdownInterval();
-        int repetitions = TradeSystem.man().getCountdownRepetitions();
+        int interval = TradeSystem.handler().getCountdownInterval();
+        int repetitions = TradeSystem.handler().getCountdownRepetitions();
         this.countdown = new BukkitRunnable() {
             @Override
             public void run() {
@@ -429,13 +457,16 @@ public abstract class Trade {
 
                 if (!ready[0] || !ready[1]) {
                     this.cancel();
-                    Trade.this.getViewers().forEach(p -> TradeSystem.man().playCountdownStopSound(p));
+                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
                     countdownTicks = 0;
                     countdown = null;
+
+                    subscribers.forEach(Runnable::run);
                     guis().forEach(TradingGUI::synchronizeTitle);
                     return;
                 }
 
+                subscribers.forEach(Runnable::run);
                 if (countdownTicks == repetitions) {
                     future.complete(null);
                     this.cancel();
@@ -444,7 +475,7 @@ public abstract class Trade {
                     return;
                 } else {
                     guis().forEach(TradingGUI::synchronizeTitle);
-                    Trade.this.getViewers().forEach(p -> TradeSystem.man().playCountdownTickSound(p));
+                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownTickSound(p));
                 }
 
                 countdownTicks++;
@@ -456,27 +487,31 @@ public abstract class Trade {
         return future;
     }
 
-    private void prepareFinish(@NotNull Player player, int id) {
-        pause[id] = true;
+    private void prepareFinish(@NotNull Perspective perspective) {
+        Player player = getPlayer(perspective);
+        if (player == null) return;
+
+        pause[perspective.id()] = true;
         player.closeInventory();
     }
 
 
     @NotNull
     private TradeResult[] createResults() {
-        return new TradeResult[] {createResult(getPlayer(0), 0), createResult(getPlayer(1), 1)};
+        return new TradeResult[]{createResult(Perspective.PRIMARY), createResult(Perspective.SECONDARY)};
     }
 
     @NotNull
-    private TradeResult createResult(@Nullable Player player, int id) {
-        TradeResult result = player == null ? new TradeResult(id) : new PlayerTradeResult(this, player, id);
+    private TradeResult createResult(@NotNull Perspective perspective) {
+        Player player = getPlayer(perspective);
+        TradeResult result = player == null ? new TradeResult(perspective) : new PlayerTradeResult(this, player, perspective);
 
         for (int i = 0; i < slots.size(); i++) {
-            result.add(getCurrentOfferedItem(id, i), false);
-            result.add(getCurrentDisplayedItem(id, i), true);
+            result.add(getCurrentOfferedItem(perspective, i), false);
+            result.add(getCurrentDisplayedItem(perspective, i), true);
         }
 
-        for (TradeIcon icon : layout[id].getIcons()) {
+        for (TradeIcon icon : layout[perspective.id()].getIcons()) {
             if (icon == null) continue;
             result.add(icon);
         }
@@ -485,26 +520,26 @@ public abstract class Trade {
     }
 
     /**
-     * @param player    The player who receives the items.
-     * @param id        The id of the player who receives the items.
-     * @param initiator Whether the player who receives the items initiated the trade.
+     * @param perspective The perspective of the player.
+     * @param initiator   Whether the player who receives the items initiated the trade.
      * @return True, if some items were dropped.
      */
-    protected boolean exchangeItems(@NotNull Player player, int id, boolean initiator) {
-        int otherId = getOtherId(id);
-        Player other = getOther(player).orElse(null);
+    protected boolean exchangeItems(@NotNull Perspective perspective, boolean initiator) {
+        Player player = getPlayer(perspective);
+        if (player == null) throw new IllegalStateException("Player cannot be null!");
+        Player other = getPlayer(perspective.flip());
 
         boolean droppedItems = false;
         for (int slotId = 0; slotId < slots.size(); slotId++) {
             //using original one to prevent dupe glitches
-            ItemStack item = removeReceivedItem(id, slotId);
+            ItemStack item = removeReceivedItem(perspective, slotId);
 
             //Log before calling the events. These events could remove this item, and we would still lose it.
             if (item != null && item.getType() != Material.AIR)
-                TradeLog.logItemReceive(player, initiator, players[otherId], item);
+                TradeLog.logItemReceive(player, initiator, names[perspective.flip().id()], getUniqueId(perspective.flip()), item);
 
             //call events
-            item = callTradeItemEvent(player, other, players[otherId], item);
+            item = callTradeItemEvent(player, other, names[perspective.flip().id()], item);
 
             //try fit into inventory
             if (item != null && item.getType() != Material.AIR) {
@@ -526,15 +561,13 @@ public abstract class Trade {
         return droppedItems;
     }
 
-    protected void exchangeOtherGoods(@NotNull Player player) {
-        int id = getId(player);
+    protected void exchangeOtherGoods(@NotNull Perspective perspective) {
+        Player player = getPlayer(perspective);
+        if (player == null) return;
 
-        Player other = getOther(player).orElse(null);
-        String othersName = getOther(player.getName());
-
-        for (TradeIcon icon : layout[id].getIcons()) {
+        for (TradeIcon icon : layout[perspective.id()].getIcons()) {
             if (icon == null) continue;
-            icon.onFinish(this, player, other, othersName, this.initiationServer);
+            icon.onFinish(this, perspective, player, this.initiationServer);
         }
     }
 
@@ -575,46 +608,56 @@ public abstract class Trade {
         this.guis[0] = null;
         this.guis[1] = null;
 
-        TradeSystem.man().unregisterTrade(players[0]);
-        TradeSystem.man().unregisterTrade(players[1]);
+        TradeSystem.handler().unregisterTrade(names[0]);
+        TradeSystem.handler().unregisterTrade(names[1]);
 
         if (!alreadyCalled) cancelling(message);
 
         if (message != null) {
-            if (initiationServer) TradeLogService.log(players[0], players[1], TradeLog.CANCELLED_WITH_REASON.get(message));
+            if (initiationServer)
+                TradeLogService.log(names[0], names[1], TradeLog.CANCELLED_WITH_REASON.get(message));
             sendMessage(message);
         } else {
-            if (initiationServer) TradeLogService.log(players[0], players[1], TradeLog.CANCELLED.get());
+            if (initiationServer) TradeLogService.log(names[0], names[1], TradeLog.CANCELLED.get());
 
-            for (int i = 0; i < 2; i++) {
-                String m = Lang.getPrefix() + getPlaceholderMessage(i, "Trade_Was_Cancelled");
-                sendMessage(i, m);
-            }
+            getViewers().forEach(player -> {
+                Perspective perspective = getPerspective(player);
+
+                if (perspective.isMain()) {
+                    String m = Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Cancelled");
+                    sendMessage(perspective, m);
+                } else {
+                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", player));
+                }
+            });
         }
 
-        for (int i = 0; i < droppedItems.length; i++) {
-            if (droppedItems[i]) {
-                sendMessage(i, Lang.getPrefix() + getPlaceholderMessage(i, "Items_Dropped"));
+
+        for (Perspective perspective : Perspective.main()) {
+            if (droppedItems[perspective.id()]) {
+                sendMessage(perspective, Lang.getPrefix() + getPlaceholderMessage(perspective, "Items_Dropped"));
             }
         }
 
         closeTrade(results);
     }
 
-    private void postFinish(@Nullable Player player, int id, boolean droppedItems, @NotNull TradeResult result) {
-        if (guis[id] != null) guis[id].clear();
-        TradeSystem.man().unregisterTrade(players[id]);
+    private void postFinish(@NotNull Perspective perspective, boolean droppedItems, @NotNull TradeResult result) {
+        Player player = getPlayer(perspective);
+
+        if (guis[perspective.id()] != null) guis[perspective.id()].clear();
+        TradeSystem.handler().unregisterTrade(names[perspective.id()]);
 
         PlayerTradeResult playerResult = result instanceof PlayerTradeResult ? (PlayerTradeResult) result : null;
         if (player != null && playerResult != null) {
-            int oId = getOtherId(id);
-            TradeReportEvent e = getPlayerOpt(oId)
+            TradeReportEvent e = getPlayerOpt(perspective.flip())
                     .map(other -> new TradeReportEvent(player, other, playerResult))
-                    .orElseGet(() -> new TradeReportEvent(player, players[oId], playerResult));
+                    .orElseGet(() -> new TradeReportEvent(player, names[perspective.flip().id()], getUniqueId(perspective.flip()), playerResult));
             Bukkit.getPluginManager().callEvent(e);
 
-            if (!e.isCancelled()) player.sendMessage(buildFinishMessages(player, id, droppedItems, playerResult, e));
-            if (e.isPlayFinishSound()) TradeSystem.man().playFinishSound(player);
+            if (!e.isCancelled())
+                player.sendMessage(buildFinishMessages(player, perspective, droppedItems, playerResult, e));
+            if (e.isPlayFinishSound()) TradeSystem.handler().playFinishSound(player);
         }
     }
 
@@ -628,35 +671,35 @@ public abstract class Trade {
     }
 
     private void callFinishEvent(@NotNull TradeResult @NotNull [] results) {
-        Player player = getPlayer(0);
+        Player player = getPlayer(Perspective.PRIMARY);
         assert player != null;
 
         TradeFinishEvent e;
-        if (isInitiator(player, 0)) {
-            e = getPlayerOpt(1)
+        if (isInitiator(Perspective.PRIMARY)) {
+            e = getPlayerOpt(Perspective.SECONDARY)
                     .map(other -> new TradeFinishEvent(player, other, !cancelling, results))
-                    .orElseGet(() -> new TradeFinishEvent(player, players[1], !cancelling, results));
+                    .orElseGet(() -> new TradeFinishEvent(player, names[Perspective.SECONDARY.id()], getUniqueId(Perspective.SECONDARY), !cancelling, results));
         } else {
-            e = getPlayerOpt(1)
+            e = getPlayerOpt(Perspective.SECONDARY)
                     .map(other -> new TradeFinishEvent(other, player, !cancelling, results))
-                    .orElseGet(() -> new TradeFinishEvent(players[1], player, !cancelling, results));
+                    .orElseGet(() -> new TradeFinishEvent(names[Perspective.SECONDARY.id()], getUniqueId(Perspective.SECONDARY), player, !cancelling, results));
         }
 
         Bukkit.getPluginManager().callEvent(e);
     }
 
-    private @NotNull String @NotNull [] buildFinishMessages(@NotNull Player player, int id, boolean droppedItems, @NotNull PlayerTradeResult result, @NotNull TradeReportEvent event) {
+    private @NotNull String @NotNull [] buildFinishMessages(@NotNull Player viewer, @NotNull Perspective perspective, boolean droppedItems, @NotNull PlayerTradeResult result, @NotNull TradeReportEvent event) {
         List<String> messages = new ArrayList<>();
-        messages.add(Lang.getPrefix() + getPlaceholderMessage(id, "Trade_Was_Finished"));
+        messages.add(Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Finished"));
 
         // collect reports and sort them
         List<String> list = new ArrayList<>();
 
-        if (TradeSystem.man().isTradeReportEconomy()) {
+        if (TradeSystem.handler().isTradeReportEconomy()) {
             if (event.getEconomyReport() != null) list.addAll(event.getEconomyReport());
             else list.addAll(result.buildEconomyReport());
         }
-        if (TradeSystem.man().isTradeReportItems()) {
+        if (TradeSystem.handler().isTradeReportItems()) {
             if (event.getItemReport() != null) list.addAll(event.getItemReport());
             else list.addAll(result.buildItemReport());
         }
@@ -670,7 +713,7 @@ public abstract class Trade {
 
         if (droppedItems) {
             messages.add("");
-            messages.add(Lang.getPrefix() + Lang.get("Items_Dropped", player));
+            messages.add(Lang.getPrefix() + Lang.get("Items_Dropped", viewer));
         }
 
         return messages.toArray(new String[0]);
@@ -683,23 +726,24 @@ public abstract class Trade {
     protected @Nullable ItemStack callTradeItemEvent(@NotNull Player receiver, @Nullable Player sender, @NotNull String senderName, @Nullable ItemStack item) {
         if (item == null) return null;
 
-        TradeItemEvent event = sender == null ? new TradeItemEvent(receiver, senderName, item) : new TradeItemEvent(receiver, sender, item);
+        TradeItemEvent event = sender == null ? new TradeItemEvent(receiver, senderName, getUniqueId(senderName), item) : new TradeItemEvent(receiver, sender, item);
         Bukkit.getPluginManager().callEvent(event);
         return event.getItem();
     }
 
     /**
      * Close shulker peeking GUIs in case of trade offer changes.
+     *
+     * @param invokedBy The perspectives that invoked the change which caused closing the shulker GUIs.
      */
-    private void closeShulkerPeekingGUIs() {
-        getViewers().forEach(p -> {
-            ShulkerPeekGUI shulkerPeek = API.getRemovable(p, ShulkerPeekGUI.class);
+    private void closeShulkerPeekingGUIs(@NotNull Set<Perspective> invokedBy) {
+        getViewers().forEach(player -> {
+            ShulkerPeekGUI shulkerPeek = API.getRemovable(player, ShulkerPeekGUI.class);
             if (shulkerPeek == null) return;
 
-            boolean ownShulkerBox = getSlots().contains(shulkerPeek.getOriginalSlot());
-            if (!ownShulkerBox) {
+            if (invokedBy.contains(shulkerPeek.getOwner())) {
                 try {
-                    TradeSystem.man().playChangeDuringShulkerPeekSound(p);
+                    TradeSystem.handler().playChangeDuringShulkerPeekSound(player);
                     shulkerPeek.close();
                 } catch (AlreadyClosedException e) {
                     throw new RuntimeException(e);
@@ -717,7 +761,7 @@ public abstract class Trade {
     protected final boolean[] returnItemsToOwner() {
         if (!isActive()) return null;
 
-        boolean[] droppedItems = new boolean[] {false, false};
+        boolean[] droppedItems = new boolean[]{false, false};
 
         // move items to their owners
         for (Integer slot : this.slots) {
@@ -762,20 +806,21 @@ public abstract class Trade {
         } else return false;
     }
 
-    @SuppressWarnings ("BooleanMethodIsAlwaysInverted")
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canPickup(Player player, ItemStack item) {
         PlayerInventory inv = new PlayerInventory(player, false);
+        Perspective perspective = getPerspective(player);
 
         for (Integer slot : this.slots) {
-            ItemStack back = guis[getId(player)].getItem(slot);
+            ItemStack back = guis[perspective.id()].getItem(slot);
             if (back != null && back.getType() != Material.AIR) {
                 inv.addItem(back);
             }
         }
 
         //placeholder
-        if (this.cursor[getId(player)]) {
-            ItemStack cursor = new ItemBuilder(XMaterial.BEDROCK).setName("PLACEHOLDER_CURSOR").getItem();
+        ItemStack cursor = player.getOpenInventory().getCursor();
+        if (cursor != null) {
             if (!inv.addItem(cursor, false)) return false;
         }
 
@@ -789,14 +834,14 @@ public abstract class Trade {
             @EventHandler
             public void onPickup(PlayerPickupItemEvent e) {
                 for (int i = 0; i < 2; i++) {
-                    final int id = i;
-                    if (guis[id] == null) continue;
+                    if (guis[i] == null) continue;
 
-                    if (e.getPlayer().getName().equals(players[id])) {
-                        if (!canPickup(e.getPlayer(), e.getItem().getItemStack()) || waitForPickup[id]) e.setCancelled(true);
+                    if (e.getPlayer().getName().equals(names[i])) {
+                        if (!canPickup(e.getPlayer(), e.getItem().getItemStack()))
+                            e.setCancelled(true);
                         else {
                             //player picked up an item, check trading items -> balance items of other trader
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> onItemPickUp(e.getPlayer(), id), 1);
+                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> onItemPickUp(getPerspective(e.getPlayer())), 1);
                         }
                     }
                 }
@@ -806,28 +851,18 @@ public abstract class Trade {
 
     /**
      * Balances the items of the trader given in "player" to make them fit into the inventory of the trade partner.
-     * Items will be removed from the trade panel if they does not fit into the inventory.
+     * Items will be removed from the trade panel if they do not fit into the inventory.
      *
-     * @param playerId The id of the trader whose items will be balanced.
+     * @param perspective The perspective of the trader whose items will be balanced.
      */
-    public final void cancelItemOverflow(int playerId) {
-        Player player = getPlayer(playerId);
-        if (player == null) return;
-        cancelItemOverflow(player, playerId);
-    }
-
-    /**
-     * Balances the items of the trader given in "player" to make them fit into the inventory of the trade partner.
-     * Items will be removed from the trade panel if they does not fit into the inventory.
-     *
-     * @param player The trader whose items will be balanced.
-     */
-    protected void cancelItemOverflow(@NotNull Player player, int id) {
+    public void cancelItemOverflow(@NotNull Perspective perspective) {
         if (!isActive()) return;
+        Player player = getPlayer(perspective);
+        if (player == null) return;
 
         HashMap<Integer, ItemStack> items = new HashMap<>();
         for (Integer slot : this.slots) {
-            ItemStack item = this.guis[id].getItem(slot);
+            ItemStack item = this.guis[perspective.id()].getItem(slot);
 
             if (item != null && item.getType() != Material.AIR) {
                 items.put(slot, item);
@@ -861,7 +896,7 @@ public abstract class Trade {
         items.putAll(sorted);
         sorted.clear();
 
-        PlayerInventory inv = getPlayerInventory(getOtherId(id));
+        PlayerInventory inv = getPlayerInventory(perspective.flip());
         HashMap<Integer, Integer> toRemove = new HashMap<>();
 
         items.forEach((slot, item) -> {
@@ -871,7 +906,7 @@ public abstract class Trade {
 
         items.clear();
 
-        TradingGUI gui = guis[id];
+        TradingGUI gui = guis[perspective.id()];
         for (Integer slot : toRemove.keySet()) {
             ItemStack item = gui.getItem(slot).clone();
             item.setAmount(item.getAmount() - toRemove.get(slot));
@@ -889,14 +924,14 @@ public abstract class Trade {
     /**
      * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
      *
-     * @param from  The trading player.
-     * @param avoid The slots to ignore.
-     * @param items The collection of items that should be checked if they fit into the inventory of the trade partner.
+     * @param perspective The perspective of the trading player.
+     * @param avoid       The slots to ignore.
+     * @param items       The collection of items that should be checked if they fit into the inventory of the trade partner.
      * @return True if the given items fit into the inventory of the trade partner.
      */
-    public boolean fitsTrade(@NotNull Player from, @NotNull List<Integer> avoid, @NotNull Collection<ItemStack> items) {
+    public boolean fitsTrade(@NotNull Perspective perspective, @NotNull List<Integer> avoid, @NotNull Collection<ItemStack> items) {
         List<ItemStack> currentlyAddingItems = new ArrayList<>(items);
-        TradingGUI gui = this.guis[getId(from)];
+        TradingGUI gui = this.guis[perspective.id()];
 
         for (Integer slot : this.slots) {
             if (avoid.contains(slot)) continue;
@@ -907,7 +942,7 @@ public abstract class Trade {
             }
         }
 
-        PlayerInventory inv = getPlayerInventory(getOtherId(from));
+        PlayerInventory inv = getPlayerInventory(perspective.flip());
         boolean fits = true;
 
         for (ItemStack item : currentlyAddingItems) {
@@ -939,19 +974,21 @@ public abstract class Trade {
         }
     }
 
-    public int getOtherId(@Range (from = 0, to = 1) int id) {
-        if (id == 1) return 0;
-        else return 1;
+    @NotNull
+    public Perspective getPerspective(@NotNull Player player) {
+        return getPerspective(player.getName());
     }
 
-    public int getOtherId(Player player) {
-        return getOtherId(getId(player));
+    @NotNull
+    public Perspective getPerspective(@NotNull String player) {
+        if (player.equalsIgnoreCase(this.names[0])) return Perspective.PRIMARY;
+        else if (player.equalsIgnoreCase(this.names[1])) return Perspective.SECONDARY;
+        else return Perspective.TERTIARY;
     }
 
-    public int getId(Player player) {
-        if (player.getName().equals(this.players[0])) return 0;
-        else if (player.getName().equals(this.players[1])) return 1;
-        else return -1;
+    @NotNull
+    public UUID getUniqueId(@NotNull String player) {
+        return getUniqueId(getPerspective(player));
     }
 
     public List<Integer> getSlots() {
@@ -963,25 +1000,25 @@ public abstract class Trade {
     }
 
     /**
-     * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
+     * Checks if the given collection of items can be picked up by the trade partner of the given player.
      *
-     * @param from The trading player.
+     * @param from The perspective of the trading player.
      * @param item The item that should be checked if it does not fit into the inventory of the trade partner.
      * @return True if the given item does not fit into the inventory of the trade partner.
      */
-    public boolean doesNotFit(@NotNull Player from, @NotNull ItemStack item) {
+    public boolean doesNotFit(@NotNull Perspective from, @NotNull ItemStack item) {
         return doesNotFit(from, new ArrayList<>(), item);
     }
 
     /**
      * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
      *
-     * @param from  The trading player.
+     * @param from  The perspective of the trading player.
      * @param avoid The slots to ignore.
      * @param item  The item that should be checked if it does not fit into the inventory of the trade partner.
      * @return True if the given item does not fit into the inventory of the trade partner.
      */
-    public boolean doesNotFit(@NotNull Player from, @NotNull List<Integer> avoid, @NotNull ItemStack item) {
+    public boolean doesNotFit(@NotNull Perspective from, @NotNull List<Integer> avoid, @NotNull ItemStack item) {
         return !fitsTrade(from, avoid, new ArrayList<ItemStack>() {{
             add(item);
         }});
@@ -990,11 +1027,11 @@ public abstract class Trade {
     /**
      * Checks if the given collection of items can be picked up by the trade partner of the given player without the slots in 'avoid'.
      *
-     * @param from  The trading player.
+     * @param from  The perspective of the trading player.
      * @param items The collection of items that should be checked if they fit into the inventory of the trade partner.
      * @return True if the given items fit into the inventory of the trade partner.
      */
-    public boolean fitsTrade(@NotNull Player from, @NotNull Collection<ItemStack> items) {
+    public boolean fitsTrade(@NotNull Perspective from, @NotNull Collection<ItemStack> items) {
         return fitsTrade(from, new ArrayList<>(), items);
     }
 
@@ -1043,28 +1080,27 @@ public abstract class Trade {
         } else return false;
     }
 
-    public void synchronizeTradeIcon(int playerId, TradeIcon icon, boolean updateIcon) {
+    public void synchronizeTradeIcon(@NotNull Perspective from, @NotNull TradeIcon icon, boolean updateIcon) {
         if (icon instanceof Transition) {
-            int otherId = getOtherId(playerId);
-            informTransition(icon, otherId);
+            informTransition(icon, from.flip());
         }
 
-        if (updateIcon) icon.updateItem(this, playerId);
+        if (updateIcon) icon.updateItem(this, from);
     }
 
-    protected void informTransition(TradeIcon icon, int otherId) {
+    protected void informTransition(@NotNull TradeIcon from, @NotNull Perspective to) {
         try {
-            Method method = findInform(icon.getClass(), icon.getClass());
+            Method method = IconHandler.findInform(from.getClass(), from.getClass());
 
-            TradeIcon consumer = getLayout()[otherId].getIcon(IconHandler.getTransitionTarget(icon.getClass()));
-            method.invoke(icon, consumer);
-            consumer.updateItem(this, otherId);
+            TradeIcon consumer = getLayout()[to.id()].getIcon(IconHandler.getTransitionTarget(from.getClass()));
+            method.invoke(from, consumer);
+            consumer.updateItem(this, to);
         } catch (ClassCastException | InvocationTargetException | IllegalAccessException | NoSuchMethodException ex) {
-            throw new IllegalStateException("Cannot execute method inform(TradeIcon) of " + icon.getClass().getName(), ex);
+            throw new IllegalStateException("Cannot execute method inform(TradeIcon) of " + from.getClass().getName(), ex);
         }
     }
 
-    public void handleClickResult(@NotNull TradeIcon tradeIcon, @NotNull Player player, int playerId, @NotNull GUI gui, @NotNull IconResult result) {
+    public void handleClickResult(@NotNull TradeIcon tradeIcon, @NotNull Perspective perspective, @NotNull GUI gui, @NotNull IconResult result) {
         switch (result) {
             case PASS:
                 return;
@@ -1073,13 +1109,13 @@ public abstract class Trade {
                 //calls an update
                 onTradeOfferChange(true);
 
-                synchronizeTradeIcon(playerId, tradeIcon, true);
+                synchronizeTradeIcon(perspective, tradeIcon, true);
 
                 // make sure player get notified when something changed
-                closeShulkerPeekingGUIs();
+                closeShulkerPeekingGUIs(Collections.singleton(perspective));
 
                 // status icon might can be ready now
-                updateStatusIcon(player, playerId);
+                updateStatusIcon(perspective);
                 break;
 
             case GUI:
@@ -1092,11 +1128,11 @@ public abstract class Trade {
                 break;
 
             case READY:
-                updateReady(playerId, true);
+                updateReady(perspective, true);
                 break;
 
             case NOT_READY:
-                updateReady(playerId, false);
+                updateReady(perspective, false);
                 break;
 
             case CANCEL:
@@ -1106,22 +1142,6 @@ public abstract class Trade {
             default:
                 throw new IllegalStateException("Unexpected value: " + result);
         }
-    }
-
-    private @NotNull Method findInform(Class<? extends TradeIcon> origin, Class<? extends TradeIcon> icon) throws NoSuchMethodException {
-        try {
-            return icon.getMethod("inform", IconHandler.getTransitionTarget(origin));
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        //might be a generic
-        try {
-            return icon.getMethod("inform", TradeIcon.class);
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        //transition without transition method?
-        throw new NoSuchMethodException();
     }
 
     protected final void synchronizeTitle() {
@@ -1137,20 +1157,10 @@ public abstract class Trade {
         guis().forEach(TradingGUI::destroy);
 
         // fix buggy inventories of other plugins that were opened while trading
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
-            this.getViewers().forEach(p -> {
-                p.closeInventory();
-                p.updateInventory();
-            });
-        });
-    }
-
-    public boolean[] getCursor() {
-        return cursor;
-    }
-
-    public boolean[] getWaitForPickup() {
-        return waitForPickup;
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(p -> {
+            p.closeInventory();
+            p.updateInventory();
+        }));
     }
 
     public BukkitRunnable getCountdown() {
@@ -1162,10 +1172,10 @@ public abstract class Trade {
     }
 
     public String getOther(String p) {
-        if (this.players[0] == null || this.players[1] == null) return null;
+        if (this.names[0] == null || this.names[1] == null) return null;
 
-        if (this.players[0].equals(p)) return this.players[1];
-        else return this.players[0];
+        if (this.names[0].equals(p)) return this.names[1];
+        else return this.names[0];
     }
 
     public TradeLayout[] getLayout() {
@@ -1186,36 +1196,36 @@ public abstract class Trade {
     }
 
     public boolean inMainGUI(Player player) {
-        int id = getId(player);
-        if (id == -1) return false;
+        Perspective perspective = getPerspective(player);
+        if (perspective.isTertiary()) return false;
 
-        TradingGUI gui = guis[id];
+        TradingGUI gui = guis[perspective.id()];
         return gui.isOpen() && !gui.isWaiting();
     }
 
     public void acknowledgeGuiSwitch(@NotNull Player player) {
         // Fixes a dupe glitch which allowed the player to remain in the trade GUI during the countdown and then duplicate items.
-        updateReady(getId(player), false);
+        updateReady(getPerspective(player), false);
     }
 
     protected final void playCountDownStopSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playCountdownStopSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
     }
 
     protected final void playStartSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playStartSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playStartSound(p));
     }
 
     protected final void playCancelSound() {
-        this.getViewers().forEach(p -> TradeSystem.man().playCancelSound(p));
+        this.getViewers().forEach(p -> TradeSystem.handler().playCancelSound(p));
     }
 
     public boolean isInitiationServer() {
         return initiationServer;
     }
 
-    public String[] getPlayers() {
-        return players;
+    public String[] getNames() {
+        return names;
     }
 
     public boolean isCancelling() {
@@ -1228,7 +1238,7 @@ public abstract class Trade {
 
     @NotNull
     private Predicate<Player> nonTrader() {
-        return player -> getId(player) == -1;
+        return player -> getPerspective(player).isTertiary();
     }
 
     /**
@@ -1237,32 +1247,25 @@ public abstract class Trade {
     @NotNull
     public final Stream<Player> getViewers() {
         // Preparation for future features.
-        return getParticipants();
-    }
-
-    /**
-     * @param player The current player.
-     * @return The other player.
-     */
-    @NotNull
-    public Optional<Player> getOther(@NotNull Player player) {
-        int id = getId(player);
-        if (id == -1) return Optional.empty();
-        return getPlayerOpt(getOtherId(id));
+        return Stream.concat(getParticipants(),
+                this.subscribers.stream()
+                        .filter(s -> s instanceof PlayerSubscriber)
+                        .map(s -> ((PlayerSubscriber) s).getPlayer())
+        );
     }
 
     @NotNull
-    protected Optional<Player> getPlayerOpt(int id) {
-        return Optional.ofNullable(getPlayer(id));
+    protected Optional<Player> getPlayerOpt(@NotNull Perspective perspective) {
+        return Optional.ofNullable(getPlayer(perspective));
     }
 
-    protected void sendMessage(int id, @NotNull String message) {
-        getPlayerOpt(id).ifPresent(p -> p.sendMessage(message));
+    protected void sendMessage(@NotNull Perspective perspective, @NotNull String message) {
+        getPlayerOpt(perspective).ifPresent(p -> p.sendMessage(message));
     }
 
     @NotNull
-    protected String getPlaceholderMessage(int playerId, @NotNull String message) {
+    protected String getPlaceholderMessage(@NotNull Perspective perspective, @NotNull String message) {
         // Player with id 0 can be used as backup since we always have at least one player.
-        return Lang.get(message, getPlayerOpt(playerId).orElse(getPlayer(0)));
+        return Lang.get(message, getPlayerOpt(perspective).orElse(getPlayer(Perspective.PRIMARY)));
     }
 }

@@ -44,9 +44,10 @@ public class RuleManager {
         return false;
     }
 
-    public static void handle(Player player, String other, TradeInvitePacket.ResultPacket result) {
+    public static void handle(@NotNull Player player, @NotNull String other, @NotNull TradeInvitePacket.ResultPacket result) {
         if (result.getResult() == TradeInvitePacket.Result.INVITED) {
-            InvitationManager.registerInvitation(player, player.getName(), null, other);
+            if (result.getRecipientId() == null) throw new IllegalStateException("RecipientId is null!");
+            InvitationManager.registerInvitation(player, player.getName(), result.getRecipientId(), null, other);
         }
 
         message(player, other, result.getResult(), result.getServer());
@@ -73,7 +74,7 @@ public class RuleManager {
             return TradeInvitePacket.Result.SLEEPING;
         }
 
-        if (TradeSystem.man().isTrading(other)) {
+        if (TradeSystem.handler().isTrading(other)) {
             return TradeInvitePacket.Result.IS_ALREADY_TRADING;
         }
 

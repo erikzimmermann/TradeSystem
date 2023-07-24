@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.gui.layout.types.utils;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.SimpleTradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +19,7 @@ public abstract class ShowIcon extends SimpleTradeIcon {
     }
 
     @Override
-    public final @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public final @NotNull IconResult onClick(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @NotNull InventoryClickEvent event) {
         return IconResult.PASS;
     }
 
