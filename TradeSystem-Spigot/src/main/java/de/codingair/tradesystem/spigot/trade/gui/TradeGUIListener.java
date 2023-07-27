@@ -32,14 +32,14 @@ public class TradeGUIListener implements Listener {
         configuration.isItemAllowedInInventory = (items, slots) -> {
             for (ItemStack item : items) {
                 if (TradeSystem.getInstance().getTradeManager().isBlocked(trade, player, trade.getPlayer(other), trade.getNames()[other.id()], trade.getUniqueId(other), item)) {
-                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Placed_Blocked_Item", player));
+                    Lang.send(player, "Trade_Placed_Blocked_Item");
                     TradeSystem.getInstance().getTradeManager().playBlockSound(player);
                     return false;
                 }
             }
 
             if (!TradeSystem.getInstance().getTradeManager().isDropItems() && !trade.fitsTrade(perspective, items)) {
-                player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_No_Space", player));
+                Lang.send(player, "Trade_Partner_No_Space");
                 TradeSystem.getInstance().getTradeManager().playBlockSound(player);
                 return false;
             }

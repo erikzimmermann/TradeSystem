@@ -17,7 +17,7 @@ public class RuleManager {
 
     public static boolean isViolatingRules(Player p) {
         if (Permissions.PERMISSION != null && !p.hasPermission(Permissions.PERMISSION)) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", p));
+            Lang.send(p, "§c", "Not_Able_To_Trade");
             return true;
         }
 
@@ -27,17 +27,17 @@ public class RuleManager {
         }
 
         if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(p.getWorld())) {
-            p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Cannot_trade_in_world", p));
+            Lang.send(p, "§c", "Cannot_trade_in_world");
             return true;
         }
 
         if (!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(p.getGameMode().name())) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_that_GameMode", p));
+            Lang.send(p, "Cannot_trade_in_that_GameMode");
             return true;
         }
 
         if (p.isSleeping()) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_in_bed", p));
+            Lang.send(p, "Cannot_trade_in_bed");
             return true;
         }
 
@@ -81,55 +81,55 @@ public class RuleManager {
         return TradeInvitePacket.Result.INVITED;
     }
 
-    public static boolean isViolatingRules(Player p, Player other) {
-        if (isViolatingRules(p)) return true;
+    public static boolean isViolatingRules(Player player, Player other) {
+        if (isViolatingRules(player)) return true;
 
         //pre rules
-        if (other == null || !p.canSee(other)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Player_Not_Online", p));
+        if (other == null || !player.canSee(other)) {
+            Lang.send(player, "Player_Not_Online");
             return true;
         }
 
-        if (other.equals(p)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_Trade_With_Yourself", p));
+        if (other.equals(player)) {
+            Lang.send(player, "Cannot_Trade_With_Yourself");
             return true;
         }
 
         //main rules
         if (Permissions.PERMISSION != null && !other.hasPermission(Permissions.PERMISSION)) {
-            message(p, other.getName(), TradeInvitePacket.Result.NO_PERMISSION, null);
+            message(player, other.getName(), TradeInvitePacket.Result.NO_PERMISSION, null);
             return true;
         }
 
         if (TradeSystem.getInstance().getTradeManager().isOffline(other)) {
-            message(p, other.getName(), TradeInvitePacket.Result.MARKED_AS_OFFLINE, null);
+            message(player, other.getName(), TradeInvitePacket.Result.MARKED_AS_OFFLINE, null);
             return true;
         }
 
         if (TradeSystem.getInstance().getTradeManager().isBlockedWorld(other.getWorld())) {
-            message(p, other.getName(), TradeInvitePacket.Result.BLOCKED_WORLD, null);
+            message(player, other.getName(), TradeInvitePacket.Result.BLOCKED_WORLD, null);
             return true;
         }
 
         if (!TradeSystem.getInstance().getTradeManager().getAllowedGameModes().contains(other.getGameMode().name())) {
-            message(p, other.getName(), TradeInvitePacket.Result.GAME_MODE, null);
+            message(player, other.getName(), TradeInvitePacket.Result.GAME_MODE, null);
             return true;
         }
 
         if (other.isSleeping()) {
-            message(p, other.getName(), TradeInvitePacket.Result.SLEEPING, null);
+            message(player, other.getName(), TradeInvitePacket.Result.SLEEPING, null);
             return true;
         }
 
         //post rules
-        if (!other.canSee(p)) {
-            p.sendMessage(Lang.getPrefix() + Lang.get("Cannot_trade_while_invisible", p));
+        if (!other.canSee(player)) {
+            Lang.send(player, "Cannot_trade_while_invisible");
             return true;
         }
 
         if (TradeSystem.getInstance().getTradeManager().getDistance() > 0) {
-            if (!p.getWorld().equals(other.getWorld()) || p.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
-                p.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_is_not_in_range", p, new Lang.P("player", other.getName())));
+            if (!player.getWorld().equals(other.getWorld()) || player.getLocation().distance(other.getLocation()) > TradeSystem.getInstance().getTradeManager().getDistance()) {
+                Lang.send(player, "§c", "Player_is_not_in_range", new Lang.P("player", other.getName()));
                 return true;
             }
         }
@@ -140,13 +140,13 @@ public class RuleManager {
     public static void message(Player player, String other, TradeInvitePacket.Result result, @Nullable String server) {
         switch (result) {
             case NO_PERMISSION:
-                player.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Player_Is_Not_Able_Trade", player));
+                Lang.send(player, "§c", "Player_Is_Not_Able_Trade");
                 break;
 
             case NOT_ONLINE:
             case MARKED_AS_OFFLINE:
             case SLEEPING:
-                player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", player));
+                Lang.send(player, "Trade_Partner_is_Offline");
                 break;
 
             case OTHER_GROUP:
@@ -158,29 +158,31 @@ public class RuleManager {
                                 "1. Use the group function in the trade-configuration file on your proxy to separate both servers from each other or\n" +
                                 "2. Copy the Config.yml from one server to the other server"
                 );
-                player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Partner_is_Offline", player));
+                Lang.send(player, "Trade_Partner_is_Offline");
                 break;
 
             case BLOCKED_WORLD:
-                player.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Other_cannot_trade_in_world", player));
+                Lang.send(player, "§c", "Other_cannot_trade_in_world");
                 break;
 
             case GAME_MODE:
-                player.sendMessage(Lang.getPrefix() + Lang.get("Other_cannot_trade_in_that_GameMode", player));
+                Lang.send(player, "Other_cannot_trade_in_that_GameMode");
                 break;
 
             case INVITED:
-                player.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", player, new Lang.P("player", other)));
+                Lang.send(player, "Player_Is_Invited", new Lang.P("player", other));
                 break;
 
             case IS_ALREADY_TRADING:
-                player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
+                Lang.send(player, "Other_is_already_trading");
                 break;
         }
     }
 
     private static void notifyOfflinePlayer(Player p) {
         String text = Lang.get("Trade_You_are_Offline", p);
+        if (text.isEmpty()) return;
+
         String[] a = text.split("%command%", -1);
 
         if (a.length != 3) {

@@ -22,22 +22,22 @@ public class TradeCMD extends CommandBuilder {
         super(TradeSystem.getInstance(), aliases[0], "Trade-System-CMD", new BaseComponent(Permissions.PERMISSION) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Not_Able_To_Trade", (Player) sender));
+                Lang.send(sender, "§c", "Not_Able_To_Trade");
             }
 
             @Override
             public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Only_for_Player"));
+                Lang.send(sender, "Only_for_Player");
             }
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
+                Lang.send(sender, "Command_How_To");
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Command_How_To", (Player) sender));
+                Lang.send(sender, "Command_How_To");
                 return true;
             }
         }.setOnlyPlayers(true), true, Arrays.copyOfRange(aliases, 1, aliases.length));
@@ -141,10 +141,10 @@ public class TradeCMD extends CommandBuilder {
 
     private boolean toggle(CommandSender sender) {
         if (TradeSystem.getInstance().getTradeManager().toggle((Player) sender)) {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Offline", (Player) sender));
+            Lang.send(sender, "Trade_Offline");
             TradeSystem.invitations().clear(sender.getName());
         } else {
-            sender.sendMessage(Lang.getPrefix() + Lang.get("Trade_Online", (Player) sender));
+            Lang.send(sender, "Trade_Online");
         }
         return true;
     }

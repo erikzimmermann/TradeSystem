@@ -37,7 +37,7 @@ public class WorldGuardDependency implements PluginDependency, Listener {
         if (e.isAccepted()) {
             if (e.getReceivingPlayer() != null) {
                 if (invalidRegion(e.getReceivingPlayer())) {
-                    e.sendMessage(e.getReceivingPlayer(), e.getReceiver(), Lang.getPrefix() + Lang.get("Cannot_trade_in_region", e.getReceivingPlayer()));
+                    Lang.send(e.getReceivingPlayer(), "", "Cannot_trade_in_region", ($, s) -> e.sendMessage(e.getReceivingPlayer(), e.getReceiver(), s));
                     e.setCancelled(true);
                     return;
                 }
@@ -45,7 +45,7 @@ public class WorldGuardDependency implements PluginDependency, Listener {
 
             if (e.getSendingPlayer() != null) {
                 if (invalidRegion(e.getSendingPlayer())) {
-                    e.sendMessage(e.getReceivingPlayer(), e.getReceiver(), Lang.getPrefix() + Lang.get("Other_cannot_trade_in_region", e.getReceivingPlayer()));
+                    Lang.send(e.getReceivingPlayer(), "", "Other_cannot_trade_in_region", ($, s) -> e.sendMessage(e.getReceivingPlayer(), e.getReceiver(), s));
                     e.setCancelled(true);
                 }
             }
@@ -56,7 +56,7 @@ public class WorldGuardDependency implements PluginDependency, Listener {
     public void onRequest(TradeRequestEvent e) {
         if (e.getSendingPlayer() != null) {
             if (invalidRegion(e.getSendingPlayer())) {
-                e.sendMessage(e.getSendingPlayer(), e.getSender(), Lang.getPrefix() + Lang.get("Cannot_trade_in_region"));
+                Lang.send(e.getSendingPlayer(), "", "Cannot_trade_in_region", ($, s) -> e.sendMessage(e.getSendingPlayer(), e.getSender(), s));
                 e.setCancelled(true);
                 return;
             }
@@ -64,7 +64,7 @@ public class WorldGuardDependency implements PluginDependency, Listener {
 
         if (e.getReceivingPlayer() != null) {
             if (invalidRegion(e.getReceivingPlayer())) {
-                e.sendMessage(e.getSendingPlayer(), e.getSender(), Lang.getPrefix() + Lang.get("Other_cannot_trade_in_region"));
+                Lang.send(e.getSendingPlayer(), "", "Other_cannot_trade_in_region", ($, s) -> e.sendMessage(e.getSendingPlayer(), e.getSender(), s));
                 e.setCancelled(true);
             }
         }

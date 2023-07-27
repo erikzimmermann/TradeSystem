@@ -79,9 +79,9 @@ public class InvitationManager {
         });
 
         if (inviter != null)
-            inviter.sendMessage(Lang.getPrefix() + Lang.get("Your_request_expired", inviter, new Lang.P("player", nameReceiverCase)));
+            Lang.send(inviter, "Your_request_expired", new Lang.P("player", nameReceiverCase));
         if (receiver != null)
-            receiver.sendMessage(Lang.getPrefix() + Lang.get("Request_expired", receiver, new Lang.P("player", nameInviterCase)));
+            Lang.send(receiver, "Request_expired", new Lang.P("player", nameInviterCase));
     }
 
     private static InvitationManager instance() {
@@ -105,7 +105,7 @@ public class InvitationManager {
         boolean alreadyRequested = map != null && map.containsKey(inviter.getName().toLowerCase());
 
         if (alreadyRequested) {
-            inviter.sendMessage(Lang.getPrefix() + "§c" + Lang.get("Trade_Spam", inviter));
+            Lang.send(inviter, "§c", "Trade_Spam");
             return true;
         }
 
@@ -113,7 +113,7 @@ public class InvitationManager {
         boolean proxyTrade = receiver == null;
         if (!proxyTrade) {
             registerInvitation(inviter, inviter.getName(), inviter.getUniqueId(), receiver, receiverName);
-            inviter.sendMessage(Lang.getPrefix() + Lang.get("Player_Is_Invited", inviter, new Lang.P("player", receiverName)));
+            Lang.send(inviter, "Player_Is_Invited", new Lang.P("player", receiverName));
         }
         return false;
     }
@@ -130,11 +130,11 @@ public class InvitationManager {
 
     //proxy usage
     private static void acceptInvitation(@NotNull Player player, @Nullable Player other, @NotNull String name) {
-        player.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", player));
+        Lang.send(player, "Request_Accepted");
         if (other != null) {
             Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, other.getUniqueId(), other, player.getName(), player.getUniqueId(), player, true));
 
-            other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", player, new Lang.P("player", player.getName())));
+            Lang.send(other, "Request_Was_Accepted", new Lang.P("player", player.getName()));
             TradeSystem.getInstance().getTradeManager().startTrade(other, player, player.getName(), player.getUniqueId(), true);
         } else {
             //START PROXY
@@ -218,17 +218,17 @@ public class InvitationManager {
         Map<String, Invitation> invitations = this.getInvitations(player.getName());
 
         if (invitations == null || invitations.isEmpty()) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("No_Requests_Found", player));
+            Lang.send(player, "No_Requests_Found");
             return null;
         }
 
         if (argument == null) {
-            if (invitations.size() > 1) player.sendMessage(Lang.getPrefix() + Lang.get("Too_many_requests", player));
+            if (invitations.size() > 1) Lang.send(player, "Too_many_requests");
             else return invitations.values().stream().findAny().get();
             return null;
         } else {
             Invitation inv = invitations.get(argument.toLowerCase());
-            if (inv == null) player.sendMessage(Lang.getPrefix() + Lang.get("No_Request_Found", player));
+            if (inv == null) Lang.send(player, "No_Request_Found");
             return inv;
         }
     }
@@ -262,16 +262,16 @@ public class InvitationManager {
                 Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, TradeSystem.proxy().getCaseSensitive(invitation.getName()), invitation.getId(), null, false));
 
                 TradeSystem.proxyHandler().send(new InviteResponsePacket(invitation.getName(), sender.getName(), sender.getUniqueId(), false, false).noFuture(), sender);
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", sender, new Lang.P("player", invitation.getName())));
-            } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+                Lang.send(sender, "Request_Denied", new Lang.P("player", invitation.getName()));
+            } else Lang.send(sender, "Player_Of_Request_Not_Online");
             return;
         }
 
         //call event
         Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, other.getName(), other.getUniqueId(), other, false));
 
-        sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Denied", sender, new Lang.P("player", other.getName())));
-        other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", sender, new Lang.P("player", sender.getName())));
+        Lang.send(sender, "Request_Denied", new Lang.P("player", other.getName()));
+        Lang.send(other, "Request_Was_Denied", new Lang.P("player", sender.getName()));
     }
 
     private void accept(@NotNull Player sender, @NotNull Invitation invitation) {
@@ -294,16 +294,16 @@ public class InvitationManager {
 
                             invalidate(sender, invitation);
 
-                            sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
+                            Lang.send(sender, "Request_Accepted");
                             TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, invitation.getId(), false);
                         } else if (suc.getResult() == InviteResponsePacket.Result.NOT_ONLINE) {
-                            sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+                            Lang.send(sender, "Player_Of_Request_Not_Online");
                         } else if (suc.getResult() == InviteResponsePacket.Result.OTHER_GROUP) {
-                            sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+                            Lang.send(sender, "Player_Of_Request_Not_Online");
                         }
                     }
                 });
-            } else sender.sendMessage(Lang.getPrefix() + Lang.get("Player_Of_Request_Not_Online", sender));
+            } else Lang.send(sender, "Player_Of_Request_Not_Online");
             return;
         }
 
@@ -314,8 +314,8 @@ public class InvitationManager {
 
         invalidate(sender, invitation);
 
-        sender.sendMessage(Lang.getPrefix() + Lang.get("Request_Accepted", sender));
-        other.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Accepted", sender, new Lang.P("player", sender.getName())));
+        Lang.send(sender, "Request_Accepted");
+        Lang.send(other, "Request_Was_Accepted", new Lang.P("player", sender.getName()));
 
         TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), sender.getUniqueId(), true);
     }

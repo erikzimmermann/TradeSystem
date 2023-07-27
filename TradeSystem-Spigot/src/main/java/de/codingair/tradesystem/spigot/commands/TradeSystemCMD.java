@@ -27,22 +27,22 @@ public class TradeSystemCMD extends CommandBuilder {
         super(TradeSystem.getInstance(), "tradesystem", "Trade-System-CMD", new BaseComponent(Permissions.PERMISSION_MODIFY) {
             @Override
             public void noPermission(CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("No_Permissions"));
+                Lang.send(sender, "No_Permissions");
             }
 
             @Override
             public void onlyFor(boolean player, CommandSender sender, String label, CommandComponent child) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Only_for_Player"));
+                Lang.send(sender, "Only_for_Player");
             }
 
             @Override
             public void unknownSubCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem", new Lang.P("label", label));
             }
 
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem", new Lang.P("label", label));
                 return true;
             }
         }, true, "ts");
@@ -53,10 +53,9 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
                 try {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Plugin_Reloading"));
-                    String s = Lang.getPrefix() + Lang.get("Success_Plugin_Reloaded");
+                    Lang.send(sender, "Plugin_Reloading");
                     TradeSystem.getInstance().reload();
-                    sender.sendMessage(s);
+                    Lang.send(sender, "Success_Plugin_Reloaded");
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -67,7 +66,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getBaseComponent().addChild(new CommandComponent("layout") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem_Layout", new Lang.P("label", label));
                 return true;
             }
         });
@@ -75,7 +74,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("create") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Create", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem_Layout_Create", new Lang.P("label", label));
                 return true;
             }
         }.setOnlyPlayers(true));
@@ -88,7 +87,7 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 if (!l.isAvailable(argument)) {
-                    sender.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Name_Already_Exists"));
+                    Lang.send(sender, "§7", "Layout_Name_Already_Exists");
                     return true;
                 }
 
@@ -109,7 +108,7 @@ public class TradeSystemCMD extends CommandBuilder {
             @Override
             public boolean runCommand(CommandSender sender, String label, String argument, String[] args) {
                 if (!l.isAvailable(args[2])) {
-                    sender.sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Name_Already_Exists"));
+                    Lang.send(sender, "§7", "Layout_Name_Already_Exists");
                     return true;
                 }
 
@@ -117,12 +116,12 @@ public class TradeSystemCMD extends CommandBuilder {
                 try {
                     size = Integer.parseInt(argument);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Create", new Lang.P("label", label)));
+                    Lang.send(sender, "Help_TradeSystem_Layout_Create", new Lang.P("label", label));
                     return true;
                 }
 
                 if (size % 9 != 0 || size < 9 || size > 54) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Create", new Lang.P("label", label)));
+                    Lang.send(sender, "Help_TradeSystem_Layout_Create", new Lang.P("label", label));
                     return true;
                 }
 
@@ -138,7 +137,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("edit") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Edit", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem_Layout_Edit", new Lang.P("label", label));
                 return true;
             }
         }.setOnlyPlayers(true));
@@ -156,7 +155,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 Pattern pattern = l.getPattern(argument, true);
 
                 if (pattern == null) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
+                    Lang.send(sender, "Layout_Does_Not_Exist");
                     return true;
                 }
 
@@ -172,7 +171,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("activate") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Activate", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem_Layout_Activate", new Lang.P("label", label));
                 return true;
             }
         });
@@ -190,17 +189,17 @@ public class TradeSystemCMD extends CommandBuilder {
                 Pattern pattern = l.getPattern(argument);
 
                 if (pattern == null) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
+                    Lang.send(sender, "Layout_Does_Not_Exist");
                     return true;
                 }
 
                 if (l.getActive().getName().equals(pattern.getName())) {
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Already_Activated"));
+                    Lang.send(sender, "Layout_Already_Activated");
                     return true;
                 }
 
                 l.setActive(pattern.getName());
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Activated", new Lang.P("name", pattern.getName())));
+                Lang.send(sender, "Layout_Activated", new Lang.P("name", pattern.getName()));
                 return true;
             }
         });
@@ -208,7 +207,7 @@ public class TradeSystemCMD extends CommandBuilder {
         getComponent("layout").addChild(new CommandComponent("delete") {
             @Override
             public boolean runCommand(CommandSender sender, String label, String[] args) {
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Help_TradeSystem_Layout_Delete", new Lang.P("label", label)));
+                Lang.send(sender, "Help_TradeSystem_Layout_Delete", new Lang.P("label", label));
                 return true;
             }
         });
@@ -232,11 +231,11 @@ public class TradeSystemCMD extends CommandBuilder {
                 if (pattern == null) {
                     Map<?, ?> data = l.getCrashedPatterns().remove(new Name(argument));
                     if (data != null) {
-                        sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted", new Lang.P("name", Pattern.deserializeName(new JSON(data)))));
+                        Lang.send(sender, "Layout_Deleted", new Lang.P("name", Pattern.deserializeName(new JSON(data))));
                         return true;
                     }
 
-                    sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Does_Not_Exist"));
+                    Lang.send(sender, "Layout_Does_Not_Exist");
                     return true;
                 }
 
@@ -244,7 +243,7 @@ public class TradeSystemCMD extends CommandBuilder {
                 if (pattern.equals(l.getActive())) l.setActive(DefaultPattern.NAME);
                 l.delete(pattern);
 
-                sender.sendMessage(Lang.getPrefix() + Lang.get("Layout_Deleted", new Lang.P("name", pattern.getName())));
+                Lang.send(sender, "Layout_Deleted", new Lang.P("name", pattern.getName()));
                 return true;
             }
         });
