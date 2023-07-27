@@ -627,7 +627,7 @@ public abstract class Trade {
                     String m = Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Cancelled");
                     sendMessage(perspective, m);
                 } else {
-                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", player));
+                    Lang.send(player, "Trade_Was_Cancelled");
                 }
             });
         }

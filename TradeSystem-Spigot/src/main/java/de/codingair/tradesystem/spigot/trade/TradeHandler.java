@@ -320,7 +320,7 @@ public class TradeHandler {
 
     public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
         if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
+            Lang.send(player, "Other_is_already_trading");
             return;
         }
 
