@@ -66,6 +66,9 @@ TradeSystem:
     Items: true
     Economy: true
 
+    # Whether to only display an items display name rather than item type & display name in chat when the trade is successful.
+    Only_DisplayName_in_Message: false
+
   Action_To_Cancel:
     Player_get_damaged: true
   Action_To_Request:
