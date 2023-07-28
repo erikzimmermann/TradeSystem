@@ -165,7 +165,7 @@ public abstract class Trade {
      * @param slotId      The item slot id.
      * @return The item that is currently offered on the left side of the trade panel (i.e. the item that will be sent).
      */
-    protected abstract @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId);
+    public abstract @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId);
 
     /**
      * @param perspective The perspective that should be checked.

@@ -188,7 +188,7 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
+    public @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
         if (perspective.isSecondary()) return getReceived(slotId);
         else return guis[0].getItem(slots.get(slotId));
     }

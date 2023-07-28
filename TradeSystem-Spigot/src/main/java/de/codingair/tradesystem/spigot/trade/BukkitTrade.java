@@ -53,7 +53,7 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
+    public @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId) {
         return guis[perspective.id()].getItem(slots.get(slotId));
     }
 
