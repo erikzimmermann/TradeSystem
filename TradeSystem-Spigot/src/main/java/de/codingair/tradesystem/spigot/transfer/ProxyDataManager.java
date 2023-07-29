@@ -36,6 +36,7 @@ public class ProxyDataManager {
      * lower-case name to skinId
      */
     private final HashMap<String, String> skins = new HashMap<>();
+    private String tradeProxyVersion = null;
 
     public void onDisable() {
         this.players.clear();
@@ -126,5 +127,14 @@ public class ProxyDataManager {
 
         if (trade instanceof ProxyTrade && other.equals(trade.getOther(name))) return (ProxyTrade) trade;
         return null;
+    }
+
+    @Nullable
+    public String getTradeProxyVersion() {
+        return tradeProxyVersion;
+    }
+
+    public void setTradeProxyVersion(@NotNull String tradeProxyVersion) {
+        this.tradeProxyVersion = tradeProxyVersion;
     }
 }

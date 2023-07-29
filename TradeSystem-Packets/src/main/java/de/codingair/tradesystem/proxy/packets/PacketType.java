@@ -18,6 +18,8 @@ public enum PacketType {
     TradeIconUpdatePacket(TradeIconUpdatePacket.class),
     PlayerStatePacket(PlayerStatePacket.class),
     PublishSkinPacket(PublishSkinPacket.class),
+
+    VersionPacket(VersionPacket.class),
     ;
 
     private final Class<? extends Packet> packetClass;
