@@ -48,7 +48,7 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
+    public void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
         guis[perspective.id()].setItem(otherSlots.get(slotId), item);
     }
 

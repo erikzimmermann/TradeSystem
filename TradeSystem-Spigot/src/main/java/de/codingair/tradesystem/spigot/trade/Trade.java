@@ -158,7 +158,7 @@ public abstract class Trade {
      * @param slotId      The item slot id.
      * @param item        The item to display.
      */
-    protected abstract void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item);
+    public abstract void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item);
 
     /**
      * @param perspective The perspective that should be checked.

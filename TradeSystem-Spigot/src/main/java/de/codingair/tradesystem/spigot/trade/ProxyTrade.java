@@ -53,8 +53,22 @@ public class ProxyTrade extends Trade {
     }
 
     public void receiveItemData(int slotId, @Nullable ItemStack item) {
-        this.received[slotId] = item;
-        guis[0].setItem(otherSlots.get(slotId), item);
+        boolean ownItem = slotId >= otherSlots.size();
+        if (ownItem) {
+            // happens when this GUI is edited on another server
+            // correct slot id
+            slotId %= otherSlots.size();
+
+            this.sent[slotId] = item;
+            guis[0].setItem(slots.get(slotId), item);
+            onTradeOfferChange(false);
+        } else {
+            // other player's item
+            this.received[slotId] = item;
+            guis[0].setItem(otherSlots.get(slotId), item);
+        }
+
+        update();
     }
 
     public boolean receiveFinishCheck() {
@@ -158,7 +172,13 @@ public class ProxyTrade extends Trade {
         try {
             TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
             TradeSystem.proxyHandler().send(packet, this.player);
-            sent[slotId] = item == null ? null : item.clone();
+
+            if (slotId < slots.size()) sent[slotId] = item == null ? null : item.clone();
+            else {
+                slotId = slotId % slots.size();
+                received[slotId] = item == null ? null : item.clone();
+                guis[0].setItem(otherSlots.get(slotId), item);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -182,9 +202,17 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
-    protected void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
-        if (!perspective.isSecondary()) return;
-        synchronizeItem(slotId, item);
+    public void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item) {
+        if (perspective == Perspective.PRIMARY) {
+            // signalize own item change
+            slotId += slots.size();
+            synchronizeItem(slotId, item);
+
+            // update display item on this server
+            update();
+        } else {
+            synchronizeItem(slotId, item);
+        }
     }
 
     @Override
@@ -196,7 +224,7 @@ public class ProxyTrade extends Trade {
     @Override
     protected @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId) {
         if (perspective.isSecondary()) return getSent(slotId);
-        else return guis[0].getItem(otherSlots.get(slotId));
+        else return getReceived(slotId);
     }
 
     @Override
