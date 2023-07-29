@@ -64,10 +64,9 @@ TradeSystem:
   # The report shows what was traded during a trade.
   Trade_Finish_Report:
     Items: true
+    # Whether to only display an item's name rather than item type and name
+    Display_Name_Only: false
     Economy: true
-
-    # Whether to only display an items display name rather than item type & display name in chat when the trade is successful.
-    Only_DisplayName_in_Message: false
 
   Action_To_Cancel:
     Player_get_damaged: true
