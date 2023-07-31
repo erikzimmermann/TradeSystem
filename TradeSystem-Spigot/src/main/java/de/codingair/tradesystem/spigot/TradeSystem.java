@@ -58,6 +58,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private TradeLogCMD tradeLogCMD;
     private TradeCMD tradeCMD;
 
+    private boolean firstSetup;
     private YamlConfiguration oldConfig;
 
     public static void log(String message) {
@@ -109,7 +110,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             //register packet channels before listening to events
             this.spigotHandler.onEnable();
 
-            checkPermissions();
+            Permissions.checkPermissions(firstSetup);
             registerCommands();
             registerListeners();
 
@@ -193,13 +194,6 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Lang.init(this, fileManager);
     }
 
-    private void checkPermissions() {
-        if (!arePermissionsEnabled()) {
-            Permissions.PERMISSION = null;
-            Permissions.PERMISSION_INITIATE = null;
-        }
-    }
-
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new NotifyListener(), this);
 
@@ -279,13 +273,11 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void copyConfig() {
+        this.firstSetup = !getDataFolder().exists();
+
         ConfigFile file = this.fileManager.loadFile("Config", "/", false, true);
         this.oldConfig = file.getConfig();
         this.fileManager.unloadFile(file);
-    }
-
-    public boolean arePermissionsEnabled() {
-        return fileManager.getFile("Config").getConfig().getBoolean("TradeSystem.Permissions", true);
     }
 
     public TradeHandler getTradeManager() {

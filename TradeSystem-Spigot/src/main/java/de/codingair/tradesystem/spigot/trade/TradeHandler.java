@@ -108,7 +108,7 @@ public class TradeHandler {
 
         this.tradeReportItems = config.getBoolean("TradeSystem.Trade_Finish_Report.Items", true);
         this.tradeReportEconomy = config.getBoolean("TradeSystem.Trade_Finish_Report.Economy", true);
-        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Trade_Finish_Report.Only_DisplayName_in_Message", false);
+        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Trade_Finish_Report.Display_Name_Only", false);
 
         if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
