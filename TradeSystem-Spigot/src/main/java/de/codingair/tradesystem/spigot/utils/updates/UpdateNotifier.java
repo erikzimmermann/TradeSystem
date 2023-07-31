@@ -1,9 +1,11 @@
 package de.codingair.tradesystem.spigot.utils.updates;
 
-import de.codingair.tradesystem.spigot.TradeSystem;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,50 +15,96 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UpdateNotifier {
-    private final static String URL = "https://api.github.com/repos/erikzimmermann/TradeSystem/releases/latest";
     private final static String URL_DOWNLOAD = "https://www.spigotmc.org/resources/%s/update?update=%s";
-    private final static int ID = 58434;
+    private final static String GITHUB_URL = "https://api.github.com/repos/erikzimmermann/%s/releases";
+
+    private final String pluginVersion;
+    private final String repository;
+    private final int spigotId;
 
     private String version = null;
     private String downloadLink = null;
     private String updateInfo = null;
+    private String releasesBehind = null;
+
+    public UpdateNotifier(@NotNull String pluginVersion, @NotNull String repository, int spigotId) {
+        this.pluginVersion = pluginVersion;
+        this.repository = repository;
+        this.spigotId = spigotId;
+    }
 
     public boolean read() {
         String body = readBody();
-
         if (body == null) return false;
 
         try {
-            JSONObject json = (JSONObject) new JSONParser().parse(body);
+            JsonArray json = JsonParser.parseString(body).getAsJsonArray();
 
-            String version = (String) json.get("tag_name");
-            String name = (String) json.get("name");
+            int firstStable = 0;
+            boolean matched = false;
+            for (int i = 0; i < json.size(); i++) {
+                JsonElement jsonElement = json.get(i);
+                JsonObject release = jsonElement.getAsJsonObject();
 
-            if (!name.startsWith(version)) return false; //may be unstable
+                if (firstStable == i) {
+                    if (!extractLatest(release)) firstStable++;
+                }
 
-            name = name.replace(version + " - ", "");
-            version = version.substring(1); //remove 'v'
-            String content = (String) json.get("body");
+                // check if current version matches plugin
+                String version = release.get("tag_name").getAsString();
+                if (version.contains("v")) version = version.substring(1); //remove 'v'
 
-            Pattern pattern = Pattern.compile("Download: \\d*");
-            Matcher matcher = pattern.matcher(content);
+                if (pluginEqualsVersion(version)) {
+                    matched = true;
+                    if (i - firstStable > 0) releasesBehind = String.valueOf(i - firstStable);
+                    break;
+                }
+            }
 
-            if (matcher.find()) downloadLink = String.format(URL_DOWNLOAD, ID, matcher.group().replaceAll("\\D*", ""));
-            else return false;
+            // the releases page has limited entries
+            if (!matched) releasesBehind = (json.size() - 1) + "+";
 
-            this.version = version;
-            this.updateInfo = name;
-
-            return !TradeSystem.getInstance().getDescription().getVersion().startsWith(version);
-        } catch (ParseException e) {
+            return releasesBehind != null;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return false;
     }
 
-    public String readBody() {
-        try (InputStream inputStream = new URL(URL).openStream(); Scanner scanner = new Scanner(inputStream)) {
+    private boolean pluginEqualsVersion(@NotNull String version) {
+        return pluginVersion.startsWith(version);
+    }
+
+    private boolean extractLatest(JsonObject release) {
+        String version = release.get("tag_name").getAsString();
+        String name = release.get("name").getAsString();
+
+        if (!name.startsWith(version)) return true;
+
+        name = name.replace(version + " - ", "");
+        if (version.contains("v")) version = version.substring(1); //remove 'v'
+        String content = release.get("body").getAsString();
+
+        Pattern pattern = Pattern.compile("Download: \\d*");
+        Matcher matcher = pattern.matcher(content);
+
+        if (matcher.find()) {
+            downloadLink = String.format(URL_DOWNLOAD,
+                    spigotId,
+                    matcher.group().replaceAll("\\D*", "")
+            );
+        } else return false;
+
+        this.version = version;
+        this.updateInfo = name;
+        return true;
+    }
+
+    @Nullable
+    private String readBody() {
+        String url = String.format(GITHUB_URL, this.repository);
+        try (InputStream inputStream = new URL(url).openStream(); Scanner scanner = new Scanner(inputStream)) {
             StringBuilder builder = new StringBuilder();
 
             while (scanner.hasNextLine()) {
@@ -65,23 +113,33 @@ public class UpdateNotifier {
 
             String s = builder.toString();
             if (!s.isEmpty()) return s;
-        } catch (IOException ex) {
-            //might return code 403 (spam lock)
-//            ex.printStackTrace();
+        } catch (IOException ignored) {
         }
 
         return null;
     }
 
+    @NotNull
     public String getDownloadLink() {
+        if (downloadLink == null) throw new NullPointerException("UpdateNotifier#read() has to be called first!");
         return downloadLink;
     }
 
+    @NotNull
     public String getVersion() {
+        if (version == null) throw new NullPointerException("UpdateNotifier#read() has to be called first!");
         return version;
     }
 
+    @NotNull
     public String getUpdateInfo() {
+        if (updateInfo == null) throw new NullPointerException("UpdateNotifier#read() has to be called first!");
         return updateInfo;
+    }
+
+    @Nullable
+    public String getReleasesBehind() {
+        if (version == null) throw new NullPointerException("UpdateNotifier#read() has to be called first!");
+        return releasesBehind;
     }
 }

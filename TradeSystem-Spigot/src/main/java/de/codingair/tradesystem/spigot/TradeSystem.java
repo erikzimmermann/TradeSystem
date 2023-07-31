@@ -9,6 +9,7 @@ import de.codingair.codingapi.utils.Value;
 import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
+import de.codingair.tradesystem.spigot.database.DatabaseHandler;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
 import de.codingair.tradesystem.spigot.extras.tradelog.commands.TradeLogCMD;
@@ -25,7 +26,6 @@ import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
-import de.codingair.tradesystem.spigot.database.DatabaseHandler;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
 import org.bukkit.Bukkit;
@@ -50,7 +50,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final SpigotHandler spigotHandler = new SpigotHandler(this);
     private final ProxyDataManager proxyDataManager = new ProxyDataManager();
 
-    private final UpdateNotifier updateNotifier = new UpdateNotifier();
+    private final UpdateNotifier updateNotifier = new UpdateNotifier(getDescription().getVersion(), "TradeSystem", 58434);
     private boolean needsUpdate = false;
 
     private CommandManager commandManager;
@@ -233,6 +233,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             if (needsUpdate) {
                 log("-----< TradeSystem >-----");
                 log("New update available [" + updateNotifier.getUpdateInfo() + "].");
+                log("You are " + updateNotifier.getReleasesBehind() + " release(s) behind.");
                 log("Download it on\n\n" + updateNotifier.getDownloadLink() + "\n");
                 log("------------------------");
 
@@ -240,7 +241,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             }
         };
 
-        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 60 * 2, 20L * 60 * 60)); //check every hour on GitHub
+        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20, 20L * 60 * 60)); //check every hour on GitHub
     }
 
     private void afterOnEnable() {
@@ -267,10 +268,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
                 notifyPlayers(p);
             }
         } else {
-            if (player.hasPermission(Permissions.PERMISSION_NOTIFY) && needsUpdate) {
+            if (needsUpdate && player.hasPermission(Permissions.PERMISSION_NOTIFY)) {
                 player.sendMessage("");
                 player.sendMessage("");
-                player.sendMessage(Lang.getPrefix() + "§aA new update is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§a. Download it on §b§n" + this.updateNotifier.getDownloadLink());
+                player.sendMessage(Lang.getPrefix() + "§7A &anew update &7is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§7. You are &a" + updateNotifier.getReleasesBehind() + "&7 release(s) behind. Download it on §b§n" + this.updateNotifier.getDownloadLink());
                 player.sendMessage("");
                 player.sendMessage("");
             }
