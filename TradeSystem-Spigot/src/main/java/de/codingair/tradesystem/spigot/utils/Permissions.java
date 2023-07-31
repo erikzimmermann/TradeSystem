@@ -45,7 +45,7 @@ public class Permissions {
         configFile.saveConfig();
     }
 
-    private static boolean arePermissionsEnabled() {
+    public static boolean arePermissionsEnabled() {
         return TradeSystem.getInstance().getFileManager().getFile("Config")
                 .getConfig()
                 .getBoolean("TradeSystem.Permissions", true);
