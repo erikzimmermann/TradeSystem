@@ -235,7 +235,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             }
         };
 
-        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20, 20L * 60 * 60)); //check every hour on GitHub
+        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 60 * 60, 20L * 60 * 60)); //check every hour on GitHub
     }
 
     private void afterOnEnable() {
