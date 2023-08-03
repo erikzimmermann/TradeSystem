@@ -42,11 +42,12 @@ public class DatabaseHandler {
                     running = false;
 
                     boolean switchToSQLite = databaseType != DatabaseType.SQLITE;
+                    boolean persist = defaultCredentials();
 
-                    TradeSystem.getInstance().getLogger().log(switchToSQLite ? Level.WARNING : Level.SEVERE, "Database could not be started: " + ex.getMessage());
+                    TradeSystem.getInstance().getLogger().log(persist ? Level.WARNING : Level.SEVERE, "Database could not be started: " + ex.getMessage());
                     if (switchToSQLite) {
                         TradeSystem.getInstance().getLogger().warning("Switching to SQLite database.");
-                        setTypeToSQLite();
+                        setTypeToSQLite(persist);
                         this.run();
                     }
                 }
@@ -54,13 +55,26 @@ public class DatabaseHandler {
         });
     }
 
-    private void setTypeToSQLite() {
-        this.databaseType = DatabaseType.SQLITE;
-
+    private boolean defaultCredentials() {
         ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
         FileConfiguration config = file.getConfig();
-        config.set("TradeSystem.Database.Type", DatabaseType.SQLITE.getName());
-        file.saveConfig();
+
+        String defUser = "root";
+        String defPassword = "password";
+        return defUser.equals(config.getString("TradeSystem.Database.MySQL.User")) &&
+                defPassword.equals(config.getString("TradeSystem.Database.MySQL.Password"));
+    }
+
+    private void setTypeToSQLite(boolean persist) {
+        this.databaseType = DatabaseType.SQLITE;
+
+        if (persist) {
+            ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+            FileConfiguration config = file.getConfig();
+
+            config.set("TradeSystem.Database.Type", DatabaseType.SQLITE.getName());
+            file.saveConfig();
+        }
     }
 
     private void loadType() {
