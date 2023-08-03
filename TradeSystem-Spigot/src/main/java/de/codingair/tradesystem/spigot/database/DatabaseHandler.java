@@ -42,12 +42,11 @@ public class DatabaseHandler {
                     running = false;
 
                     boolean switchToSQLite = databaseType != DatabaseType.SQLITE;
-                    boolean persist = defaultCredentials();
 
-                    TradeSystem.getInstance().getLogger().log(persist ? Level.WARNING : Level.SEVERE, "Database could not be started: " + ex.getMessage());
+                    TradeSystem.getInstance().getLogger().log(switchToSQLite ? Level.WARNING : Level.SEVERE, "Database could not be started: " + ex.getMessage());
                     if (switchToSQLite) {
                         TradeSystem.getInstance().getLogger().warning("Switching to SQLite database.");
-                        setTypeToSQLite(persist);
+                        setTypeToSQLite();
                         this.run();
                     }
                 }
@@ -65,9 +64,10 @@ public class DatabaseHandler {
                 defPassword.equals(config.getString("TradeSystem.Database.MySQL.Password"));
     }
 
-    private void setTypeToSQLite(boolean persist) {
+    private void setTypeToSQLite() {
         this.databaseType = DatabaseType.SQLITE;
 
+        boolean persist = defaultCredentials();
         if (persist) {
             ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
             FileConfiguration config = file.getConfig();
