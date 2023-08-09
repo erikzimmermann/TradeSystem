@@ -123,6 +123,7 @@ public class PlayerTradeResult extends TradeResult {
 
     @NotNull
     public static String formatName(@NotNull String name) {
+        if (name.isEmpty()) return name;
         StringBuilder b = new StringBuilder(name.toLowerCase());
 
         int i = 0;

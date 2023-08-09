@@ -26,7 +26,7 @@ public class MMOItemsDependency implements PluginDependency, Listener {
     public void onReport(TradeReportEvent e) {
         e.setItemReport(e.getResult().buildItemReport(item -> {
             String type = getMmoId(item);
-            if (type == null) type = item.getType().name();
+            if (type == null || type.isEmpty()) type = item.getType().name();
 
             if (item.hasItemMeta()) {
                 ItemMeta meta = item.getItemMeta();
