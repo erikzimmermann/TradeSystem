@@ -66,6 +66,7 @@ public class TradeHandler {
     private InputGUI inputGUI = InputGUI.SIGN;
     private boolean tradeBoth = true;
     private boolean dropItems = true;
+    private boolean onlyDisplayNameInMessage = false;
 
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
@@ -107,6 +108,7 @@ public class TradeHandler {
 
         this.tradeReportItems = config.getBoolean("TradeSystem.Trade_Finish_Report.Items", true);
         this.tradeReportEconomy = config.getBoolean("TradeSystem.Trade_Finish_Report.Economy", true);
+        this.onlyDisplayNameInMessage = config.getBoolean("TradeSystem.Trade_Finish_Report.Display_Name_Only", false);
 
         if (config.getBoolean("TradeSystem.Trade_Countdown.Enabled", true)) {
             countdownRepetitions = config.getInt("TradeSystem.Trade_Countdown.Repetitions");
@@ -318,7 +320,7 @@ public class TradeHandler {
 
     public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
         if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Other_is_already_trading", player));
+            Lang.send(player, "Other_is_already_trading");
             return;
         }
 
@@ -432,6 +434,10 @@ public class TradeHandler {
 
     public void setDropItems(boolean dropItems) {
         this.dropItems = dropItems;
+    }
+
+    public boolean isOnlyDisplayNameInMessage() {
+        return onlyDisplayNameInMessage;
     }
 
     public boolean isOffline(Player player) {

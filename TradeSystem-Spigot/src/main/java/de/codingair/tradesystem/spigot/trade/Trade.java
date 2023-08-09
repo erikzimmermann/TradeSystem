@@ -158,14 +158,14 @@ public abstract class Trade {
      * @param slotId      The item slot id.
      * @param item        The item to display.
      */
-    protected abstract void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item);
+    public abstract void updateDisplayItem(@NotNull Perspective perspective, int slotId, @Nullable ItemStack item);
 
     /**
      * @param perspective The perspective that should be checked.
      * @param slotId      The item slot id.
      * @return The item that is currently offered on the left side of the trade panel (i.e. the item that will be sent).
      */
-    protected abstract @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId);
+    public abstract @Nullable ItemStack getCurrentOfferedItem(@NotNull Perspective perspective, int slotId);
 
     /**
      * @param perspective The perspective that should be checked.
@@ -627,7 +627,7 @@ public abstract class Trade {
                     String m = Lang.getPrefix() + getPlaceholderMessage(perspective, "Trade_Was_Cancelled");
                     sendMessage(perspective, m);
                 } else {
-                    player.sendMessage(Lang.getPrefix() + Lang.get("Trade_Was_Cancelled", player));
+                    Lang.send(player, "Trade_Was_Cancelled");
                 }
             });
         }
@@ -899,15 +899,25 @@ public abstract class Trade {
         PlayerInventory inv = getPlayerInventory(perspective.flip());
         HashMap<Integer, Integer> toRemove = new HashMap<>();
 
-        items.forEach((slot, item) -> {
+        // sort items so only the last items may be removed if they don't fit anymore
+        List<Integer> slots = new ArrayList<>(items.keySet());
+        slots.sort(Comparator.naturalOrder());
+
+        for (Integer slot : slots) {
+            ItemStack item = items.get(slot);
             int amount = inv.addUntilPossible(item, true);
             if (amount > 0) toRemove.put(slot, amount);
-        });
+        }
 
         items.clear();
+        slots.clear();
+
+        // move items in natural order
+        slots.addAll(toRemove.keySet());
+        slots.sort(Comparator.reverseOrder());
 
         TradingGUI gui = guis[perspective.id()];
-        for (Integer slot : toRemove.keySet()) {
+        for (Integer slot : slots) {
             ItemStack item = gui.getItem(slot).clone();
             item.setAmount(item.getAmount() - toRemove.get(slot));
 

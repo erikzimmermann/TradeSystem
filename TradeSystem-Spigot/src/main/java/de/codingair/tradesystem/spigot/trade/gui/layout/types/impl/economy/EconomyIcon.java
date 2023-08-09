@@ -54,7 +54,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         if (player == null) return false;
 
         if (getBalance(player).signum() <= 0) {
-            player.sendMessage(Lang.getPrefix() + Lang.get("Balance_limit_reached", player));
+            Lang.send(player, "Balance_limit_reached");
             return false;
         }
 
@@ -77,7 +77,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     @Override
     public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable BigDecimal input, @NotNull String origin) {
         if (input == null || input.signum() == -1) {
-            viewer.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", viewer));
+            Lang.send(viewer, "Enter_Correct_Amount");
             return IconResult.GUI;
         }
 
@@ -87,7 +87,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         // this might already be caught by converting the input to the max allowed value
         boolean isDecimal = input.remainder(BigDecimal.ONE).signum() != 0;
         if (!decimal && isDecimal) {
-            viewer.sendMessage(Lang.getPrefix() + Lang.get("Enter_Correct_Amount", viewer));
+            Lang.send(viewer, "Enter_Correct_Amount");
             return IconResult.GUI;
         }
 
@@ -96,11 +96,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
         BigDecimal max = getBalance(player);
         if (input.compareTo(max) > 0) {
-            String s = Lang.get("Only_X_Amount")
-                    .replace("%amount%", makeString(viewer, max))
-                    .replace("%type%", getName(viewer, max.equals(BigDecimal.ONE)));
-
-            viewer.sendMessage(Lang.getPrefix() + s);
+            Lang.send(viewer, "Only_X_Amount", new Lang.P("amount", makeString(viewer, max)), new Lang.P("type", getName(viewer, max.equals(BigDecimal.ONE))));
             return IconResult.GUI;
         }
 

@@ -94,9 +94,10 @@ public class LayoutPage extends Page {
                 try {
                     Pattern pattern = editor.buildPattern();
                     if (TradeSystem.getInstance().getLayoutManager().addPattern(pattern)) {
-                        gui.getPlayer().sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Finished", gui.getPlayer()));
+
+                        Lang.send(gui.getPlayer(), "§7", "Layout_Finished");
                     } else {
-                        gui.getPlayer().sendMessage(Lang.getPrefix() + "§7" + Lang.get("Layout_Edited", gui.getPlayer()));
+                        Lang.send(gui.getPlayer(), "§7", "Layout_Edited");
                     }
 
                     Sound.ENTITY_PLAYER_LEVELUP.playSound(gui.getPlayer(), 0.7F, 1);

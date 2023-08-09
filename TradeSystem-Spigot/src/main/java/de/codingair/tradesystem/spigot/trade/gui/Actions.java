@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -41,7 +42,7 @@ public class Actions {
          * Maps the {@link InventoryInteractEvent} and the original slot to the inventory that should be used to
          * project any changes to.
          */
-        public @NotNull BiFunction<InventoryInteractEvent, Integer, Inventory> inventoryMapper;
+        public @NotNull BiFunction<InventoryInteractEvent, Integer, InventoryMask> inventoryMapper;
         /**
          * Used for {@link org.bukkit.event.inventory.InventoryAction#COLLECT_TO_CURSOR COLLECT_TO_CURSOR} to make sure
          * if it is allowed to collect items from both inventories.
@@ -55,7 +56,7 @@ public class Actions {
          */
         public @NotNull BiFunction<List<ItemStack>, List<Integer>, Boolean> isItemAllowedInInventory;
 
-        public Configuration(@NotNull Function<Integer, Integer> slotMapper, @NotNull Function<InventoryInteractEvent, List<Integer>> targetSlots, @NotNull BiFunction<InventoryInteractEvent, Integer, Inventory> inventoryMapper, boolean collectFromBothInventories, @NotNull BiFunction<List<ItemStack>, List<Integer>, Boolean> isItemAllowedInInventory) {
+        public Configuration(@NotNull Function<Integer, Integer> slotMapper, @NotNull Function<InventoryInteractEvent, List<Integer>> targetSlots, @NotNull BiFunction<InventoryInteractEvent, Integer, InventoryMask> inventoryMapper, boolean collectFromBothInventories, @NotNull BiFunction<List<ItemStack>, List<Integer>, Boolean> isItemAllowedInInventory) {
             this.slotMapper = slotMapper;
             this.targetSlots = targetSlots;
             this.inventoryMapper = inventoryMapper;
@@ -68,7 +69,7 @@ public class Actions {
             return new Configuration(
                     Function.identity(),
                     e -> IntStream.range(0, e.getView().getTopInventory().getSize()).collect(ArrayList::new, ArrayList::add, ArrayList::addAll),
-                    (e, slot) -> e.getView().getTopInventory(),
+                    (e, slot) -> InventoryMask.of(e.getView().getTopInventory()),
                     true,
                     (item, slot) -> true
             );
@@ -117,9 +118,10 @@ public class Actions {
 
         // add items to the inventory
         for (Map.Entry<Integer, ItemStack> e : event.getNewItems().entrySet()) {
-            Inventory inventory = configuration.inventoryMapper.apply(event, e.getKey());
+            InventoryMask inventory = configuration.inventoryMapper.apply(event, e.getKey());
 
-            // only set item if it is not the top inventory
+            // only add item to mask if it is not the top inventory (since the top inventory
+            // will be updated by the event itself)
             if (inventory.equals(event.getView().getTopInventory())) continue;
 
             inventory.setItem(configuration.slotMapper.apply(e.getKey() % topSize), e.getValue());
@@ -140,7 +142,7 @@ public class Actions {
      */
     public static boolean projectResult(@NotNull InventoryClickEvent event, @NotNull Configuration configuration) {
         int slot = configuration.slotMapper.apply(event.getSlot());
-        Inventory inventory = configuration.inventoryMapper.apply(event, event.getSlot());
+        InventoryMask inventory = configuration.inventoryMapper.apply(event, event.getSlot());
 
         switch (event.getAction()) {
             case NOTHING:
@@ -185,7 +187,7 @@ public class Actions {
         return false;
     }
 
-    private static boolean handlePickUp(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handlePickUp(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -254,10 +256,11 @@ public class Actions {
             }
         }
 
+        if (changed) inventory.update(slot);
         return changed;
     }
 
-    private static boolean handlePlace(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handlePlace(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -321,10 +324,11 @@ public class Actions {
             }
         }
 
+        if (changed) inventory.update(slot);
         return changed;
     }
 
-    private static boolean handleDrop(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handleDrop(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -379,29 +383,34 @@ public class Actions {
                         inventory.setItem(slot, null);
                         changed = true;
                     } else event.setCurrentItem(null);
-                }
+                } else changed = topInventory;
 
                 dropItem((Player) event.getWhoClicked(), copy);
                 break;
             }
         }
 
+        if (changed) inventory.update(slot);
         return changed;
     }
 
-    private static boolean handleCollect(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, @NotNull Configuration configuration) {
+    private static boolean handleCollect(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, @NotNull Configuration configuration) {
         if (nullOrAir(event.getCursor())) return false;
 
         ItemStack cursor = event.getCursor();
 
-        List<Integer> target = new ArrayList<>(configuration.targetSlots.apply(event));
+        List<Integer> target = new ArrayList<>();
+        for (Integer slot : configuration.targetSlots.apply(event)) {
+            target.add(configuration.slotMapper.apply(slot));
+        }
+
         sortByAmount(cursor, target, inventory);
         boolean changed = false;
 
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory || configuration.collectFromBothInventories) {
             for (int slot : target) {
-                if (collectTo(inventory, configuration.slotMapper.apply(slot), cursor)) break;
+                if (collectTo(inventory, slot, cursor)) break;
                 changed = true;
             }
         }
@@ -409,25 +418,27 @@ public class Actions {
         boolean bottomInventory = event.getView().getBottomInventory().equals(event.getClickedInventory());
         if (bottomInventory || configuration.collectFromBothInventories) {
             Inventory bottom = event.getView().getBottomInventory();
+            InventoryMask mask = InventoryMask.of(bottom);
 
             target = IntStream
                     .range(0, bottom.getSize())
                     .boxed()
                     .collect(Collectors.toList());
-            sortByAmount(cursor, target, bottom);
+            sortByAmount(cursor, target, mask);
 
             for (int slot : target) {
-                if (collectTo(bottom, slot, cursor)) break;
+                if (collectTo(mask, slot, cursor)) break;
             }
         }
 
+        if (changed) target.forEach(inventory::update);
         return changed;
     }
 
-    private static void sortByAmount(@NotNull ItemStack cursor, @NotNull List<Integer> target, @NotNull Inventory bottom) {
+    private static void sortByAmount(@NotNull ItemStack cursor, @NotNull List<Integer> target, @NotNull InventoryMask inventory) {
         target.sort((slot1, slot2) -> {
-            ItemStack item1 = bottom.getItem(slot1);
-            ItemStack item2 = bottom.getItem(slot2);
+            ItemStack item1 = inventory.getItem(slot1);
+            ItemStack item2 = inventory.getItem(slot2);
 
             int amount1 = item1 != null && item1.isSimilar(cursor) ? item1.getAmount() : 0;
             int amount2 = item2 != null && item2.isSimilar(cursor) ? item2.getAmount() : 0;
@@ -436,7 +447,7 @@ public class Actions {
         });
     }
 
-    private static boolean handleSwap(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handleSwap(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -458,7 +469,7 @@ public class Actions {
         return changed;
     }
 
-    private static boolean handleMove(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handleMove(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -483,13 +494,16 @@ public class Actions {
 
             for (int currentSlot : targetSlots) {
                 currentSlot = configuration.slotMapper.apply(currentSlot);
+
                 ItemStack current = inventory.getItem(currentSlot);
                 if (nullOrAir(current) && freeSlot == -1) freeSlot = currentSlot;
                 if (nullOrAir(current) || !current.isSimilar(clickedItem)) continue;
 
                 changed = true;
 
-                if (transferAmount(current, clickedItem)) {
+                boolean fullyMerged = transferAmount(current, clickedItem);
+                inventory.update(currentSlot);
+                if (fullyMerged) {
                     event.setCurrentItem(null);
                     return changed;
                 }
@@ -507,7 +521,7 @@ public class Actions {
         return changed;
     }
 
-    private static void handleClone(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot) {
+    private static void handleClone(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot) {
         if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE && event.getWhoClicked().getGameMode() != GameMode.SPECTATOR)
             return;
 
@@ -520,7 +534,7 @@ public class Actions {
         event.getView().setCursor(copy);
     }
 
-    private static boolean handleExchange(@NotNull InventoryClickEvent event, @NotNull Inventory inventory, int slot, @NotNull Configuration configuration) {
+    private static boolean handleExchange(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
@@ -549,7 +563,7 @@ public class Actions {
      * @param to        The {@link ItemStack} to collect to.
      * @return Whether the item 'to' was fully merged.
      */
-    private static boolean collectTo(@NotNull Inventory inventory, int slot, @NotNull ItemStack to) {
+    private static boolean collectTo(@NotNull InventoryMask inventory, int slot, @NotNull ItemStack to) {
         ItemStack from = inventory.getItem(slot);
 
         if (from != null && to.isSimilar(from)) {
@@ -600,10 +614,9 @@ public class Actions {
     }
 
     private static void dropItem(@NotNull Player player, @NotNull ItemStack item) {
-        player.getWorld().dropItem(player.getEyeLocation(), item, i -> {
-            i.setVelocity(player.getEyeLocation().getDirection().multiply(0.3D));
-            i.setPickupDelay(40);
-        });
+        Item i = player.getWorld().dropItem(player.getEyeLocation(), item);
+        i.setVelocity(player.getEyeLocation().getDirection().multiply(0.3D));
+        i.setPickupDelay(40);
     }
 
     private static boolean nullOrAir(@Nullable ItemStack item) {

@@ -32,4 +32,11 @@ public class Extension {
     public Plugin getPlugin() {
         return Bukkit.getPluginManager().getPlugin(name);
     }
+
+    @Nullable
+    public String getCurrentVersion() {
+        Plugin plugin = getPlugin();
+        if (plugin == null) return null;
+        return plugin.getDescription().getVersion();
+    }
 }

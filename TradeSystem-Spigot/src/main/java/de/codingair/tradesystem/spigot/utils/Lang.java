@@ -5,6 +5,7 @@ import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.external.placeholderapi.PlaceholderDependency;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +19,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class Lang {
     private static final String[] LANGUAGES = {
@@ -140,7 +142,25 @@ public class Lang {
         }
     }
 
-    public static String getPrefix() {
+    public static void send(@NotNull CommandSender sender, @NotNull String key, @NotNull P... placeholders) {
+        send(sender, "", key, placeholders);
+    }
+
+    public static void send(@NotNull CommandSender sender, @NotNull String prefix, @NotNull String key, @NotNull P... placeholders) {
+        send(sender, prefix, key, CommandSender::sendMessage, placeholders);
+    }
+
+    public static void send(@Nullable CommandSender sender, @NotNull String prefix, @NotNull String key, @NotNull BiConsumer<CommandSender, String> send, @NotNull P... placeholders) {
+        String message;
+        if (sender instanceof Player) message = get(key, (Player) sender, placeholders);
+        else message = get(key, placeholders);
+
+        if (message.isEmpty()) return;
+
+        send.accept(sender, Lang.getPrefix() + prefix + message);
+    }
+
+    public static @NotNull String getPrefix() {
         String prefix = getConfig().getString("TradeSystem.Prefix", "&8» &r");
         return prepare(null, prefix);
     }

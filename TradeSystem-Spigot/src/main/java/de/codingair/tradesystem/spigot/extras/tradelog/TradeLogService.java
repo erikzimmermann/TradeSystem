@@ -30,12 +30,18 @@ public class TradeLogService {
         return instance;
     }
 
+    public static long count(@NotNull String player, @NotNull String message) {
+        if (!connected()) return 0;
+
+        return getTradeLog().tradeLogRepository.count(player, message);
+    }
+
     public static void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
         logLater(player1, player2, message, 0);
     }
 
     public static void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
-        if (message == null || notConnected()) return;
+        if (message == null || !connected()) return;
 
         Runnable runnable = () -> {
             if (getTradeLog().bukkitLogger)
@@ -50,17 +56,17 @@ public class TradeLogService {
     }
 
     public static List<TradeLog.Entry> getLogMessages(String playerName) {
-        if (notConnected()) return new ArrayList<>();
+        if (!connected()) return new ArrayList<>();
         return getTradeLog().tradeLogRepository.getLogMessages(playerName);
     }
 
     public static boolean haveTraded(@NotNull String player1, @NotNull String player2) {
-        if (notConnected()) return false;
+        if (!connected()) return false;
         return getTradeLog().tradeLogRepository.haveTraded(player1, player2);
     }
 
     public static void haveTraded(@NotNull String player1, @NotNull String player2, @NotNull Callback<Boolean> callback) {
-        if (notConnected()) {
+        if (!connected()) {
             callback.accept(false);
             return;
         }
@@ -70,8 +76,8 @@ public class TradeLogService {
         );
     }
 
-    public static boolean notConnected() {
-        return getTradeLog().tradeLogRepository == null || !TradeSystem.getInstance().getDatabaseInitializer().isRunning();
+    public static boolean connected() {
+        return getTradeLog().tradeLogRepository != null && TradeSystem.getInstance().getDatabaseInitializer().isRunning();
     }
 
     public TradeLogRepository getTradeLogRepository() {

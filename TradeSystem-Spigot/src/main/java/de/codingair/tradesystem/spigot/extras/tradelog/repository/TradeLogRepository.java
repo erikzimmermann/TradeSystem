@@ -9,6 +9,8 @@ public interface TradeLogRepository {
 
     void log(String player1, String playerTo2, String message);
 
+    long count(String player, String message);
+
     @Nullable
     List<TradeLog.Entry> getLogMessages(String playerName);
 

@@ -24,4 +24,9 @@ public class TradeSystemPlaceholder extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player p, @NotNull String id) {
         return PlaceholderDependency.apply(p, id);
     }
+
+    @Override
+    public boolean persist() {
+        return true;
+    }
 }

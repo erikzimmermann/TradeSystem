@@ -43,7 +43,7 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
             return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS));
         } else {
             //ignored answer
-            player.sendMessage(Lang.getPrefix() + Lang.get("Request_Was_Denied", player, new Lang.P("player", packet.getResponding())));
+            Lang.send(player, "Request_Was_Denied", new Lang.P("player", packet.getResponding()));
             return CompletableFuture.completedFuture(null);
         }
     }

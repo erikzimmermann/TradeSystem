@@ -64,12 +64,14 @@ TradeSystem:
   # The report shows what was traded during a trade.
   Trade_Finish_Report:
     Items: true
+    # Whether to only display an item's name rather than item type and name
+    Display_Name_Only: false
     Economy: true
 
   Action_To_Cancel:
     Player_get_damaged: true
   Action_To_Request:
-    Shift_Rightclick: false
+    Shift_Rightclick: true
 
   Money:
     # This pattern will be used to enter money in the trade GUI and to display the current amount. More information about pattern can be found here: https://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html

@@ -34,6 +34,7 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
         registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
         registerHandler(PlayerStatePacket.class, new PlayerStatePacketHandler());
         registerHandler(PublishSkinPacket.class, new PublishSkinPacketHandler());
+        registerHandler(VersionPacket.class, new VersionPacketHandler());
     }
 
     public void onEnable() {

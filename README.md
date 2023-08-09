@@ -9,7 +9,7 @@
 <dependency>  
   <groupId>com.github.CodingAir</groupId>
   <artifactId>TradeSystem</artifactId>  
-  <version>v2.3.3</version>  
+  <version>v2.4.0</version>  
 </dependency>
 ```
 
