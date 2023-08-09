@@ -23,7 +23,7 @@ public class PlayerInventoryPacketHandler implements PacketHandler<PlayerInvento
         try {
             ItemStack item;
             if (packet.getItem() == null) item = null;
-            else item = ItemStackUtils.deserializeItemStack(packet.getItem());
+            else item = ItemStackUtils.deserialize(packet.getItem());
 
             t.setOtherInventory(packet.getSlot(), item);
             t.cancelItemOverflow(Perspective.PRIMARY);

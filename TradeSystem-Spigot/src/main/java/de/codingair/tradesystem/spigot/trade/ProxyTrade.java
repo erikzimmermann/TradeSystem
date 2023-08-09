@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -135,11 +134,11 @@ public class ProxyTrade extends Trade {
 
                 continue;
             }
-            Map<String, Object> data;
+            byte[] data;
 
             if (contents[i] == null) data = null;
-            else if (ItemStackUtils.isCompatible(contents[i])) data = ItemStackUtils.serializeItemStack(contents[i]);
-            else data = ItemStackUtils.serializeItemStack(getItemPlaceholder(i));
+            else if (ItemStackUtils.isCompatible(contents[i])) data = ItemStackUtils.serialize(contents[i]);
+            else data = ItemStackUtils.serialize(getItemPlaceholder(i));
 
             try {
                 PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
@@ -170,7 +169,7 @@ public class ProxyTrade extends Trade {
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
         try {
-            TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
+            TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serialize(item), (byte) slotId);
             TradeSystem.proxyHandler().send(packet, this.player);
 
             if (slotId < slots.size()) sent[slotId] = item == null ? null : item.clone();

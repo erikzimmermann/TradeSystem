@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.function.Function;
 
 /**
  * A helper class for {@link EconomyIcon#getMaxSupportedValue()}.

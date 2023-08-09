@@ -1,18 +1,15 @@
 package de.codingair.tradesystem.spigot.transfer.utils;
 
-import de.codingair.packetmanagement.utils.SerializedGeneric;
-import org.bukkit.Color;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.BiFunction;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ItemStackUtils {
     /**
@@ -28,13 +25,9 @@ public class ItemStackUtils {
      */
     public static boolean isCompatible(@NotNull ItemStack item) {
         try {
-            Map<String, Object> data = serializeItemStack(item);
-            SerializedGeneric generic = new SerializedGeneric(data);
-
-            if (generic.getData().length >= MAX_TRANSFER_LIMIT) return false;
-
-            Map<String, Object> copy = generic.getObject();
-            ItemStack itemCopy = deserializeItemStack(copy);
+            byte[] data = serialize(item);
+            if (data.length >= MAX_TRANSFER_LIMIT) return false;
+            ItemStack itemCopy = deserialize(data);
 
             return item.equals(itemCopy);
         } catch (Throwable t) {
@@ -43,181 +36,32 @@ public class ItemStackUtils {
     }
 
     @Contract("null -> null")
-    public static Map<String, Object> serializeItemStack(@Nullable ItemStack item) {
+    public static byte[] serialize(@Nullable ItemStack item) {
         if (item == null) return null;
 
-        Map<String, Object> data = item.serialize();
-        convertMeta(data);
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            BukkitObjectOutputStream boos = new BukkitObjectOutputStream(bos);
 
-        return data;
+            boos.writeObject(item);
+
+            byte[] data = bos.toByteArray();
+            bos.close();
+            return data;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static void convertMeta(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("meta", (s, o) -> {
-            if (o instanceof ItemMeta) {
-                return serializeItemMeta((ItemMeta) o);
-            }
-
-            return o;
-        });
-    }
-
-    @NotNull
-    private static Map<String, Object> serializeItemMeta(@NotNull ItemMeta o) {
-        //create new map from immutable map
-        Map<String, Object> metaData = new HashMap<>(o.serialize());
-
-        convertCustomEffects(metaData);
-        convertCustomColor(metaData);
-        convertAttributeModifiers(metaData);
-
-        //add serialization alias (ConfigurationSerialization)
-        metaData.put("==", "ItemMeta");
-        return metaData;
-    }
-
-    private static void convertCustomEffects(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("custom-effects", (s, o) -> {
-            if (o instanceof List) {
-                //noinspection unchecked
-                return serializeCustomEffects((List<PotionEffect>) o);
-            }
-
-            return o;
-        });
-    }
-
-    @NotNull
-    private static List<Map<String, Object>> serializeCustomEffects(@NotNull List<PotionEffect> o) {
-        List<Map<String, Object>> converted = new ArrayList<>();
-        o.forEach(p -> {
-            Map<String, Object> serialized = new HashMap<>(p.serialize());
-            serialized.put("==", "PotionEffect");
-            converted.add(serialized);
-        });
-        return converted;
-    }
-
-    private static void convertCustomColor(@NotNull Map<String, Object> data) {
-        BiFunction<String, Object, Object> f = (s, o) -> {
-            if (o instanceof Color) {
-                return serializeCustomColor((Color) o);
-            }
-
-            return o;
-        };
-
-        data.computeIfPresent("custom-color", f);
-        data.computeIfPresent("color", f);
-    }
-
-    @NotNull
-    private static Map<String, Object> serializeCustomColor(@NotNull Color o) {
-        Map<String, Object> serialized = new HashMap<>(o.serialize());
-        serialized.put("==", "Color");
-        return serialized;
-    }
-
-    private static void convertAttributeModifiers(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("attribute-modifiers", (s, o) -> {
-            if (o instanceof Map) {
-                @SuppressWarnings ("unchecked")
-                Map<String, Object> internal = (Map<String, Object>) o;
-
-                Set<String> keys = new HashSet<>(internal.keySet());
-                for (String key : keys) {
-                    internal.computeIfPresent(key, ($, array) -> {
-                        if (array instanceof ArrayList) {
-                            @SuppressWarnings ("unchecked")
-                            List<AttributeModifier> raw = (List<AttributeModifier>) array;
-                            List<Map<String, Object>> serialised = new ArrayList<>();
-
-                            for (AttributeModifier attributeModifier : raw) {
-                                serialised.add(serializeAttributeModifier(attributeModifier));
-                            }
-
-                            return serialised;
-                        } else return array;
-                    });
-                }
-
-                return internal;
-            }
-
-            return o;
-        });
-    }
-
-    @NotNull
-    private static Map<String, Object> serializeAttributeModifier(@NotNull AttributeModifier am) {
-        Map<String, Object> serialized = new HashMap<>(am.serialize());
-        serialized.put("==", "org.bukkit.attribute.AttributeModifier");
-        return serialized;
-    }
-
-    @Nullable
-    public static ItemStack deserializeItemStack(@Nullable Map<String, Object> data) {
+    @Contract("null -> null")
+    public static ItemStack deserialize(byte @Nullable [] data) {
         if (data == null) return null;
 
-        //prepare clipped serialized data
-        deserializeItemMeta(data);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+            BukkitObjectInputStream bois = new BukkitObjectInputStream(bais);
 
-        return ItemStack.deserialize(data);
-    }
-
-    private static void deserializeItemMeta(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("meta", ($, serialised) -> {
-            @SuppressWarnings ("unchecked")
-            Map<String, Object> map = (Map<String, Object>) serialised;
-
-            deserializeCustomEffects(map);
-            deserializeCustomColors(map);
-            deserializeAttributeModifiers(map);
-
-            return ConfigurationSerialization.deserializeObject(map);
-        });
-    }
-
-    private static void deserializeCustomEffects(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("custom-effects", ($, serialised) -> {
-            @SuppressWarnings ("unchecked")
-            List<Map<String, Object>> list = (List<Map<String, Object>>) serialised;
-
-            List<PotionEffect> deserialized = new ArrayList<>();
-            list.forEach(pData -> deserialized.add((PotionEffect) ConfigurationSerialization.deserializeObject(pData)));
-
-            return deserialized;
-        });
-    }
-
-    private static void deserializeCustomColors(@NotNull Map<String, Object> data) {
-        //noinspection unchecked
-        BiFunction<String, Object, Object> f = ($, serialised) -> ConfigurationSerialization.deserializeObject((Map<String, Object>) serialised);
-        data.computeIfPresent("custom-color", f);
-        data.computeIfPresent("color", f);
-    }
-
-    private static void deserializeAttributeModifiers(@NotNull Map<String, Object> data) {
-        data.computeIfPresent("attribute-modifiers", ($, serialised) -> {
-            @SuppressWarnings ("unchecked")
-            Map<String, Object> internal = (Map<String, Object>) serialised;
-
-            Set<String> keys = new HashSet<>(internal.keySet());
-            for (String key : keys) {
-                internal.computeIfPresent(key, ($2, serialised2) -> {
-                    @SuppressWarnings ("unchecked")
-                    List<Map<String, Object>> list = (List<Map<String, Object>>) serialised2;
-                    List<AttributeModifier> modifiers = new ArrayList<>();
-
-                    for (Map<String, Object> raw : list) {
-                        modifiers.add((AttributeModifier) ConfigurationSerialization.deserializeObject(raw));
-                    }
-
-                    return modifiers;
-                });
-            }
-
-            return internal;
-        });
+            return (ItemStack) bois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

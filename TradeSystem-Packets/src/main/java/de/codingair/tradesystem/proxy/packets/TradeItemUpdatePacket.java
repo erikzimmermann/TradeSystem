@@ -1,27 +1,25 @@
 package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
-import de.codingair.packetmanagement.utils.SerializedGeneric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 public class TradeItemUpdatePacket implements Packet {
     private String sender, recipient;
-    private SerializedGeneric item;
+    private byte[] item;
     private int slotId; //own slotId
 
     public TradeItemUpdatePacket() {
     }
 
-    public TradeItemUpdatePacket(@NotNull String sender, @NotNull String recipient, @Nullable Map<String, Object> item, byte slotId) throws IOException {
+    public TradeItemUpdatePacket(@NotNull String sender, @NotNull String recipient, byte @Nullable [] item, byte slotId) throws IOException {
         this.sender = sender;
         this.recipient = recipient;
-        this.item = item == null ? null : new SerializedGeneric(item);
+        this.item = item;
         this.slotId = slotId;
     }
 
@@ -31,7 +29,10 @@ public class TradeItemUpdatePacket implements Packet {
         out.writeUTF(this.recipient);
 
         out.writeBoolean(this.item != null);
-        if (this.item != null) item.write(out);
+        if (item != null) {
+            out.writeShort(item.length);
+            out.write(item, 0, item.length);
+        }
 
         out.writeByte(this.slotId);
     }
@@ -43,8 +44,9 @@ public class TradeItemUpdatePacket implements Packet {
 
         boolean notNull = in.readBoolean();
         if (notNull) {
-            this.item = new SerializedGeneric();
-            item.read(in);
+            int length = in.readUnsignedShort();
+            this.item = new byte[length];
+            in.readFully(this.item);
         }
 
         this.slotId = in.readUnsignedByte();
@@ -60,13 +62,8 @@ public class TradeItemUpdatePacket implements Packet {
         return recipient;
     }
 
-    @Nullable
-    public Map<String, Object> getItem() throws IOException {
-        try {
-            return item == null ? null : item.getObject();
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("Error while reading item in slotId %d (the id of the slot; only counts the trading slots). Please forward this error including the information about the traded item of %s to %s.", slotId, sender, recipient), e);
-        }
+    public byte @Nullable [] getItem() throws IOException {
+        return item;
     }
 
     public int getSlotId() {
