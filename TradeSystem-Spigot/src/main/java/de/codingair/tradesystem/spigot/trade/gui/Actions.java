@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -613,10 +614,9 @@ public class Actions {
     }
 
     private static void dropItem(@NotNull Player player, @NotNull ItemStack item) {
-        player.getWorld().dropItem(player.getEyeLocation(), item, i -> {
-            i.setVelocity(player.getEyeLocation().getDirection().multiply(0.3D));
-            i.setPickupDelay(40);
-        });
+        Item i = player.getWorld().dropItem(player.getEyeLocation(), item);
+        i.setVelocity(player.getEyeLocation().getDirection().multiply(0.3D));
+        i.setPickupDelay(40);
     }
 
     private static boolean nullOrAir(@Nullable ItemStack item) {
