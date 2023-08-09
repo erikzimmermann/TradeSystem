@@ -59,7 +59,7 @@ public class TradeLogCMD extends CommandBuilder {
                 try {
                     if (TradeLog.isEnabled()) {
                         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
-                            if (TradeLogService.notConnected()) {
+                            if (!TradeLogService.connected()) {
                                 Lang.send(sender, "TradeLog_Disabled", new Lang.P("label", label));
                                 return;
                             }

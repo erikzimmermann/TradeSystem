@@ -39,6 +39,23 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     }
 
     @Override
+    public long count(String player, String message) {
+        String sql = "SELECT COUNT(1) as count FROM tradelog WHERE (player1=? OR player2=?) AND message like ?;";
+
+        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, player);
+            pstmt.setString(2, player);
+            pstmt.setString(3, message);
+
+            ResultSet set = pstmt.executeQuery();
+            return set.next() ? set.getLong("count") : 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @Override
     public @Nullable List<TradeLog.Entry> getLogMessages(String playerName) {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";

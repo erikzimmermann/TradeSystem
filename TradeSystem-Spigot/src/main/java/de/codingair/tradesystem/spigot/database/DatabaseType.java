@@ -1,11 +1,18 @@
 package de.codingair.tradesystem.spigot.database;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum DatabaseType {
-    MYSQL,
-    SQLITE,
+    MYSQL("MySQL"),
+    SQLITE("SQLite"),
     ;
+
+    private final String name;
+
+    DatabaseType(@NotNull String name) {
+        this.name = name;
+    }
 
     @Nullable
     public static DatabaseType byName(@Nullable String databaseType) {
@@ -15,5 +22,10 @@ public enum DatabaseType {
         }
 
         return null;
+    }
+
+    @NotNull
+    public String getName() {
+        return name;
     }
 }

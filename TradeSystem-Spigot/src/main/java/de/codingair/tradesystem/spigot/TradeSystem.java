@@ -265,7 +265,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             if (needsUpdate && player.hasPermission(Permissions.PERMISSION_NOTIFY)) {
                 player.sendMessage("");
                 player.sendMessage("");
-                player.sendMessage(Lang.getPrefix() + "§7A &anew update &7is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§7. You are &a" + updateNotifier.getReleasesBehind() + "&7 release(s) behind. Download it on §b§n" + this.updateNotifier.getDownloadLink());
+                player.sendMessage(Lang.getPrefix() + "§7A §anew update §7is available §8[§b" + updateNotifier.getUpdateInfo() + "§8]§7. You are §a" + updateNotifier.getReleasesBehind() + "§7 release(s) behind. Download it on §b§n" + this.updateNotifier.getDownloadLink());
                 player.sendMessage("");
                 player.sendMessage("");
             }

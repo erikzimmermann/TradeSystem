@@ -22,25 +22,59 @@ public class DatabaseHandler {
         loadType();
 
         TradeSystem.log("  > Queuing database initializing task");
-        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), () -> {
-            try {
-                checkCredentials();
+        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    checkCredentials();
 
-                SqlMigrations sqlMigrations = getMigrationHandler();
+                    SqlMigrations sqlMigrations = getMigrationHandler();
 
-                // we don't essentially have migrations if we don't have a database
-                if (sqlMigrations != null) {
-                    sqlMigrations.createMigrationTable();
-                    sqlMigrations.runMigrations();
+                    // we don't essentially have migrations if we don't have a database
+                    if (sqlMigrations != null) {
+                        sqlMigrations.createMigrationTable();
+                        sqlMigrations.runMigrations();
+                    }
+
+                    TradeSystem.getInstance().getLogger().log(Level.INFO, "Database was started successfully.");
+                    running = true;
+                } catch (Exception ex) {
+                    running = false;
+
+                    boolean switchToSQLite = databaseType != DatabaseType.SQLITE;
+
+                    TradeSystem.getInstance().getLogger().log(switchToSQLite ? Level.WARNING : Level.SEVERE, "Database could not be started: " + ex.getMessage());
+                    if (switchToSQLite) {
+                        TradeSystem.getInstance().getLogger().warning("Switching to SQLite database.");
+                        setTypeToSQLite();
+                        this.run();
+                    }
                 }
-
-                TradeSystem.getInstance().getLogger().log(Level.INFO, "Database logging was started successfully.");
-                running = true;
-            } catch (Exception ex) {
-                TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Database logging could not be started: " + ex.getMessage());
-                running = false;
             }
         });
+    }
+
+    private boolean defaultCredentials() {
+        ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+        FileConfiguration config = file.getConfig();
+
+        String defUser = "root";
+        String defPassword = "password";
+        return defUser.equals(config.getString("TradeSystem.Database.MySQL.User")) &&
+                defPassword.equals(config.getString("TradeSystem.Database.MySQL.Password"));
+    }
+
+    private void setTypeToSQLite() {
+        this.databaseType = DatabaseType.SQLITE;
+
+        boolean persist = defaultCredentials();
+        if (persist) {
+            ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+            FileConfiguration config = file.getConfig();
+
+            config.set("TradeSystem.Database.Type", DatabaseType.SQLITE.getName());
+            file.saveConfig();
+        }
     }
 
     private void loadType() {
