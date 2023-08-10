@@ -11,6 +11,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.AnvilGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SignGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleAnvilGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleSignGUIIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.TriFunction;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +27,7 @@ import java.io.IOException;
  *
  * @param <G> The type of the final value which will be modified by this input icon.
  */
-public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clickable, Input<G>, ItemPrepareIcon {
+public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clickable, StateHolder, Input<G>, ItemPrepareIcon {
     private final TradeIcon icon;
 
     public InputIcon(@NotNull ItemStack itemStack) {
@@ -46,8 +47,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
-                        super.handleResult(InputIcon.this, gui, result, trade, perspective);
+                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective viewer) {
+                        super.handleResult(InputIcon.this, gui, result, trade, perspective, viewer);
                     }
 
                     @Override
@@ -58,6 +59,16 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     @Override
                     public @Nullable G getValue() {
                         return InputIcon.this.getValue();
+                    }
+
+                    @Override
+                    public void setValue(G value) {
+                        InputIcon.this.setValue(value);
+                    }
+
+                    @Override
+                    public G getDefault() {
+                        return InputIcon.this.getDefault();
                     }
 
                     @Override
@@ -111,8 +122,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
-                        super.handleResult(InputIcon.this, gui, result, trade, perspective);
+                    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective viewer) {
+                        super.handleResult(InputIcon.this, gui, result, trade, perspective, viewer);
                     }
 
                     @Override
@@ -123,6 +134,16 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     @Override
                     public @Nullable G getValue() {
                         return InputIcon.this.getValue();
+                    }
+
+                    @Override
+                    public void setValue(G value) {
+                        InputIcon.this.setValue(value);
+                    }
+
+                    @Override
+                    public G getDefault() {
+                        return InputIcon.this.getDefault();
                     }
 
                     @Override
@@ -167,5 +188,23 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
     @Override
     public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
         return this.icon.getButton(trade, perspective, viewer);
+    }
+
+    @Override
+    public boolean isDisabled() {
+        if (!(icon instanceof StateHolder)) throw new IllegalStateException("Icon has no state: " + icon.getClass());
+        return ((StateHolder) icon).isDisabled();
+    }
+
+    @Override
+    public void enable() {
+        if (!(icon instanceof StateHolder)) throw new IllegalStateException("Icon has no state: " + icon.getClass());
+        ((StateHolder) icon).enable();
+    }
+
+    @Override
+    public void disable(@Nullable TriFunction<Trade, Perspective, Player, String> onClickMessage) {
+        if (!(icon instanceof StateHolder)) throw new IllegalStateException("Icon has no state: " + icon.getClass());
+        ((StateHolder) icon).disable(onClickMessage);
     }
 }
