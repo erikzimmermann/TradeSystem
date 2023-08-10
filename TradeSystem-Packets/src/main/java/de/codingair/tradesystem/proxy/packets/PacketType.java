@@ -20,6 +20,7 @@ public enum PacketType {
     PublishSkinPacket(PublishSkinPacket.class),
 
     VersionPacket(VersionPacket.class),
+    TradeInitializedPacket(TradeInitializedPacket.class),
     ;
 
     private final Class<? extends Packet> packetClass;

@@ -42,7 +42,7 @@ public class RequestManager {
     private static void sendRequest(@NotNull Player sender, @NotNull String invited) {
         TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), sender.getUniqueId(), invited, TradeSystem.proxy().getTradeHash()), sender)
                 .whenComplete((result, t) -> {
-                    if (t != null) t.printStackTrace();
+                    if (t != null) throw new RuntimeException(t);
                     else RuleManager.handle(sender, invited, result);
                 });
     }

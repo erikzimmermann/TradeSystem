@@ -101,6 +101,9 @@ public class TradeGUIListener implements Listener {
     }
 
     private void handleResult(boolean offerChange, @NotNull Trade trade, @NotNull Perspective perspective) {
+        // update inventory
+        trade.synchronizePlayerInventory(perspective);
+
         // balance items from other player before updating
         boolean cannotDropItems = !TradeSystem.getInstance().getTradeManager().isDropItems();
         if (cannotDropItems) {

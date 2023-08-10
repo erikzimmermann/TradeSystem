@@ -83,7 +83,9 @@ public class ProxyDataManager {
                 cooldown,
                 TradeSystem.handler().isRevokeReadyOnChange(),
                 blacklist,
-                TradeSystem.getInstance().getDescription().getVersion());
+                TradeSystem.getInstance().getDescription().getVersion(),    // for packet compatibility
+                TradeSystem.handler().isDropItems()                         // for item balancing
+        );
     }
 
     public Stream<String> getPlayers(@Nullable CommandSender sender) {
