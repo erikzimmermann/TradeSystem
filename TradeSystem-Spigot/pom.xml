@@ -172,7 +172,6 @@
             <scope>provided</scope>
         </dependency>
 
-
         <!-- First dependency for MC 1.13+ and other for 1.12- -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
@@ -197,6 +196,12 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
