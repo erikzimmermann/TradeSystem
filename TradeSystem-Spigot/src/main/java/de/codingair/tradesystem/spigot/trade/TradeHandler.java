@@ -33,6 +33,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TradeHandler {
@@ -43,6 +44,7 @@ public class TradeHandler {
     private final Set<String> offline = new HashSet<>();
 
     private final HashMap<String, Trade> trades = new HashMap<>();
+
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private final InvitationManager invitationManager = new InvitationManager();
     private int requestExpirationTime = 60;
@@ -318,6 +320,15 @@ public class TradeHandler {
         file.saveConfig();
     }
 
+    /**
+     * Starts a trade between two players.
+     *
+     * @param player           The player who starts the trade.
+     * @param other            The player who gets the trade request.
+     * @param othersName       The name of the other player.
+     * @param otherId          The id of the other player.
+     * @param initiationServer If the trade is started on the proxy.
+     */
     public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
         if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
             Lang.send(player, "Other_is_already_trading");

@@ -139,7 +139,7 @@ public class InvitationManager {
         } else {
             //START PROXY
             TradeSystem.proxyHandler().send(new TradeInvitePacket(player.getName(), player.getUniqueId(), name, TradeSystem.proxy().getTradeHash()), player).whenComplete((suc, t) -> {
-                if (t != null) t.printStackTrace();
+                if (t != null) throw new RuntimeException(t);
                 else {
                     if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
                         if (suc.getRecipientId() == null) throw new IllegalStateException("RecipientId is null");

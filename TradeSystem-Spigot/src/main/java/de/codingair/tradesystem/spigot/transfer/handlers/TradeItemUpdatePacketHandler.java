@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.Map;
 
 public class TradeItemUpdatePacketHandler implements PacketHandler<TradeItemUpdatePacket> {
 
@@ -21,8 +20,8 @@ public class TradeItemUpdatePacketHandler implements PacketHandler<TradeItemUpda
         if (t == null) return;
 
         try {
-            Map<String, Object> data = packet.getItem();
-            t.receiveItemData(packet.getSlotId(), ItemStackUtils.deserializeItemStack(data));
+            byte[] data = packet.getItem();
+            t.receiveItemData(packet.getSlotId(), ItemStackUtils.deserialize(data));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
