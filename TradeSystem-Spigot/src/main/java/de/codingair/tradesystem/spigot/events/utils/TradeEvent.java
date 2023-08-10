@@ -1,13 +1,15 @@
 package de.codingair.tradesystem.spigot.events.utils;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public abstract class TradeEvent extends Event {
 
@@ -22,12 +24,18 @@ public abstract class TradeEvent extends Event {
             Player any = Bukkit.getOnlinePlayers().stream().findAny().orElseThrow(() -> new IllegalStateException("No online players found!"));
             String name = TradeSystem.proxy().getCaseSensitive(playerName);
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Message");
-            out.writeUTF(name);
-            out.writeUTF(message);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(baos);
 
-            any.sendPluginMessage(TradeSystem.getInstance(), "BungeeCord", out.toByteArray());
+            try {
+                out.writeUTF("Message");
+                out.writeUTF(name);
+                out.writeUTF(message);
+                any.sendPluginMessage(TradeSystem.getInstance(), "BungeeCord", baos.toByteArray());
+            } catch (IOException e) {
+                // we'll never get here
+                throw new RuntimeException(e);
+            }
         }
     }
 }

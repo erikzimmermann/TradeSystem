@@ -1,7 +1,5 @@
 package de.codingair.tradesystem.spigot.trade;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.server.sounds.Sound;
 import de.codingair.codingapi.server.sounds.SoundData;
@@ -33,14 +31,11 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class TradeHandler {
     /**
-     * Allow disconnected players to reconnect with same options so they don't have to disable trade requests again.
+     * Allow disconnected players to reconnect with same options, so they don't have to disable trade requests again.
      */
-    private final Cache<String, Boolean> disconnectedOffline = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
     private final Set<String> offline = new HashSet<>();
 
     private final HashMap<String, Trade> trades = new HashMap<>();
@@ -367,23 +362,9 @@ public class TradeHandler {
     }
 
     public void quit(Player player) {
-        //save options
-        if (this.offline.remove(player.getName())) {
-            //just use any value
-            this.disconnectedOffline.put(player.getName(), true);
-        }
-
         //cancel active trade
         Trade activeTrade = getTrade(player);
         if (activeTrade != null) activeTrade.cancel();
-    }
-
-    public void join(Player player) {
-        //revive options
-        if (this.disconnectedOffline.getIfPresent(player.getName()) != null) {
-            this.disconnectedOffline.invalidate(player.getName());
-            this.offline.add(player.getName());
-        }
     }
 
     private void cancelAll() {

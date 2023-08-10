@@ -23,7 +23,7 @@ public abstract class SimpleTradeIcon extends LayoutIcon implements TradeIcon, C
 
             @Override
             public ItemStack buildItem() {
-                return prepareItemStack(new ItemBuilder(itemStack), trade, perspective, viewer).getItem();
+                return prepareItemStack(new ItemBuilder(getItemStack()), trade, perspective, viewer).getItem();
             }
 
             @Override
@@ -34,7 +34,7 @@ public abstract class SimpleTradeIcon extends LayoutIcon implements TradeIcon, C
             @Override
             public void onClick(GUI gui, InventoryClickEvent inventoryClickEvent) {
                 IconResult result = SimpleTradeIcon.this.onClick(trade, perspective, viewer, inventoryClickEvent);
-                trade.handleClickResult(SimpleTradeIcon.this, perspective, gui, result);
+                trade.handleClickResult(SimpleTradeIcon.this, perspective, trade.getPerspective(viewer), gui, result);
             }
         };
     }

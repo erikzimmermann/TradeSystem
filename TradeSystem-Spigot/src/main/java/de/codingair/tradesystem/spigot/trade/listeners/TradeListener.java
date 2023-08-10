@@ -1,7 +1,5 @@
 package de.codingair.tradesystem.spigot.trade.listeners;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.codingair.codingapi.player.chat.ChatButtonListener;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
@@ -14,15 +12,17 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class TradeListener implements Listener, ChatButtonListener {
-    private final Cache<UUID, Boolean> players = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).build();
+    private static final long BUFFER_TIME = 1000;
+    private final Map<String, Long> invitationBuffer = new HashMap<>();
 
     @Override
     public boolean onAsyncClick(Player player, UUID id, String type) {
@@ -35,27 +35,29 @@ public class TradeListener implements Listener, ChatButtonListener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        TradeSystem.handler().join(e.getPlayer());
-    }
-
-    @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         TradeSystem.handler().quit(e.getPlayer());
     }
 
+    private boolean isBuffered(@NotNull Player player) {
+        long time = System.currentTimeMillis();
+        Long last = invitationBuffer.put(player.getName(), time);
+        return last != null && time - last <= BUFFER_TIME;
+    }
+
     @EventHandler
     public void onInteract(PlayerInteractEntityEvent e) {
-        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightClick() || players.getIfPresent(e.getPlayer().getUniqueId()) != null || !e.getPlayer().isSneaking()) return;
+        if (!TradeSystem.getInstance().getTradeManager().isRequestOnShiftRightClick() || !e.getPlayer().isSneaking()) return;
 
         if (e.getRightClicked() instanceof Player) {
+            if (isBuffered(e.getPlayer())) return;
+
             Player p = e.getPlayer();
             Player other = (Player) e.getRightClicked();
 
             if (!other.isOnline()) return; //npc
             if (!p.canSee(other)) return;
 
-            players.put(p.getUniqueId(), false);
             RequestManager.request(p, other);
         }
     }

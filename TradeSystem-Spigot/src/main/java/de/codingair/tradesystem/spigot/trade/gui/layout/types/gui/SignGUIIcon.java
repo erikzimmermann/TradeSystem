@@ -7,6 +7,8 @@ import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.*;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.IconState;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.TriFunction;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -17,7 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Clickable, Input<G>, ItemPrepareIcon {
+public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Clickable, StateHolder, Input<G>, ItemPrepareIcon {
+    private final IconState state = new IconState();
+
     public SignGUIIcon(@NotNull ItemStack itemStack) {
         super(itemStack);
     }
@@ -27,6 +31,8 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
         String[] test = buildSignLines(trade, viewer);
         if (test != null && test.length > 4)
             throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(test));
+
+        Perspective viewPerspective = trade.getPerspective(viewer);
 
         return new SignButton(() -> {
             String[] text = buildSignLines(trade, viewer);
@@ -47,18 +53,18 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
                     return false;
                 }
 
-                handleResult(SignGUIIcon.this, gui, result, trade, perspective);
+                handleResult(SignGUIIcon.this, gui, result, trade, perspective, viewPerspective);
                 return true;
             }
 
             @Override
             public ItemStack buildItem() {
-                return prepareItemStack(new ItemBuilder(itemStack), trade, perspective, viewer).getItem();
+                return prepareItemStack(new ItemBuilder(getItemStack()), trade, perspective, viewer).getItem();
             }
 
             @Override
             public boolean canClick(ClickType clickType) {
-                return isClickable(trade, perspective, viewer);
+                return state.checkState(trade, perspective, viewer) && isClickable(trade, perspective, viewer);
             }
 
             @Override
@@ -73,8 +79,8 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
         };
     }
 
-    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective) {
-        trade.handleClickResult(icon, perspective, gui, result);
+    protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective viewer) {
+        trade.handleClickResult(icon, perspective, viewer, gui, result);
     }
 
     /**
@@ -83,4 +89,19 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
      * @return The sign GUI lines. Must have a maximum length of 3 (the very first line of the SignGUI will be used for the input). Will be ignored if returning null.
      */
     public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player viewer);
+
+    @Override
+    public boolean isDisabled() {
+        return state.isDisabled();
+    }
+
+    @Override
+    public void enable() {
+        state.enable();
+    }
+
+    @Override
+    public void disable(@Nullable TriFunction<Trade, Perspective, Player, String> onClickMessage) {
+        state.disable(onClickMessage);
+    }
 }

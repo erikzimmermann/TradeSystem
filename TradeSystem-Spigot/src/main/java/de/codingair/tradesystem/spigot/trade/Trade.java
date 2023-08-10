@@ -1149,7 +1149,7 @@ public abstract class Trade {
         }
     }
 
-    public void handleClickResult(@NotNull TradeIcon tradeIcon, @NotNull Perspective perspective, @NotNull GUI gui, @NotNull IconResult result) {
+    public void handleClickResult(@NotNull TradeIcon tradeIcon, @NotNull Perspective perspective, @NotNull Perspective viewer, @NotNull GUI gui, @NotNull IconResult result) {
         switch (result) {
             case PASS:
                 return;
@@ -1161,7 +1161,7 @@ public abstract class Trade {
                 synchronizeTradeIcon(perspective, tradeIcon, true);
 
                 // make sure player get notified when something changed
-                closeShulkerPeekingGUIs(Collections.singleton(perspective));
+                closeShulkerPeekingGUIs(Collections.singleton(viewer));
 
                 // status icon might can be ready now
                 updateStatusIcon(perspective);
@@ -1172,7 +1172,7 @@ public abstract class Trade {
                     gui.open();
                 } catch (AlreadyOpenedException ignored) {
                 } catch (NoPageException | IsWaitingException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException("Error while opening GUI.", e);
                 }
                 break;
 

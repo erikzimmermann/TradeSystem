@@ -1,7 +1,5 @@
 package de.codingair.tradesystem.spigot.transfer;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
@@ -11,16 +9,12 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class ProxyDataManager {
     //abbreviation to case-sensitive name
-    private final Cache<String, String> cache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
+    private final Map<String, String> cache = new HashMap<>();
 
     /**
      * lower-case to case-sensitive
@@ -45,6 +39,9 @@ public class ProxyDataManager {
     public void join(@NotNull String player, @NotNull UUID playerId) {
         this.players.put(player.toLowerCase(), player);
         this.uuids.put(player.toLowerCase(), playerId);
+
+        // change invokes cache update
+        cache.clear();
     }
 
     public void addSkin(@NotNull String player, @NotNull String skinId) {
@@ -60,10 +57,13 @@ public class ProxyDataManager {
         this.players.remove(player.toLowerCase());
         this.uuids.remove(player.toLowerCase());
         this.skins.remove(player.toLowerCase());
+
+        // change invokes cache update
+        cache.clear();
     }
 
     public void clearPlayers() {
-        this.cache.invalidateAll();
+        this.cache.clear();
         this.players.clear();
     }
 
@@ -115,7 +115,7 @@ public class ProxyDataManager {
         String found = this.players.get(lowerName);
         if (found != null) return found;
 
-        found = cache.getIfPresent(lowerName);
+        found = cache.get(lowerName);
         if (found != null) return found;
 
         for (String player : this.players.values()) {

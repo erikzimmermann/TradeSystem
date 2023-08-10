@@ -130,6 +130,16 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
+    public void setValue(BigDecimal value) {
+        this.value = value;
+    }
+
+    @Override
+    public BigDecimal getDefault() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
         Player player = trade.getPlayer(perspective);
         if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
