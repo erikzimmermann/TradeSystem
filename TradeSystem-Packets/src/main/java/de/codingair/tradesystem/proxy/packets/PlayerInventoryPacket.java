@@ -1,26 +1,24 @@
 package de.codingair.tradesystem.proxy.packets;
 
 import de.codingair.packetmanagement.packets.Packet;
-import de.codingair.packetmanagement.utils.SerializedGeneric;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 public class PlayerInventoryPacket implements Packet {
     private String sender, recipient;
-    private SerializedGeneric item;
+    private byte[] item;
     private int slot;
 
     public PlayerInventoryPacket() {
     }
 
-    public PlayerInventoryPacket(String sender, String recipient, @Nullable Map<String, Object> item, int slot) throws IOException {
+    public PlayerInventoryPacket(String sender, String recipient, byte @Nullable [] item, int slot) throws IOException {
         this.sender = sender;
         this.recipient = recipient;
-        this.item = item == null ? null : new SerializedGeneric(item);
+        this.item = item;
         this.slot = slot;
     }
 
@@ -31,7 +29,10 @@ public class PlayerInventoryPacket implements Packet {
 
         out.writeByte(this.slot);
         out.writeBoolean(item != null);
-        if (item != null) item.write(out);
+        if (item != null) {
+            out.writeShort(item.length);
+            out.write(item, 0, item.length);
+        }
     }
 
     @Override
@@ -43,8 +44,9 @@ public class PlayerInventoryPacket implements Packet {
         boolean notNull = in.readBoolean();
 
         if (notNull) {
-            this.item = new SerializedGeneric();
-            item.read(in);
+            int length = in.readUnsignedShort();
+            this.item = new byte[length];
+            in.readFully(this.item);
         }
     }
 
@@ -56,13 +58,8 @@ public class PlayerInventoryPacket implements Packet {
         return recipient;
     }
 
-    @Nullable
-    public Map<String, Object> getItem() throws IOException {
-        try {
-            return item == null ? null : item.getObject();
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("Error while reading item in slot %d. Please forward this error including the information about the traded item of %s to %s.", slot, sender, recipient), e);
-        }
+    public byte @Nullable [] getItem() throws IOException {
+        return item;
     }
 
     public int getSlot() {

@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public abstract class Trade {
@@ -79,9 +80,14 @@ public abstract class Trade {
     protected abstract void initializeGUIs();
 
     /**
+     * Create trading GUIs for all participants.
+     */
+    protected abstract void createGUIs();
+
+    /**
      * Open trading GUIs for all participants.
      */
-    protected abstract void startGUI();
+    protected abstract void startGUIs();
 
     /**
      * Note: Player with id=0 is never null.
@@ -127,6 +133,12 @@ public abstract class Trade {
     @NotNull
     protected abstract PlayerInventory getPlayerInventory(@NotNull Perspective perspective);
 
+    /**
+     * Synchronizes the inventory of the player to prepare for checking item overflow or other things.
+     *
+     * @param perspective The perspective that should be checked.
+     */
+    public abstract void synchronizePlayerInventory(@NotNull Perspective perspective);
 
     /**
      * @param perspective The perspective that received the item.
@@ -175,6 +187,13 @@ public abstract class Trade {
     protected abstract @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId);
 
     /**
+     * Marks this trade instance ready for all types of packets.
+     *
+     * @return The future that must be called to continue starting this trade.
+     */
+    protected abstract @NotNull CompletableFuture<Void> markAsInitialized();
+
+    /**
      * @return The players that are participating in the trade.
      */
     @NotNull
@@ -186,8 +205,28 @@ public abstract class Trade {
         buildPattern();     // Build pattern first to
         initializeGUIs();   // use it here for the inventory size.
         startListeners();
-        startGUI();
-        playStartSound();
+
+        // create guis, synchronize inventories and open them
+        createGUIs();
+
+        // mark this trade as initialized and wait before sending any packets
+        markAsInitialized().whenComplete((v, t) -> {
+            if (t != null) {
+                TradeSystem.getInstance().getLogger().log(Level.SEVERE, "Failed to initialize trade", t);
+                cancel();
+                return;
+            }
+
+            // synchronize inventories
+            synchronizePlayerInventory(Perspective.PRIMARY);
+            synchronizePlayerInventory(Perspective.SECONDARY);
+
+            // open guis
+            startGUIs();
+
+            // play start sound
+            playStartSound();
+        });
     }
 
     protected void buildPattern() {

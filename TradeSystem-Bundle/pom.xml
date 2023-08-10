@@ -40,6 +40,18 @@
                             <pattern>org.bstats</pattern>
                             <shadedPattern>de.codingair.tradesystem.lib.bstats</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.google</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.intellij</pattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.intellij</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.jetbrains</pattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.jetbrains</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
 

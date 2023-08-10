@@ -6,6 +6,7 @@ import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
+import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.Material;
@@ -35,15 +36,18 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
-    protected void startGUI() {
+    protected void createGUIs() {
         this.guis[0].prepareStart();
         this.guis[1].prepareStart();
+    }
 
+    @Override
+    protected void startGUIs() {
         try {
             this.guis[0].open();
             this.guis[1].open();
         } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot open trading GUI.", e);
         }
     }
 
@@ -60,6 +64,12 @@ public class BukkitTrade extends Trade {
     @Override
     protected @Nullable ItemStack getCurrentDisplayedItem(@NotNull Perspective perspective, int slotId) {
         return guis[perspective.id()].getItem(otherSlots.get(slotId));
+    }
+
+    @Override
+    protected @NotNull CompletableFuture<Void> markAsInitialized() {
+        // directly continue with the trade
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -111,6 +121,11 @@ public class BukkitTrade extends Trade {
         }
 
         return inventory;
+    }
+
+    @Override
+    public void synchronizePlayerInventory(@NotNull Perspective perspective) {
+        // inventories are always synchronized
     }
 
     @Override

@@ -153,7 +153,7 @@ public class RuleManager {
             case INCOMPATIBLE:
                 assert server != null;
                 TradeSystem.getInstance().getLogger().log(Level.WARNING,
-                        "\"" + player.getName() + "\" tried to trade with \"" + other + "\" on server \"" + server + "\" but the trade configurations from both servers are incompatible.\n\n" +
+                        "\"" + player.getName() + "\" tried to trade with \"" + other + "\" on server \"" + server + "\" but the trade configurations/versions from both servers are incompatible.\n\n" +
                                 "You have two options to solve this:\n" +
                                 "1. Use the group function in the trade-configuration file on your proxy to separate both servers from each other or\n" +
                                 "2. Copy the Config.yml from one server to the other server"

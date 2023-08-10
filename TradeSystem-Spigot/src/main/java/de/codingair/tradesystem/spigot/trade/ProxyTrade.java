@@ -13,6 +13,7 @@ import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 public class ProxyTrade extends Trade {
     private final Player player;
     private final String other;
+    private final CompletableFuture<Void> packetInitialization = new CompletableFuture<>();
     private final UUID otherId;
     private ItemStack[] sent;
     private ItemStack[] received;
@@ -125,31 +126,6 @@ public class ProxyTrade extends Trade {
         TradeSystem.proxyHandler().send(packet, this.player);
     }
 
-    public void synchronizeInventory() {
-        if (guis[0] == null) return;  // we might have already finished this trade
-
-        ItemStack[] contents = player.getInventory().getContents();
-
-        for (int i = 0; i < 36; i++) {
-            if (!ItemStackUtils.isCompatible(contents[i])) {
-
-                continue;
-            }
-            Map<String, Object> data;
-
-            if (contents[i] == null) data = null;
-            else if (ItemStackUtils.isCompatible(contents[i])) data = ItemStackUtils.serializeItemStack(contents[i]);
-            else data = ItemStackUtils.serializeItemStack(getItemPlaceholder(i));
-
-            try {
-                PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
-                TradeSystem.proxyHandler().send(packet, this.player);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     /**
      * Creates an item placeholder for the remote {@link PlayerInventory} since some items cannot be transferred.
      *
@@ -170,7 +146,7 @@ public class ProxyTrade extends Trade {
 
     private void synchronizeItem(int slotId, @Nullable ItemStack item) {
         try {
-            TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serializeItemStack(item), (byte) slotId);
+            TradeItemUpdatePacket packet = new TradeItemUpdatePacket(player.getName(), other, ItemStackUtils.serialize(item), (byte) slotId);
             TradeSystem.proxyHandler().send(packet, this.player);
 
             if (slotId < slots.size()) sent[slotId] = item == null ? null : item.clone();
@@ -228,15 +204,37 @@ public class ProxyTrade extends Trade {
     }
 
     @Override
+    protected @NotNull CompletableFuture<Void> markAsInitialized() {
+        // use other name for packet since we have to send them the packet
+        TradeSystem.proxyHandler().send(new TradeInitializedPacket(other), player);
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+            // cancel trade if other player is not ready
+            packetInitialization.completeExceptionally(new IllegalStateException("Other player did not respond."));
+        }, 20L);
+
+        return packetInitialization;
+    }
+
+    /**
+     * Used to signalize that the first packet was received and all other packets can be sent now.
+     */
+    public void receiveFirstPacket() {
+        packetInitialization.complete(null);
+    }
+
+    @Override
     protected void initializeGUIs() {
         this.guis[0] = new TradingGUI(this.player, this, 0);
     }
 
     @Override
-    protected void startGUI() {
+    protected void createGUIs() {
         this.guis[0].prepareStart();
-        synchronizeInventory();
+    }
 
+    @Override
+    protected void startGUIs() {
         try {
             this.guis[0].open();
         } catch (AlreadyOpenedException | NoPageException | IsWaitingException e) {
@@ -265,7 +263,7 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected void onItemPickUp(@NotNull Perspective perspective) {
-        synchronizeInventory();
+        synchronizePlayerInventory(perspective);
     }
 
     @Override
@@ -306,11 +304,46 @@ public class ProxyTrade extends Trade {
             return inventory;
         }
 
-        return new PlayerInventory(this.otherInventory);
+        // make sure to copy the inventory
+        ItemStack[] otherInventory = new ItemStack[this.otherInventory.length];
+        for (int i = 0; i < otherInventory.length; i++) {
+            otherInventory[i] = this.otherInventory[i] == null ? null : this.otherInventory[i].clone();
+        }
+
+        return new PlayerInventory(otherInventory);
+    }
+
+    @Override
+    public void synchronizePlayerInventory(@NotNull Perspective perspective) {
+        if (!perspective.isPrimary()) return;  // ignore other perspectives
+        if (guis[0] == null) return;           // we might have already finished this trade
+
+        ItemStack[] contents = player.getInventory().getContents();
+
+        for (int slot = 0; slot < 36; slot++) {
+            ItemStack item = contents[slot];
+
+            byte[] data;
+            if (item == null || item.getType() == Material.AIR) data = null;
+            else if (ItemStackUtils.isCompatible(item)) data = ItemStackUtils.serialize(item);
+            else data = ItemStackUtils.serialize(getItemPlaceholder(slot));
+
+            try {
+                PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, slot);
+                TradeSystem.proxyHandler().send(packet, this.player);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void setOtherInventory(int slot, @Nullable ItemStack item) {
         this.otherInventory[slot] = item;
+
+        boolean cannotDropItems = !TradeSystem.getInstance().getTradeManager().isDropItems();
+        if (cannotDropItems) {
+            cancelItemOverflow(Perspective.PRIMARY);
+        }
     }
 
     @Override
