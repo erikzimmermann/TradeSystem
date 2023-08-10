@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TradeInitializedPacketHandler implements PacketHandler<TradeInitializedPacket> {
-    private static final long MAX_WAITING_TIME = 1000 * 10;
+    private static final long MAX_WAITING_TIME = 1000;
 
     @Override
     public void process(@NotNull TradeInitializedPacket packet, @NotNull Proxy proxy, @Nullable Object connection, @NotNull Direction direction) {

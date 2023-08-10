@@ -13,6 +13,7 @@ import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -204,7 +205,14 @@ public class ProxyTrade extends Trade {
 
     @Override
     protected @NotNull CompletableFuture<Void> markAsInitialized() {
-        TradeSystem.proxyHandler().send(new TradeInitializedPacket(player.getName()), player);
+        // use other name for packet since we have to send them the packet
+        TradeSystem.proxyHandler().send(new TradeInitializedPacket(other), player);
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+            // cancel trade if other player is not ready
+            packetInitialization.completeExceptionally(new IllegalStateException("Other player did not respond."));
+        }, 20L);
+
         return packetInitialization;
     }
 
@@ -312,16 +320,16 @@ public class ProxyTrade extends Trade {
 
         ItemStack[] contents = player.getInventory().getContents();
 
-        for (int i = 0; i < 36; i++) {
-            if (!ItemStackUtils.isCompatible(contents[i])) continue;
-            byte[] data;
+        for (int slot = 0; slot < 36; slot++) {
+            ItemStack item = contents[slot];
 
-            if (contents[i] == null || contents[i].getType() == Material.AIR) data = null;
-            else if (ItemStackUtils.isCompatible(contents[i])) data = ItemStackUtils.serialize(contents[i]);
-            else data = ItemStackUtils.serialize(getItemPlaceholder(i));
+            byte[] data;
+            if (item == null || item.getType() == Material.AIR) data = null;
+            else if (ItemStackUtils.isCompatible(item)) data = ItemStackUtils.serialize(item);
+            else data = ItemStackUtils.serialize(getItemPlaceholder(slot));
 
             try {
-                PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, i);
+                PlayerInventoryPacket packet = new PlayerInventoryPacket(player.getName(), other, data, slot);
                 TradeSystem.proxyHandler().send(packet, this.player);
             } catch (IOException e) {
                 throw new RuntimeException(e);
