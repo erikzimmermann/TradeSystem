@@ -125,7 +125,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @Nullable BigDecimal getValue() {
+    public @NotNull BigDecimal getValue() {
         return value;
     }
 
