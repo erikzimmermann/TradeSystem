@@ -1,6 +1,7 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.gui;
 
 import de.codingair.tradesystem.spigot.trade.Trade;
+import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,8 +14,8 @@ public abstract class SimpleSignGUIIcon<G> extends SignGUIIcon<G> {
     }
 
     @Override
-    public @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player viewer) {
-        String input = makeString(viewer, getValue());
+    public @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        String input = makeString(trade, perspective, viewer, getValue(), true);
 
         String[] text = new String[4];
         text[0] = input;

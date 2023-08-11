@@ -28,14 +28,14 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
 
     @Override
     public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
-        String[] test = buildSignLines(trade, viewer);
+        String[] test = buildSignLines(trade, perspective, viewer);
         if (test != null && test.length > 4)
             throw new IllegalStateException("Cannot open a SignGUI with more than 4 lines! Note that the first line will be used for the player input. Lines: " + Arrays.toString(test));
 
         Perspective viewPerspective = trade.getPerspective(viewer);
 
         return new SignButton(() -> {
-            String[] text = buildSignLines(trade, viewer);
+            String[] text = buildSignLines(trade, perspective, viewer);
             if (text == null || text.length < 4) return new String[0];
             else return text;
         }) {
@@ -84,11 +84,12 @@ public abstract class SignGUIIcon<G> extends LayoutIcon implements TradeIcon, Cl
     }
 
     /**
-     * @param trade  The trade instance.
-     * @param viewer The player that is viewing the trade GUI. This is not necessarily the trading player.
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the trading player.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return The sign GUI lines. Must have a maximum length of 3 (the very first line of the SignGUI will be used for the input). Will be ignored if returning null.
      */
-    public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Player viewer);
+    public abstract @Nullable String[] buildSignLines(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer);
 
     @Override
     public boolean isDisabled() {

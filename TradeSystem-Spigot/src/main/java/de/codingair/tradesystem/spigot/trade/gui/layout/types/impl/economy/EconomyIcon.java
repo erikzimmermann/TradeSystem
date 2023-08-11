@@ -96,7 +96,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
         BigDecimal max = getBalance(player);
         if (input.compareTo(max) > 0) {
-            Lang.send(viewer, "Only_X_Amount", new Lang.P("amount", makeString(viewer, max)), new Lang.P("type", getName(viewer, max.equals(BigDecimal.ONE))));
+            Lang.send(viewer, "Only_X_Amount", new Lang.P("amount", makeString(trade, perspective, viewer, max, true)), new Lang.P("type", getName(viewer, max.equals(BigDecimal.ONE))));
             return IconResult.GUI;
         }
 
@@ -105,11 +105,11 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     }
 
     @Override
-    public @NotNull String makeString(@NotNull Player viewer, @Nullable BigDecimal current) {
+    public @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable BigDecimal current, boolean payment) {
         return makeFancyString(current, decimal);
     }
 
-    public static @NotNull String makeFancyString(@Nullable BigDecimal current, boolean decimal) {
+    static @NotNull String makeFancyString(@Nullable BigDecimal current, boolean decimal) {
         if (current == null) return "";
 
         Map.Entry<String, BigDecimal> shortcut = TradeSystem.handler().getApplicableMoneyShortcut(current);
@@ -144,7 +144,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         Player player = trade.getPlayer(perspective);
         if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
 
-        layout.setName("§e" + getName(player, false) + ": §7" + makeString(player, value));
+        layout.setName("§e" + getName(player, false) + ": §7" + makeString(trade, perspective, player, value, true));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", viewer));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
@@ -176,10 +176,10 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         if (player == null) throw new NullPointerException("Player with perspective " + perspective + " is null");
 
         BigDecimal diff = getOverallDifference(trade, perspective);
-
-        String fancyDiff = TradeSystem.handler().getMoneyPattern().format(decimal ? diff : diff.toBigInteger());
-
         int sign = diff.signum();
+
+        String fancyDiff = makeString(trade, perspective, viewer, diff, sign < 0);
+
         if (sign < 0) {
             withdraw(player, diff.negate());
             log(trade, TradeLog.OFFERED_AMOUNT, trade.getNames()[perspective.id()], namePlural, fancyDiff);

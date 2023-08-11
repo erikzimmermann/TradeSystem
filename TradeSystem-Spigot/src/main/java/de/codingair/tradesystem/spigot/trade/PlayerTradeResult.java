@@ -109,11 +109,11 @@ public class PlayerTradeResult extends TradeResult {
             boolean singular = diff.equals(BigDecimal.ONE);
             if (receive) {
                 Lang.P info = new Lang.P("object",
-                        EconomyIcon.makeFancyString(diff, icon.isDecimal()) + " " + icon.getName(player, singular));
+                        icon.makeString(trade, perspective, player, diff, false) + " " + icon.getName(player, singular));
                 lines.add(Lang.get("Trade_Finish_Report_Receive", player, info));
             } else {
                 Lang.P info = new Lang.P("object",
-                        EconomyIcon.makeFancyString(diff.negate(), icon.isDecimal()) + " " + icon.getName(player, singular));
+                        icon.makeString(trade, perspective, player, diff.negate(), true) + " " + icon.getName(player, singular));
                 lines.add(Lang.get("Trade_Finish_Report_Give", player, info));
             }
         }

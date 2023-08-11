@@ -22,7 +22,7 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
     /**
      * @return The target class.
      */
-    Class<T> getTargetClass();
+    @NotNull Class<T> getTargetClass();
 
     interface Consumer<G> {
         /**
@@ -36,5 +36,10 @@ public interface Transition<T extends TradeIcon & Transition.Consumer<G>, G> {
          * @return The current stored value.
          */
         @NotNull G getValue();
+
+        /**
+         * @return The origin class.
+         */
+        @NotNull Class<? extends TradeIcon> getOriginClass();
     }
 }

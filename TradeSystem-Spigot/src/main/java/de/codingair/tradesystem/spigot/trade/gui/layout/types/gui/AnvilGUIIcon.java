@@ -52,7 +52,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
 
             @Override
             public ItemStack buildAnvilItem() {
-                return AnvilGUIIcon.this.buildAnvilItem(trade, viewer);
+                return AnvilGUIIcon.this.buildAnvilItem(trade, perspective, viewer);
             }
 
             @Override
@@ -82,11 +82,12 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
     }
 
     /**
-     * @param trade  The trade instance.
-     * @param viewer The player that is viewing the trade GUI. This is not necessarily the trading player.
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the trading player.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
      * @return The AnvilGUI item which will be used for the rename function.
      */
-    public abstract @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Player viewer);
+    public abstract @NotNull ItemStack buildAnvilItem(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer);
 
     @Override
     public boolean isDisabled() {
