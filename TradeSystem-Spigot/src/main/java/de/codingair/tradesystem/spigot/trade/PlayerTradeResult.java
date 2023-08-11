@@ -22,7 +22,7 @@ public class PlayerTradeResult extends TradeResult {
     private final Player player;
 
     public PlayerTradeResult(@NotNull Trade trade, @NotNull Player player, @NotNull Perspective perspective) {
-        super(perspective);
+        super(player.getUniqueId(), perspective);
         this.trade = trade;
         this.player = player;
     }

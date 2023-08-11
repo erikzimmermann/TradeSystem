@@ -542,8 +542,11 @@ public abstract class Trade {
 
     @NotNull
     private TradeResult createResult(@NotNull Perspective perspective) {
+        if (perspective.isTertiary()) throw new IllegalArgumentException("Perspective cannot be tertiary.");
+
         Player player = getPlayer(perspective);
-        TradeResult result = player == null ? new TradeResult(perspective) : new PlayerTradeResult(this, player, perspective);
+        UUID id = getUniqueId(perspective);
+        TradeResult result = player == null ? new TradeResult(id, perspective) : new PlayerTradeResult(this, player, perspective);
 
         for (int i = 0; i < slots.size(); i++) {
             result.add(getCurrentOfferedItem(perspective, i), false);

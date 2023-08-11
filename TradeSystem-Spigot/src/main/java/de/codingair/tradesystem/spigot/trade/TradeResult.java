@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class represents the result of a trade. It contains all items and economy icons that were exchanged.
@@ -16,25 +17,37 @@ import java.util.List;
  * It also holds the information in case of cancelled trades which means that no goods were exchanged at all (see {@link de.codingair.tradesystem.spigot.events.TradeFinishEvent}).
  */
 public class TradeResult {
+    protected final UUID playerId;
     protected final Perspective perspective;
     protected final List<ItemStack> receivingItems = new ArrayList<>();
     protected final List<ItemStack> sendingItems = new ArrayList<>();
     protected final List<EconomyIcon<?>> economyIcons = new ArrayList<>();
 
-    public TradeResult(@NotNull Perspective perspective) {
+    public TradeResult(@NotNull UUID playerId, @NotNull Perspective perspective) {
+        this.playerId = playerId;
         this.perspective = perspective;
+    }
+
+    /**
+     * @return The ID of the player who received the result.
+     */
+    @NotNull
+    public UUID getPlayerId() {
+        return playerId;
     }
 
     /**
      * @return The perspective of the player who received the result.
      */
-    public Perspective getPlayerId() {
+    @NotNull
+    public Perspective getPerspective() {
         return perspective;
     }
 
     /**
      * @return All items that were received during the exchange.
      */
+    @NotNull
     public List<ItemStack> getReceivingItems() {
         return receivingItems;
     }
@@ -42,6 +55,7 @@ public class TradeResult {
     /**
      * @return All items that were sent during the exchange.
      */
+    @NotNull
     public List<ItemStack> getSendingItems() {
         return sendingItems;
     }
@@ -49,6 +63,7 @@ public class TradeResult {
     /**
      * @return All (original) economy icons that were exchanged. Changing any values result in modified trades!
      */
+    @NotNull
     public List<EconomyIcon<?>> getEconomyIcons() {
         return economyIcons;
     }
