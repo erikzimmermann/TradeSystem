@@ -48,6 +48,10 @@
                             <pattern>org.jetbrains</pattern>
                             <shadedPattern>de.codingair.tradesystem.lib.jetbrains</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.google.gson</pattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.gson</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
 
