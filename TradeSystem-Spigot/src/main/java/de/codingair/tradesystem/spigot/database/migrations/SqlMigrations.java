@@ -68,9 +68,15 @@ public abstract class SqlMigrations {
 
                 // run migrations
                 for (Migration migration : e.getValue()) {
-                    try (Statement stmt = connect.createStatement()) {
-                        String sql = migration.getStatement();
-                        stmt.execute(sql);
+                    String[] commands;
+                    if (migration instanceof Migration.MultiMigration) {
+                        commands = ((Migration.MultiMigration) migration).getStatements();
+                    } else commands = new String[]{migration.getStatement()};
+
+                    for (String command : commands) {
+                        try (Statement stmt = connect.createStatement()) {
+                            stmt.execute(command);
+                        }
                     }
                 }
 
