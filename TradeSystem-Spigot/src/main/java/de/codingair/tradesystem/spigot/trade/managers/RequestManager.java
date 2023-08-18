@@ -40,7 +40,7 @@ public class RequestManager {
     }
 
     private static void sendRequest(@NotNull Player sender, @NotNull String invited) {
-        TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), sender.getUniqueId(), invited, TradeSystem.proxy().getTradeHash()), sender)
+        TradeSystem.proxyHandler().send(new TradeInvitePacket(sender.getName(), sender.getUniqueId(), invited, TradeSystem.proxy().getTradeHash(), sender.getWorld().getName()), sender)
                 .whenComplete((result, t) -> {
                     if (t != null) throw new RuntimeException(t);
                     else RuleManager.handle(sender, invited, result);

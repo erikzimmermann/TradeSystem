@@ -135,19 +135,17 @@ public class InvitationManager {
             Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, other.getUniqueId(), other, player.getName(), player.getUniqueId(), player, true));
 
             Lang.send(other, "Request_Was_Accepted", new Lang.P("player", player.getName()));
-            TradeSystem.getInstance().getTradeManager().startTrade(other, player, player.getName(), player.getUniqueId(), true);
+            TradeSystem.getInstance().getTradeManager().startTrade(other, player);
         } else {
             //START PROXY
-            TradeSystem.proxyHandler().send(new TradeInvitePacket(player.getName(), player.getUniqueId(), name, TradeSystem.proxy().getTradeHash()), player).whenComplete((suc, t) -> {
+            TradeSystem.proxyHandler().send(new TradeInvitePacket(player.getName(), player.getUniqueId(), name, TradeSystem.proxy().getTradeHash(), player.getWorld().getName()), player).whenComplete((suc, t) -> {
                 if (t != null) throw new RuntimeException(t);
                 else {
                     if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
-                        if (suc.getRecipientId() == null) throw new IllegalStateException("RecipientId is null");
-
                         //call event
                         Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, suc.getRecipientId(), null, player.getName(), player.getUniqueId(), player, true)));
 
-                        TradeSystem.getInstance().getTradeManager().startTrade(player, null, name, suc.getRecipientId(), false);
+                        TradeSystem.getInstance().getTradeManager().startTrade(player, name, suc.getRecipientId(), suc.getWorld(), suc.getServer(), false);
                     } else RuleManager.message(player, name, suc.getResult(), suc.getServer());
                 }
             });
@@ -261,7 +259,7 @@ public class InvitationManager {
                 //call event
                 Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, TradeSystem.proxy().getCaseSensitive(invitation.getName()), invitation.getId(), null, false));
 
-                TradeSystem.proxyHandler().send(new InviteResponsePacket(invitation.getName(), sender.getName(), sender.getUniqueId(), false, false).noFuture(), sender);
+                TradeSystem.proxyHandler().send(new InviteResponsePacket(invitation.getName(), sender.getName(), sender.getUniqueId(), sender.getWorld().getName(), false, false).noFuture(), sender);
                 Lang.send(sender, "Request_Denied", new Lang.P("player", invitation.getName()));
             } else Lang.send(sender, "Player_Of_Request_Not_Online");
             return;
@@ -283,7 +281,7 @@ public class InvitationManager {
 
                 if (RuleManager.isViolatingRules(sender)) return;
 
-                TradeSystem.proxyHandler().send(new InviteResponsePacket(name, sender.getName(), sender.getUniqueId(), true, false), sender, 1000).whenComplete((suc, t) -> {
+                TradeSystem.proxyHandler().send(new InviteResponsePacket(name, sender.getName(), sender.getUniqueId(), sender.getWorld().getName(), true, false), sender, 1000).whenComplete((suc, t) -> {
                     if (t != null) {
                         if (t instanceof TimeOutException) return; // external plugin handling
                         t.printStackTrace();
@@ -295,7 +293,7 @@ public class InvitationManager {
                             invalidate(sender, invitation);
 
                             Lang.send(sender, "Request_Accepted");
-                            TradeSystem.getInstance().getTradeManager().startTrade(sender, null, name, invitation.getId(), false);
+                            TradeSystem.getInstance().getTradeManager().startTrade(sender, name, invitation.getId(), suc.getWorld(), suc.getServer(), false);
                         } else if (suc.getResult() == InviteResponsePacket.Result.NOT_ONLINE) {
                             Lang.send(sender, "Player_Of_Request_Not_Online");
                         } else if (suc.getResult() == InviteResponsePacket.Result.OTHER_GROUP) {
@@ -317,7 +315,7 @@ public class InvitationManager {
         Lang.send(sender, "Request_Accepted");
         Lang.send(other, "Request_Was_Accepted", new Lang.P("player", sender.getName()));
 
-        TradeSystem.getInstance().getTradeManager().startTrade(other, sender, sender.getName(), sender.getUniqueId(), true);
+        TradeSystem.getInstance().getTradeManager().startTrade(other, sender);
     }
 
     public boolean isInvited(@NotNull Player inviter, @NotNull String receiver) {

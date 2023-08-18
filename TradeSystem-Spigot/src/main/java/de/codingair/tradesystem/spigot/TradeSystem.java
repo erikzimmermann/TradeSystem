@@ -21,7 +21,8 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler
 import de.codingair.tradesystem.spigot.trade.listeners.*;
 import de.codingair.tradesystem.spigot.trade.managers.CommandManager;
 import de.codingair.tradesystem.spigot.trade.managers.InvitationManager;
-import de.codingair.tradesystem.spigot.transfer.ProxyDataManager;
+import de.codingair.tradesystem.spigot.transfer.ProxyDataHandler;
+import de.codingair.tradesystem.spigot.transfer.ProxyDataListener;
 import de.codingair.tradesystem.spigot.transfer.SpigotHandler;
 import de.codingair.tradesystem.spigot.utils.BackwardSupport;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -48,7 +49,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final FileManager fileManager = new FileManager(this);
 
     private final SpigotHandler spigotHandler = new SpigotHandler(this);
-    private final ProxyDataManager proxyDataManager = new ProxyDataManager();
+    private final ProxyDataHandler proxyDataHandler = new ProxyDataHandler();
 
     private final UpdateNotifier updateNotifier = new UpdateNotifier(getDescription().getVersion(), "TradeSystem", 58434);
     private boolean needsUpdate = false;
@@ -73,8 +74,8 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         return instance.spigotHandler;
     }
 
-    public static ProxyDataManager proxy() {
-        return instance.proxyDataManager;
+    public static ProxyDataHandler proxy() {
+        return instance.proxyDataHandler;
     }
 
     public static DatabaseHandler database() {
@@ -109,6 +110,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             //register packet channels before listening to events
             this.spigotHandler.onEnable();
+            this.proxyDataHandler.onEnable();
 
             Permissions.checkPermissions(firstSetup);
             registerCommands();
@@ -138,7 +140,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             //unregister packet channels
             this.spigotHandler.onDisable();
-            this.proxyDataManager.onDisable();
+            this.proxyDataHandler.onDisable();
 
             HandlerList.unregisterAll(this);
             this.fileManager.destroy();
@@ -206,6 +208,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         Bukkit.getPluginManager().registerEvents(new TradeGUIListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinNoteListener(), this);
         Bukkit.getPluginManager().registerEvents(new PublishSkinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ProxyDataListener(), this);
     }
 
     private void registerCommands() {

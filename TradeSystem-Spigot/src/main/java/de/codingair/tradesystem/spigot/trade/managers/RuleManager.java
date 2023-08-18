@@ -46,7 +46,6 @@ public class RuleManager {
 
     public static void handle(@NotNull Player player, @NotNull String other, @NotNull TradeInvitePacket.ResultPacket result) {
         if (result.getResult() == TradeInvitePacket.Result.INVITED) {
-            if (result.getRecipientId() == null) throw new IllegalStateException("RecipientId is null!");
             InvitationManager.registerInvitation(player, player.getName(), result.getRecipientId(), null, other);
         }
 

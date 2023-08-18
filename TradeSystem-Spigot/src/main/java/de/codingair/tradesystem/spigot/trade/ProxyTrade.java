@@ -33,16 +33,20 @@ public class ProxyTrade extends Trade {
     private final String other;
     private final CompletableFuture<Void> packetInitialization = new CompletableFuture<>();
     private final UUID otherId;
+    private final String otherWorld;
+    private final String otherServer;
     private ItemStack[] sent;
     private ItemStack[] received;
     private final ItemStack[] otherInventory = new ItemStack[36];
     private final CompletableFuture<Boolean> finishCheck = new CompletableFuture<>();
 
-    public ProxyTrade(@NotNull Player player, @NotNull String other, @NotNull UUID otherId, boolean initiationServer) {
+    public ProxyTrade(@NotNull Player player, @NotNull String other, @NotNull UUID otherId, boolean initiationServer, @NotNull String otherWorld, @NotNull String otherServer) {
         super(player.getName(), other, initiationServer);
         this.player = player;
         this.other = other;
         this.otherId = otherId;
+        this.otherWorld = otherWorld;
+        this.otherServer = otherServer;
     }
 
     @Override
@@ -246,6 +250,19 @@ public class ProxyTrade extends Trade {
     public @Nullable Player getPlayer(@NotNull Perspective perspective) {
         if (perspective == Perspective.PRIMARY) return player;
         return null;
+    }
+
+    @Override
+    public @NotNull String getWorld(@NotNull Perspective perspective) {
+        if (perspective == Perspective.PRIMARY) return player.getWorld().getName();
+        else if (perspective == Perspective.SECONDARY) return otherWorld;
+        throw new IllegalArgumentException("Unknown perspective: " + perspective);
+    }
+
+    @Override
+    public @Nullable String getServer(@NotNull Perspective perspective) {
+        if (perspective == Perspective.SECONDARY) return otherServer;
+        return TradeSystem.proxy().getServerName();
     }
 
     @Override

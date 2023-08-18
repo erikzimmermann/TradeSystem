@@ -18,13 +18,17 @@ import java.util.UUID;
  */
 public class TradeResult {
     protected final UUID playerId;
+    protected final String playerWorld;
+    protected final String playerServer;
     protected final Perspective perspective;
     protected final List<ItemStack> receivingItems = new ArrayList<>();
     protected final List<ItemStack> sendingItems = new ArrayList<>();
     protected final List<EconomyIcon<?>> economyIcons = new ArrayList<>();
 
-    public TradeResult(@NotNull UUID playerId, @NotNull Perspective perspective) {
+    public TradeResult(@NotNull UUID playerId, @NotNull String playerWorld, @Nullable String playerServer, @NotNull Perspective perspective) {
         this.playerId = playerId;
+        this.playerWorld = playerWorld;
+        this.playerServer = playerServer;
         this.perspective = perspective;
     }
 
@@ -34,6 +38,22 @@ public class TradeResult {
     @NotNull
     public UUID getPlayerId() {
         return playerId;
+    }
+
+    /**
+     * @return The world name of the player who received the result.
+     */
+    @NotNull
+    public String getPlayerWorld() {
+        return playerWorld;
+    }
+
+    /**
+     * @return The server name of the player who received the result if this was a proxy trade.
+     */
+    @Nullable
+    public String getPlayerServer() {
+        return playerServer;
     }
 
     /**

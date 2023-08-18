@@ -26,7 +26,7 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
     public @NotNull CompletableFuture<InviteResponsePacket.ResultPacket> response(@NotNull InviteResponsePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
         Player player = Bukkit.getPlayerExact(packet.getInviter());
         if (player == null) {
-            return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.NOT_ONLINE));
+            return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.NOT_ONLINE, null));
         }
 
         TradeRequestPreResponseEvent e = new TradeRequestPreResponseEvent(player.getName(), player.getUniqueId(), player, packet.getResponding(), packet.getRespondingId(), null, packet.isAccept());
@@ -39,8 +39,8 @@ public class InviteResponsePacketHandler implements ResponsiblePacketHandler<Inv
         TradeSystem.invitations().invalidate(player, packet.getResponding());
         if (packet.isAccept()) {
             //start
-            TradeSystem.handler().startTrade(player, null, packet.getResponding(), packet.getRespondingId(), true);
-            return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS));
+            TradeSystem.handler().startTrade(player, packet.getResponding(), packet.getRespondingId(), packet.getRespondingWorld(), packet.getRespondingServer(), true);
+            return CompletableFuture.completedFuture(new InviteResponsePacket.ResultPacket(InviteResponsePacket.Result.SUCCESS, player.getWorld().getName()));
         } else {
             //ignored answer
             Lang.send(player, "Request_Was_Denied", new Lang.P("player", packet.getResponding()));

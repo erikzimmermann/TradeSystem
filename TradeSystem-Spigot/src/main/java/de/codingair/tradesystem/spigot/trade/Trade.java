@@ -100,6 +100,20 @@ public abstract class Trade {
 
     /**
      * @param perspective The perspective that should be checked.
+     * @return The world name of the player with the given perspective.
+     */
+    @NotNull
+    public abstract String getWorld(@NotNull Perspective perspective);
+
+    /**
+     * @param perspective The perspective that should be checked.
+     * @return The server name of the player with the given perspective.
+     */
+    @Nullable
+    public abstract String getServer(@NotNull Perspective perspective);
+
+    /**
+     * @param perspective The perspective that should be checked.
      * @return The {@link UUID} of the player with the given id.
      */
     @NotNull
@@ -555,7 +569,7 @@ public abstract class Trade {
 
         Player player = getPlayer(perspective);
         UUID id = getUniqueId(perspective);
-        TradeResult result = player == null ? new TradeResult(id, perspective) : new PlayerTradeResult(this, player, perspective);
+        TradeResult result = player == null ? new TradeResult(id, getWorld(perspective), getServer(perspective), perspective) : new PlayerTradeResult(this, player, perspective);
 
         for (int i = 0; i < slots.size(); i++) {
             result.add(getCurrentOfferedItem(perspective, i), false);

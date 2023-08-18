@@ -5,14 +5,18 @@ import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ProxyDataManager {
+public class ProxyDataHandler implements PluginMessageListener {
     //abbreviation to case-sensitive name
     private final Map<String, String> cache = new HashMap<>();
 
@@ -31,8 +35,17 @@ public class ProxyDataManager {
      */
     private final HashMap<String, String> skins = new HashMap<>();
     private String tradeProxyVersion = null;
+    private String serverName = null;
+
+    public void onEnable() {
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
+        checkForServerName();
+    }
 
     public void onDisable() {
+        Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
+        Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
         this.players.clear();
     }
 
@@ -143,5 +156,49 @@ public class ProxyDataManager {
 
     public void setTradeProxyVersion(@NotNull String tradeProxyVersion) {
         this.tradeProxyVersion = tradeProxyVersion;
+    }
+
+    public void checkForServerName() {
+        if (serverName != null) return;
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+            if (serverName != null) return;
+
+            Player player = Bukkit.getOnlinePlayers().stream().findAny().orElse(null);
+            if (player == null) return;
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+
+            try {
+                dos.writeUTF("GetServer");
+            } catch (IOException e) {
+                throw new RuntimeException("Could not write plugin message", e);
+            }
+
+            player.sendPluginMessage(TradeSystem.getInstance(), "BungeeCord", baos.toByteArray());
+        }, 20);
+    }
+
+    @Override
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+        if (!channel.equals("BungeeCord")) return;
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(message);
+        DataInputStream dis = new DataInputStream(bais);
+
+        try {
+            String subChannel = dis.readUTF();
+            if (!subChannel.equals("GetServer")) return;
+
+            serverName = dis.readUTF();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read plugin message", e);
+        }
+    }
+
+    @Nullable
+    public String getServerName() {
+        return serverName;
     }
 }
