@@ -131,6 +131,7 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
             flags.setBit(2, this.recipientId != null);
 
             if (this.server != null) out.writeUTF(this.server);
+            if (this.world != null) out.writeUTF(this.world);
             if (this.recipientId != null) {
                 out.writeLong(this.recipientId.getMostSignificantBits());
                 out.writeLong(this.recipientId.getLeastSignificantBits());
