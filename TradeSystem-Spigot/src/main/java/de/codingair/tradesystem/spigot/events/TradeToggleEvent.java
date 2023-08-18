@@ -1,8 +1,6 @@
 package de.codingair.tradesystem.spigot.events;
 
 import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
-import de.codingair.tradesystem.spigot.trade.TradeResult;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
