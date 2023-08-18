@@ -92,6 +92,10 @@ public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.
         return respondingServer;
     }
 
+    public void setRespondingServer(@NotNull String respondingServer) {
+        this.respondingServer = respondingServer;
+    }
+
     @NotNull
     public String getRespondingWorld() {
         return respondingWorld;
@@ -164,8 +168,10 @@ public class InviteResponsePacket implements RequestPacket<InviteResponsePacket.
             return server;
         }
 
-        public void setServer(@NotNull String server) {
+        @NotNull
+        public ResultPacket setServer(@NotNull String server) {
             this.server = server;
+            return this;
         }
 
         @NotNull

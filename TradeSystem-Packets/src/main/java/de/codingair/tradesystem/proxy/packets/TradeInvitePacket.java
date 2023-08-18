@@ -172,8 +172,10 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
             return server;
         }
 
-        public void setServer(@NotNull String server) {
+        @NotNull
+        public ResultPacket setServer(@NotNull String server) {
             this.server = server;
+            return this;
         }
 
         @NotNull
