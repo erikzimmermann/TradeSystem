@@ -87,6 +87,16 @@ public class BukkitTrade extends Trade {
     }
 
     @Override
+    public @NotNull String getWorld(@NotNull Perspective perspective) {
+        return players[perspective.id()].getWorld().getName();
+    }
+
+    @Override
+    public @Nullable String getServer(@NotNull Perspective perspective) {
+        return TradeSystem.proxy().getServerName();
+    }
+
+    @Override
     public @NotNull UUID getUniqueId(@NotNull Perspective perspective) {
         return players[perspective.id()].getUniqueId();
     }

@@ -315,6 +315,14 @@ public class TradeHandler {
         file.saveConfig();
     }
 
+    public void startTrade(@NotNull Player player, @NotNull Player other) {
+        startTrade(player, other, other.getName(), other.getUniqueId(), other.getWorld().getName(), null, true);
+    }
+
+    public void startTrade(@NotNull Player player, @NotNull String othersName, @NotNull UUID otherId, @NotNull String otherWorld, @NotNull String otherServer, boolean initiationServer) {
+        startTrade(player, null, othersName, otherId, otherWorld, otherServer, initiationServer);
+    }
+
     /**
      * Starts a trade between two players.
      *
@@ -324,21 +332,21 @@ public class TradeHandler {
      * @param otherId          The id of the other player.
      * @param initiationServer If the trade is started on the proxy.
      */
-    public void startTrade(Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, boolean initiationServer) {
+    private void startTrade(@NotNull Player player, @Nullable Player other, @NotNull String othersName, @NotNull UUID otherId, @NotNull String otherWorld, @Nullable String otherServer, boolean initiationServer) {
         if (TradeSystem.handler().isTrading(player) || TradeSystem.handler().isTrading(other)) {
             Lang.send(player, "Other_is_already_trading");
             return;
         }
-
-        //log only one start (proxy trades have a start on each server)
-        if (initiationServer) TradeLogService.log(player.getName(), othersName, TradeLog.STARTED.get());
 
         MetricsManager.TRADES++;
 
         player.closeInventory();
         if (other != null) other.closeInventory();
 
-        Trade trade = createTrade(player, other, othersName, otherId, initiationServer);
+        Trade trade = createTrade(player, other, othersName, otherId, otherWorld, otherServer, initiationServer);
+
+        //log only one start (proxy trades have a start on each server)
+        if (initiationServer) TradeLogService.log(player.getName(), othersName, TradeLog.STARTED.get());
 
         //register
         registerTrade(trade, player.getName());
@@ -356,9 +364,13 @@ public class TradeHandler {
     }
 
     @NotNull
-    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name, @NotNull UUID otherId, boolean initiationServer) {
+    private Trade createTrade(Player player, @Nullable Player other, @NotNull String name, @NotNull UUID otherId, @NotNull String otherWorld, @Nullable String otherServer, boolean initiationServer) {
         if (other != null) return new BukkitTrade(player, other, initiationServer);
-        else return new ProxyTrade(player, name, otherId, initiationServer);
+        else {
+            if (otherServer == null)
+                throw new IllegalArgumentException("'otherServer' cannot be null when creating a ProxyTrade");
+            return new ProxyTrade(player, name, otherId, initiationServer, otherWorld, otherServer);
+        }
     }
 
     public void quit(Player player) {

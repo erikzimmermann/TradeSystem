@@ -10,10 +10,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 
-public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Transition.Consumer<BigDecimal> {
+public abstract class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Transition.Consumer<BigDecimal> {
     private final String namePlural;
     private BigDecimal value = BigDecimal.ZERO;
 
@@ -24,14 +25,20 @@ public class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> implements Trans
 
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
-        layout.setName("§e" + getName(viewer) + ": §7" + makeString(viewer, value));
+        layout.setName("§e" + getName(viewer) + ": §7" + makeString(trade, perspective, viewer, value));
         if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
 
         return layout;
     }
 
-    @NotNull
-    protected String makeString(@NotNull Player player, @NotNull BigDecimal value) {
+    /**
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the trading player.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
+     * @param value       The value to be converted.
+     * @return A {@link String} which will be used to display the current value.
+     */
+    protected @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable BigDecimal value) {
         return EconomyIcon.makeFancyString(value, true);
     }
 

@@ -100,6 +100,20 @@ public abstract class Trade {
 
     /**
      * @param perspective The perspective that should be checked.
+     * @return The world name of the player with the given perspective.
+     */
+    @NotNull
+    public abstract String getWorld(@NotNull Perspective perspective);
+
+    /**
+     * @param perspective The perspective that should be checked.
+     * @return The server name of the player with the given perspective.
+     */
+    @Nullable
+    public abstract String getServer(@NotNull Perspective perspective);
+
+    /**
+     * @param perspective The perspective that should be checked.
      * @return The {@link UUID} of the player with the given id.
      */
     @NotNull
@@ -454,21 +468,30 @@ public abstract class Trade {
             boolean[] droppedItems = new boolean[2];
             TradeResult[] results = createResults();
 
-            // exchange goods
+            // exchange items
             for (Perspective perspective : Perspective.main()) {
                 Player player = getPlayer(perspective);
                 if (player == null) continue;
 
                 boolean initiator = isInitiator(perspective);
                 droppedItems[perspective.id()] = exchangeItems(perspective, initiator);
-                exchangeOtherGoods(perspective);
 
                 if (initiator) logFinish = true;
             }
 
+            // prepare and send report
+            for (Perspective perspective : Perspective.main()) {
+                sendReport(perspective, droppedItems[perspective.id()], results[perspective.id()]);
+            }
+
+            // exchange other goods AFTER sending the report for trade icon conformity
+            for (Perspective perspective : Perspective.main()) {
+                exchangeOtherGoods(perspective);
+            }
+
             // finish trade
             for (Perspective perspective : Perspective.main()) {
-                postFinish(perspective, droppedItems[perspective.id()], results[perspective.id()]);
+                postFinish(perspective);
             }
 
             if (logFinish) TradeLogService.logLater(this.names[0], this.names[1], TradeLog.FINISHED.get(), 10);
@@ -542,8 +565,11 @@ public abstract class Trade {
 
     @NotNull
     private TradeResult createResult(@NotNull Perspective perspective) {
+        if (perspective.isTertiary()) throw new IllegalArgumentException("Perspective cannot be tertiary.");
+
         Player player = getPlayer(perspective);
-        TradeResult result = player == null ? new TradeResult(perspective) : new PlayerTradeResult(this, player, perspective);
+        UUID id = getUniqueId(perspective);
+        TradeResult result = player == null ? new TradeResult(id, getWorld(perspective), getServer(perspective), perspective) : new PlayerTradeResult(this, player, perspective);
 
         for (int i = 0; i < slots.size(); i++) {
             result.add(getCurrentOfferedItem(perspective, i), false);
@@ -681,12 +707,8 @@ public abstract class Trade {
         closeTrade(results);
     }
 
-    private void postFinish(@NotNull Perspective perspective, boolean droppedItems, @NotNull TradeResult result) {
+    private void sendReport(@NotNull Perspective perspective, boolean droppedItems, @NotNull TradeResult result) {
         Player player = getPlayer(perspective);
-
-        if (guis[perspective.id()] != null) guis[perspective.id()].clear();
-        TradeSystem.handler().unregisterTrade(names[perspective.id()]);
-
         PlayerTradeResult playerResult = result instanceof PlayerTradeResult ? (PlayerTradeResult) result : null;
         if (player != null && playerResult != null) {
             TradeReportEvent e = getPlayerOpt(perspective.flip())
@@ -698,6 +720,11 @@ public abstract class Trade {
                 player.sendMessage(buildFinishMessages(player, perspective, droppedItems, playerResult, e));
             if (e.isPlayFinishSound()) TradeSystem.handler().playFinishSound(player);
         }
+    }
+
+    private void postFinish(@NotNull Perspective perspective) {
+        if (guis[perspective.id()] != null) guis[perspective.id()].clear();
+        TradeSystem.handler().unregisterTrade(names[perspective.id()]);
     }
 
     /**
@@ -1134,7 +1161,13 @@ public abstract class Trade {
             informTransition(icon, from.flip());
         }
 
-        if (updateIcon) icon.updateItem(this, from);
+        if (updateIcon) {
+            icon.updateItem(this, from);
+
+            if (icon instanceof Transition) {
+                getLayout()[from.id()].getIcon(((Transition<?, ?>) icon).getTargetClass()).updateItem(this, from);
+            }
+        }
     }
 
     protected void informTransition(@NotNull TradeIcon from, @NotNull Perspective to) {

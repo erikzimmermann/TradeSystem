@@ -52,8 +52,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull String makeString(@NotNull Player viewer, @Nullable G current) {
-                        return InputIcon.this.makeString(viewer, current);
+                    public @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G current, boolean payment) {
+                        return InputIcon.this.makeString(trade, perspective, viewer, current, true);
                     }
 
                     @Override
@@ -127,8 +127,8 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
                     }
 
                     @Override
-                    public @NotNull String makeString(@NotNull Player viewer, @Nullable G current) {
-                        return InputIcon.this.makeString(viewer, current);
+                    public @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G current, boolean payment) {
+                        return InputIcon.this.makeString(trade, perspective, viewer, current, true);
                     }
 
                     @Override

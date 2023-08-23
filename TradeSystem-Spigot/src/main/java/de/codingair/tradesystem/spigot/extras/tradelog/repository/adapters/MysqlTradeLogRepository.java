@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +23,12 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
 
     @Override
     public void log(String player1, String player2, String message) {
-        String sql = "INSERT INTO tradelog(player1, player2, message, timestamp) VALUES(?,?,?,?);";
+        String sql = "INSERT INTO tradelog(player1, player2, message) VALUES(?,?,?);";
 
         try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, player1);
             pstmt.setString(2, player2);
             pstmt.setString(3, message);
-            pstmt.setLong(4, System.currentTimeMillis());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -71,7 +69,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
                         rs.getString(2),
                         rs.getString(3),
                         rs.getString(4),
-                        Instant.ofEpochMilli(rs.getLong(5)).atZone(ZoneId.systemDefault()).toLocalDateTime()
+                        rs.getDate(5).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
                 ));
             }
             return result;

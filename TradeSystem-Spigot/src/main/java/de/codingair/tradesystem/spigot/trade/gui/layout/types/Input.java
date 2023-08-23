@@ -28,11 +28,14 @@ public interface Input<G> extends TradeIcon {
     IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G input, @NotNull String origin);
 
     /**
-     * @param viewer  The player that is viewing the trade GUI. This is not necessarily the trading player.
-     * @param current The current value.
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the trading player.
+     * @param viewer      The player that is viewing the trade GUI. This is not necessarily the trading player.
+     * @param current     The current value.
+     * @param payment     Whether the current value is the pay-value or the receive-value.
      * @return A {@link String} which will be used to display the current value.
      */
-    @NotNull String makeString(@NotNull Player viewer, @Nullable G current);
+    @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G current, boolean payment);
 
     /**
      * @return The current value.

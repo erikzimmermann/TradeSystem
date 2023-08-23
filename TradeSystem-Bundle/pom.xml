@@ -5,7 +5,7 @@
     <parent>
         <artifactId>TradeSystem</artifactId>
         <groupId>de.codingair</groupId>
-        <version>2.4.0_Hotfix-3</version>
+        <version>2.4.0_Hotfix-4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -47,6 +47,10 @@
                         <relocation>
                             <pattern>org.jetbrains</pattern>
                             <shadedPattern>de.codingair.tradesystem.lib.jetbrains</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.gson</pattern>
+                            <shadedPattern>de.codingair.tradesystem.lib.gson</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
