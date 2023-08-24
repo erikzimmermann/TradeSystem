@@ -746,9 +746,15 @@ public abstract class Trade {
                     .map(other -> new TradeFinishEvent(player, other, !cancelling, results))
                     .orElseGet(() -> new TradeFinishEvent(player, names[Perspective.SECONDARY.id()], getUniqueId(Perspective.SECONDARY), !cancelling, results));
         } else {
+            // switch trade result order since we are NOT on the initiating server;
+            // we are marked as PRIMARY perspective, but we are actually SECONDARY
+            TradeResult[] swapped = new TradeResult[2];
+            swapped[0] = results[1];
+            swapped[1] = results[0];
+
             e = getPlayerOpt(Perspective.SECONDARY)
-                    .map(other -> new TradeFinishEvent(other, player, !cancelling, results))
-                    .orElseGet(() -> new TradeFinishEvent(names[Perspective.SECONDARY.id()], getUniqueId(Perspective.SECONDARY), player, !cancelling, results));
+                    .map(other -> new TradeFinishEvent(other, player, !cancelling, swapped))
+                    .orElseGet(() -> new TradeFinishEvent(names[Perspective.SECONDARY.id()], getUniqueId(Perspective.SECONDARY), player, !cancelling, swapped));
         }
 
         Bukkit.getPluginManager().callEvent(e);
