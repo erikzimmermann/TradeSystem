@@ -15,7 +15,8 @@ public class MysqlMigrations extends SqlMigrations {
         getInstance().register(TradeSystem.getInstance(),
                 new CreateTradeLogTableMigration(),
                 new AddIndexTradeLogTableMigration(),
-                new ConvertTimestampToDatetimeMigration()
+                new ConvertTimestampToDatetimeMigration(),
+                new CreatePlayerNameTableMigration()
         );
     }
 

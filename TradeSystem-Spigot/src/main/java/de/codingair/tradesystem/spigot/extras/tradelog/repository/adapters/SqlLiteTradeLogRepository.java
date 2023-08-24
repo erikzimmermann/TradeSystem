@@ -1,9 +1,11 @@
 package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
+import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -14,8 +16,22 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SqlLiteTradeLogRepository implements TradeLogRepository {
+
+    @Override
+    public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws SQLException {
+        String sql = "INSERT INTO trade_players(uuid, name) VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET name=?;";
+
+        try (Connection con = MySQLConnection.getConnection().get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, uuid.toString());
+            pstmt.setString(2, name);
+            pstmt.setString(3, name);
+
+            pstmt.executeUpdate();
+        }
+    }
 
     @Override
     public void log(String player1, String player2, String message) {

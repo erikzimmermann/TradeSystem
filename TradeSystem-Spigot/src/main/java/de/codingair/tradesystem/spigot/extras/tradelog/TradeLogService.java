@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TradeLogService {
     private static TradeLogService instance;
@@ -28,6 +29,16 @@ public class TradeLogService {
     private static TradeLogService getTradeLog() {
         if (instance == null) instance = new TradeLogService();
         return instance;
+    }
+
+    public static void registerOrUpdatePlayer(@NotNull UUID uniqueId, @NotNull String name) {
+        if (!connected()) return;
+
+        try {
+            getTradeLog().tradeLogRepository.registerOrUpdatePlayer(uniqueId, name);
+        } catch (Exception e) {
+            TradeSystem.getInstance().getLogger().severe("Failed to register or update player information: " + e.getMessage());
+        }
     }
 
     public static long count(@NotNull String player, @NotNull String message) {

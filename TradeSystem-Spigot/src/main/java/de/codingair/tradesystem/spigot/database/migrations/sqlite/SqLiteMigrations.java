@@ -14,7 +14,8 @@ public class SqLiteMigrations extends SqlMigrations {
     static {
         getInstance().register(TradeSystem.getInstance(),
                 new CreateTradeLogTableMigration(),
-                new AddIndexTradeLogTableMigration()
+                new AddIndexTradeLogTableMigration(),
+                new CreatePlayerNameTableMigration()
         );
     }
 

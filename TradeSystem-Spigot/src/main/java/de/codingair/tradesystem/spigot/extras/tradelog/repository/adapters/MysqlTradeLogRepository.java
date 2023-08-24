@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
+import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.utils.Supplier;
@@ -13,12 +14,26 @@ import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MysqlTradeLogRepository implements TradeLogRepository {
     private final Supplier<Connection, SQLException> connection;
 
     public MysqlTradeLogRepository(@NotNull Supplier<Connection, SQLException> connection) {
         this.connection = connection;
+    }
+
+    @Override
+    public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws SQLException {
+        String sql = "INSERT INTO trade_players(uuid, name) VALUES(?,?) ON DUPLICATE KEY UPDATE name=?;";
+
+        try (Connection con = MySQLConnection.getConnection().get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, uuid.toString());
+            pstmt.setString(2, name);
+            pstmt.setString(3, name);
+
+            pstmt.executeUpdate();
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.ext.Extensions;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteException;
 
 import java.sql.*;
@@ -63,28 +64,38 @@ public abstract class SqlMigrations {
         try (Connection connect = getConnection()) {
             connect.setAutoCommit(false);
 
-            for (Map.Entry<String, List<Migration>> e : getRelevantMigrations().entrySet()) {
-                int latest = migrations.get(e.getKey()).size();
+            Map<String, List<Migration>> migrations = getRelevantMigrations();
 
-                // run migrations
-                for (Migration migration : e.getValue()) {
-                    String[] commands;
-                    if (migration instanceof Migration.MultiMigration) {
-                        commands = ((Migration.MultiMigration) migration).getStatements();
-                    } else commands = new String[]{migration.getStatement()};
+            // run TradeSystem migrations first
+            String pluginUser = TradeSystem.getInstance().getName().toLowerCase();
+            runMigrations(connect, pluginUser, migrations.remove(pluginUser));
 
-                    for (String command : commands) {
-                        try (Statement stmt = connect.createStatement()) {
-                            stmt.execute(command);
-                        }
-                    }
-                }
-
-                setVersion(connect, e.getKey(), latest);
+            // run external migrations
+            for (Map.Entry<String, List<Migration>> e : migrations.entrySet()) {
+                runMigrations(connect, e.getKey(), e.getValue());
             }
 
             connect.commit();
         }
+    }
+
+    private void runMigrations(@NotNull Connection connect, @NotNull String user, @Nullable List<Migration> migrations) throws SQLException {
+        if (migrations == null || migrations.isEmpty()) return;
+
+        for (Migration migration : migrations) {
+            String[] commands;
+            if (migration instanceof Migration.MultiMigration) {
+                commands = ((Migration.MultiMigration) migration).getStatements();
+            } else commands = new String[]{migration.getStatement()};
+
+            for (String command : commands) {
+                try (Statement stmt = connect.createStatement()) {
+                    stmt.execute(command);
+                }
+            }
+        }
+
+        setVersion(connect, user, this.migrations.get(user.toLowerCase()).size());
     }
 
     private void createNewMigrationTable(@NotNull Connection connection, int previousVersion) throws SQLException {
