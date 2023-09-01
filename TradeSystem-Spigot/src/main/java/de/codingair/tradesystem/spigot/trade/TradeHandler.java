@@ -8,6 +8,7 @@ import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.proxy.packets.PlayerStatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
+import de.codingair.tradesystem.spigot.events.TradeToggleEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
@@ -452,12 +453,14 @@ public class TradeHandler {
         if (offline.remove(player.getName())) {
             // removed
             TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), false), player);
+            Bukkit.getPluginManager().callEvent(new TradeToggleEvent(player.getName(),player.getUniqueId(),false));
             return false;
         }
 
         // not contained -> will be added now
         this.offline.add(player.getName());
         TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), true), player);
+        Bukkit.getPluginManager().callEvent(new TradeToggleEvent(player.getName(),player.getUniqueId(),true));
         return true;
     }
 
