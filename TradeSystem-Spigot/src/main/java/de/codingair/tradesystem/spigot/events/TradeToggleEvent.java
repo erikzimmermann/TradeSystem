@@ -3,27 +3,24 @@ package de.codingair.tradesystem.spigot.events;
 import de.codingair.tradesystem.spigot.events.utils.TradeEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 /**
- * Called when a trade is either finished successfully or cancelled.
+ * Called when a player toggled their status of receiving or blocking trade requests.
  */
 public class TradeToggleEvent extends TradeEvent {
     private static final HandlerList handlerList = new HandlerList();
-    private final String playerName;
     private final UUID playerUUID;
+    private final String playerName;
     private final boolean status;
 
     /**
-     * Indicates a proxy trade. Only called on the server of the receiving player.
-     *
-     * @param playerName      The name of the player.
-     * @param playerUUID    The {@link UUID} of the player.
-     * @param status Status of trade toggle.
+     * @param playerUUID The {@link UUID} of the player.
+     * @param playerName The name of the player.
+     * @param status     Status of trade toggle.
      */
-    public TradeToggleEvent(@NotNull String playerName, @NotNull UUID playerUUID, boolean status) {
+    public TradeToggleEvent(@NotNull UUID playerUUID, @NotNull String playerName, boolean status) {
         this.playerName = playerName;
         this.playerUUID = playerUUID;
         this.status = status;
@@ -58,7 +55,6 @@ public class TradeToggleEvent extends TradeEvent {
     /**
      * @return The toggle status
      */
-    @Nullable
     public boolean getStatus() {
         return this.status;
     }
