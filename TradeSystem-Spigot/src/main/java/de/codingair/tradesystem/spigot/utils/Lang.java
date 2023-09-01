@@ -110,16 +110,10 @@ public class Lang {
         if (!folder.exists()) mkDir(folder);
 
         for (String language : LANGUAGES) {
-            InputStream is = plugin.getResource("languages/" + language + ".yml");
-            if (is == null) continue;
-
-            File file = new File(plugin.getDataFolder() + "/Languages/", language + ".yml");
-            if (!file.exists()) {
-                try {
-                    if (file.createNewFile()) copy(is, Files.newOutputStream(file.toPath()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                FileUtils.createFile(plugin, "languages/", "/Languages/", language + ".yml", false);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -232,22 +226,6 @@ public class Lang {
             } catch (SecurityException ex) {
                 throw new IllegalArgumentException("Plugin is not permitted to create a folder!");
             }
-        }
-    }
-
-    private static void copy(InputStream from, OutputStream to) throws IOException {
-        if (from == null) return;
-        if (to == null) throw new NullPointerException();
-
-        byte[] buf = new byte[4096];
-
-        while (true) {
-            int r = from.read(buf);
-            if (r == -1) {
-                return;
-            }
-
-            to.write(buf, 0, r);
         }
     }
 
