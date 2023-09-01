@@ -16,7 +16,12 @@ public class FileUtils {
         InputStream is = plugin.getResource(internalPath + fileName);
         if (is == null) return;
 
-        File file = new File(plugin.getDataFolder() + externalPath, fileName);
+        File folder = new File(plugin.getDataFolder(), externalPath);
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) plugin.getLogger().warning("Could not create folder: " + externalPath);
+        }
+
+        File file = new File(folder, fileName);
         boolean exists = file.exists();
         if (!exists || overwrite) {
             if (!exists && !file.createNewFile()) plugin.getLogger().warning("Could not create file: " + externalPath + fileName);
