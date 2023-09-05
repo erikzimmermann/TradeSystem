@@ -8,6 +8,7 @@ import de.codingair.codingapi.tools.io.lib.JSONArray;
 import de.codingair.tradesystem.proxy.packets.PlayerStatePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeOfferItemEvent;
+import de.codingair.tradesystem.spigot.events.TradeToggleEvent;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
@@ -451,19 +452,28 @@ public class TradeHandler {
     public boolean toggle(Player player) {
         if (offline.remove(player.getName())) {
             // removed
-            TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), false), player);
+            TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getUniqueId(), player.getName(), false), player);
+            Bukkit.getPluginManager().callEvent(new TradeToggleEvent(player.getUniqueId(), player.getName(), false));
             return false;
         }
 
         // not contained -> will be added now
         this.offline.add(player.getName());
-        TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getName(), true), player);
+        TradeSystem.proxyHandler().send(new PlayerStatePacket(player.getUniqueId(), player.getName(), true), player);
+        Bukkit.getPluginManager().callEvent(new TradeToggleEvent(player.getUniqueId(), player.getName(), true));
         return true;
     }
 
-    public void setState(@NotNull String player, boolean online) {
-        if (online) this.offline.remove(player);
-        else this.offline.add(player);
+    public void setState(@NotNull UUID playerId, @NotNull String playerName, boolean online) {
+        if (online) {
+            if (this.offline.remove(playerName)) {
+                Bukkit.getPluginManager().callEvent(new TradeToggleEvent(playerId, playerName, true));
+            }
+        } else {
+            if (this.offline.add(playerName)) {
+                Bukkit.getPluginManager().callEvent(new TradeToggleEvent(playerId, playerName, false));
+            }
+        }
     }
 
     public List<BlockedItem> getBlacklist() {

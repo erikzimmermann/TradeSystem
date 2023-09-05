@@ -11,6 +11,6 @@ import org.jetbrains.annotations.Nullable;
 public class PlayerStatePacketHandler implements PacketHandler<PlayerStatePacket> {
     @Override
     public void process(@NotNull PlayerStatePacket packet, @NotNull Proxy proxy, @Nullable Object o, @NotNull Direction direction) {
-        TradeSystem.handler().setState(packet.getPlayer(), packet.isOnline());
+        TradeSystem.handler().setState(packet.getPlayerId(), packet.getPlayerName(), packet.isOnline());
     }
 }

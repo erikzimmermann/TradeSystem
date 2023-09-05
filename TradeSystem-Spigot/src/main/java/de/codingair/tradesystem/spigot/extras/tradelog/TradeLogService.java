@@ -13,10 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TradeLogService {
     private static TradeLogService instance;
-    private final TradeLogRepository tradeLogRepository = getTradeLogRepository();
     private final boolean bukkitLogger;
 
     private TradeLogService() {
@@ -30,10 +30,20 @@ public class TradeLogService {
         return instance;
     }
 
+    public static void registerOrUpdatePlayer(@NotNull UUID uniqueId, @NotNull String name) {
+        if (!connected()) return;
+
+        try {
+            getTradeLogRepository().registerOrUpdatePlayer(uniqueId, name);
+        } catch (Exception e) {
+            TradeSystem.getInstance().getLogger().severe("Failed to register or update player information: " + e.getMessage());
+        }
+    }
+
     public static long count(@NotNull String player, @NotNull String message) {
         if (!connected()) return 0;
 
-        return getTradeLog().tradeLogRepository.count(player, message);
+        return getTradeLogRepository().count(player, message);
     }
 
     public static void log(@NotNull String player1, @NotNull String player2, @Nullable String message) {
@@ -46,7 +56,7 @@ public class TradeLogService {
         Runnable runnable = () -> {
             if (getTradeLog().bukkitLogger)
                 Bukkit.getLogger().info("TradeLog [" + player1 + ", " + player2 + "] " + message);
-            getTradeLog().tradeLogRepository.log(player1, player2, message);
+            getTradeLogRepository().log(player1, player2, message);
         };
 
         //it will throw an error if the plugin is not enabled
@@ -57,12 +67,12 @@ public class TradeLogService {
 
     public static List<TradeLog.Entry> getLogMessages(String playerName) {
         if (!connected()) return new ArrayList<>();
-        return getTradeLog().tradeLogRepository.getLogMessages(playerName);
+        return getTradeLogRepository().getLogMessages(playerName);
     }
 
     public static boolean haveTraded(@NotNull String player1, @NotNull String player2) {
         if (!connected()) return false;
-        return getTradeLog().tradeLogRepository.haveTraded(player1, player2);
+        return getTradeLogRepository().haveTraded(player1, player2);
     }
 
     public static void haveTraded(@NotNull String player1, @NotNull String player2, @NotNull Callback<Boolean> callback) {
@@ -72,23 +82,22 @@ public class TradeLogService {
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(),
-                () -> callback.accept(getTradeLog().tradeLogRepository.haveTraded(player1, player2))
+                () -> callback.accept(getTradeLogRepository().haveTraded(player1, player2))
         );
     }
 
     public static boolean connected() {
-        return getTradeLog().tradeLogRepository != null && TradeSystem.getInstance().getDatabaseInitializer().isRunning();
+        return TradeLog.isEnabled() && TradeSystem.getInstance().getDatabaseInitializer().isRunning();
     }
 
-    public TradeLogRepository getTradeLogRepository() {
-        if (!TradeLog.isEnabled()) {
-            return null;
-        }
+    @NotNull
+    private static TradeLogRepository getTradeLogRepository() {
+        if (!TradeLog.isEnabled()) throw new NullPointerException("TradeLog is not enabled.");
 
         DatabaseType type = TradeSystem.database().getType();
         switch (type) {
             case MYSQL:
-                return new MysqlTradeLogRepository(MySQLConnection.getConnection());
+                return new MysqlTradeLogRepository();
             case SQLITE:
                 return new SqlLiteTradeLogRepository();
             default:

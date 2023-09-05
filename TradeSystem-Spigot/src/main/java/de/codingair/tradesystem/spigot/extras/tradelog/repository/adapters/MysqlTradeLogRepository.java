@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.extras.tradelog.repository.adapters;
 
+import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
 import de.codingair.tradesystem.spigot.utils.Supplier;
@@ -13,26 +15,37 @@ import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MysqlTradeLogRepository implements TradeLogRepository {
-    private final Supplier<Connection, SQLException> connection;
 
-    public MysqlTradeLogRepository(@NotNull Supplier<Connection, SQLException> connection) {
-        this.connection = connection;
+    @Override
+    public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws SQLException {
+        String sql = "INSERT INTO trade_players(uuid, name) VALUES(?,?) ON DUPLICATE KEY UPDATE name=?;";
+
+        try (Connection con = MySQLConnection.getConnection().get();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, uuid.toString());
+            pstmt.setString(2, name);
+            pstmt.setString(3, name);
+
+            pstmt.executeUpdate();
+        }
     }
 
     @Override
     public void log(String player1, String player2, String message) {
         String sql = "INSERT INTO tradelog(player1, player2, message) VALUES(?,?,?);";
 
-        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = MySQLConnection.getConnection().get();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, player1);
             pstmt.setString(2, player2);
             pstmt.setString(3, message);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            TradeSystem.getInstance().getLogger().severe("Could not log player '" + player1 + "' with player '" + player2 + "' ('" + message + "'): " + e.getMessage() + " [MySQL]");
         }
     }
 
@@ -40,7 +53,8 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
     public long count(String player, String message) {
         String sql = "SELECT COUNT(1) as count FROM tradelog WHERE (player1=? OR player2=?) AND message like ?;";
 
-        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = MySQLConnection.getConnection().get();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, player);
             pstmt.setString(2, player);
             pstmt.setString(3, message);
@@ -48,7 +62,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
             ResultSet set = pstmt.executeQuery();
             return set.next() ? set.getLong("count") : 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            TradeSystem.getInstance().getLogger().severe("Could not count player '" + player + "' with message '" + message + "': " + e.getMessage() + " [MySQL]");
             return 0;
         }
     }
@@ -58,7 +72,8 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
         String sql = "SELECT id, player1, player2, message, timestamp FROM tradelog " +
                 "WHERE player1=? OR player2=? ORDER BY timestamp DESC LIMIT 40;";
 
-        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = MySQLConnection.getConnection().get();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, playerName);
             pstmt.setString(2, playerName);
             ResultSet rs = pstmt.executeQuery();
@@ -74,7 +89,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
             }
             return result;
         } catch (SQLException e) {
-            e.printStackTrace();
+            TradeSystem.getInstance().getLogger().severe("Could not access log messages for player '" + playerName + "': " + e.getMessage() + " [MySQL]");
             return null;
         }
     }
@@ -84,7 +99,8 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
         String sql = "SELECT 1 FROM tradelog " +
                 "WHERE player1=? AND player2=? OR player1=? AND player2=? LIMIT 1;";
 
-        try (Connection con = this.connection.get(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = MySQLConnection.getConnection().get();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, player1);
             pstmt.setString(2, player2);
             pstmt.setString(3, player2);
@@ -93,7 +109,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
             ResultSet rs = pstmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            e.printStackTrace();
+            TradeSystem.getInstance().getLogger().severe("Could not check have traded '" + player1 + "' & '" + player2 + "': " + e.getMessage() + " [MySQL]");
             return false;
         }
     }
