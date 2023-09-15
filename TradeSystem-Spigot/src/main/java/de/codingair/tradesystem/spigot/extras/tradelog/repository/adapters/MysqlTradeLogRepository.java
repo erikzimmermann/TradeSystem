@@ -4,7 +4,6 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import de.codingair.tradesystem.spigot.utils.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public class MysqlTradeLogRepository implements TradeLogRepository {
                         rs.getString(2),
                         rs.getString(3),
                         rs.getString(4),
-                        rs.getDate(5).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                        Instant.ofEpochMilli(rs.getDate(5).getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime()
                 ));
             }
             return result;
