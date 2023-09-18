@@ -63,10 +63,10 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
 
     @Override
     public @Nullable BigDecimal convertInput(@NotNull String input) {
-        if (input.isEmpty()) return BigDecimal.ZERO;
+        if (input.isEmpty()) return null;
 
         BigDecimal value = (BigDecimal) TradeSystem.handler().getMoneyPattern().parse(input, new ParsePosition(0));
-        if (value == null) return BigDecimal.ZERO;
+        if (value == null) return null;
 
         BigDecimal factor = TradeSystem.handler().getMoneyShortcutFactor(input);
         if (factor != null) value = value.multiply(factor);
