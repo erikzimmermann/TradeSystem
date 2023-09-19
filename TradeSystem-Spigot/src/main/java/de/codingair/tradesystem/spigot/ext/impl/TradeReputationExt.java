@@ -4,6 +4,6 @@ import de.codingair.tradesystem.spigot.ext.Extension;
 
 public class TradeReputationExt extends Extension {
     public TradeReputationExt() {
-        super("TradeReputation", null);
+        super("TradeReputation", null, null);
     }
 }

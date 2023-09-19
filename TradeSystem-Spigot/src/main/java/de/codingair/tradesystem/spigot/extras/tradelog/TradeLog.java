@@ -1,14 +1,10 @@
 package de.codingair.tradesystem.spigot.extras.tradelog;
 
-import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.utils.ChatColor;
-import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeLogReceiveItemEvent;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
 import de.codingair.tradesystem.spigot.extras.external.mmoitems.MMOItemsDependency;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +13,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class TradeLog {
-    private static FileConfiguration config;
-
     public static final Message STARTED = new Message("started", "Trade started", "§e");
     public static final Message CANCELLED_WITH_REASON = new Message("cancelled", "Trade cancelled: %s", "§c");
     public static final Message CANCELLED = new Message("cancelled", "Trade cancelled", "§c");
@@ -74,20 +68,8 @@ public class TradeLog {
         );
     }
 
-    public static boolean isEnabled() {
-        return config().getBoolean("TradeSystem.TradeLog.Enabled", false);
-    }
-
-    private static ConfigurationSection config() {
-        if (config == null) {
-            ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
-            config = file.getConfig();
-        }
-
-        return config;
-    }
-
     public static @NotNull String getColorByString(@NotNull String s) {
+        // used by TradeAudit
         s = s.toLowerCase();
 
         for (Message m : MESSAGES) {

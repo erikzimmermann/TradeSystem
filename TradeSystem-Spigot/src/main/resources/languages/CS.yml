@@ -82,7 +82,6 @@ Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <jméno> [9..54]
 Help_TradeSystem_Layout_Activate: '&7Zadej &e/%label% layout activate <jméno>'
 Help_TradeSystem_Layout_Delete: '&7Zadej &e/%label% layout delete <jméno>'
 Help_TradeSystem_Layout_Edit: '&7Zadej &e/%label% layout edit <jméno>'
-Help_TradeLog: '&7Zadej &e/%label% <jméno>'
 Layout_Does_Not_Exist: '&cToto rozložení neexistuje!'
 Layout_Activated: '&7Toto rozložení ''&b%name%&7'' bylo &aaktivováno&7.'
 Layout_Deleted: '&7Toto rozložení ''&b%name%&7'' bylo &csmazáno&7.'
@@ -120,7 +119,6 @@ Request_expired: '&7Požadavek na obchod od &e%player% vypršel&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7Obchod byl &czrušen &7kvůli &cchybě ekonomiky&7.'
 Items_Dropped: '&7Tvůj inventář je &cplný&7, nějaké věci byli &cvyhozeny na zem&7!'
-TradeLog_Disabled: "&7Logování obchodů bylo &cvypnuto&7!"
 Sign_Enter_Amount: "^^^^^^^^\nVlož částku\nnahoře"
 Leftclick: 'Levý klik'
 Rightclick: 'Pravý klik'

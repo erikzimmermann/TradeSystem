@@ -18,7 +18,7 @@ import java.util.*;
 
 public class InvitationManager {
     /**
-     * receiver to invitations from others
+     * receiver name to invitations from others
      */
     private final Map<String, Map<String, Invitation>> invitations = new HashMap<>();
     private int expirationHandler = -1;
