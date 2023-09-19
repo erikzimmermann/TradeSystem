@@ -82,7 +82,6 @@ Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <name> [9..54]'
 Help_TradeSystem_Layout_Activate: '&Dùng &e/%label% layout activate <name>'
 Help_TradeSystem_Layout_Delete: '&7Dùng &e/%label% layout delete <name>'
 Help_TradeSystem_Layout_Edit: '&7Dùng &e/%label% layout edit <name>'
-Help_TradeLog: '&7Dùng &e/%label% <name>'
 Layout_Does_Not_Exist: '&cKhung này không tồn tại!'
 Layout_Activated: '&7Khung ''&b%name%&7'' đã được &akích hoạt&7.'
 Layout_Deleted: '&7Khung ''&b%name%&7'' đã bị &cxóa&7.'
@@ -120,7 +119,6 @@ Request_expired: '&7Yêu cầu giao dịch từ &e%player% &7đã &chết hạn&
 Fancy_Countdown: ' &7- &e%seconds% giây'
 Economy_Error: '&7Giao dịch &cđã hủy &7vì &clỗi thị trường&7.'
 Items_Dropped: '&7Kho của bạn đã &cđầy&7, vài vật phẩm đã &crớt xuống đất&7!'
-TradeLog_Disabled: "&7Log giao dịch đã &ctắt&7!"
 Sign_Enter_Amount: "^^^^^^^^\nEnter amount\nabove"
 Leftclick: 'Leftclick'
 Rightclick: 'Rightclick'

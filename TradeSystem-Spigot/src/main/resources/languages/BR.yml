@@ -82,7 +82,6 @@ Help_TradeSystem_Layout_Create: '&7Use &e/%label% layout create <nome> [9..54] '
 Help_TradeSystem_Layout_Activate: '&7Use &e/%label% layout activate <nome>'
 Help_TradeSystem_Layout_Delete: '&7Use &e/%label% layout delete <nome>'
 Help_TradeSystem_Layout_Edit: '&7Use &e/%label% layout edit <nome>'
-Help_TradeLog: '&7Use &e/%label% <nome>'
 Layout_Does_Not_Exist: '&cEste layout não existe!'
 Layout_Activated: '&7O layout ''&b%name%&7'' foi &aativado&7.'
 Layout_Deleted: '&7O layout ''&b%name%&7'' foi &cdeletado&7.'
@@ -120,7 +119,6 @@ Request_expired: '&7A solicitação de troca de &e%player% &7expirou&7.'
 Fancy_Countdown: ' &7- &e%seconds%s'
 Economy_Error: '&7O comércio foi &cancelado &7devido a um &cerro econômico&7.'
 Items_Dropped: '&7Seu inventário estava &ccheio&7, alguns itens foram &cdropados no chão&7!'
-TradeLog_Disabled: '&7O registro de transações está &cdesativado&7!'
 Sign_Enter_Amount: "^^^^^^^^\nInsira a quantia\nacima"
 Leftclick: Clique-esquerdo
 Rightclick: Clique-direito

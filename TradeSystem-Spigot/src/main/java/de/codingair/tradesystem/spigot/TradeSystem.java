@@ -10,6 +10,7 @@ import de.codingair.packetmanagement.utils.Proxy;
 import de.codingair.tradesystem.spigot.commands.TradeCMD;
 import de.codingair.tradesystem.spigot.commands.TradeSystemCMD;
 import de.codingair.tradesystem.spigot.database.DatabaseHandler;
+import de.codingair.tradesystem.spigot.ext.Extensions;
 import de.codingair.tradesystem.spigot.extras.bstats.MetricsManager;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependencies;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogCMD;
@@ -137,7 +138,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
             this.tradeCMD.unregister();
             this.tradeSystemCMD.unregister();
-            this.tradeLogCMD.unregister();
+            if (this.tradeLogCMD != null) this.tradeLogCMD.unregister();
 
             //unregister packet channels
             this.spigotHandler.onDisable();
@@ -220,8 +221,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         tradeSystemCMD = new TradeSystemCMD();
         tradeSystemCMD.register();
 
-        tradeLogCMD = new TradeLogCMD();
-        tradeLogCMD.register();
+        if (!Extensions.TradeAudit.isEnabled()) {
+            tradeLogCMD = new TradeLogCMD();
+            tradeLogCMD.register();
+        }
     }
 
     private void startUpdateNotifier() {
