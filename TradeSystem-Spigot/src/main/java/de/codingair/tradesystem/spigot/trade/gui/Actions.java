@@ -273,9 +273,10 @@ public class Actions {
                 ItemStack cursor = event.getView().getCursor();
                 if (nullOrAir(cursor)) break;
 
-                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot()))) break;
+                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
+                    break;
 
-                if (currentItem != null) {
+                if (!nullOrAir(currentItem)) {
                     if (cursor.isSimilar(currentItem)) {
                         if (place(currentItem, cursor, cursor.getAmount())) {
                             if (cursor.getAmount() == 0) event.getView().setCursor(null);
@@ -297,9 +298,10 @@ public class Actions {
                 ItemStack cursor = event.getView().getCursor();
                 if (nullOrAir(cursor)) break;
 
-                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot()))) break;
+                if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
+                    break;
 
-                if (currentItem != null) {
+                if (!nullOrAir(currentItem)) {
                     if (cursor.isSimilar(currentItem)) {
                         if (place(currentItem, cursor, 1)) {
                             if (cursor.getAmount() == 0) event.getView().setCursor(null);
@@ -542,7 +544,7 @@ public class Actions {
         boolean changed = false;
 
         ItemStack cursor = event.getCursor();
-        if (cursor != null && topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
+        if (topInventory && cursor != null && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
             return false;
 
         if (topInventory) {
