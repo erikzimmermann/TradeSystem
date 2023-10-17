@@ -229,6 +229,12 @@ public class Actions {
                 copy.setAmount((int) Math.ceil(copy.getAmount() / 2F));
                 currentItem.setAmount(currentItem.getAmount() - copy.getAmount());
 
+                // In MC 1.8, PICKUP_HALF is also applied when picking up an item with an amount of 1.
+                if (currentItem.getAmount() == 0) {
+                    if (topInventory) inventory.setItem(slot, null);
+                    else event.setCurrentItem(null);
+                }
+
                 event.getView().setCursor(copy);
                 changed = topInventory;
                 break;
