@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
@@ -7,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -340,16 +342,72 @@ public class Actions {
         boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
         if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
 
-        ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
-        boolean changed = false;
+        // 1. drop item
+        // 2. check PlayerDropItemEvent
+        // 3. cancel or apply changes
 
+        ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
+        Item dropped = null;
+
+        // drop item
+        switch (event.getAction()) {
+            case DROP_ALL_CURSOR: {
+                ItemStack item = event.getCursor();
+                if (nullOrAir(item)) break;
+
+                dropped = dropItem((Player) event.getWhoClicked(), item);
+                break;
+            }
+
+            case DROP_ONE_CURSOR: {
+                ItemStack item = event.getCursor();
+                if (nullOrAir(item)) break;
+
+                ItemStack copy = item.clone();
+                copy.setAmount(1);
+
+                dropped = dropItem((Player) event.getWhoClicked(), copy);
+                break;
+            }
+
+            case DROP_ALL_SLOT: {
+                if (nullOrAir(currentItem)) break;
+
+                dropped = dropItem((Player) event.getWhoClicked(), currentItem);
+                break;
+            }
+
+            case DROP_ONE_SLOT: {
+                if (nullOrAir(currentItem)) break;
+
+                ItemStack copy = currentItem.clone();
+                copy.setAmount(1);
+
+                dropped = dropItem((Player) event.getWhoClicked(), copy);
+                break;
+            }
+        }
+
+        if (dropped == null) return false;
+
+        // check if drop event is canceled
+        PlayerDropItemEvent dropEvent = new PlayerDropItemEvent((Player) event.getWhoClicked(), dropped);
+        Bukkit.getPluginManager().callEvent(dropEvent);
+
+        // remove dropped item if canceled
+        if (dropEvent.isCancelled()) {
+            dropped.remove();
+            return false;
+        }
+
+        // apply changes
+        boolean changed = false;
         switch (event.getAction()) {
             case DROP_ALL_CURSOR: {
                 ItemStack item = event.getCursor();
                 if (nullOrAir(item)) break;
 
                 event.getView().setCursor(null);
-                dropItem((Player) event.getWhoClicked(), item);
                 break;
             }
 
@@ -362,8 +420,6 @@ public class Actions {
 
                 item.setAmount(item.getAmount() - 1);
                 if (item.getAmount() == 0) event.getView().setCursor(null);
-
-                dropItem((Player) event.getWhoClicked(), copy);
                 break;
             }
 
@@ -374,8 +430,6 @@ public class Actions {
                     inventory.setItem(slot, null);
                     changed = true;
                 } else event.setCurrentItem(null);
-
-                dropItem((Player) event.getWhoClicked(), currentItem);
                 break;
             }
 
@@ -392,8 +446,6 @@ public class Actions {
                         changed = true;
                     } else event.setCurrentItem(null);
                 } else changed = topInventory;
-
-                dropItem((Player) event.getWhoClicked(), copy);
                 break;
             }
         }
@@ -621,10 +673,12 @@ public class Actions {
         return true;
     }
 
-    private static void dropItem(@NotNull Player player, @NotNull ItemStack item) {
+    @NotNull
+    private static Item dropItem(@NotNull Player player, @NotNull ItemStack item) {
         Item i = player.getWorld().dropItem(player.getEyeLocation(), item);
         i.setVelocity(player.getEyeLocation().getDirection().multiply(0.3D));
         i.setPickupDelay(40);
+        return i;
     }
 
     private static boolean nullOrAir(@Nullable ItemStack item) {
