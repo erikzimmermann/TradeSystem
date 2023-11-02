@@ -38,7 +38,7 @@ public class UpdateNotifier {
         if (body == null) return false;
 
         try {
-            JsonArray json = JsonParser.parseString(body).getAsJsonArray();
+            JsonArray json = new JsonParser().parse(body).getAsJsonArray(); //Can't compile with old code?
 
             int firstStable = 0;
             boolean matched = false;
