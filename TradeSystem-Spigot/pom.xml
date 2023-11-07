@@ -55,10 +55,6 @@
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
-        <repository>
-            <id>opencollab-snapshot</id>
-            <url>https://repo.opencollab.dev/main/</url>
-        </repository>
 
         <!-- Geyser/Floodgate API -->
         <repository>
