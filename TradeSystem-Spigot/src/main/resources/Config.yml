@@ -114,21 +114,7 @@ TradeSystem:
   TradeLog:
     # The bukkit logger works additionally to the database logging.
     Bukkit_logger: false
-  # Support for bedrock
-  Bedrock:
-    # Replace default input with floodgate forms
-    CumulusInput: true
-    InputSliderOptions:
-      - "Own input!" # First one is reserved for own input
-      - "1"
-      - "5"
-      - "10"
-      - "50"
-      - "100"
-      - "500"
-      - "1000"
-      - "10000"
-      - "100000"
+
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:
     Trade_Started:

@@ -65,8 +65,6 @@ public class TradeHandler {
     private boolean tradeBoth = true;
     private boolean dropItems = true;
     private boolean onlyDisplayNameInMessage = false;
-    private boolean cumulusInput = true;
-    private List<String> sliderOptions = Collections.singletonList("Own input!");
 
     private SoundData soundStarted = null;
     private SoundData soundFinish = null;
@@ -175,9 +173,6 @@ public class TradeHandler {
                 }
             }
         }
-        this.cumulusInput = config.getBoolean("TradeSystem.Bedrock.CumulusInput", true);
-        List<String> sliderOptions = config.getStringList("TradeSystem.Bedrock.InputSliderOptions");
-        this.sliderOptions = sliderOptions.isEmpty() ? Collections.singletonList("Own input!") : sliderOptions;
 
         TradeSystem.log("  > Loading sounds");
         this.soundStarted = getSound("Trade_Started", config, "LEVEL_UP");
@@ -600,11 +595,5 @@ public class TradeHandler {
 
     public HashMap<String, Trade> getTrades() {
         return trades;
-    }
-    public boolean allowCumulusInput() {
-        return cumulusInput;
-    }
-    public List<String> getSliderOptions() {
-        return sliderOptions;
     }
 }
