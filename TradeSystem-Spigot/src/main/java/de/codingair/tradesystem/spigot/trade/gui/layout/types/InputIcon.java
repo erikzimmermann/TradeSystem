@@ -8,13 +8,16 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.AnvilGUIIcon;
+import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.FloodgateGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SignGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleAnvilGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.gui.SimpleSignGUIIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.TriFunction;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,9 +32,85 @@ import java.io.IOException;
  */
 public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clickable, StateHolder, Input<G>, ItemPrepareIcon {
     private final TradeIcon icon;
+    private final TradeIcon bedrockIcon;
 
     public InputIcon(@NotNull ItemStack itemStack) {
         super(itemStack);
+        if (Bukkit.getPluginManager().isPluginEnabled("floodgate")) {
+            this.bedrockIcon = new FloodgateGUIIcon<G>(itemStack) {
+
+                @Override
+                public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                    return InputIcon.this.prepareItemStack(layout, trade, perspective, viewer);
+                }
+
+                @Override
+                public boolean isClickable(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+                    return InputIcon.this.isClickable(trade, perspective, viewer);
+                }
+
+                @Override
+                public void onFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                    InputIcon.this.onFinish(trade, perspective, viewer, initiationServer);
+                }
+
+                @Override
+                public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
+                    return InputIcon.this.tryFinish(trade, perspective, viewer, initiationServer);
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return InputIcon.this.isEmpty();
+                }
+
+                @Override
+                public void serialize(@NotNull DataOutputStream out) throws IOException {
+                    InputIcon.this.serialize(out);
+                }
+
+                @Override
+                public void deserialize(@NotNull DataInputStream in) throws IOException {
+                    InputIcon.this.deserialize(in);
+                }
+
+                @Override
+                public @Nullable G convertInput(@NotNull String input) {
+                    return InputIcon.this.convertInput(input);
+                }
+
+                @Override
+                public IconResult processInput(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G input, @NotNull String origin) {
+                    return InputIcon.this.processInput(trade, perspective, viewer, input, origin);
+                }
+
+                @Override
+                public @NotNull String makeString(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, @Nullable G current, boolean payment) {
+                    return InputIcon.this.makeString(trade, perspective, viewer, current, payment);
+                }
+
+                @Override
+                public @Nullable G getValue() {
+                    return InputIcon.this.getValue();
+                }
+
+                @Override
+                public void setValue(G value) {
+                    InputIcon.this.setValue(value);
+                }
+
+                @Override
+                public G getDefault() {
+                    return InputIcon.this.getDefault();
+                }
+                @Override
+                protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective viewer) {
+                    super.handleResult(InputIcon.this, gui, result, trade, perspective, viewer);
+                }
+            };
+        } else {
+            this.bedrockIcon = null;
+        }
 
         switch (TradeSystem.handler().getInputGUI()) {
             case SIGN:
@@ -187,6 +266,13 @@ public abstract class InputIcon<G> extends LayoutIcon implements TradeIcon, Clic
 
     @Override
     public final @NotNull Button getButton(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
+        if (TradeSystem.handler().allowCumulusInput()
+                && this.bedrockIcon != null
+                // This will not try to load floodgate api class if floodgate isn't present
+                // since bedrock icon will always be null
+                && FloodgateApi.getInstance().isFloodgatePlayer(viewer.getUniqueId())) {
+            return this.bedrockIcon.getButton(trade, perspective, viewer);
+        }
         return this.icon.getButton(trade, perspective, viewer);
     }
 
