@@ -7,7 +7,8 @@ Trade_Was_Cancelled: '&cУгоду скасовано..'
 Trade_Was_Finished: '&7Угода &aздійснена&7.'
 Cannot_Trade_With_Yourself: '&cВи не можете проводити угоду із самим собою.'
 Player_Not_Online: '&cГравець не в мережі.'
-Want_To_Trade: '&7Гравець &c%player% &7хоче провести з Вами угоду &8[%accept% &8| %deny%&8]'
+Want_To_Trade: '&7Гравець &c%player% &7хоче провести з Вами угоду. &8[%accept% &8| %deny%&8]'
+Want_To_Trade_Bedrock: '&7Гравець &c%player% &7хоче провести з Вами угоду. &8[&7/trade &8<&aaccept&8, &cdeny&8> &7%player%&8]'
 Want_To_Trade_Accept: '&aПрийняти'
 Want_To_Trade_Deny: '&cВідхилити'
 Want_To_Trade_Hover: '&8» Натисніть «'
@@ -138,7 +139,7 @@ Exp_Points: Очки досвіду
 Exp_Point: Очко досвіду
 Reset: Скинути
 Balance_limit_reached: '&7Ваш баланс &снедостатній&7.'
-AnvilGUI_Title: Repair & Name
+Economy_Offer_Title: "Your offer:"
 Shulker_Box: 'Shulker Box'
 Trade_Finish_Report_Receive: "  &a+ &7%object%"
 Trade_Finish_Report_Give: "  &c- &7%object%"

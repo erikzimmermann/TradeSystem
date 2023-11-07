@@ -4,6 +4,7 @@ import de.codingair.codingapi.player.chat.SimpleMessage;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeRequestEvent;
+import de.codingair.tradesystem.spigot.utils.FloodgateUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -68,6 +69,11 @@ public class RequestManager {
 
     @SuppressWarnings ("deprecation")
     public static void sendRequest(String player, Player recipient) {
+        if (FloodgateUtils.isBedrockPlayer(recipient)) {
+            Lang.send(recipient, "Want_To_Trade_Bedrock", new Lang.P("player", player));
+            return;
+        }
+
         TextComponent base = new TextComponent(TextComponent.fromLegacyText(Lang.getPrefix() + Lang.get("Want_To_Trade", recipient, new Lang.P("player", player))));
         base.setColor(ChatColor.GRAY);
 

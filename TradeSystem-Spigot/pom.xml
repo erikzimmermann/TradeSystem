@@ -56,6 +56,12 @@
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
 
+        <!-- Geyser/Floodgate API -->
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/main/</url>
+        </repository>
+
         <!-- MythicLib -->
         <repository>
             <id>phoenix</id>
@@ -189,6 +195,13 @@
             <groupId>com.sk89q</groupId>
             <artifactId>worldguard</artifactId>
             <version>6.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.2.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

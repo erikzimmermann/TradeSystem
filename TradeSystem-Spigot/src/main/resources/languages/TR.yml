@@ -7,7 +7,8 @@ Trade_Was_Cancelled: '&cTakas iptal edildi.'
 Trade_Was_Finished: '&7Takas &atamamlandı&7.'
 Cannot_Trade_With_Yourself: '&cKendinle takas yapamazsın.'
 Player_Not_Online: '&cBu oyuncu aktif değil.'
-Want_To_Trade: ' &c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[%accept% &8| %deny%&8]'
+Want_To_Trade: '&c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[%accept% &8| %deny%&8]'
+Want_To_Trade_Bedrock: '&c%player% &7adlı oyuncu seninle takas yapmak istiyor. &8[&7/trade &8<&aaccept&8, &cdeny&8> &7%player%&8]'
 Want_To_Trade_Accept: '&aKabul et'
 Want_To_Trade_Deny: '&cReddet'
 Want_To_Trade_Hover: '&8» Tıkla «'
@@ -138,7 +139,7 @@ Exp_Points: "Exp points"
 Exp_Point: "Exp point"
 Reset: "Reset"
 Balance_limit_reached: '&7Bakiyeniz &c yetersiz&7.'
-AnvilGUI_Title: 'Repair & Name'
+Economy_Offer_Title: "Your offer:"
 Shulker_Box: 'Shulker Box'
 Trade_Finish_Report_Receive: "  &a+ &7%object%"
 Trade_Finish_Report_Give: "  &c- &7%object%"

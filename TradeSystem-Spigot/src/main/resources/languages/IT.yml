@@ -8,6 +8,7 @@ Trade_Was_Finished: '&7Il trade ha avuto &asuccesso&7.'
 Cannot_Trade_With_Yourself: '&cNon puoi fare un trade con te stesso.'
 Player_Not_Online: '&cQuesto giocatore non è online.'
 Want_To_Trade: '&7Il giocatore &c%player% &7vuole fare un scambiare con te. &8[%accept% &8| %deny%&8]'
+Want_To_Trade_Bedrock: '&7Il giocatore &c%player% &7vuole fare un scambiare con te. &8[&7/trade &8<&aaccept&8, &cdeny&8> &7%player%&8]'
 Want_To_Trade_Accept: '&aAccetta'
 Want_To_Trade_Deny: '&cRifiuta'
 Want_To_Trade_Hover: '&8» Clicca «'
@@ -138,7 +139,7 @@ Exp_Points: Exp points
 Exp_Point: Exp point
 Reset: Reset
 Balance_limit_reached: '&7Il tuo saldo è &cnon sufficiente&7.'
-AnvilGUI_Title: 'Repair & Name'
+Economy_Offer_Title: "Your offer:"
 Shulker_Box: 'Shulker Box'
 Trade_Finish_Report_Receive: "  &a+ &7%object%"
 Trade_Finish_Report_Give: "  &c- &7%object%"

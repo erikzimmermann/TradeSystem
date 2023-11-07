@@ -7,6 +7,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
+import de.codingair.tradesystem.spigot.utils.FloodgateUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.entity.Player;
 
@@ -24,6 +25,10 @@ public class TradingGUI extends GUI {
     }
 
     public void synchronizeTitle() {
+        // floodgate does not allow updating the GUI title; it just closes the inventory and cancels the trade
+        boolean isBedrockPlayer = FloodgateUtils.isBedrockPlayer(getPlayer());
+        if (isBedrockPlayer) return;
+
         updateTitle(Lang.get("GUI_Title", getPlayer(), new Lang.P("player", trade.getOther(getPlayer().getName()))));
     }
 

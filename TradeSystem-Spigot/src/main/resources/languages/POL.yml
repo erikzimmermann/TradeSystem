@@ -8,6 +8,7 @@ Trade_Was_Finished: "&7Wymiana została &azakończona&7."
 Cannot_Trade_With_Yourself: "&cNie możesz się wymieniać ze sobą."
 Player_Not_Online: "&cTen gracz nie jest online."
 Want_To_Trade: "&7Gracz &c%player% &7chce się z tobą wymienić. &8[%accept% &8| %deny%&8]"
+Want_To_Trade_Bedrock: '&7Gracz &c%player% &7chce się z tobą wymienić. &8[&7/trade &8<&aaccept&8, &cdeny&8> &7%player%&8]'
 Want_To_Trade_Accept: "&aZaakceptuj"
 Want_To_Trade_Deny: "&cOdrzuć"
 Want_To_Trade_Hover: "&8» Kliknij «"
@@ -138,7 +139,7 @@ Exp_Points: "Punkty XP"
 Exp_Point: "Punkt XP"
 Reset: "Resetuj"
 Balance_limit_reached: '&7Twój bilans jest &cnie wystarczający&7.'
-AnvilGUI_Title: 'Repair & Name'
+Economy_Offer_Title: "Your offer:"
 Shulker_Box: 'Shulker Box'
 Trade_Finish_Report_Receive: "  &a+ &7%object%"
 Trade_Finish_Report_Give: "  &c- &7%object%"

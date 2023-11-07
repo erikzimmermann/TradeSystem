@@ -74,7 +74,7 @@ public abstract class AnvilGUIIcon<G> extends LayoutIcon implements TradeIcon, C
             public boolean canSwitch(ClickType clickType) {
                 return true;
             }
-        }.setTitle(Lang.get("AnvilGUI_Title", viewer));
+        }.setTitle(Lang.get("Economy_Offer_Title", viewer));
     }
 
     protected void handleResult(@NotNull TradeIcon icon, @NotNull GUI gui, @NotNull IconResult result, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Perspective viewer) {
