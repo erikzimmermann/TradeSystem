@@ -17,6 +17,7 @@ import de.codingair.tradesystem.spigot.extras.tradelog.TradeLogService;
 import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
 import de.codingair.tradesystem.spigot.trade.gui.layout.TradeLayout;
+import de.codingair.tradesystem.spigot.trade.gui.layout.registration.EditorInfo;
 import de.codingair.tradesystem.spigot.trade.gui.layout.registration.IconHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
@@ -416,21 +417,26 @@ public abstract class Trade {
     /**
      * <b>Simulates</b> all trade icon exchanges.
      *
-     * @param perspective  The perspective of the player.
-     * @param failDirectly True, if an error should call a trade cancellation.
+     * @param perspective The perspective of the player.
      * @return {@link Boolean#TRUE} if the simulation had no issues.
      */
-    protected boolean tryFinish(@NotNull Perspective perspective, boolean failDirectly) {
+    protected boolean tryFinish(@NotNull Perspective perspective) {
         Player player = getPlayer(perspective);
         if (player == null) return false;
 
         for (TradeIcon icon : layout[perspective.id()].getIcons()) {
             if (icon == null) continue;
-            FinishResult result = icon.tryFinish(this, perspective, player, this.initiationServer);
 
+            // check if all requirements for the traded goods are still available
+            EditorInfo info = IconHandler.getInfo(icon.getClass());
+            if (!info.matchRequirements()) {
+                TradeSystem.getInstance().getLogger().warning("Could not finish a trade between players '" + getNames()[0] + "' and '" + getNames()[1] + "'. Reason: The requirements for icon '" + info.getName() + "' are not met. Maybe a plugin has been disabled?");
+                return false;
+            }
+
+            FinishResult result = icon.tryFinish(this, perspective, player, this.initiationServer);
             switch (result) {
                 case ERROR_ECONOMY:
-                    if (failDirectly) callEconomyError();
                     return false;
 
                 case PASS:
@@ -453,7 +459,7 @@ public abstract class Trade {
                 Player player = getPlayer(perspective);
                 if (player == null) continue;
 
-                if (!tryFinish(perspective, false)) return false;
+                if (!tryFinish(perspective)) return false;
                 prepareFinish(perspective);
             }
 

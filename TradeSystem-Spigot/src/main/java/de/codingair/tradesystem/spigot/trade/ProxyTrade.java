@@ -77,7 +77,7 @@ public class ProxyTrade extends Trade {
     }
 
     public boolean receiveFinishCheck() {
-        boolean success = tryFinish(Perspective.PRIMARY, false);
+        boolean success = tryFinish(Perspective.PRIMARY);
         finishCheck.complete(success);
         return success;
     }
