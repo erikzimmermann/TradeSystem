@@ -65,8 +65,14 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
     public @Nullable BigDecimal convertInput(@NotNull String input) {
         if (input.isEmpty()) return null;
 
-        BigDecimal value = (BigDecimal) TradeSystem.handler().getMoneyPattern().parse(input, new ParsePosition(0));
-        if (value == null) return null;
+        Number n = TradeSystem.handler().getMoneyPattern().parse(input, new ParsePosition(0));
+        if (n == null) return null;
+
+        // We forced the money pattern to parse BigDecimals only.
+        // If we don't get a BigDecimal, there have been complications with the parsing.
+        // We can then assume that either a NaN or an infinite number has been triggered.
+        if (!(n instanceof BigDecimal)) return null;
+        BigDecimal value = (BigDecimal) n;
 
         BigDecimal factor = TradeSystem.handler().getMoneyShortcutFactor(input);
         if (factor != null) value = value.multiply(factor);
