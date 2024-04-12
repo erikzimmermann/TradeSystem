@@ -5,9 +5,11 @@ import de.codingair.tradesystem.spigot.ext.Extensions;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sqlite.SQLiteException;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 
 public abstract class SqlMigrations {
@@ -15,39 +17,39 @@ public abstract class SqlMigrations {
 
     /**
      * @return A connection to the database.
-     * @throws SQLException If a database access error occurs.
+     * @throws Exception If a database access error occurs.
      */
     @NotNull
-    public abstract Connection getConnection() throws SQLException;
+    public abstract Connection getConnection() throws Exception;
 
     /**
      * @param connection The connection to the database.
      * @param user       The user to set the version for.
      * @param version    The version to set.
-     * @throws SQLException If a database access error occurs.
+     * @throws Exception If a database access error occurs.
      */
-    public abstract void setVersion(@NotNull Connection connection, @NotNull String user, int version) throws SQLException;
+    public abstract void setVersion(@NotNull Connection connection, @NotNull String user, int version) throws Exception;
 
     /**
      * Creates the migration table if it doesn't exist.
      *
-     * @throws SQLException If a database access error occurs.
+     * @throws Exception If a database access error occurs.
      */
-    public void createMigrationTable() throws SQLException {
+    public void createMigrationTable() throws Exception {
         try (Connection connection = getConnection()) {
             int migrationVersion = getOldMigrationVersion(connection);
             createNewMigrationTable(connection, migrationVersion);
         }
     }
 
-    private static int getOldMigrationVersion(@NotNull Connection connection) throws SQLException {
+    private static int getOldMigrationVersion(@NotNull Connection connection) {
         try (Statement stmt = connection.createStatement()) {
             // include `id` to be sure this is the old table
             String sql = "SELECT max(version) as max FROM migrations WHERE id IS NOT NULL;";
             ResultSet set = stmt.executeQuery(sql);
 
             if (set.next()) return set.getInt("max");
-        } catch (SQLSyntaxErrorException | SQLiteException e) {
+        } catch (Exception e) {
             // "Table 'tradesystem.migrations' doesn't exist" or
             // "Unknown column 'id' in 'where clause'"
             // -> just create new table
@@ -58,9 +60,9 @@ public abstract class SqlMigrations {
     /**
      * Runs all migrations that are not yet applied.
      *
-     * @throws SQLException If a database access error occurs.
+     * @throws Exception If a database access error occurs.
      */
-    public void runMigrations() throws SQLException {
+    public void runMigrations() throws Exception {
         try (Connection connect = getConnection()) {
             connect.setAutoCommit(false);
 
@@ -79,7 +81,7 @@ public abstract class SqlMigrations {
         }
     }
 
-    private void runMigrations(@NotNull Connection connect, @NotNull String user, @Nullable List<Migration> migrations) throws SQLException {
+    private void runMigrations(@NotNull Connection connect, @NotNull String user, @Nullable List<Migration> migrations) throws Exception {
         if (migrations == null || migrations.isEmpty()) return;
 
         for (Migration migration : migrations) {
@@ -98,7 +100,7 @@ public abstract class SqlMigrations {
         setVersion(connect, user, this.migrations.get(user.toLowerCase()).size());
     }
 
-    private void createNewMigrationTable(@NotNull Connection connection, int previousVersion) throws SQLException {
+    private void createNewMigrationTable(@NotNull Connection connection, int previousVersion) throws Exception {
         try (Statement stmt = connection.createStatement()) {
             if (previousVersion > 0) stmt.execute("DROP TABLE IF EXISTS migrations;");
             stmt.execute("CREATE TABLE IF NOT EXISTS migrations (user VARCHAR(25) PRIMARY KEY, version integer NOT NULL);");
@@ -113,7 +115,7 @@ public abstract class SqlMigrations {
         }
     }
 
-    private @NotNull Map<String, Integer> getVersions() throws SQLException {
+    private @NotNull Map<String, Integer> getVersions() throws Exception {
         Map<String, Integer> versions = new HashMap<>();
 
         try (Connection connect = getConnection();
@@ -130,7 +132,7 @@ public abstract class SqlMigrations {
     }
 
     @NotNull
-    private Map<String, List<Migration>> getRelevantMigrations() throws SQLException {
+    private Map<String, List<Migration>> getRelevantMigrations() throws Exception {
         Map<String, List<Migration>> relevant = new HashMap<>();
 
         for (Map.Entry<String, List<Migration>> e : migrations.entrySet()) {

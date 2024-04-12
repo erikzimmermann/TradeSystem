@@ -4,14 +4,12 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
 import de.codingair.tradesystem.spigot.extras.tradelog.TradeLog;
 import de.codingair.tradesystem.spigot.extras.tradelog.repository.TradeLogRepository;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import java.util.UUID;
 public class SqlLiteTradeLogRepository implements TradeLogRepository {
 
     @Override
-    public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws SQLException {
+    public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws Exception {
         String sql = "INSERT INTO trade_players(uuid, name) VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET name=?;";
 
         try (Connection con = SqlLiteConnection.connect();
@@ -45,7 +43,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
             pstmt.setString(3, message);
             pstmt.setLong(4, System.currentTimeMillis());
             pstmt.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             TradeSystem.getInstance().getLogger().severe("Could not log player '" + player1 + "' with player '" + player2 + "' ('" + message + "'): " + e.getMessage() + " [SQLite]");
         }
     }
@@ -62,7 +60,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
 
             ResultSet set = pstmt.executeQuery();
             return set.next() ? set.getLong("count") : 0;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             TradeSystem.getInstance().getLogger().severe("Could not count player '" + player + "' with message '" + message + "': " + e.getMessage() + " [SQLite]");
             return 0;
         }
@@ -89,7 +87,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
                 ));
             }
             return result;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             TradeSystem.getInstance().getLogger().severe("Could not access log messages for player '" + playerName + "': " + e.getMessage() + " [SQLite]");
             return null;
         }
@@ -109,7 +107,7 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
 
             ResultSet rs = pstmt.executeQuery();
             return rs.next();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             TradeSystem.getInstance().getLogger().severe("Could not check have traded '" + player1 + "' & '" + player2 + "': " + e.getMessage() + " [SQLite]");
             return false;
         }
