@@ -30,6 +30,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSl
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.trade.subscribe.PlayerSubscriber;
+import de.codingair.tradesystem.spigot.utils.FloodgateUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -1250,11 +1251,16 @@ public abstract class Trade {
 
         guis().forEach(TradingGUI::destroy);
 
-        // fix buggy inventories of other plugins that were opened while trading
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(p -> {
+        // fix buggy inventories of other plugins that were opened while trading: close again later
+        // fix black screens for bedrock players: run with higher delay >10
+        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().filter(FloodgateUtils::isNonBedrockPlayer).forEach(p -> {
             p.closeInventory();
             p.updateInventory();
         }));
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().filter(FloodgateUtils::isBedrockPlayer).forEach(p -> {
+            p.closeInventory();
+            p.updateInventory();
+        }), 30);
     }
 
     public BukkitRunnable getCountdown() {

@@ -13,4 +13,8 @@ public class FloodgateUtils {
         } else return false;
     }
 
+    public static boolean isNonBedrockPlayer(@NotNull Player player) {
+        return !isBedrockPlayer(player);
+    }
+
 }
