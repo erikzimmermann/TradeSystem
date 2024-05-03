@@ -64,6 +64,12 @@ public class TradeGUIListener implements Listener {
             Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
+                if(!player.hasPermission("tradesystem.trade.item")) {
+                    Lang.send(player, "No_Permissions");
+                    e.setCancelled(true);
+                    return;
+                }
+
                 // Cancelling the drag event resets the cursor in a later tick.
                 // Therefore, simply remove all new items added during this event.
                 e.setCancelled(false);
@@ -87,6 +93,12 @@ public class TradeGUIListener implements Listener {
             if (trade != null && trade.inMainGUI(player)) {
                 // allow blocking by other plugins
                 if (e.isCancelled()) return;
+
+                if(!player.hasPermission("tradesystem.trade.item")) {
+                    Lang.send(player, "No_Permissions");
+                    e.setCancelled(true);
+                    return;
+                }
 
                 // cancel everything and project changes later
                 e.setCancelled(true);
