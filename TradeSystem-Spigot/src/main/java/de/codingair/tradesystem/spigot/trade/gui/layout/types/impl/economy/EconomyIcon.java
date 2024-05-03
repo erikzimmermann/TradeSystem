@@ -53,6 +53,11 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         Player player = trade.getPlayer(perspective);
         if (player == null) return false;
 
+        if(!player.hasPermission("tradesystem.trade.money")) {
+            Lang.send(player, "No_Permissions");
+            return false;
+        }
+
         if (getBalance(player).signum() <= 0) {
             Lang.send(player, "Balance_limit_reached");
             return false;
