@@ -305,7 +305,7 @@ public class InvitationManager {
             return;
         }
 
-        if (RuleManager.isViolatingRules(sender, other)) return;
+        if (RuleManager.isViolatingRules(sender, other, invitation.getName())) return;
 
         //call event
         Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, other.getName(), other.getUniqueId(), other, true)));

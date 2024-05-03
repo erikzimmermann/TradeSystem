@@ -36,7 +36,7 @@ public class RequestManager {
             if (InvitationManager.processInvitation(sender, null, invited)) return;
             sendRequest(sender, invited);
         } else {
-            request(sender, other);
+            request(sender, other, receiver);
         }
     }
 
@@ -48,10 +48,10 @@ public class RequestManager {
                 });
     }
 
-    public static void request(@NotNull Player sender, @Nullable Player other) {
+    public static void request(@NotNull Player sender, @Nullable Player other, String otherName) {
         if (other != null && !other.isOnline()) return; //npc
 
-        if (RuleManager.isViolatingRules(sender, other)) return;
+        if (RuleManager.isViolatingRules(sender, other, otherName)) return;
         assert other != null; //already sent a message if other == null
 
         //call event
