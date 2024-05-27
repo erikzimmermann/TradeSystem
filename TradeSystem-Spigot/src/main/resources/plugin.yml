@@ -17,6 +17,10 @@ permissions:
     default: op
   tradesystem.trade:
     default: op
+  tradesystem.trade.money:
+    default: op
+  tradesystem.trade.item:
+    default: op
   tradesystem.trade.initiate:
     default: op
   tradesystem.*:
@@ -25,4 +29,6 @@ permissions:
       tradesystem.modify: true
       tradesystem.log: true
       tradesystem.trade: true
+      tradesystem.trade.item: true
+      tradesystem.trade.money: true
       tradesystem.trade.initiate: true

@@ -9,6 +9,7 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import de.codingair.tradesystem.spigot.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,7 +65,7 @@ public class TradeGUIListener implements Listener {
             Trade trade = TradeSystem.handler().getTrade(player);
 
             if (trade != null && trade.inMainGUI(player)) {
-                if(!player.hasPermission("tradesystem.trade.item")) {
+                if(!player.hasPermission(Permissions.PERMISSION_TRADE_ITEM)) {
                     Lang.send(player, "No_Permissions");
                     e.setCancelled(true);
                     return;
@@ -94,7 +95,7 @@ public class TradeGUIListener implements Listener {
                 // allow blocking by other plugins
                 if (e.isCancelled()) return;
 
-                if(!player.hasPermission("tradesystem.trade.item")) {
+                if(!player.hasPermission(Permissions.PERMISSION_TRADE_ITEM)) {
                     Lang.send(player, "No_Permissions");
                     e.setCancelled(true);
                     return;

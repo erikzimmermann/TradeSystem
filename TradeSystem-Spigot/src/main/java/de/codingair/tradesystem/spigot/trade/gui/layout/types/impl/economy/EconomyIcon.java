@@ -13,6 +13,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.FinishRes
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.feedback.IconResult;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
+import de.codingair.tradesystem.spigot.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -53,7 +54,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         Player player = trade.getPlayer(perspective);
         if (player == null) return false;
 
-        if(!player.hasPermission("tradesystem.trade.money")) {
+        if(!player.hasPermission(Permissions.PERMISSION_TRADE_MONEY)) {
             Lang.send(player, "No_Permissions");
             return false;
         }

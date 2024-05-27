@@ -10,6 +10,8 @@ public class Permissions {
     public static final String PERMISSION_LOG = "TradeSystem.Log";
     public static String PERMISSION = "TradeSystem.Trade";
     public static String PERMISSION_INITIATE = "TradeSystem.Trade.Initiate";
+    public static String PERMISSION_TRADE_MONEY = "TradeSystem.Trade.Money";
+    public static String PERMISSION_TRADE_ITEM = "TradeSystem.Trade.Item";
 
     private static final String[] PLUGINS = {
             "LuckPerms", "PermissionsEx", "GroupManager", "Vault", "bPermissions", "PermissionsBukkit",
