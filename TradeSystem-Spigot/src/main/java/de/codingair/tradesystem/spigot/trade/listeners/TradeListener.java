@@ -59,7 +59,7 @@ public class TradeListener implements Listener, ChatButtonListener {
             if (!other.isOnline()) return; //npc
             if (!p.canSee(other)) return;
 
-            RequestManager.request(p, other);
+            RequestManager.request(p, other, other.getName());
         }
     }
 
