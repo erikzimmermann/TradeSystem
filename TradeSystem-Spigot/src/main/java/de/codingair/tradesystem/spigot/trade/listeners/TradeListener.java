@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,7 @@ public class TradeListener implements Listener, ChatButtonListener {
             if (!other.isOnline()) return; //npc
             if (!p.canSee(other)) return;
 
-            RequestManager.request(p, other);
+            RequestManager.request(p, other, other.getName());
         }
     }
 
@@ -90,4 +91,14 @@ public class TradeListener implements Listener, ChatButtonListener {
         }
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onItemConsume(PlayerItemConsumeEvent event) {
+        Player player = event.getPlayer();
+        Trade trade = TradeSystem.handler().getTrade(player);
+
+        if(trade == null)
+            return;
+
+        event.setCancelled(true);
+    }
 }

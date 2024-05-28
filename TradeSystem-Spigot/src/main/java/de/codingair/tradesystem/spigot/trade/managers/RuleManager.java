@@ -80,12 +80,12 @@ public class RuleManager {
         return TradeInvitePacket.Result.INVITED;
     }
 
-    public static boolean isViolatingRules(Player player, Player other) {
+    public static boolean isViolatingRules(Player player, Player other, String otherName) {
         if (isViolatingRules(player)) return true;
 
         //pre rules
         if (other == null || !player.canSee(other)) {
-            Lang.send(player, "Player_Not_Online");
+            Lang.send(player, "Player_Not_Online", new Lang.P("player", otherName));
             return true;
         }
 
