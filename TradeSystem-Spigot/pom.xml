@@ -197,12 +197,6 @@
             <version>6.1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.geysermc.floodgate</groupId>
-            <artifactId>api</artifactId>
-            <version>2.2.2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.geysermc.floodgate</groupId>
