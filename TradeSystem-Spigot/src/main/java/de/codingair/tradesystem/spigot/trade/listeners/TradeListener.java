@@ -3,6 +3,7 @@ package de.codingair.tradesystem.spigot.trade.listeners;
 import de.codingair.codingapi.player.chat.ChatButtonListener;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
+import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.utils.Lang;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 public class TradeListener implements Listener, ChatButtonListener {
     private static final long BUFFER_TIME = 1000;
+    private static final long BUFFER_TIME_OFFLINE = 1000 * 60 * 10;
     private final Map<String, Long> invitationBuffer = new HashMap<>();
 
     @Override
@@ -41,9 +43,17 @@ public class TradeListener implements Listener, ChatButtonListener {
     }
 
     private boolean isBuffered(@NotNull Player player) {
+       return isBuffered(player, BUFFER_TIME);
+    }
+
+    private boolean isBuffered(@NotNull Player player, long bufferTime) {
         long time = System.currentTimeMillis();
-        Long last = invitationBuffer.put(player.getName(), time);
-        return last != null && time - last <= BUFFER_TIME;
+        Long last = invitationBuffer.get(player.getName());
+        return last != null && time - last <= bufferTime;
+    }
+
+    private void applyBuffer(@NotNull Player player) {
+        invitationBuffer.put(player.getName(), System.currentTimeMillis());
     }
 
     @EventHandler
@@ -56,10 +66,12 @@ public class TradeListener implements Listener, ChatButtonListener {
             Player p = e.getPlayer();
             Player other = (Player) e.getRightClicked();
 
-            if (!other.isOnline()) return; //npc
-            if (!p.canSee(other)) return;
+            if (!other.isOnline()) return; // npc
+            if (!p.canSee(other)) return; // invisible
+            if (TradeSystem.handler().isOffline(p) && isBuffered(e.getPlayer(), BUFFER_TIME_OFFLINE)) return; // `/trade toggle` used - offline
 
             RequestManager.request(p, other, other.getName());
+            applyBuffer(e.getPlayer());
         }
     }
 
