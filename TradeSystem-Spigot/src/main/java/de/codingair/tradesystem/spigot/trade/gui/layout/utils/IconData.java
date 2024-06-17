@@ -21,7 +21,7 @@ public class IconData implements Serializable {
 
     public IconData(@NotNull Class<? extends TradeIcon> tradeIcon, @NotNull ItemStack... items) {
         this.tradeIcon = tradeIcon;
-        this.items = Arrays.stream(items).map(ItemStack::clone).toArray($ -> new ItemStack[0]);
+        this.items = Arrays.stream(items).map(ItemStack::clone).toArray(ItemStack[]::new);
     }
 
     public IconData() {

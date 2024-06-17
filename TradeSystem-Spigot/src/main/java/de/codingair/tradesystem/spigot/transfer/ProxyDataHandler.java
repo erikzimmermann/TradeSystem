@@ -166,8 +166,9 @@ public class ProxyDataHandler implements PluginMessageListener {
 
             Player player = Bukkit.getOnlinePlayers().stream().findAny().orElse(null);
 
+            if (player == null) return;
+
             TradeSystem.getInstance().getScheduler().runTaskAtEntity(player, () -> {
-                if (player == null) return;
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 DataOutputStream dos = new DataOutputStream(baos);
