@@ -22,7 +22,6 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.Decorat
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
@@ -234,7 +233,7 @@ public class IconPage extends Page {
                             resetting = true;
                             updateItem(slot);
 
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                            TradeSystem.getInstance().getScheduler().runTaskLater(() -> {
                                 resetting = false;
                                 updateItem(slot);
                             }, 10L);

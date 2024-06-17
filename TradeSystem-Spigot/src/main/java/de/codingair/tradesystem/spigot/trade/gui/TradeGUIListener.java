@@ -9,7 +9,6 @@ import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -115,7 +114,7 @@ public class TradeGUIListener implements Listener {
         }
 
         // item overflow will be invoked by synchronization later
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+        TradeSystem.getInstance().getScheduler().runTask(() -> {
             // update own inventory later
             trade.synchronizePlayerInventory(perspective);
         });

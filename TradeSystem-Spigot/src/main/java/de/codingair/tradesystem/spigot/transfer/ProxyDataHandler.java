@@ -161,22 +161,25 @@ public class ProxyDataHandler implements PluginMessageListener {
     public void checkForServerName() {
         if (serverName != null) return;
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+        TradeSystem.getInstance().getScheduler().runTaskLater(() -> {
             if (serverName != null) return;
 
             Player player = Bukkit.getOnlinePlayers().stream().findAny().orElse(null);
-            if (player == null) return;
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(baos);
+            TradeSystem.getInstance().getScheduler().runTaskAtEntity(player, () -> {
+                if (player == null) return;
 
-            try {
-                dos.writeUTF("GetServer");
-            } catch (IOException e) {
-                throw new RuntimeException("Could not write plugin message", e);
-            }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(baos);
 
-            player.sendPluginMessage(TradeSystem.getInstance(), "BungeeCord", baos.toByteArray());
+                try {
+                    dos.writeUTF("GetServer");
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not write plugin message", e);
+                }
+
+                player.sendPluginMessage(TradeSystem.getInstance(), "BungeeCord", baos.toByteArray());
+            });
         }, 20);
     }
 

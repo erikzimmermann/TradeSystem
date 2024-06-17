@@ -52,7 +52,7 @@ public class ItemStackEnterGUI extends GUI {
                 if (player.equals(e.getWhoClicked())) {
                     if (e.getSlot() == INPUT_SLOT || e.getView().getBottomInventory().equals(e.getClickedInventory())) {
                         e.setCancelled(false);
-                        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> getActive().updateItem(ACCEPT_SLOT), 1);
+                        TradeSystem.getInstance().getScheduler().runTaskLater(() -> getActive().updateItem(ACCEPT_SLOT), 1);
                     }
                 }
             }

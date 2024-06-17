@@ -7,7 +7,6 @@ import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection
 import de.codingair.tradesystem.spigot.database.migrations.mysql.MysqlMigrations;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqLiteMigrations;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +21,7 @@ public class DatabaseHandler {
         loadType();
 
         TradeSystem.log("  > Queuing database initializing task");
-        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), new Runnable() {
+        TradeSystem.getInstance().getScheduler().runTaskAsynchronously(new Runnable() {
             @Override
             public void run() {
                 try {

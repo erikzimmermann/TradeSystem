@@ -35,7 +35,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
                 if (result == TradeInvitePacket.Result.INVITED) {
                     CompletableFuture<TradeInvitePacket.ResultPacket> future = new CompletableFuture<>();
 
-                    Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+                    TradeSystem.getInstance().getScheduler().runTaskAtEntity(player, () -> {
                         //call request event
                         TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), packet.getInviterId(), player, TradeSystem.handler().getRequestExpirationTime());
                         Bukkit.getPluginManager().callEvent(event);
