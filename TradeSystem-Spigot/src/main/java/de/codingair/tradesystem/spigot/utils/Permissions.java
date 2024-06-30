@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.utils;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import org.bukkit.Bukkit;
@@ -25,7 +26,8 @@ public class Permissions {
         };
 
         if (firstSetup) {
-            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
+            () -> {
                 if (!findPermissionsPlugin()) disableInConfig();
                 runnable.run();
             });

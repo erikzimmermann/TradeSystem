@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
+import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
@@ -37,7 +39,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
@@ -142,7 +143,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         } else workingNms = false;
 
         API.getInstance().onDisable(this);
-        Bukkit.getScheduler().cancelTasks(this);
+        UniversalScheduler.getScheduler(this).cancelTasks();
 
         printConsoleInfo(() -> {
             this.tradeHandler.disable();
@@ -244,7 +245,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void startUpdateNotifier() {
-        Value<BukkitTask> task = new Value<>(null);
+        Value<MyScheduledTask> task = new Value<>(null);
         Runnable runnable = () -> {
             needsUpdate = updateNotifier.read();
 
@@ -259,12 +260,13 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             }
         };
 
-        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 60 * 60, 20L * 60 * 60)); //check every hour on GitHub
+        task.setValue(
+                UniversalScheduler.getScheduler(getInstance()).runTaskTimerAsynchronously(runnable, 20L * 60 * 60, 20L * 60 * 60)); //check every hour on GitHub
     }
 
     private void afterOnEnable() {
         //update command dispatcher for players to synchronize CommandList
-        Bukkit.getScheduler().runTask(this, this::updateCommandList);
+        UniversalScheduler.getScheduler(this).runTask(this::updateCommandList);
     }
 
     private void updateCommandList() {

@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.listeners;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -18,7 +19,7 @@ public class JoinNoteListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if (note != null && e.getPlayer().hasPermission(Permissions.PERMISSION_NOTIFY)) {
-            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> e.getPlayer().spigot().sendMessage(note), 20 * 5);
+            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> e.getPlayer().spigot().sendMessage(note), 20 * 5);
         }
     }
 }

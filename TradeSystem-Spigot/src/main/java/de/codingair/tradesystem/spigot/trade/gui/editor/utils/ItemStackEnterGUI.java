@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.editor.utils;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
 import de.codingair.codingapi.player.gui.inventory.v2.Page;
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
@@ -52,7 +53,7 @@ public class ItemStackEnterGUI extends GUI {
                 if (player.equals(e.getWhoClicked())) {
                     if (e.getSlot() == INPUT_SLOT || e.getView().getBottomInventory().equals(e.getClickedInventory())) {
                         e.setCancelled(false);
-                        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> getActive().updateItem(ACCEPT_SLOT), 1);
+                        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> getActive().updateItem(ACCEPT_SLOT), 1);
                     }
                 }
             }

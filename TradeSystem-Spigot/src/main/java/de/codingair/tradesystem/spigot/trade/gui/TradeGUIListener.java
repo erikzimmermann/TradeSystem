@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -115,7 +116,7 @@ public class TradeGUIListener implements Listener {
         }
 
         // item overflow will be invoked by synchronization later
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(() -> {
             // update own inventory later
             trade.synchronizePlayerInventory(perspective);
         });

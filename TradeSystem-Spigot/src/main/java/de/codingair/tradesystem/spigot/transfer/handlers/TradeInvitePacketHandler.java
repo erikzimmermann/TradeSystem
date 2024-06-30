@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.transfer.handlers;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.packetmanagement.handlers.ResponsiblePacketHandler;
 import de.codingair.packetmanagement.utils.Direction;
 import de.codingair.packetmanagement.utils.Proxy;
@@ -35,7 +36,7 @@ public class TradeInvitePacketHandler implements ResponsiblePacketHandler<TradeI
                 if (result == TradeInvitePacket.Result.INVITED) {
                     CompletableFuture<TradeInvitePacket.ResultPacket> future = new CompletableFuture<>();
 
-                    Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+                    UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(() -> {
                         //call request event
                         TradeRequestEvent event = new TradeRequestEvent(packet.getInviter(), packet.getInviterId(), player, TradeSystem.handler().getRequestExpirationTime());
                         Bukkit.getPluginManager().callEvent(event);

@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.database;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.database.migrations.SqlMigrations;
@@ -22,7 +23,8 @@ public class DatabaseHandler {
         loadType();
 
         TradeSystem.log("  > Queuing database initializing task");
-        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(), new Runnable() {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskAsynchronously(
+        new Runnable() {
             @Override
             public void run() {
                 try {
