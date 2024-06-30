@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.github.Anon8281.universalScheduler.UniversalRunnable;
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
@@ -41,7 +42,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +67,7 @@ public abstract class Trade {
 
     protected Pattern pattern;
     protected Listener pickupListener;
-    protected BukkitRunnable countdown = null;
+    protected UniversalRunnable countdown = null;
     protected int countdownTicks = 0;
     protected boolean cancelling = false;
 
@@ -515,7 +515,7 @@ public abstract class Trade {
 
         int interval = TradeSystem.handler().getCountdownInterval();
         int repetitions = TradeSystem.handler().getCountdownRepetitions();
-        this.countdown = new BukkitRunnable() {
+        this.countdown = new UniversalRunnable() {
             @Override
             public void run() {
                 if (!isActive()) {
@@ -1267,7 +1267,7 @@ public abstract class Trade {
         }), 30);
     }
 
-    public BukkitRunnable getCountdown() {
+    public UniversalRunnable getCountdown() {
         return countdown;
     }
 
