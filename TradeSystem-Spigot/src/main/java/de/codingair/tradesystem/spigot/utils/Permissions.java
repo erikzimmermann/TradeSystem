@@ -29,9 +29,9 @@ public class Permissions {
             UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
             () -> {
                 if (!findPermissionsPlugin()) disableInConfig();
-                runnable.run();
+                UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(runnable);
             });
-        } else runnable.run();
+        } else UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(runnable);
     }
 
     private static boolean findPermissionsPlugin() {
