@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>com.github.Deichor</groupId>
                 <artifactId>CodingAPI-Folia</artifactId>
-                <version>00a4310</version>
+                <version>076512d</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
