@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.layout.types.gui;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.GUISwitchButton;
@@ -110,8 +111,8 @@ public abstract class FloodgateGUIIcon<G> implements TradeIcon, Clickable, State
 
                         if (result == IconResult.GUI) {
                             // use bukkit runnable to see the warning, which is why we re-open this form
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(),
-                                    () -> this.open(player, trade, perspective, viewer, call, gui),
+                            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+                            () -> this.open(player, trade, perspective, viewer, call, gui),
                                     40
                             );
                         } else {

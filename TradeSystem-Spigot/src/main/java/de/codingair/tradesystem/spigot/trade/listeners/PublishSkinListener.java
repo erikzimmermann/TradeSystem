@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.listeners;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.data.GameProfileUtils;
 import de.codingair.tradesystem.proxy.packets.PublishSkinPacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
@@ -12,7 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class PublishSkinListener implements Listener {
     public PublishSkinListener() {
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(PublishSkinListener::sync), 5L);
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+            () -> Bukkit.getOnlinePlayers().forEach(PublishSkinListener::sync), 5L);
     }
 
     @EventHandler
@@ -36,7 +38,7 @@ public class PublishSkinListener implements Listener {
         } catch (NullPointerException ignored) {
         }
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> sync(player, tryCount + 1), 2L);
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> sync(player, tryCount + 1), 2L);
     }
 
 }

@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.transfer.handlers;
 
+import com.github.Anon8281.universalScheduler.UniversalRunnable;
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.packetmanagement.handlers.PacketHandler;
 import de.codingair.packetmanagement.utils.Direction;
 import de.codingair.packetmanagement.utils.Proxy;
@@ -19,17 +21,22 @@ public class TradeInitializedPacketHandler implements PacketHandler<TradeInitial
         if (markAsReceived(packet)) return;
 
         long start = System.currentTimeMillis();
-        Bukkit.getScheduler().runTaskTimer(TradeSystem.getInstance(), runner -> {
-            if (markAsReceived(packet)) {
-                runner.cancel();
-                return;
-            }
+        UniversalRunnable runnable = new UniversalRunnable() {
+            @Override
+            public void run() {
+                if (markAsReceived(packet)) {
+                    this.cancel();
+                    return;
+                }
 
-            if (System.currentTimeMillis() - start > MAX_WAITING_TIME) {
-                runner.cancel();
-                TradeSystem.getInstance().getLogger().severe("The trade initialization packet from " + packet.getPlayer() + " was not received by the server!");
+                if (System.currentTimeMillis() - start > MAX_WAITING_TIME) {
+                    this.cancel();
+                    TradeSystem.getInstance().getLogger().severe("The trade initialization packet from " + packet.getPlayer() + " was not received by the server!");
+                }
             }
-        }, 1, 1);
+        };
+        runnable.runTaskTimer(TradeSystem.getInstance(), 1, 1);
+
     }
 
     private boolean markAsReceived(@NotNull TradeInitializedPacket packet) {

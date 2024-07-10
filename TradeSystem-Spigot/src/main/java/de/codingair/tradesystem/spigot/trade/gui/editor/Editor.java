@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.editor;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
 import de.codingair.codingapi.player.gui.inventory.v2.Page;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
@@ -364,7 +365,7 @@ public class Editor extends GUI {
                 if (isSlotIcon()) {
                     assert setting != null;
                     int amount = 26 - countIcon(setting);
-                    Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> e.getView().setCursor(buildSlotCursor(setting, amount)), 1);
+                    UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> e.getView().setCursor(buildSlotCursor(setting, amount)), 1);
                 }
 
                 open = true;

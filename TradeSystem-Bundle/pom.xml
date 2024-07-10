@@ -81,8 +81,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.CodingAir</groupId>
-            <artifactId>CodingAPI</artifactId>
+            <groupId>com.github.Deichor</groupId>
+            <artifactId>CodingAPI-Folia</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

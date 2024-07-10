@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.anvil.AnvilGUI;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
@@ -212,7 +213,8 @@ public class ProxyTrade extends Trade {
         // use other name for packet since we have to send them the packet
         TradeSystem.proxyHandler().send(new TradeInitializedPacket(other), player);
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+        () -> {
             // cancel trade if other player is not ready
             packetInitialization.completeExceptionally(new IllegalStateException("Other player did not respond."));
         }, 20L);

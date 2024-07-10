@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade.managers;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
+import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import de.codingair.packetmanagement.exceptions.TimeOutException;
 import de.codingair.tradesystem.proxy.packets.InviteResponsePacket;
 import de.codingair.tradesystem.proxy.packets.TradeInvitePacket;
@@ -21,12 +23,12 @@ public class InvitationManager {
      * receiver name to invitations from others
      */
     private final Map<String, Map<String, Invitation>> invitations = new HashMap<>();
-    private int expirationHandler = -1;
+    private MyScheduledTask expirationHandler = null;
 
     public void startExpirationHandler() {
         long expiration = TradeSystem.handler().getRequestExpirationTime() * 1000L;
 
-        expirationHandler = Bukkit.getScheduler().scheduleSyncRepeatingTask(TradeSystem.getInstance(), () -> invitations.entrySet().removeIf(e -> {
+        expirationHandler = UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskTimer(() -> invitations.entrySet().removeIf(e -> {
             e.getValue().values().removeIf(inv -> {
                 boolean valid = inv.valid(expiration);
                 if (valid) return false;
@@ -37,12 +39,13 @@ public class InvitationManager {
 
             return e.getValue().isEmpty();
         }), 20, 10);
+
     }
 
     public void stopExpirationHandler() {
-        if (expirationHandler == -1) return;
-        Bukkit.getScheduler().cancelTask(expirationHandler);
-        expirationHandler = -1;
+        if (expirationHandler == null) return;
+        expirationHandler.cancel();
+        expirationHandler = null;
     }
 
     private void notifyExpiration(@NotNull String nameReceiver, @NotNull Invitation inv) {
@@ -73,7 +76,8 @@ public class InvitationManager {
         UUID finalIdInviter = idInviter;
         String nameReceiverCase = nameReceiver;
         UUID finalIdReceiver = idReceiver;
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
+        () -> {
             TradeRequestExpireEvent event = new TradeRequestExpireEvent(nameInviterCase, finalIdInviter, inviter, nameReceiverCase, finalIdReceiver, receiver);
             Bukkit.getPluginManager().callEvent(event);
         });
@@ -143,7 +147,8 @@ public class InvitationManager {
                 else {
                     if (suc.getResult() == TradeInvitePacket.Result.START_TRADING) {
                         //call event
-                        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, suc.getRecipientId(), null, player.getName(), player.getUniqueId(), player, true)));
+                        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
+                        () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, suc.getRecipientId(), null, player.getName(), player.getUniqueId(), player, true)));
 
                         TradeSystem.getInstance().getTradeManager().startTrade(player, name, suc.getRecipientId(), suc.getWorld(), suc.getServer(), false);
                     } else RuleManager.message(player, name, suc.getResult(), suc.getServer());
@@ -288,7 +293,7 @@ public class InvitationManager {
                     } else {
                         if (suc.getResult() == InviteResponsePacket.Result.SUCCESS) {
                             //call event
-                            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, name, invitation.getId(), null, true)));
+                            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(() -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, name, invitation.getId(), null, true)));
 
                             invalidate(sender, invitation);
 
@@ -308,7 +313,7 @@ public class InvitationManager {
         if (RuleManager.isViolatingRules(sender, other, invitation.getName())) return;
 
         //call event
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, other.getName(), other.getUniqueId(), other, true)));
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(() -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(sender.getName(), sender.getUniqueId(), sender, other.getName(), other.getUniqueId(), other, true)));
 
         invalidate(sender, invitation);
 
