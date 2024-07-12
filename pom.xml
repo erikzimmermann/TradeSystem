@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>TradeSystem</artifactId>
-    <version>2.5.3_Hotfix-4</version>
+    <version>2.5.3_Hotfix-5</version>
     <packaging>pom</packaging>
 
     <modules>
