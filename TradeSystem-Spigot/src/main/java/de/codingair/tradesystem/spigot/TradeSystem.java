@@ -52,7 +52,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final DatabaseHandler databaseHandler = new DatabaseHandler();
     private final FileManager fileManager = new FileManager(this);
 
-    private final SpigotHandler spigotHandler = new SpigotHandler(this);
+    private SpigotHandler spigotHandler;
     private final ProxyDataHandler proxyDataHandler = new ProxyDataHandler();
 
     private final UpdateNotifier updateNotifier = new UpdateNotifier(getDescription().getVersion(), "TradeSystem", 58434);
@@ -116,6 +116,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             loadManagers();
 
             //register packet channels before listening to events
+            this.spigotHandler = new SpigotHandler(this);
             this.spigotHandler.onEnable();
             this.proxyDataHandler.onEnable();
 
@@ -152,7 +153,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             if (this.tradeLogCMD != null) this.tradeLogCMD.unregister();
 
             //unregister packet channels
-            this.spigotHandler.onDisable();
+            if (this.spigotHandler != null) this.spigotHandler.onDisable();
             this.proxyDataHandler.onDisable();
 
             HandlerList.unregisterAll(this);

@@ -24,18 +24,24 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
 
         registerHandler(PlayerJoinPacket.class, new PlayerJoinPacketHandler());
         registerHandler(PlayerQuitPacket.class, new PlayerQuitPacketHandler());
-        registerHandler(TradeInvitePacket.class, new TradeInvitePacketHandler());
-        registerHandler(PlayerInventoryPacket.class, new PlayerInventoryPacketHandler());
-        registerHandler(TradeItemUpdatePacket.class, new TradeItemUpdatePacketHandler());
-        registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
-        registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
-        registerHandler(TradeCheckFinishPacket.class, new TradeCheckFinishPacketHandler());
-        registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
-        registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
         registerHandler(PlayerStatePacket.class, new PlayerStatePacketHandler());
         registerHandler(PublishSkinPacket.class, new PublishSkinPacketHandler());
         registerHandler(VersionPacket.class, new VersionPacketHandler());
-        registerHandler(TradeInitializedPacket.class, new TradeInitializedPacketHandler());
+
+        if (TradeSystem.handler().tradeProxy()) {
+            // fix: custom payload attacks
+            // When TradeProxy is enabled, this is safe to be used, but if TradeProxy is not enabled, the plugin
+            // messaging channels are unprotected to players sending custom payload attacks.
+            registerHandler(TradeInvitePacket.class, new TradeInvitePacketHandler());
+            registerHandler(TradeInitializedPacket.class, new TradeInitializedPacketHandler());
+            registerHandler(PlayerInventoryPacket.class, new PlayerInventoryPacketHandler());
+            registerHandler(TradeItemUpdatePacket.class, new TradeItemUpdatePacketHandler());
+            registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
+            registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
+            registerHandler(TradeCheckFinishPacket.class, new TradeCheckFinishPacketHandler());
+            registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
+            registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
+        }
     }
 
     public void onEnable() {

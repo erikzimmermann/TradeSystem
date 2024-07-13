@@ -38,6 +38,7 @@ public class TradeHandler {
      * Allow disconnected players to reconnect with same options, so they don't have to disable trade requests again.
      */
     private final Set<String> offline = new HashSet<>();
+    private boolean tradeProxy = false;
 
     private final HashMap<String, Trade> trades = new HashMap<>();
 
@@ -80,6 +81,7 @@ public class TradeHandler {
         FileConfiguration config = file.getConfig();
 
         boolean save = false;
+        tradeProxy = config.getBoolean("TradeSystem.TradeProxy", false);
 
         //load options
         requestExpirationTime = config.getInt("TradeSystem.Trade_Request_Expiration_Time", 60);
@@ -595,5 +597,9 @@ public class TradeHandler {
 
     public HashMap<String, Trade> getTrades() {
         return trades;
+    }
+
+    public boolean tradeProxy() {
+        return tradeProxy;
     }
 }
