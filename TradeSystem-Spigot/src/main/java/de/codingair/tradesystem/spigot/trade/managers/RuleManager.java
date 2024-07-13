@@ -49,7 +49,7 @@ public class RuleManager {
             InvitationManager.registerInvitation(player, player.getName(), result.getRecipientId(), null, other);
         }
 
-        message(player, other, result.getResult(), result.getServer());
+        message(player, other, result.getResult(), result.getServerOpt().orElse(null));
     }
 
     public static TradeInvitePacket.Result isOtherViolatingRules(@NotNull Player other) {
