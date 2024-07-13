@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.transfer;
 
+import de.codingair.codingapi.server.specification.Version;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
@@ -92,6 +93,7 @@ public class ProxyDataHandler implements PluginMessageListener {
         }
 
         return Objects.hash(
+                Version.get(),                                              // fix: java.lang.IllegalArgumentException: Newer version! Server downgrades are not supported!
                 patternHash,
                 cooldown,
                 TradeSystem.handler().isRevokeReadyOnChange(),
