@@ -5,6 +5,7 @@ import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.files.FileManager;
 import de.codingair.codingapi.nms.NmsCheck;
 import de.codingair.codingapi.player.chat.ChatButtonManager;
+import de.codingair.codingapi.server.specification.Type;
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.utils.Value;
 import de.codingair.packetmanagement.utils.Proxy;
@@ -98,6 +99,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onEnable() {
         instance = this;
+        if (!checkServerVersion()) return;
         checkNms();
 
         API.getInstance().onEnable(this);
@@ -136,6 +138,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     @Override
     public void onDisable() {
+        if (Version.get() != null && Version.atLeast(20.5) && Version.type() != Type.PAPER) return;
         if (!workingNms) {
             getLogger().log(Level.SEVERE, "This Minecraft version does not seem to be supported yet. Please contact the author with the given error above.");
             getLogger().log(Level.SEVERE, "Here's an invitation to the discord for support: https://discord.gg/DxKMcGjQbp");
@@ -194,6 +197,19 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private void checkNms() {
         NmsCheck.test(new Class[0]);
         workingNms = true;
+    }
+
+    private boolean checkServerVersion() {
+        if (Version.get() != null && Version.atLeast(20.5) && Version.type() != Type.PAPER) {
+            getLogger().info("====================");
+            getLogger().log(Level.SEVERE, "To support faster updates by having less NMS changes, this plugin requires a Paper server as of Minecraft 1.20.5 and upwards!");
+            getLogger().log(Level.SEVERE, "A fork of Paper does also work.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            getLogger().info("====================");
+            return false;
+        }
+
+        return true;
     }
 
     private void loadManagers() {
