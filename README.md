@@ -19,7 +19,7 @@ When working with the API of TradeSystem, please note the library relocation as 
 <dependency>
     <groupId>com.github.CodingAir</groupId>
     <artifactId>CodingAPI</artifactId>
-    <version>1.79</version>
+    <version>1.84</version>
     <scope>provided</scope>
 </dependency>
 
