@@ -27,18 +27,17 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
 
     @Override
     public void registering() {
+        for (PacketType value : PacketType.values()) {
+            registerPacket(value.getPacketClass());
+        }
+
         if (!TradeSystem.handler().tradeProxy()) {
             // fix: custom payload attacks
             // When TradeProxy is not enabled,
             // all packets must be ignored to prevent any communication with external clients.
 
-            registerPacket(VersionPacket.class);
             registerHandler(VersionPacket.class, new UnauthorizedVersionPacketHandler());
             return;
-        }
-
-        for (PacketType value : PacketType.values()) {
-            registerPacket(value.getPacketClass());
         }
 
         registerHandler(PlayerJoinPacket.class, new PlayerJoinPacketHandler());
