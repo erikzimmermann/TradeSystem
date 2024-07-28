@@ -1,5 +1,8 @@
 package de.codingair.tradesystem.spigot.transfer;
 
+import de.codingair.packetmanagement.packets.Packet;
+import de.codingair.packetmanagement.packets.RequestPacket;
+import de.codingair.packetmanagement.packets.ResponsePacket;
 import de.codingair.packetmanagement.variants.bytestream.OneWayStreamDataHandler;
 import de.codingair.tradesystem.proxy.packets.*;
 import de.codingair.tradesystem.spigot.TradeSystem;
@@ -8,16 +11,32 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class SpigotHandler extends OneWayStreamDataHandler<Player> implements PluginMessageListener {
+
     public SpigotHandler(TradeSystem plugin) {
         super("tradesystem", plugin);
+
+        // ignore unregistered packets to make data handling more robust
+        setIgnoreUnregistered(true);
     }
 
     @Override
     public void registering() {
+        if (!TradeSystem.handler().tradeProxy()) {
+            // fix: custom payload attacks
+            // When TradeProxy is not enabled,
+            // all packets must be ignored to prevent any communication with external clients.
+
+            registerPacket(VersionPacket.class);
+            registerHandler(VersionPacket.class, new UnauthorizedVersionPacketHandler());
+            return;
+        }
+
         for (PacketType value : PacketType.values()) {
             registerPacket(value.getPacketClass());
         }
@@ -28,27 +47,23 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
         registerHandler(PublishSkinPacket.class, new PublishSkinPacketHandler());
         registerHandler(VersionPacket.class, new VersionPacketHandler());
 
-        if (TradeSystem.handler().tradeProxy()) {
-            // fix: custom payload attacks
-            // When TradeProxy is enabled, this is safe to be used, but if TradeProxy is not enabled, the plugin
-            // messaging channels are unprotected to players sending custom payload attacks.
-            registerHandler(TradeInvitePacket.class, new TradeInvitePacketHandler());
-            registerHandler(TradeInitializedPacket.class, new TradeInitializedPacketHandler());
-            registerHandler(PlayerInventoryPacket.class, new PlayerInventoryPacketHandler());
-            registerHandler(TradeItemUpdatePacket.class, new TradeItemUpdatePacketHandler());
-            registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
-            registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
-            registerHandler(TradeCheckFinishPacket.class, new TradeCheckFinishPacketHandler());
-            registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
-            registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
-        }
+        registerHandler(TradeInvitePacket.class, new TradeInvitePacketHandler());
+        registerHandler(TradeInitializedPacket.class, new TradeInitializedPacketHandler());
+        registerHandler(PlayerInventoryPacket.class, new PlayerInventoryPacketHandler());
+        registerHandler(TradeItemUpdatePacket.class, new TradeItemUpdatePacketHandler());
+        registerHandler(TradeStateUpdatePacket.class, new TradeStateUpdatePacketHandler());
+        registerHandler(InviteResponsePacket.class, new InviteResponsePacketHandler());
+        registerHandler(TradeCheckFinishPacket.class, new TradeCheckFinishPacketHandler());
+        registerHandler(SynchronizePlayersPacket.class, new SynchronizePlayersPacketHandler());
+        registerHandler(TradeIconUpdatePacket.class, new TradeIconUpdatePacketHandler());
     }
 
     public void onEnable() {
         Bukkit.getMessenger().registerOutgoingPluginChannel((TradeSystem) proxy, channelProxy);
         Bukkit.getMessenger().registerIncomingPluginChannel((TradeSystem) proxy, channelBackend, this);
 
-        if (!Bukkit.getOnlinePlayers().isEmpty()) send(new SynchronizePlayersPacket(), null);
+        if (TradeSystem.handler().tradeProxy() && !Bukkit.getOnlinePlayers().isEmpty())
+            send(new SynchronizePlayersPacket(), null);
     }
 
     public void onDisable() {
@@ -72,5 +87,31 @@ public class SpigotHandler extends OneWayStreamDataHandler<Player> implements Pl
     private Player getAny() {
         Optional<? extends Player> opt = Bukkit.getOnlinePlayers().stream().findFirst();
         return opt.orElse(null);
+    }
+
+    @Override
+    public void send(@NotNull Packet packet, @Nullable Player connection) {
+        if (!TradeSystem.handler().tradeProxy()) return;
+        super.send(packet, connection);
+    }
+
+    @Override
+    public <A extends ResponsePacket> CompletableFuture<A> send(@NotNull RequestPacket<A> packet, @Nullable Player connection) {
+        if (!TradeSystem.handler().tradeProxy()) {
+            CompletableFuture<A> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalStateException("TradeProxy not connected."));
+            return future;
+        }
+        return super.send(packet, connection);
+    }
+
+    @Override
+    public <A extends ResponsePacket> CompletableFuture<A> send(@NotNull RequestPacket<A> packet, @Nullable Player connection, long timeOut) {
+        if (!TradeSystem.handler().tradeProxy()) {
+            CompletableFuture<A> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalStateException("TradeProxy not connected."));
+            return future;
+        }
+        return super.send(packet, connection, timeOut);
     }
 }

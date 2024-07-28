@@ -42,18 +42,27 @@ public class ProxyDataHandler implements PluginMessageListener {
     private boolean noticedAboutTradeProxy = false;
 
     public void onEnable() {
+        if (!TradeSystem.handler().tradeProxy()) {
+            // fix: custom payload attacks
+            // When TradeProxy is not enabled,
+            // all packets must be ignored to prevent any communication with external clients.
+            return;
+        }
+
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
         checkForServerName();
     }
 
     public void onDisable() {
+        if (!TradeSystem.handler().tradeProxy()) return;
+
         Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
         Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
         this.players.clear();
     }
 
-    private void sendTradeProxyNote() {
+    public void sendTradeProxyNote() {
         if (TradeSystem.handler().tradeProxy()) return;
         if (noticedAboutTradeProxy) return;
 
@@ -70,8 +79,6 @@ public class ProxyDataHandler implements PluginMessageListener {
     }
 
     public void join(@NotNull String player, @NotNull UUID playerId) {
-        sendTradeProxyNote();
-
         this.players.put(player.toLowerCase(), player);
         this.uuids.put(player.toLowerCase(), playerId);
 
@@ -205,7 +212,7 @@ public class ProxyDataHandler implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-        if (!channel.equals("BungeeCord")) return;
+        if (!channel.equals("BungeeCord") || serverName != null) return;
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
         DataInputStream dis = new DataInputStream(bais);
