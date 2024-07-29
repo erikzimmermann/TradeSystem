@@ -42,7 +42,7 @@ jobs:
           while
             if [ -n "$response_code" ]
             then
-              sleep 10
+              sleep 25
             fi
         
             url='https://www.virustotal.com/vtapi/v2/file/report'
