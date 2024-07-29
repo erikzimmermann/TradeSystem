@@ -19,6 +19,50 @@ jobs:
     - name: Build with Maven
       run: |
         mvn clean package
+    - name: Check for Signatures on VirusTotal
+      run: |
+        file=$(find "./TradeSystem-Bundle/target" -type f -name "TradeSystem_v*.jar" | head -n 1)
+        key=${{ secrets.VIRUSTOTAL }}
+
+        echo "Checking for virus detection..."
+
+        url='https://www.virustotal.com/vtapi/v2/file/scan'
+        response=$(curl -F apikey=$key -F file=@$file $url)
+
+        resource=$(echo "$response" | jq -r '.resource')
+        msg=$(echo "$response" | jq -r '.verbose_msg')
+
+        if [ "$resource" = null ]
+        then
+          echo "::error::Could not run VirusTotal check. Message: $msg"
+        else
+          echo "Retrieving scan for resource '$resource'..."
+        
+          while
+            if [ -n "$response_code" ]
+            then
+              sleep 25
+            fi
+        
+            url='https://www.virustotal.com/vtapi/v2/file/report'
+            response=$(curl -F apikey=$key -F resource="$resource" $url)
+        
+            response_code=$(echo "$response" | jq -r '.response_code')
+            [ ! "$response_code" = "1" ]
+          do :; done
+        
+          positives=$(echo "$response" | jq -r '.positives')
+          link=$(echo "$response" | jq -r '.permalink')
+        
+          if [ "$positives" = "0" ]
+          then
+            echo "No virus detected."
+            exit 0
+          else
+            echo "$positives virus(es) detected! Link: $link"
+            exit 1
+          fi
+        fi
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2.2.4
       with:
