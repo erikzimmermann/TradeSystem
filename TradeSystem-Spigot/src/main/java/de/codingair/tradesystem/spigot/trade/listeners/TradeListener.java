@@ -3,7 +3,6 @@ package de.codingair.tradesystem.spigot.trade.listeners;
 import de.codingair.codingapi.player.chat.ChatButtonListener;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.trade.managers.RequestManager;
 import de.codingair.tradesystem.spigot.utils.Lang;

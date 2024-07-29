@@ -25,7 +25,7 @@ public class Permissions {
         };
 
         if (firstSetup) {
-            Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> {
+            TradeSystem.getInstance().getScheduler().runTask(() -> {
                 if (!findPermissionsPlugin()) disableInConfig();
                 runnable.run();
             });

@@ -60,7 +60,7 @@ public class TradeLogService {
 
         //it will throw an error if the plugin is not enabled
         if (TradeSystem.getInstance().isEnabled())
-            Bukkit.getScheduler().runTaskLaterAsynchronously(TradeSystem.getInstance(), runnable, delay);
+            TradeSystem.getInstance().getScheduler().runTaskLaterAsynchronously(runnable, delay);
         else runnable.run();
     }
 
@@ -80,7 +80,7 @@ public class TradeLogService {
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(TradeSystem.getInstance(),
+        TradeSystem.getInstance().getScheduler().runTaskAsynchronously(
                 () -> callback.accept(getTradeLogRepository().haveTraded(player1, player2))
         );
     }

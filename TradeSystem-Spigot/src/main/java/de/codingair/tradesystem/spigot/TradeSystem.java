@@ -33,12 +33,14 @@ import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import de.codingair.tradesystem.spigot.utils.updates.NotifyListener;
 import de.codingair.tradesystem.spigot.utils.updates.UpdateNotifier;
+import me.nahu.scheduler.wrapper.WrappedScheduler;
+import me.nahu.scheduler.wrapper.WrappedSchedulerBuilder;
+import me.nahu.scheduler.wrapper.task.WrappedTask;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
@@ -59,6 +61,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     private final UpdateNotifier updateNotifier = new UpdateNotifier(getDescription().getVersion(), "TradeSystem", 58434);
     private boolean needsUpdate = false;
 
+    private WrappedScheduler scheduler;
     private CommandManager commandManager;
     private TradeSystemCMD tradeSystemCMD;
     private TradeLogCMD tradeLogCMD;
@@ -99,6 +102,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onEnable() {
         instance = this;
+
+        final WrappedSchedulerBuilder schedulerBuilder = WrappedSchedulerBuilder.builder().plugin(this);
+        scheduler = schedulerBuilder.build();
+
         checkNms();
 
         API.getInstance().onEnable(this);
@@ -144,7 +151,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         } else workingNms = false;
 
         API.getInstance().onDisable(this);
-        Bukkit.getScheduler().cancelTasks(this);
+        TradeSystem.getInstance().getScheduler().cancelAllTasks();
 
         printConsoleInfo(() -> {
             this.tradeHandler.disable();
@@ -246,7 +253,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void startUpdateNotifier() {
-        Value<BukkitTask> task = new Value<>(null);
+        Value<WrappedTask> task = new Value<>(null);
         Runnable runnable = () -> {
             needsUpdate = updateNotifier.read();
 
@@ -261,12 +268,12 @@ public class TradeSystem extends JavaPlugin implements Proxy {
             }
         };
 
-        task.setValue(Bukkit.getScheduler().runTaskTimerAsynchronously(getInstance(), runnable, 20L * 60 * 60, 20L * 60 * 60)); //check every hour on GitHub
+        task.setValue(TradeSystem.getInstance().getScheduler().runTaskTimerAsynchronously(runnable, 20L * 60 * 60, 20L * 60 * 60)); //check every hour on GitHub
     }
 
     private void afterOnEnable() {
         //update command dispatcher for players to synchronize CommandList
-        Bukkit.getScheduler().runTask(this, this::updateCommandList);
+        TradeSystem.getInstance().getScheduler().runTask(this::updateCommandList);
     }
 
     private void updateCommandList() {
@@ -324,6 +331,10 @@ public class TradeSystem extends JavaPlugin implements Proxy {
 
     public DatabaseHandler getDatabaseInitializer() {
         return databaseHandler;
+    }
+
+    public WrappedScheduler getScheduler() {
+        return scheduler;
     }
 
     public CommandManager getCommandManager() {
