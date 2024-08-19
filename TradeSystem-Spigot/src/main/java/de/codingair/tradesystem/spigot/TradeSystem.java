@@ -180,7 +180,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         log(" ");
         log("Status:");
         log(" ");
-        log("MC-Version: " + Version.get().fullVersion());
+        log("MC-Version: " + Version.fullVersion());
         log(" ");
 
         runnable.run();
@@ -270,7 +270,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     }
 
     private void updateCommandList() {
-        if (Version.get().isBiggerThan(Version.v1_12)) {
+        if (Version.after(12)) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
             }
