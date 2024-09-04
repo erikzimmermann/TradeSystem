@@ -13,7 +13,6 @@ import de.codingair.tradesystem.spigot.trade.gui.TradingGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.TradeIcon;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.transfer.utils.ItemStackUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -212,7 +211,7 @@ public class ProxyTrade extends Trade {
         // use other name for packet since we have to send them the packet
         TradeSystem.proxyHandler().send(new TradeInitializedPacket(other), player);
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+        TradeSystem.getInstance().getScheduler().runTaskLater(() -> {
             // cancel trade if other player is not ready
             packetInitialization.completeExceptionally(new IllegalStateException("Other player did not respond."));
         }, 20L);

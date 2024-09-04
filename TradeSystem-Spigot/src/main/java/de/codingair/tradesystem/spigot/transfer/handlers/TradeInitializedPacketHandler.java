@@ -7,7 +7,7 @@ import de.codingair.tradesystem.proxy.packets.TradeInitializedPacket;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
-import org.bukkit.Bukkit;
+import me.nahu.scheduler.wrapper.runnable.WrappedRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,17 +19,21 @@ public class TradeInitializedPacketHandler implements PacketHandler<TradeInitial
         if (markAsReceived(packet)) return;
 
         long start = System.currentTimeMillis();
-        Bukkit.getScheduler().runTaskTimer(TradeSystem.getInstance(), runner -> {
-            if (markAsReceived(packet)) {
-                runner.cancel();
-                return;
-            }
 
-            if (System.currentTimeMillis() - start > MAX_WAITING_TIME) {
-                runner.cancel();
-                TradeSystem.getInstance().getLogger().severe("The trade initialization packet from " + packet.getPlayer() + " was not received by the server!");
+        new WrappedRunnable() {
+            @Override
+            public void run() {
+                if (markAsReceived(packet)) {
+                    super.cancel();
+                    return;
+                }
+
+                if (System.currentTimeMillis() - start > MAX_WAITING_TIME) {
+                    super.cancel();
+                    TradeSystem.getInstance().getLogger().severe("The trade initialization packet from " + packet.getPlayer() + " was not received by the server!");
+                }
             }
-        }, 1, 1);
+        }.runTaskTimer(TradeSystem.getInstance().getScheduler(), 1L, 1L);
     }
 
     private boolean markAsReceived(@NotNull TradeInitializedPacket packet) {

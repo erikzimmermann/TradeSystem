@@ -5,6 +5,7 @@ description: A beautiful way to trade with other players.
 main: de.codingair.tradesystem.spigot.TradeSystem
 softdepend: [Vault, Essentials, PlaceholderAPI, TokenManager, PlayerPoints, GriefDefender, MMOItems, WorldGuard, floodgate]
 load-after: [Vault, Essentials, PlaceholderAPI, TokenManager, PlayerPoints, GriefDefender, MMOItems, WorldGuard, floodgate]
+folia-supported: true
 
 api-version: "1.13"
 

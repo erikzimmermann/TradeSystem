@@ -15,7 +15,6 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.utils.TriFunction;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.utils.FloodgateUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -110,7 +109,7 @@ public abstract class FloodgateGUIIcon<G> implements TradeIcon, Clickable, State
 
                         if (result == IconResult.GUI) {
                             // use bukkit runnable to see the warning, which is why we re-open this form
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(),
+                            TradeSystem.getInstance().getScheduler().runTaskLaterAtEntity(player,
                                     () -> this.open(player, trade, perspective, viewer, call, gui),
                                     40
                             );

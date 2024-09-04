@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PublishSkinListener implements Listener {
     public PublishSkinListener() {
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(PublishSkinListener::sync), 5L);
+        TradeSystem.getInstance().getScheduler().runTaskLater(() -> Bukkit.getOnlinePlayers().forEach(PublishSkinListener::sync), 5L);
     }
 
     @EventHandler
@@ -36,7 +36,7 @@ public class PublishSkinListener implements Listener {
         } catch (NullPointerException ignored) {
         }
 
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> sync(player, tryCount + 1), 2L);
+        TradeSystem.getInstance().getScheduler().runTaskLaterAtEntity(player, () -> sync(player, tryCount + 1), 2L);
     }
 
 }
