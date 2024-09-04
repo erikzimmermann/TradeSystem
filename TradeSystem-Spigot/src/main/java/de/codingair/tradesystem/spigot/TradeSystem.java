@@ -138,7 +138,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
     @Override
     public void onDisable() {
         if (!workingNms) {
-            getLogger().log(Level.SEVERE, "This Minecraft version does not seem to be supported yet. Please contact the author with the given error above.");
+            getLogger().log(Level.SEVERE, "This Minecraft version appears to be unsupported. Ensure your server .jar file is up to date. If it is, please contact the author with the error message above.");
             getLogger().log(Level.SEVERE, "Here's an invitation to the discord for support: https://discord.gg/DxKMcGjQbp");
             return;
         } else workingNms = false;
