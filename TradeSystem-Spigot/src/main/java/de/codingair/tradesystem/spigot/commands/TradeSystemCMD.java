@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.commands;
 
+import de.codingair.codingapi.files.ConfigFile;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.AlreadyOpenedException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingException;
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
@@ -9,6 +10,7 @@ import de.codingair.codingapi.server.commands.builder.CommandComponent;
 import de.codingair.codingapi.server.commands.builder.special.MultiCommandComponent;
 import de.codingair.codingapi.tools.io.JSON.JSON;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.trade.TradeHandler;
 import de.codingair.tradesystem.spigot.trade.gui.editor.Editor;
 import de.codingair.tradesystem.spigot.trade.gui.layout.LayoutManager;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
@@ -17,6 +19,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Name;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import de.codingair.tradesystem.spigot.utils.Permissions;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -48,6 +51,30 @@ public class TradeSystemCMD extends CommandBuilder {
         }, true, "ts");
 
         LayoutManager l = TradeSystem.getInstance().getLayoutManager();
+
+        if (!TradeSystem.handler().tradeProxy()) {
+            getBaseComponent().addChild(new CommandComponent("activateTradeProxy") {
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String[] args) {
+                    sender.sendMessage(Lang.getPrefix() + "§cWARNING§7. You're about to enable §eTradeProxy §7for this server. If you don't have §eTradeProxy§7 installed, you'll be §cvulnerable to custom payload attacks§7. Run §c/tradesystem activateTradeProxy confirm§7 if you're sure.");
+                    return true;
+                }
+            });
+
+            getComponent("activateTradeProxy").addChild(new CommandComponent("confirm") {
+                @Override
+                public boolean runCommand(CommandSender sender, String label, String[] args) {
+                    ConfigFile file = TradeSystem.getInstance().getFileManager().getFile("Config");
+                    FileConfiguration config = file.getConfig();
+
+                    config.set("TradeSystem.TradeProxy", true);
+                    file.saveConfig();
+
+                    getComponent("reload").runCommand(sender, "reload", new String[0]);
+                    return true;
+                }
+            });
+        }
 
         getBaseComponent().addChild(new CommandComponent("reload") {
             @Override

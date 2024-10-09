@@ -6,6 +6,8 @@ TradeSystem:
   #   "tradesystem.trade.initiate": Can invite players for trades
   # If permissions are disabled, every player is able to accept/deny/toggle/initiate trades
   Permissions: true
+  # Only set this to 'true' if you're using TradeProxy. Otherwise, you'll be vulnerable to dupes caused by custom payload attacks.
+  TradeProxy: false
 
   # Both traders have to add an item/money to finish the trade
   Trade_Both: true

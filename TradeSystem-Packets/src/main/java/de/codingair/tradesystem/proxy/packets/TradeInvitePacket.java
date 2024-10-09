@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -164,14 +165,22 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
 
         @NotNull
         public UUID getRecipientId() {
-            if (recipientId == null) throw new IllegalStateException("RecipientId is null");
-            return recipientId;
+            return getRecipientIdOpt().orElseThrow(() -> new IllegalStateException("RecipientId is null"));
+        }
+
+        @NotNull
+        public Optional<UUID> getRecipientIdOpt() {
+            return Optional.ofNullable(recipientId);
         }
 
         @NotNull
         public String getServer() {
-            if (server == null) throw new IllegalStateException("Server is null");
-            return server;
+            return getServerOpt().orElseThrow(() -> new IllegalStateException("Server is null"));
+        }
+
+        @NotNull
+        public Optional<String> getServerOpt() {
+            return Optional.ofNullable(server);
         }
 
         @NotNull
@@ -182,8 +191,12 @@ public class TradeInvitePacket implements RequestPacket<TradeInvitePacket.Result
 
         @NotNull
         public String getWorld() {
-            if (world == null) throw new IllegalStateException("World is null");
-            return world;
+            return getWorldOpt().orElseThrow(() -> new IllegalStateException("World is null"));
+        }
+
+        @NotNull
+        public Optional<String> getWorldOpt() {
+            return Optional.ofNullable(world);
         }
     }
 }

@@ -132,7 +132,7 @@ public class BlockedItem implements Serializable {
     private boolean missMaterial(@NotNull ItemStack item) {
         if (this.material == null) return false;
 
-        if (Version.get().isBiggerThan(Version.v1_12) || data == null) {
+        if (Version.after(12) || data == null) {
             return item.getType() != this.material;
         } else {
             //noinspection deprecation
@@ -165,7 +165,7 @@ public class BlockedItem implements Serializable {
     }
 
     private boolean missCustomModelData(@NotNull ItemStack item) {
-        if (customModelData == null || Version.less(14)) return false;
+        if (customModelData == null || Version.before(14)) return false;
 
         if (item.hasItemMeta() && item.getItemMeta() != null) {
             return customModelData != item.getItemMeta().getCustomModelData();

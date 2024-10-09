@@ -13,13 +13,13 @@ When working with the API of TradeSystem, please note the library relocation as 
 <dependency>  
   <groupId>com.github.CodingAir</groupId>
   <artifactId>TradeSystem</artifactId>  
-  <version>v2.5.3</version>  
+  <version>v2.6.2</version>  
 </dependency>
 
 <dependency>
     <groupId>com.github.CodingAir</groupId>
     <artifactId>CodingAPI</artifactId>
-    <version>1.79</version>
+    <version>1.84</version>
     <scope>provided</scope>
 </dependency>
 

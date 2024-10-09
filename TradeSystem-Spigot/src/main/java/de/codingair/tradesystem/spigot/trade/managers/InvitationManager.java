@@ -151,7 +151,7 @@ public class InvitationManager {
                         () -> Bukkit.getPluginManager().callEvent(new TradeRequestResponseEvent(name, suc.getRecipientId(), null, player.getName(), player.getUniqueId(), player, true)));
 
                         TradeSystem.getInstance().getTradeManager().startTrade(player, name, suc.getRecipientId(), suc.getWorld(), suc.getServer(), false);
-                    } else RuleManager.message(player, name, suc.getResult(), suc.getServer());
+                    } else RuleManager.message(player, name, suc.getResult(), suc.getServerOpt().orElse(null));
                 }
             });
         }

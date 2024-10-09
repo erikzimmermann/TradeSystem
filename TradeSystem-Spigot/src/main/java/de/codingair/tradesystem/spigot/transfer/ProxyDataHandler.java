@@ -1,11 +1,14 @@
 package de.codingair.tradesystem.spigot.transfer;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
+import de.codingair.codingapi.server.specification.Version;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
 import de.codingair.tradesystem.spigot.trade.ProxyTrade;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.Pattern;
+import de.codingair.tradesystem.spigot.utils.Lang;
+import de.codingair.tradesystem.spigot.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,17 +40,43 @@ public class ProxyDataHandler implements PluginMessageListener {
     private final HashMap<String, String> skins = new HashMap<>();
     private String tradeProxyVersion = null;
     private String serverName = null;
+    private boolean noticedAboutTradeProxy = false;
 
     public void onEnable() {
+        if (!TradeSystem.handler().tradeProxy()) {
+            // fix: custom payload attacks
+            // When TradeProxy is not enabled,
+            // all packets must be ignored to prevent any communication with external clients.
+            return;
+        }
+
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
         checkForServerName();
     }
 
     public void onDisable() {
+        if (!TradeSystem.handler().tradeProxy()) return;
+
         Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(TradeSystem.getInstance(), "BungeeCord", this);
         Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(TradeSystem.getInstance(), "BungeeCord");
         this.players.clear();
+    }
+
+    public void sendTradeProxyNote() {
+        if (TradeSystem.handler().tradeProxy()) return;
+        if (noticedAboutTradeProxy) return;
+
+        TradeSystem.getInstance().getLogger().warning("========================================");
+        TradeSystem.getInstance().getLogger().warning("The 'TradeProxy' option is disabled but TradeProxy has been detected. If you are sure that TradeProxy is installed, you can activate the 'TradeProxy' option in your config.yml file or by running 'tradesystem activateTradeProxy confirm'. This check prevents custom payload attacks.");
+        TradeSystem.getInstance().getLogger().warning("========================================");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!player.hasPermission(Permissions.PERMISSION_MODIFY)) continue;
+            player.sendMessage(Lang.getPrefix() + "§cWarning! §7The 'TradeProxy' option is §cdisabled §7but §eTradeProxy §7has been detected. If you are sure that §eTradeProxy §7is installed, you can activate the 'TradeProxy' option in your config.yml file or by running §e/tradesystem activateTradeProxy confirm§7. This check prevents §ccustom payload attacks§7.");
+        }
+
+        noticedAboutTradeProxy = true;
     }
 
     public void join(@NotNull String player, @NotNull UUID playerId) {
@@ -93,6 +122,7 @@ public class ProxyDataHandler implements PluginMessageListener {
         }
 
         return Objects.hash(
+                Version.get(),                                              // fix: java.lang.IllegalArgumentException: Newer version! Server downgrades are not supported!
                 patternHash,
                 cooldown,
                 TradeSystem.handler().isRevokeReadyOnChange(),
@@ -183,7 +213,7 @@ public class ProxyDataHandler implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-        if (!channel.equals("BungeeCord")) return;
+        if (!channel.equals("BungeeCord") || serverName != null) return;
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
         DataInputStream dis = new DataInputStream(bais);
