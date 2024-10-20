@@ -9,6 +9,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeCountdownEvent;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeReportEvent;
@@ -373,7 +374,8 @@ public abstract class Trade {
             countdown.cancel();
             countdownTicks = 0;
             countdown = null;
-            synchronizeTitle();
+            // rebuild since we may have modified inventories due to TradeCountdownEvent
+            guis().forEach(gui -> gui.getActive().rebuild());
         }
 
         subscribers.forEach(Runnable::run);
@@ -526,12 +528,13 @@ public abstract class Trade {
 
                 if (!ready[0] || !ready[1]) {
                     this.cancel();
-                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
+                    playCountDownStopSound();
                     countdownTicks = 0;
                     countdown = null;
 
                     subscribers.forEach(Runnable::run);
-                    guis().forEach(TradingGUI::synchronizeTitle);
+                    // rebuild since we may have modified inventories due to TradeCountdownEvent
+                    guis().forEach(gui -> gui.getActive().rebuild());
                     return;
                 }
 
@@ -544,6 +547,22 @@ public abstract class Trade {
                     return;
                 } else {
                     guis().forEach(TradingGUI::synchronizeTitle);
+
+                    // call countdown event to enable custom modifications to the inventory
+                    Trade.this.getViewers().forEach(p ->
+                            Bukkit.getPluginManager().callEvent(
+                                    new TradeCountdownEvent(
+                                            Trade.this,
+                                            getPerspective(p),
+                                            p,
+                                            p.getOpenInventory().getTopInventory(),
+                                            repetitions,
+                                            interval,
+                                            repetitions - countdownTicks
+                                    )
+                            )
+                    );
+
                     Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownTickSound(p));
                 }
 
