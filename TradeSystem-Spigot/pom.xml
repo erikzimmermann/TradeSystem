@@ -43,10 +43,17 @@
             <id>rosewood-repo</id>
             <url>https://repo.rosewooddev.io/repository/public/</url>
         </repository>
+
+        <!-- both required for griefdefender for some reason -->
         <repository>
             <id>griefdefender</id>
             <url>https://repo.glaremasters.me/repository/bloodshot</url>
         </repository>
+        <repository>
+            <id>sonatype_snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+
         <repository>
             <id>nexus</id>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
