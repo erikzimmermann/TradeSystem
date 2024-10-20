@@ -64,7 +64,7 @@ jobs:
           fi
         fi
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: TradeSystem
         path: TradeSystem-Bundle/target/*.jar
