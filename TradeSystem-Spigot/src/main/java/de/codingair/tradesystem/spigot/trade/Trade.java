@@ -1251,6 +1251,9 @@ public abstract class Trade {
 
         guis().forEach(TradingGUI::destroy);
 
+        // fix schedulers to be registered when this plugin is about to be disabled
+        if (!TradeSystem.getInstance().isEnabled()) return;
+
         // fix buggy inventories of other plugins that were opened while trading: close again later
         // fix black screens for bedrock players: run with higher delay >10
         Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().filter(FloodgateUtils::isNonBedrockPlayer).forEach(p -> {
