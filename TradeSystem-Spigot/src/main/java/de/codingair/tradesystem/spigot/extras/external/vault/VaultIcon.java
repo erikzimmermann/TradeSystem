@@ -42,18 +42,6 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
     }
 
     @Override
-    protected @NotNull TypeCap getMaxSupportedValue() {
-        return EconomySupportType.DOUBLE;
-    }
-
-    private Economy getEconomy() {
-        RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider != null) return economyProvider.getProvider();
-
-        throw new IllegalStateException("Vault is not enabled properly.");
-    }
-
-    @Override
     public @NotNull FinishResult tryFinish(@NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer, boolean initiationServer) {
         FinishResult result = super.tryFinish(trade, perspective, viewer, initiationServer);
 
@@ -66,7 +54,7 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
         // fix exceeding balance limits by testing deposit first
         double value = getOverallDifference(trade, perspective).doubleValue();
         if (value < 0) {
-            // withdrawal, check if possible
+            // withdrawal -> check if possible
             EconomyResponse response = getEconomy().withdrawPlayer(player, -value);
             if (!response.transactionSuccess()) {
                 // got an error -> cancel trade finish
@@ -76,7 +64,7 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
             // deposit money again
             getEconomy().depositPlayer(player, -value);
         } else if (value > 0) {
-            // deposit, check if possible
+            // deposit -> check if possible
             EconomyResponse response = getEconomy().depositPlayer(player, value);
             if (!response.transactionSuccess()) {
                 // got an error -> cancel trade finish
@@ -88,5 +76,17 @@ public class VaultIcon extends EconomyIcon<ShowVaultIcon> {
         }
 
         return result;
+    }
+
+    @Override
+    protected @NotNull TypeCap getMaxSupportedValue() {
+        return EconomySupportType.DOUBLE;
+    }
+
+    private Economy getEconomy() {
+        RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        if (economyProvider != null) return economyProvider.getProvider();
+
+        throw new IllegalStateException("Vault is not enabled properly.");
     }
 }
