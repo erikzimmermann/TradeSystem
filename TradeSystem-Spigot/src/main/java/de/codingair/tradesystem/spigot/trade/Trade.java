@@ -1388,6 +1388,6 @@ public abstract class Trade {
     @NotNull
     protected String getPlaceholderMessage(@NotNull Perspective perspective, @NotNull String message) {
         // Player with id 0 can be used as backup since we always have at least one player.
-        return Lang.get(message, getPlayerOpt(perspective).orElse(getPlayer(Perspective.PRIMARY)));
+        return Lang.get(message, getPlayerOpt(perspective).orElse(getPlayer(Perspective.PRIMARY)), new Lang.P("player", names[perspective.flip().id()]));
     }
 }
