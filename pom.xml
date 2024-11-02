@@ -6,7 +6,7 @@
 
     <groupId>de.codingair</groupId>
     <artifactId>TradeSystem</artifactId>
-    <version>2.6.2</version>
+    <version>2.6.2_Hotfix-1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -34,7 +34,7 @@
             <dependency>
                 <groupId>com.github.CodingAir</groupId>
                 <artifactId>CodingAPI</artifactId>
-                <version>1.88</version>
+                <version>1.89</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

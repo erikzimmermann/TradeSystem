@@ -11,6 +11,7 @@ import de.codingair.codingapi.player.gui.inventory.v2.exceptions.IsWaitingExcept
 import de.codingair.codingapi.player.gui.inventory.v2.exceptions.NoPageException;
 import de.codingair.codingapi.utils.ChatColor;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.events.TradeCountdownEvent;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
 import de.codingair.tradesystem.spigot.events.TradeItemEvent;
 import de.codingair.tradesystem.spigot.events.TradeReportEvent;
@@ -374,7 +375,8 @@ public abstract class Trade {
             countdown.cancel();
             countdownTicks = 0;
             countdown = null;
-            synchronizeTitle();
+            // rebuild since we may have modified inventories due to TradeCountdownEvent
+            guis().forEach(gui -> gui.getActive().rebuild());
         }
 
         subscribers.forEach(Runnable::run);
@@ -527,12 +529,13 @@ public abstract class Trade {
 
                 if (!ready[0] || !ready[1]) {
                     this.cancel();
-                    Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownStopSound(p));
+                    playCountDownStopSound();
                     countdownTicks = 0;
                     countdown = null;
 
                     subscribers.forEach(Runnable::run);
-                    guis().forEach(TradingGUI::synchronizeTitle);
+                    // rebuild since we may have modified inventories due to TradeCountdownEvent
+                    guis().forEach(gui -> gui.getActive().rebuild());
                     return;
                 }
 
@@ -545,6 +548,22 @@ public abstract class Trade {
                     return;
                 } else {
                     guis().forEach(TradingGUI::synchronizeTitle);
+
+                    // call countdown event to enable custom modifications to the inventory
+                    Trade.this.getViewers().forEach(p ->
+                            Bukkit.getPluginManager().callEvent(
+                                    new TradeCountdownEvent(
+                                            Trade.this,
+                                            getPerspective(p),
+                                            p,
+                                            p.getOpenInventory().getTopInventory(),
+                                            repetitions,
+                                            interval,
+                                            repetitions - countdownTicks
+                                    )
+                            )
+                    );
+
                     Trade.this.getViewers().forEach(p -> TradeSystem.handler().playCountdownTickSound(p));
                 }
 
@@ -1253,6 +1272,9 @@ public abstract class Trade {
 
         guis().forEach(TradingGUI::destroy);
 
+        // fix schedulers to be registered when this plugin is about to be disabled
+        if (!TradeSystem.getInstance().isEnabled()) return;
+
         // fix buggy inventories of other plugins that were opened while trading: close again later
         // fix black screens for bedrock players: run with higher delay >10
         UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
@@ -1370,6 +1392,6 @@ public abstract class Trade {
     @NotNull
     protected String getPlaceholderMessage(@NotNull Perspective perspective, @NotNull String message) {
         // Player with id 0 can be used as backup since we always have at least one player.
-        return Lang.get(message, getPlayerOpt(perspective).orElse(getPlayer(Perspective.PRIMARY)));
+        return Lang.get(message, getPlayerOpt(perspective).orElse(getPlayer(Perspective.PRIMARY)), new Lang.P("player", names[perspective.flip().id()]));
     }
 }

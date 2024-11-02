@@ -135,6 +135,16 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         return value;
     }
 
+    /**
+     * @param trade       The trade instance.
+     * @param perspective The perspective of the player.
+     * @return The value that is being displayed for the trade partner, therefore the value that is being offered for this player.
+     */
+    private @NotNull BigDecimal getShowValue(@NotNull Trade trade, @NotNull Perspective perspective) {
+        T show = trade.getLayout()[perspective.id()].getIcon(getTargetClass());
+        return show.getValue();
+    }
+
     @Override
     public void setValue(BigDecimal value) {
         this.value = value;
@@ -184,11 +194,8 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         BigDecimal diff = getOverallDifference(trade, perspective);
         int sign = diff.signum();
 
-        String fancyDiff = makeString(trade, perspective, viewer, diff, sign < 0);
-
         if (sign < 0) {
             withdraw(player, diff.negate());
-            log(trade, TradeLog.OFFERED_AMOUNT, trade.getNames()[perspective.id()], namePlural, fancyDiff);
         } else if (sign > 0) {
             deposit(player, diff);
 
@@ -199,7 +206,20 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
                     new TradeReceiveEconomyEvent(player, other, diff, nameSingular, namePlural) :
                     new TradeReceiveEconomyEvent(player, trade.getNames()[perspective.flip().id()], trade.getUniqueId(perspective.flip()), diff, nameSingular, namePlural);
             Bukkit.getPluginManager().callEvent(e);
+        }
 
+        // log absolute economy action
+        BigDecimal value = getValue();
+        if (value.signum() > 0) {
+            // offering
+            String fancyDiff = makeString(trade, perspective, player, value, true);
+            log(trade, TradeLog.OFFERED_AMOUNT, player.getName(), namePlural, fancyDiff);
+        }
+
+        value = getShowValue(trade, perspective);
+        if (value.signum() > 0) {
+            // receiving
+            String fancyDiff = makeString(trade, perspective, player, value, false);
             log(trade, TradeLog.RECEIVED_AMOUNT, player.getName(), namePlural, fancyDiff);
         }
     }
@@ -211,8 +231,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
      */
     @NotNull
     public BigDecimal getOverallDifference(@NotNull Trade trade, @NotNull Perspective perspective) {
-        T show = trade.getLayout()[perspective.id()].getIcon(getTargetClass());
-        return show.getValue().subtract(value);
+        return getShowValue(trade, perspective).subtract(value);
     }
 
     @NotNull
