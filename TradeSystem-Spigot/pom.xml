@@ -105,8 +105,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Deichor</groupId>
-            <artifactId>CodingAPI-Folia</artifactId>
+            <groupId>com.github.CodingAir</groupId>
+            <artifactId>CodingAPI</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -126,13 +126,6 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.41.2.2</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.Anon8281</groupId>
-            <artifactId>UniversalScheduler</artifactId>
-            <version>0.1.6</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
