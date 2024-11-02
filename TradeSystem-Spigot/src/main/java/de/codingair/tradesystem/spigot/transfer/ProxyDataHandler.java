@@ -1,6 +1,5 @@
 package de.codingair.tradesystem.spigot.transfer;
 
-import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.extras.blacklist.BlockedItem;
@@ -122,7 +121,6 @@ public class ProxyDataHandler implements PluginMessageListener {
         }
 
         return Objects.hash(
-                Version.get(),                                              // fix: java.lang.IllegalArgumentException: Newer version! Server downgrades are not supported!
                 patternHash,
                 cooldown,
                 TradeSystem.handler().isRevokeReadyOnChange(),
@@ -191,8 +189,8 @@ public class ProxyDataHandler implements PluginMessageListener {
 
     public void checkForServerName() {
         if (serverName != null) return;
-        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
-        () -> {
+
+        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
             if (serverName != null) return;
 
             Player player = Bukkit.getOnlinePlayers().stream().findAny().orElse(null);

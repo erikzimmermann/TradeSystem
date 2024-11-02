@@ -32,9 +32,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.Deichor</groupId>
-                <artifactId>CodingAPI-Folia</artifactId>
-                <version>006a666</version>
+                <groupId>com.github.CodingAir</groupId>
+                <artifactId>CodingAPI</artifactId>
+                <version>1.88</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
