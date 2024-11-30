@@ -6,10 +6,9 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This class represents the result of a trade. It contains all items and economy icons that were exchanged.
@@ -68,24 +67,24 @@ public class TradeResult {
      * @return All items that were received during the exchange.
      */
     @NotNull
-    public List<ItemStack> getReceivingItems() {
-        return receivingItems;
+    public @Unmodifiable List<ItemStack> getReceivingItems() {
+        return Collections.unmodifiableList(receivingItems);
     }
 
     /**
      * @return All items that were sent during the exchange.
      */
     @NotNull
-    public List<ItemStack> getSendingItems() {
-        return sendingItems;
+    public @Unmodifiable List<ItemStack> getSendingItems() {
+        return Collections.unmodifiableList(sendingItems);
     }
 
     /**
      * @return All (original) economy icons that were exchanged. Changing any values result in modified trades!
      */
     @NotNull
-    public List<EconomyIcon<?>> getEconomyIcons() {
-        return economyIcons;
+    public @Unmodifiable List<EconomyIcon<?>> getEconomyIcons() {
+        return Collections.unmodifiableList(economyIcons);
     }
 
     void add(@Nullable ItemStack item, boolean receive) {
