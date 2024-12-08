@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.trade.gui.editor;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
 import de.codingair.codingapi.player.gui.inventory.v2.Page;
 import de.codingair.codingapi.player.gui.inventory.v2.buttons.Button;
@@ -234,7 +235,8 @@ public class IconPage extends Page {
                             resetting = true;
                             updateItem(slot);
 
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> {
+                            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+                            () -> {
                                 resetting = false;
                                 updateItem(slot);
                             }, 10L);

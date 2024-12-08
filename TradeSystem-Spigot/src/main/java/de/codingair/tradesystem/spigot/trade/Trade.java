@@ -1,5 +1,7 @@
 package de.codingair.tradesystem.spigot.trade;
 
+import com.github.Anon8281.universalScheduler.UniversalRunnable;
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.API;
 import de.codingair.codingapi.player.gui.inventory.PlayerInventory;
 import de.codingair.codingapi.player.gui.inventory.v2.GUI;
@@ -41,7 +43,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public abstract class Trade {
 
     protected Pattern pattern;
     protected Listener pickupListener;
-    protected BukkitRunnable countdown = null;
+    protected UniversalRunnable countdown = null;
     protected int countdownTicks = 0;
     protected boolean cancelling = false;
 
@@ -381,7 +382,7 @@ public abstract class Trade {
         subscribers.forEach(Runnable::run);
 
         // update inventory a tick later to fix some visualization bugs
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().forEach(Player::updateInventory));
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(() -> this.getViewers().forEach(Player::updateInventory));
     }
 
     private boolean setReadyState(@NotNull Perspective perspective, boolean ready) {
@@ -407,7 +408,7 @@ public abstract class Trade {
      * @param delay The delay in ticks.
      */
     public void updateLater(long delay) {
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), this::update, delay);
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(this::update, delay);
     }
 
     /**
@@ -516,7 +517,7 @@ public abstract class Trade {
 
         int interval = TradeSystem.handler().getCountdownInterval();
         int repetitions = TradeSystem.handler().getCountdownRepetitions();
-        this.countdown = new BukkitRunnable() {
+        this.countdown = new UniversalRunnable() {
             @Override
             public void run() {
                 if (!isActive()) {
@@ -939,7 +940,8 @@ public abstract class Trade {
                             e.setCancelled(true);
                         else {
                             //player picked up an item, check trading items -> balance items of other trader
-                            Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> onItemPickUp(getPerspective(e.getPlayer())), 1);
+                            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+                            () -> onItemPickUp(getPerspective(e.getPlayer())), 1);
                         }
                     }
                 }
@@ -1275,17 +1277,19 @@ public abstract class Trade {
 
         // fix buggy inventories of other plugins that were opened while trading: close again later
         // fix black screens for bedrock players: run with higher delay >10
-        Bukkit.getScheduler().runTask(TradeSystem.getInstance(), () -> this.getViewers().filter(FloodgateUtils::isNonBedrockPlayer).forEach(p -> {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
+        () -> this.getViewers().filter(FloodgateUtils::isNonBedrockPlayer).forEach(p -> {
             p.closeInventory();
             p.updateInventory();
         }));
-        Bukkit.getScheduler().runTaskLater(TradeSystem.getInstance(), () -> this.getViewers().filter(FloodgateUtils::isBedrockPlayer).forEach(p -> {
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(
+                () -> this.getViewers().filter(FloodgateUtils::isBedrockPlayer).forEach(p -> {
             p.closeInventory();
             p.updateInventory();
         }), 30);
     }
 
-    public BukkitRunnable getCountdown() {
+    public UniversalRunnable getCountdown() {
         return countdown;
     }
 
