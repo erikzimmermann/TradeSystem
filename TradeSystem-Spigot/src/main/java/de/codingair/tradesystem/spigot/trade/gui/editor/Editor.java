@@ -224,7 +224,8 @@ public class Editor extends GUI {
                     layoutInventory.setItem(i, buildSlotCursor(icon, 1));
                 } else if (item != null) {
                     //add marker
-                    item.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+                    //noinspection deprecation
+                    item.addUnsafeEnchantment(Enchantment.values()[0], 1);
 
                     ItemMeta meta = item.getItemMeta();
                     assert meta != null;
@@ -269,8 +270,7 @@ public class Editor extends GUI {
         }
 
         builder.setAmount(amount);
-        builder.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-        builder.setHideEnchantments(true);
+        builder.addEnchantmentEffect();
 
         EditorInfo info = IconHandler.getInfo(icon);
         builder.setName("§c" + info.getName());

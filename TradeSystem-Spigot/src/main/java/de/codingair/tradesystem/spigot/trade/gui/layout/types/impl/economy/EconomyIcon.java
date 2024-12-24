@@ -163,7 +163,7 @@ public abstract class EconomyIcon<T extends Transition.Consumer<BigDecimal> & Tr
         layout.setName("§e" + getName(player, false) + ": §7" + makeString(trade, perspective, player, value, true));
 
         layout.addLore("", "§7» " + Lang.get("Click_To_Change", viewer));
-        if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+        if (value.signum() > 0) layout.addEnchantmentEffect();
 
         return layout;
     }

@@ -119,10 +119,7 @@ public class LayoutPage extends Page {
                     ItemBuilder builder = value.getItem();
                     builder.setName(Editor.ITEM_TITLE_COLOR + value.getName());
 
-                    if (isPageActive()) {
-                        builder.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-                        builder.setHideEnchantments(true);
-                    }
+                    if (isPageActive()) builder.addEnchantmentEffect();
 
                     return builder.getItem();
                 }

@@ -26,7 +26,7 @@ public abstract class ShowEconomyIcon extends SimpleShowIcon<BigDecimal> impleme
     @Override
     public @NotNull ItemBuilder prepareItemStack(@NotNull ItemBuilder layout, @NotNull Trade trade, @NotNull Perspective perspective, @NotNull Player viewer) {
         layout.setName("§e" + getName(viewer) + ": §7" + makeString(trade, perspective, viewer, value));
-        if (value.signum() > 0) layout.addEnchantment(Enchantment.DAMAGE_ALL, 1).setHideEnchantments(true);
+        if (value.signum() > 0) layout.addEnchantmentEffect();
 
         return layout;
     }

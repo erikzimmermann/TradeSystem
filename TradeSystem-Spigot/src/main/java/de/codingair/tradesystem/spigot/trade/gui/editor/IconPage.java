@@ -121,10 +121,7 @@ public class IconPage extends Page {
                     }
                 }
 
-                if (addMarker) {
-                    builder.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-                    builder.setHideEnchantments(true);
-                }
+                if (addMarker) builder.addEnchantmentEffect();
 
                 builder.setName(Editor.ITEM_TITLE_COLOR + editorInfo.getName() + (done ? "§r §a✔" : ""));
                 builder.addLore("");
