@@ -183,7 +183,7 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         log("MC-Version: " + Version.fullVersion());
         log(" ");
 
-        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(runnable);
+        runnable.run();
 
         log(" ");
         log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
