@@ -147,18 +147,18 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         UniversalScheduler.getScheduler(this).cancelTasks();
 
         printConsoleInfo(() -> {
-            this.tradeHandler.disable();
+            tradeHandler.disable();
 
-            this.tradeCMD.unregister();
-            this.tradeSystemCMD.unregister();
-            if (this.tradeLogCMD != null) this.tradeLogCMD.unregister();
+            if (tradeCMD != null) tradeCMD.unregister();
+            if (tradeSystemCMD != null) tradeSystemCMD.unregister();
+            if (tradeLogCMD != null) tradeLogCMD.unregister();
 
             //unregister packet channels
-            if (this.spigotHandler != null) this.spigotHandler.onDisable();
-            this.proxyDataHandler.onDisable();
+            if (spigotHandler != null) spigotHandler.onDisable();
+            proxyDataHandler.onDisable();
 
             HandlerList.unregisterAll(this);
-            this.fileManager.destroy();
+            fileManager.destroy();
 
             PluginDependencies.disable();
 
