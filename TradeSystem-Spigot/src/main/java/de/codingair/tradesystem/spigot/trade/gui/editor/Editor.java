@@ -20,6 +20,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.Decorat
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlot;
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.IconData;
+import de.codingair.tradesystem.spigot.utils.CompatibilityUtilEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -402,7 +403,7 @@ public class Editor extends GUI {
                     if (callback != null) {
                         e.setCancelled(true);
 
-                        if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null) {
+                        if (CompatibilityUtilEvent.getTopInventory(e).equals(e.getClickedInventory()) && e.getCurrentItem() != null) {
                             Class<? extends TradeIcon> icon = icons.get(e.getSlot());
                             //trade slots don't contain any items
                             if (icon != null && TradeSlot.class.isAssignableFrom(icon)) return;
@@ -425,7 +426,7 @@ public class Editor extends GUI {
                         }
                     } else {
                         //setting trade slots
-                        if (!e.getView().getTopInventory().equals(e.getClickedInventory())) e.setCancelled(true);
+                        if (!CompatibilityUtilEvent.getTopInventory(e).equals(e.getClickedInventory())) e.setCancelled(true);
                         else {
                             Class<? extends TradeIcon> current = icons.get(e.getSlot());
                             if (current != null && !setting.equals(current)) {
@@ -438,7 +439,7 @@ public class Editor extends GUI {
                     }
                 } else {
                     Class<? extends TradeIcon> icon;
-                    if (e.getView().getTopInventory().equals(e.getClickedInventory()) && e.getCurrentItem() != null && (icon = icons.remove(e.getSlot())) != null) {
+                    if (CompatibilityUtilEvent.getTopInventory(e).equals(e.getClickedInventory()) && e.getCurrentItem() != null && (icon = icons.remove(e.getSlot())) != null) {
                         //remove marker
                         cleanItem(e.getSlot(), icon);
                     }

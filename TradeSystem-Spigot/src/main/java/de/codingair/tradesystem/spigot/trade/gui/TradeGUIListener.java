@@ -9,8 +9,8 @@ import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.trade.Trade;
 import de.codingair.tradesystem.spigot.trade.gui.layout.shulker.ShulkerPeekGUI;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
+import de.codingair.tradesystem.spigot.utils.CompatibilityUtilEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -158,7 +158,7 @@ public class TradeGUIListener implements Listener {
     }
 
     private boolean checkForShulkerBoxes(@NotNull InventoryClickEvent event, @NotNull Trade trade, @NotNull Player player, @NotNull Perspective perspective) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory) {
             boolean ownSlots = trade.getSlots().contains(event.getSlot());
             if (ownSlots) {

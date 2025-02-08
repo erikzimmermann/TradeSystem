@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.trade.gui;
 
 import de.codingair.codingapi.server.specification.Version;
 import de.codingair.codingapi.utils.Value;
+import de.codingair.tradesystem.spigot.utils.CompatibilityUtilEvent;
 import de.codingair.tradesystem.spigot.utils.EntityItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -73,8 +74,8 @@ public class Actions {
         public static Configuration DEFAULT() {
             return new Configuration(
                     Function.identity(),
-                    e -> IntStream.range(0, e.getView().getTopInventory().getSize()).collect(ArrayList::new, ArrayList::add, ArrayList::addAll),
-                    (e, slot) -> InventoryMask.of(e.getView().getTopInventory()),
+                    e -> IntStream.range(0, CompatibilityUtilEvent.getTopInventory(e).getSize()).collect(ArrayList::new, ArrayList::add, ArrayList::addAll),
+                    (e, slot) -> InventoryMask.of(CompatibilityUtilEvent.getTopInventory(e)),
                     true,
                     (item, slot) -> true
             );
@@ -98,7 +99,7 @@ public class Actions {
      * @return Whether the top inventory was changed.
      */
     public static boolean projectResult(@NotNull InventoryDragEvent event, @NotNull Configuration configuration) {
-        int topSize = event.getView().getTopInventory().getSize();
+        int topSize = CompatibilityUtilEvent.getTopInventory(event).getSize();
 
         boolean onlyInBottom = event.getRawSlots().stream().allMatch(i -> i >= topSize);
         if (onlyInBottom) return false;
@@ -135,7 +136,7 @@ public class Actions {
 
             // only add item to mask if it is not the top inventory (since the top inventory
             // will be updated by the event itself)
-            if (inventory.equals(event.getView().getTopInventory())) continue;
+            if (inventory.equals(CompatibilityUtilEvent.getTopInventory(event))) continue;
 
             inventory.setItem(configuration.slotMapper.apply(e.getKey() % topSize), e.getValue());
         }
@@ -201,7 +202,7 @@ public class Actions {
     }
 
     private static boolean handlePickUp(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
@@ -214,7 +215,7 @@ public class Actions {
                 ItemStack cursor = event.getCursor();
 
                 if (nullOrAir(cursor)) {
-                    event.getView().setCursor(currentItem);
+                    CompatibilityUtilEvent.setCursor(event, currentItem);
                     if (topInventory) {
                         inventory.setItem(slot, null);
                         changed = true;
@@ -248,7 +249,7 @@ public class Actions {
                     else event.setCurrentItem(null);
                 }
 
-                event.getView().setCursor(copy);
+                CompatibilityUtilEvent.setCursor(event,copy);
                 changed = topInventory;
                 break;
             }
@@ -257,7 +258,7 @@ public class Actions {
                 if (nullOrAir(currentItem)) break;
 
                 if (currentItem.getAmount() == 1) {
-                    event.getView().setCursor(currentItem);
+                    CompatibilityUtilEvent.setCursor(event,currentItem);
                     if (topInventory) {
                         inventory.setItem(slot, null);
                         changed = true;
@@ -266,7 +267,7 @@ public class Actions {
                     ItemStack copy = currentItem.clone();
                     copy.setAmount(1);
 
-                    event.getView().setCursor(copy);
+                    CompatibilityUtilEvent.setCursor(event,copy);
                     currentItem.setAmount(currentItem.getAmount() - 1);
                     changed = topInventory;
                 }
@@ -280,7 +281,7 @@ public class Actions {
     }
 
     private static boolean handlePlace(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
@@ -289,7 +290,7 @@ public class Actions {
         switch (event.getAction()) {
             case PLACE_SOME:
             case PLACE_ALL: {
-                ItemStack cursor = event.getView().getCursor();
+                ItemStack cursor = CompatibilityUtilEvent.getCursor(event);
                 if (nullOrAir(cursor)) break;
 
                 if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
@@ -298,7 +299,7 @@ public class Actions {
                 if (!nullOrAir(currentItem)) {
                     if (cursor.isSimilar(currentItem)) {
                         if (place(currentItem, cursor, cursor.getAmount())) {
-                            if (cursor.getAmount() == 0) event.getView().setCursor(null);
+                            if (cursor.getAmount() == 0) CompatibilityUtilEvent.setCursor(event,null);
                             changed = topInventory;
                         }
                     }
@@ -307,14 +308,14 @@ public class Actions {
                         inventory.setItem(slot, cursor);
                         changed = true;
                     } else event.setCurrentItem(cursor);
-                    event.getView().setCursor(null);
+                    CompatibilityUtilEvent.setCursor(event,null);
                 }
 
                 break;
             }
 
             case PLACE_ONE: {
-                ItemStack cursor = event.getView().getCursor();
+                ItemStack cursor = CompatibilityUtilEvent.getCursor(event);
                 if (nullOrAir(cursor)) break;
 
                 if (topInventory && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(cursor), Collections.singletonList(event.getSlot())))
@@ -323,7 +324,7 @@ public class Actions {
                 if (!nullOrAir(currentItem)) {
                     if (cursor.isSimilar(currentItem)) {
                         if (place(currentItem, cursor, 1)) {
-                            if (cursor.getAmount() == 0) event.getView().setCursor(null);
+                            if (cursor.getAmount() == 0) CompatibilityUtilEvent.setCursor(event,null);
                             changed = topInventory;
                         }
                     }
@@ -333,7 +334,7 @@ public class Actions {
                     cursor.setAmount(cursor.getAmount() - 1);
                     copy.setAmount(1);
 
-                    if (cursor.getAmount() == 0) event.getView().setCursor(null);
+                    if (cursor.getAmount() == 0)  CompatibilityUtilEvent.setCursor(event,null);
 
                     if (topInventory) {
                         inventory.setItem(slot, copy);
@@ -350,7 +351,7 @@ public class Actions {
     }
 
     private static boolean handleDrop(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         // 1. drop item
@@ -377,7 +378,7 @@ public class Actions {
                     ItemStack item = event.getCursor();
                     if (nullOrAir(item)) break;
 
-                    event.getView().setCursor(null);
+                    CompatibilityUtilEvent.setCursor(event,null);
                     break;
                 }
 
@@ -389,7 +390,7 @@ public class Actions {
                     copy.setAmount(1);
 
                     item.setAmount(item.getAmount() - 1);
-                    if (item.getAmount() == 0) event.getView().setCursor(null);
+                    if (item.getAmount() == 0)  CompatibilityUtilEvent.setCursor(event,null);
                     break;
                 }
 
@@ -484,7 +485,7 @@ public class Actions {
         sortByAmount(cursor, target, inventory);
         boolean changed = false;
 
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory || configuration.collectFromBothInventories) {
             for (int slot : target) {
                 if (collectTo(inventory, slot, cursor)) break;
@@ -492,9 +493,9 @@ public class Actions {
             }
         }
 
-        boolean bottomInventory = event.getView().getBottomInventory().equals(event.getClickedInventory());
+        boolean bottomInventory = CompatibilityUtilEvent.getBottomInventory(event).equals(event.getClickedInventory());
         if (bottomInventory || configuration.collectFromBothInventories) {
-            Inventory bottom = event.getView().getBottomInventory();
+            Inventory bottom = CompatibilityUtilEvent.getBottomInventory(event);
             InventoryMask mask = InventoryMask.of(bottom);
 
             target = IntStream
@@ -525,12 +526,12 @@ public class Actions {
     }
 
     private static boolean handleSwap(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         int switchTo = event.getHotbarButton();
-        ItemStack switched = event.getView().getBottomInventory().getItem(switchTo);
+        ItemStack switched = CompatibilityUtilEvent.getBottomInventory(event).getItem(switchTo);
         boolean changed = false;
 
         if (topInventory && switched != null && !configuration.isItemAllowedInInventory.apply(Collections.singletonList(switched), Collections.singletonList(event.getSlot())))
@@ -541,13 +542,13 @@ public class Actions {
             inventory.setItem(slot, switched);
             changed = true;
         } else event.setCurrentItem(switched);
-        event.getView().getBottomInventory().setItem(switchTo, currentItem);
+        CompatibilityUtilEvent.getBottomInventory(event).setItem(switchTo, currentItem);
 
         return changed;
     }
 
     private static boolean handleMove(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
@@ -559,7 +560,7 @@ public class Actions {
 
         if (topInventory) {
             int amountBefore = clickedItem.getAmount();
-            ItemStack left = event.getView().getBottomInventory().addItem(clickedItem).values().stream().findAny().orElse(null);
+            ItemStack left = CompatibilityUtilEvent.getBottomInventory(event).addItem(clickedItem).values().stream().findAny().orElse(null);
             if (nullOrAir(left)) {
                 inventory.setItem(slot, null);
                 changed = true;
@@ -602,17 +603,17 @@ public class Actions {
         if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE && event.getWhoClicked().getGameMode() != GameMode.SPECTATOR)
             return;
 
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
 
         if (nullOrAir(clickedItem)) return;
         ItemStack copy = clickedItem.clone();
         copy.setAmount(copy.getMaxStackSize());
-        event.getView().setCursor(copy);
+        CompatibilityUtilEvent.setCursor(event,copy);
     }
 
     private static boolean handleExchange(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
-        boolean topInventory = event.getView().getTopInventory().equals(event.getClickedInventory());
+        boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
         if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
@@ -626,7 +627,7 @@ public class Actions {
             inventory.setItem(slot, cursor);
             changed = true;
         } else event.setCurrentItem(cursor);
-        event.getView().setCursor(clickedItem);
+        CompatibilityUtilEvent.setCursor(event,clickedItem);
 
         return changed;
     }
