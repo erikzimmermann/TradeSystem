@@ -33,6 +33,7 @@ import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSl
 import de.codingair.tradesystem.spigot.trade.gui.layout.types.impl.basic.TradeSlotOther;
 import de.codingair.tradesystem.spigot.trade.gui.layout.utils.Perspective;
 import de.codingair.tradesystem.spigot.trade.subscribe.PlayerSubscriber;
+import de.codingair.tradesystem.spigot.utils.CompatibilityUtilPlayer;
 import de.codingair.tradesystem.spigot.utils.FloodgateUtils;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
@@ -556,7 +557,7 @@ public abstract class Trade {
                                             Trade.this,
                                             getPerspective(p),
                                             p,
-                                            p.getOpenInventory().getTopInventory(),
+                                            CompatibilityUtilPlayer.getTopInventory(p),
                                             repetitions,
                                             interval,
                                             repetitions - countdownTicks
@@ -897,10 +898,10 @@ public abstract class Trade {
      * @return True, if the player dropped the item.
      */
     private boolean moveCursorItemToInventory(@NotNull Player player) {
-        ItemStack item = player.getOpenInventory().getCursor();
+        ItemStack item = CompatibilityUtilPlayer.getCursor(player);
         if (item != null && item.getType() != Material.AIR) {
             boolean dropped = addOrDropItem(player, item);
-            player.getOpenInventory().setCursor(null);
+            CompatibilityUtilPlayer.setCursor(player,null);
             return dropped;
         } else return false;
     }
@@ -918,7 +919,7 @@ public abstract class Trade {
         }
 
         //placeholder
-        ItemStack cursor = player.getOpenInventory().getCursor();
+        ItemStack cursor = CompatibilityUtilPlayer.getCursor(player);
         if (cursor != null) {
             if (!inv.addItem(cursor, false)) return false;
         }
