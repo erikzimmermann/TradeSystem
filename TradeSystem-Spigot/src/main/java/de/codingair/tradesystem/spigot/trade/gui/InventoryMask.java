@@ -47,12 +47,14 @@ public interface InventoryMask {
         return new InventoryMask() {
             @Override
             public void setItem(int slot, @Nullable ItemStack item) {
+                if (slot >= inventory.getSize()) return;
                 inventory.setItem(slot, item);
             }
 
             @Nullable
             @Override
             public ItemStack getItem(int slot) {
+                if (slot >= inventory.getSize()) return null;
                 return inventory.getItem(slot);
             }
 
