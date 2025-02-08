@@ -80,6 +80,14 @@ public class Actions {
                     (item, slot) -> true
             );
         }
+
+        /**
+         * @param event The InventoryClickEvent which raw slot is compared to the given target slots of this configuration.
+         * @return True, if the raw slot of the click event is contained in the given target slots of this configuration.
+         */
+        public boolean isTargetSlot(@NotNull InventoryClickEvent event) {
+            return targetSlots.apply(event).contains(event.getRawSlot());
+        }
     }
 
     /**
@@ -195,7 +203,7 @@ public class Actions {
 
     private static boolean handlePickUp(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
@@ -274,7 +282,7 @@ public class Actions {
 
     private static boolean handlePlace(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;
@@ -344,7 +352,7 @@ public class Actions {
 
     private static boolean handleDrop(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         // 1. drop item
         // 2. check PlayerDropItemEvent
@@ -519,7 +527,7 @@ public class Actions {
 
     private static boolean handleSwap(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack currentItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         int switchTo = event.getHotbarButton();
@@ -541,7 +549,7 @@ public class Actions {
 
     private static boolean handleMove(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         if (nullOrAir(clickedItem)) return false;
@@ -606,7 +614,7 @@ public class Actions {
 
     private static boolean handleExchange(@NotNull InventoryClickEvent event, @NotNull InventoryMask inventory, int slot, @NotNull Configuration configuration) {
         boolean topInventory = CompatibilityUtilEvent.getTopInventory(event).equals(event.getClickedInventory());
-        if (topInventory && !configuration.targetSlots.apply(event).contains(event.getRawSlot())) return false;
+        if (topInventory && !configuration.isTargetSlot(event)) return false;
 
         ItemStack clickedItem = topInventory ? inventory.getItem(slot) : event.getCurrentItem();
         boolean changed = false;

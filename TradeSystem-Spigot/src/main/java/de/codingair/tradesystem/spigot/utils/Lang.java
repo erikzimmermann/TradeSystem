@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 
 public class Lang {
     private static final String[] LANGUAGES = {
-            "BR", "CHI", "CS", "ENG", "ES", "FR", "GER", "IT", "POL", "RUS", "TR", "UA", "VI"
+            "BR", "CHI", "CS", "ENG", "ES", "FR", "GER", "IT", "POL", "RUS", "TR", "UA", "VI", "JA"
     };
     private static final String DEFAULT_LANG = "ENG";
     private static final Map<String, JavaPlugin> PLUGINS = new HashMap<>();

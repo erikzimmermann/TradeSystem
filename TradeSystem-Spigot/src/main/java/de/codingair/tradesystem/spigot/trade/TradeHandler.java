@@ -256,16 +256,27 @@ public class TradeHandler {
         invitationManager.stopExpirationHandler();
     }
 
+    @Nullable
     private SoundData getSound(String name, FileConfiguration config, String def) {
         try {
             String sound = config.getString("TradeSystem.Sounds." + name + ".Name", def);
             assert sound != null;
 
+            // check for native sounds first
             Optional<Sound> opt = Sound.matchXSound(sound);
-            return opt.map(value -> new SoundData(value,
+            if (opt.isPresent()) {
+                return opt.map(value -> new SoundData(value,
+                        (float) config.getDouble("TradeSystem.Sounds." + name + ".Volume", 0.6),
+                        (float) config.getDouble("TradeSystem.Sounds." + name + ".Pitch", 1.0))
+                ).get();
+            }
+
+            // then use custom sound names
+            return new SoundData(
+                    sound,
                     (float) config.getDouble("TradeSystem.Sounds." + name + ".Volume", 0.6),
-                    (float) config.getDouble("TradeSystem.Sounds." + name + ".Pitch", 1.0))
-            ).orElse(null);
+                    (float) config.getDouble("TradeSystem.Sounds." + name + ".Pitch", 1.0)
+            );
         } catch (Exception ignored) {
             return null;
         }

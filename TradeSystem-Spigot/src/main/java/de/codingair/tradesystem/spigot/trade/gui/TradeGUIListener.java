@@ -78,7 +78,44 @@ public class TradeGUIListener implements Listener {
         }
     }
 
-    //use higher priority than the GUI listener
+    // Use the lowest priority to mark this inventory click event as canceled for other plugins if the user tries to
+    // interact with a forbidden slot.
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onForbiddenClick(InventoryClickEvent e) {
+        if (e.getWhoClicked() instanceof Player) {
+            Player player = (Player) e.getWhoClicked();
+            Trade trade = TradeSystem.handler().getTrade(player);
+
+            if (trade != null && trade.inMainGUI(player)) {
+                Perspective perspective = trade.getPerspective(player);
+
+                boolean topInventory = e.getView().getTopInventory().equals(e.getClickedInventory());
+                boolean ownSlots = getConfiguration(player, trade, perspective).isTargetSlot(e);
+                boolean forbidden = topInventory && !ownSlots;
+                if (forbidden) e.setCancelled(true);
+            }
+        }
+    }
+
+    // Use the lowest priority to mark this inventory click event as canceled for other plugins if the user tries to
+    // interact with a forbidden slot.
+    @EventHandler
+    public void onShulkerBoxClick(InventoryClickEvent e) {
+        if (e.getWhoClicked() instanceof Player) {
+            Player player = (Player) e.getWhoClicked();
+            Trade trade = TradeSystem.handler().getTrade(player);
+
+            if (trade != null && trade.inMainGUI(player)) {
+                // check shulker box first because this event might already be cancelled
+                Perspective perspective = trade.getPerspective(player);
+                if (checkForShulkerBoxes(e, trade, player, perspective)) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    // use higher priority than the GUI listener
     @EventHandler(priority = EventPriority.HIGH)
     public void onClick(InventoryClickEvent e) {
         if (e.getWhoClicked() instanceof Player) {
@@ -92,10 +129,8 @@ public class TradeGUIListener implements Listener {
                 // cancel everything and project changes later
                 e.setCancelled(true);
 
-                Perspective perspective = trade.getPerspective(player);
-                if (checkForShulkerBoxes(e, trade, player, perspective)) return;
-
                 // project click event on trading GUI directly to allow modifications in another listener
+                Perspective perspective = trade.getPerspective(player);
                 boolean offerChange = Actions.projectResult(e, getConfiguration(player, trade, perspective));
                 handleResult(offerChange, trade, perspective);
             }
