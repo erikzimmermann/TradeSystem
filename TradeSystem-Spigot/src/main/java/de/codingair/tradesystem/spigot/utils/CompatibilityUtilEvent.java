@@ -2,6 +2,7 @@ package de.codingair.tradesystem.spigot.utils;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -41,6 +42,17 @@ public class CompatibilityUtilEvent {
     }
 
     public static void setCursor(InventoryClickEvent event, ItemStack currentItem) {
+        try {
+            Object view = event.getView();
+            Method setCursor = view.getClass().getMethod("setCursor", ItemStack.class);
+            setCursor.setAccessible(true);
+            setCursor.invoke(view, currentItem);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException("Failed to set cursor in InventoryView", e);
+        }
+    }
+
+    public static void setCursor(InventoryOpenEvent event, ItemStack currentItem) {
         try {
             Object view = event.getView();
             Method setCursor = view.getClass().getMethod("setCursor", ItemStack.class);

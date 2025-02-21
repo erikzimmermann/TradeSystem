@@ -13,6 +13,7 @@ import de.codingair.codingapi.tools.Callback;
 import de.codingair.codingapi.tools.items.ItemBuilder;
 import de.codingair.codingapi.tools.items.XMaterial;
 import de.codingair.tradesystem.spigot.TradeSystem;
+import de.codingair.tradesystem.spigot.utils.CompatibilityUtilEvent;
 import de.codingair.tradesystem.spigot.utils.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -51,7 +52,7 @@ public class ItemStackEnterGUI extends GUI {
             @EventHandler (priority = EventPriority.HIGH)
             public void onClose(InventoryClickEvent e) {
                 if (player.equals(e.getWhoClicked())) {
-                    if (e.getSlot() == INPUT_SLOT || e.getView().getBottomInventory().equals(e.getClickedInventory())) {
+                    if (e.getSlot() == INPUT_SLOT || CompatibilityUtilEvent.getBottomInventory(e).equals(e.getClickedInventory())) {
                         e.setCancelled(false);
                         UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> getActive().updateItem(ACCEPT_SLOT), 1);
                     }
