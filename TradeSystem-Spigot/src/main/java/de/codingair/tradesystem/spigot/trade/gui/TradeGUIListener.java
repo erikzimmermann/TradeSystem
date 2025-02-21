@@ -89,7 +89,7 @@ public class TradeGUIListener implements Listener {
             if (trade != null && trade.inMainGUI(player)) {
                 Perspective perspective = trade.getPerspective(player);
 
-                boolean topInventory = e.getView().getTopInventory().equals(e.getClickedInventory());
+                boolean topInventory = CompatibilityUtilEvent.getTopInventory(e).equals(e.getClickedInventory());
                 boolean ownSlots = getConfiguration(player, trade, perspective).isTargetSlot(e);
                 boolean forbidden = topInventory && !ownSlots;
                 if (forbidden) e.setCancelled(true);
