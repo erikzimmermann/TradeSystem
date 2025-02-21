@@ -40,6 +40,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -366,7 +367,7 @@ public class Editor extends GUI {
                 if (isSlotIcon()) {
                     assert setting != null;
                     int amount = 26 - countIcon(setting);
-                    UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> e.getView().setCursor(buildSlotCursor(setting, amount)), 1);
+                    UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskLater(() -> CompatibilityUtilEvent.setCursor(e,buildSlotCursor(setting, amount)), 1);
                 }
 
                 open = true;
@@ -469,7 +470,13 @@ public class Editor extends GUI {
             private void closing(InventoryView view) {
                 if (isSlotIcon()) {
                     ItemStack cursor = buildSlotCursor(setting, 1);
-                    view.setCursor(null);
+
+                    try {
+                        Method setCursorMethod = InventoryView.class.getDeclaredMethod("setCursor", ItemStack.class);
+                        setCursorMethod.invoke(view, (Object) null);
+                    } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                        throw new RuntimeException("Failed to set cursor in InventoryView", e);
+                    }
 
                     icons.entrySet().removeIf(e -> e.getValue().equals(setting) && layoutInventory.getItem(e.getKey()) == null);
                     for (int slot = 0; slot < layoutInventory.getContents().length; slot++) {
