@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7Il giocatore &c%player% &7vuole fare un scambiare con 
 Want_To_Trade_Accept: '&aAccetta'
 Want_To_Trade_Deny: '&cRifiuta'
 Want_To_Trade_Hover: '&8» Clicca «'
+Want_To_Trade_Hover_Accept: '&8» Clicca «'
+Want_To_Trade_Hover_Deny: '&8» Clicca «'
 Player_Is_Invited: '&7Il giocatore &c%player% &7è statp invitato.'
 Command_How_To: '&7Usa: /trade <giocatore, accept, deny, toggle>'
 Command_How_To_Accept: '&7Usa: /trade accept <giocatore>'

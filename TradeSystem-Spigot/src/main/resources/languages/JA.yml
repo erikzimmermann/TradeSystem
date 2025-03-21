@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7プレイヤー &c%player% &7があなたと取引し�
 Want_To_Trade_Accept: '&a承認'
 Want_To_Trade_Deny: '&c拒否'
 Want_To_Trade_Hover: '&8» クリック «'
+Want_To_Trade_Hover_Accept: '&8» クリック «'
+Want_To_Trade_Hover_Deny: '&8» クリック «'
 Player_Is_Invited: '&7プレイヤー &c%player% &7が招待されました'
 Command_How_To: '&7使用方法: /trade <player, accept, deny, toggle>'
 Command_How_To_Accept: '&7使用方法: /trade accept <Player>'
