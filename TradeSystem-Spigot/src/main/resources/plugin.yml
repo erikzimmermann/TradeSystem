@@ -1,5 +1,5 @@
 name: TradeSystem
-author: CodingAir
+author: [ CodingAir, CoolLord22]
 version: "${project.version}"
 description: A beautiful way to trade with other players.
 main: de.codingair.tradesystem.spigot.TradeSystem
