@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&c%player% &7adlı oyuncu seninle takas yapmak istiyor. 
 Want_To_Trade_Accept: '&aKabul et'
 Want_To_Trade_Deny: '&cReddet'
 Want_To_Trade_Hover: '&8» Tıkla «'
+Want_To_Trade_Hover_Accept: '&8» Tıkla «'
+Want_To_Trade_Hover_Deny: '&8» Tıkla «'
 Player_Is_Invited: '&c%player% &7adlı oyuncuya istek gönderildi.'
 Command_How_To: '&7Komut: /trade <oyuncu adı, accept, deny, toggle>'
 Command_How_To_Accept: '&7Komut: /trade accept <Player>'

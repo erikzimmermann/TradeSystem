@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7Người chơi &c%player% &7muốn giao dịch với b
 Want_To_Trade_Accept: '&aĐồng ý'
 Want_To_Trade_Deny: '&cTừ chối'
 Want_To_Trade_Hover: '&8» Nhấp vào «'
+Want_To_Trade_Hover_Accept: '&8» Nhấp vào «'
+Want_To_Trade_Hover_Deny: '&8» Nhấp vào «'
 Player_Is_Invited: '&7Người chơi &c%player% &7được mời.'
 Command_How_To: '&7Dùng: /trade <player, accept, deny, toggle>'
 Command_How_To_Accept: '&7Dùng: /trade accept <Người chơi>'

@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7玩家&c%player%&7想要和你交易. &8[&7/trade &8<&
 Want_To_Trade_Accept: '&a接受'
 Want_To_Trade_Deny: '&c拒绝'
 Want_To_Trade_Hover: '&8» 点击 «'
+Want_To_Trade_Hover_Accept: '&8» 点击 «'
+Want_To_Trade_Hover_Deny: '&8» 点击 «'
 Player_Is_Invited: '&7已邀请玩家&c%player%&7.'
 Command_How_To: '&7使用: /trade <玩家名, accept, deny, toggle>进行交易'
 Command_How_To_Accept: '&7使用: /trade accept <玩家名>接受交易请求'

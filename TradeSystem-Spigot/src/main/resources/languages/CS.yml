@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7Hráč &c%player% &7chce s vámi obchodovat. &8[&7/tra
 Want_To_Trade_Accept: '&aPřijmout'
 Want_To_Trade_Deny: '&cOdmítnout'
 Want_To_Trade_Hover: '&8» Klikni «'
+Want_To_Trade_Hover_Accept: '&8» Klikni «'
+Want_To_Trade_Hover_Deny: '&8» Klikni «'
 Player_Is_Invited: '&7Hráč &c%player% &7 dostal pozvánku k obchodu.'
 Command_How_To: '&7Zadej: /trade <player, accept, deny, toggle>'
 Command_How_To_Accept: '&7Zadej: /trade accept <JménoHráče>'

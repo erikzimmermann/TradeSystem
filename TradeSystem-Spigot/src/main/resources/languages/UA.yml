@@ -12,6 +12,8 @@ Want_To_Trade_Bedrock: '&7Гравець &c%player% &7хоче провести 
 Want_To_Trade_Accept: '&aПрийняти'
 Want_To_Trade_Deny: '&cВідхилити'
 Want_To_Trade_Hover: '&8» Натисніть «'
+Want_To_Trade_Hover_Accept: '&8» Натисніть «'
+Want_To_Trade_Hover_Deny: '&8» Натисніть «'
 Player_Is_Invited: '&7Гравець &c%player% &7запрошений.'
 Command_How_To: '&7Використання: /trade <player, accept, deny, toggle>'
 Command_How_To_Accept: '&7Використання: /trade accept <гравця>'

@@ -85,11 +85,11 @@ public class RequestManager {
 
         TextComponent accept = new TextComponent(Lang.get("Want_To_Trade_Accept", recipient, new Lang.P("player", player)));
         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, commandAccept + " " + player));
-        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", recipient))}));
+        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover_Accept", recipient))}));
 
         TextComponent deny = new TextComponent(Lang.get("Want_To_Trade_Deny", recipient, new Lang.P("player", player)));
         deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, commandDeny + " " + player));
-        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover", recipient))}));
+        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.BaseComponent[] {new TextComponent(Lang.get("Want_To_Trade_Hover_Deny", recipient))}));
 
         message.replace("%accept%", accept);
         message.replace("%deny%", deny);
