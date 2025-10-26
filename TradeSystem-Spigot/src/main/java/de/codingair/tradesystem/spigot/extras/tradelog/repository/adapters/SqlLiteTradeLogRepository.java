@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -20,15 +21,31 @@ public class SqlLiteTradeLogRepository implements TradeLogRepository {
 
     @Override
     public void registerOrUpdatePlayer(@NotNull UUID uuid, @NotNull String name) throws Exception {
-        String sql = "INSERT INTO trade_players(uuid, name) VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET name=?;";
+        String insertSql = "INSERT INTO trade_players(name, uuid) VALUES(?,?);";
+        String updateSql = "UPDATE trade_players SET name = ? WHERE id = ?;";
 
-        try (Connection con = SqlLiteConnection.connect();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, uuid.toString());
-            pstmt.setString(2, name);
-            pstmt.setString(3, name);
+        try (Connection con = SqlLiteConnection.connect(); ) {
+            int id = -1;
+            try(PreparedStatement stmt = con.prepareStatement("SELECT id FROM trade_players WHERE uuid = ?")) {
+                stmt.setString(1, uuid.toString());
+                ResultSet rs = stmt.executeQuery();
+                if(rs.next()) {
+                    id = rs.getInt("id");
+                }
+            }
 
-            pstmt.executeUpdate();
+            try(PreparedStatement pstmt = con.prepareStatement(id == -1 ? insertSql : updateSql)) {
+                pstmt.setString(1, name);
+
+                if(id == -1) {
+                    pstmt.setString(2, uuid.toString());
+                } else {
+                    pstmt.setInt(2, id);
+                }
+
+                pstmt.executeUpdate();
+            }
+
         }
     }
 

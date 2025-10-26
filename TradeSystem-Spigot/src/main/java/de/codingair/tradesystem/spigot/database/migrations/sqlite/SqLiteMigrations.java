@@ -28,10 +28,9 @@ public class SqLiteMigrations extends SqlMigrations {
 
     @Override
     public void setVersion(@NotNull Connection connection, @NotNull String user, int version) throws Exception {
-        try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO migrations VALUES (?, ?) ON CONFLICT(user) DO UPDATE SET version=?;")) {
+        try (PreparedStatement stmt = connection.prepareStatement("INSERT OR REPLACE INTO migrations VALUES (?, ?);")) {
             stmt.setString(1, user);
             stmt.setInt(2, version);
-            stmt.setInt(3, version);
             stmt.executeUpdate();
         }
     }

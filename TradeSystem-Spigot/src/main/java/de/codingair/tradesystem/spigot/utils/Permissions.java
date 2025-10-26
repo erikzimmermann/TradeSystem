@@ -26,12 +26,9 @@ public class Permissions {
         };
 
         if (firstSetup) {
-            UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(
-            () -> {
-                if (!findPermissionsPlugin()) disableInConfig();
-                UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(runnable);
-            });
-        } else UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTask(runnable);
+            if (!findPermissionsPlugin()) disableInConfig();
+            runnable.run();
+        } else runnable.run();
     }
 
     private static boolean findPermissionsPlugin() {

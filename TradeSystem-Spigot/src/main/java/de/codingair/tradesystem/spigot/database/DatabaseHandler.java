@@ -2,13 +2,13 @@ package de.codingair.tradesystem.spigot.database;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.codingapi.files.ConfigFile;
+import de.codingair.codingapi.server.specification.Version;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.database.migrations.SqlMigrations;
 import de.codingair.tradesystem.spigot.database.migrations.mysql.MySQLConnection;
 import de.codingair.tradesystem.spigot.database.migrations.mysql.MysqlMigrations;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqLiteMigrations;
 import de.codingair.tradesystem.spigot.database.migrations.sqlite.SqlLiteConnection;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +23,20 @@ public class DatabaseHandler {
         loadType();
 
         TradeSystem.log("  > Queuing database initializing task");
+
+        if(Version.before(9)) {
+            // Load and register drivers manually
+            try {
+                Class.forName("org.sqlite.JDBC");
+            } catch(Exception ignored) {
+            }
+
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+            } catch(Exception ignored) {
+            }
+        }
+
         UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskAsynchronously(
         new Runnable() {
             @Override
