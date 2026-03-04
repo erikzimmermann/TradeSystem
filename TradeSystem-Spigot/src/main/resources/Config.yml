@@ -116,6 +116,21 @@ TradeSystem:
   TradeLog:
     # The bukkit logger works additionally to the database logging.
     Bukkit_logger: false
+    # Save trade logs to text files in the 'logs' folder (files named by date: yyyy-MM-dd.txt)
+    # This works independently of the database logging.
+    log-trade-files: false
+    # Configure what information should be logged to the files
+    log-filters:
+      # Log when a trade is started
+      log-trade-started: false
+      # Log when a trade is successfully finished
+      log-trade-finished: false
+      # Log when a trade is cancelled (with or without reason)
+      log-trade-cancelled: false
+      # Log when players offer items during the trade
+      log-items-offered: false
+      # Log when players receive items after trade completion
+      log-items-received: false
 
   # Sound names can be found here: https://github.com/CodingAir/CodingAPI/tree/master/src/main/java/de/codingair/codingapi/server/sounds/Sound.java
   Sounds:

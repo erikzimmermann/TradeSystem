@@ -51,12 +51,19 @@ public class TradeLogService {
     }
 
     public static void logLater(@NotNull String player1, @NotNull String player2, @Nullable String message, long delay) {
-        if (message == null || !connected()) return;
+        if (message == null) return;
 
         Runnable runnable = () -> {
             if (getTradeLog().bukkitLogger)
                 Bukkit.getLogger().info("TradeLog [" + player1 + ", " + player2 + "] " + message);
-            getTradeLogRepository().log(player1, player2, message);
+
+            // Log to file if enabled
+            FileTradeLogger.getInstance().log(player1, player2, message);
+
+            // Log to database if connected
+            if (connected()) {
+                getTradeLogRepository().log(player1, player2, message);
+            }
         };
 
         //it will throw an error if the plugin is not enabled

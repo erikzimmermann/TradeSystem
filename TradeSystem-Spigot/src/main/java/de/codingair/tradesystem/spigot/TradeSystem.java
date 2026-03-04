@@ -146,6 +146,9 @@ public class TradeSystem extends JavaPlugin implements Proxy {
         API.getInstance().onDisable(this);
         UniversalScheduler.getScheduler(this).cancelTasks();
 
+        // Shutdown file logger gracefully
+        de.codingair.tradesystem.spigot.extras.tradelog.FileTradeLogger.getInstance().shutdown();
+
         printConsoleInfo(() -> {
             tradeHandler.disable();
 
