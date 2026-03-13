@@ -1,5 +1,6 @@
 package de.codingair.tradesystem.spigot.extras.external.placeholderapi;
 
+import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import de.codingair.tradesystem.spigot.TradeSystem;
 import de.codingair.tradesystem.spigot.events.TradeFinishEvent;
 import de.codingair.tradesystem.spigot.extras.external.PluginDependency;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +29,7 @@ public class PlaceholderDependency implements PluginDependency, Listener {
     static final String IDENTIFIER = "tradesystem";
     static final Pattern PATTERN = Pattern.compile("%" + IDENTIFIER + "_[a-z_]+%", Pattern.CASE_INSENSITIVE);
     private TradeSystemPlaceholder placeholder;
-    private static final Map<UUID, Long> successfulTrades = new HashMap<>();
+    private static final Map<UUID, Long> successfulTrades = new ConcurrentHashMap<>();
 
     public PlaceholderDependency() {
         instance = this;
@@ -43,8 +45,10 @@ public class PlaceholderDependency implements PluginDependency, Listener {
 
     @EventHandler
     public void onLogin(AsyncPlayerPreLoginEvent e) {
-        long trades = TradeLogService.count(e.getName(), TradeLog.FINISHED.get());
-        if (trades > 0) successfulTrades.put(e.getUniqueId(), trades);
+        UniversalScheduler.getScheduler(TradeSystem.getInstance()).runTaskAsynchronously(() ->{
+            long trades = TradeLogService.count(e.getName(), TradeLog.FINISHED.get());
+            if (trades > 0) successfulTrades.put(e.getUniqueId(), trades);
+        });
     }
 
     @EventHandler
