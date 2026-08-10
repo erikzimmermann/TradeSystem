@@ -1,0 +1,6 @@
+jdk:
+  - openjdk21
+before_install:
+  - sdk install maven
+install:
+  - mvn install -DskipTests=true
