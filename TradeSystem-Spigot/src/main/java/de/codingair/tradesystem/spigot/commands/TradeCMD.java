@@ -42,6 +42,26 @@ public class TradeCMD extends CommandBuilder {
             }
         }.setOnlyPlayers(true), true, Arrays.copyOfRange(aliases, 1, aliases.length));
 
+        //PREVIEW
+        getBaseComponent().addChild(new CommandComponent("preview") {
+            @Override
+            public boolean runCommand(CommandSender sender, String label, String[] args) {
+                if (!sender.hasPermission(Permissions.PERMISSION_PREVIEW)) {
+                    Lang.send(sender, "§c", "No_Permissions");
+                    return true;
+                }
+
+                Player player = (Player) sender;
+                if (TradeSystem.handler().isTrading(player)) {
+                    Lang.send(player, "§c", "Not_Able_To_Trade");
+                    return true;
+                }
+
+                TradeSystem.handler().startPreviewTrade(player);
+                return true;
+            }
+        });
+
         //TOGGLE
         for (String cmd : commandManager.getToggleAliases()) {
             getBaseComponent().addChild(new CommandComponent(cmd) {

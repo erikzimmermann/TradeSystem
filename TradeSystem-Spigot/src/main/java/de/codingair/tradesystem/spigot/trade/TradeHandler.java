@@ -369,6 +369,27 @@ public class TradeHandler {
         trade.start();
     }
 
+    /**
+     * Starts a preview trade for a single player to test the GUI layout.
+     *
+     * @param player The player who starts the preview.
+     */
+    public void startPreviewTrade(@NotNull Player player) {
+        if (TradeSystem.handler().isTrading(player)) {
+            Lang.send(player, "Other_is_already_trading");
+            return;
+        }
+
+        player.closeInventory();
+
+        PreviewTrade trade = new PreviewTrade(player);
+
+        //register
+        registerTrade(trade, player.getName());
+
+        trade.start();
+    }
+
     private void registerTrade(@NotNull Trade trade, @NotNull String player) {
         this.trades.put(player.toLowerCase(), trade);
     }
