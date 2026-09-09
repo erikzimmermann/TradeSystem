@@ -32,15 +32,16 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TradeHandler {
     /**
      * Allow disconnected players to reconnect with same options, so they don't have to disable trade requests again.
      */
-    private final Set<String> offline = new HashSet<>();
+    private final Set<String> offline = ConcurrentHashMap.newKeySet();
     private boolean tradeProxy = false;
 
-    private final HashMap<String, Trade> trades = new HashMap<>();
+    private final Map<String, Trade> trades = new ConcurrentHashMap<>();
 
     private final List<BlockedItem> blacklist = new ArrayList<>();
     private final InvitationManager invitationManager = new InvitationManager();
@@ -606,8 +607,13 @@ public class TradeHandler {
         return tradeReportEconomy;
     }
 
+    @Deprecated
     public HashMap<String, Trade> getTrades() {
-        return trades;
+        return new HashMap<>(this.trades);
+    }
+
+    public Map<String, Trade> trades() {
+        return this.trades;
     }
 
     public boolean tradeProxy() {
