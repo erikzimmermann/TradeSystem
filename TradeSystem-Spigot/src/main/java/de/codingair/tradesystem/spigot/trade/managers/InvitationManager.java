@@ -17,12 +17,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InvitationManager {
     /**
      * receiver name to invitations from others
      */
-    private final Map<String, Map<String, Invitation>> invitations = new HashMap<>();
+    private final Map<String, Map<String, Invitation>> invitations = new ConcurrentHashMap<>();
     private MyScheduledTask expirationHandler = null;
 
     public void startExpirationHandler() {

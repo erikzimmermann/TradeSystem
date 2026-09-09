@@ -18,26 +18,27 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class ProxyDataHandler implements PluginMessageListener {
     //abbreviation to case-sensitive name
-    private final Map<String, String> cache = new HashMap<>();
+    private final Map<String, String> cache = new ConcurrentHashMap<>();
 
     /**
      * lower-case to case-sensitive
      */
-    private final HashMap<String, String> players = new HashMap<>();
+    private final Map<String, String> players = new ConcurrentHashMap<>();
 
     /**
      * lower-case name to uuid
      */
-    private final HashMap<String, UUID> uuids = new HashMap<>();
+    private final Map<String, UUID> uuids = new ConcurrentHashMap<>();
 
     /**
      * lower-case name to skinId
      */
-    private final HashMap<String, String> skins = new HashMap<>();
+    private final Map<String, String> skins = new ConcurrentHashMap<>();
     private String tradeProxyVersion = null;
     private String serverName = null;
     private boolean noticedAboutTradeProxy = false;
